@@ -169,7 +169,7 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(wname+ii);
 			addObject(obj);
 	    }
-	    /*
+
 	    String pname = "platform";
 		JsonValue platjv = constants.get("platforms");
 	    for (int ii = 0; ii < platjv.size; ii++) {
@@ -183,7 +183,10 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setTexture(earthTile);
 			obj.setName(pname+ii);
 			addObject(obj);
-	    }*/
+	    }
+
+	    //NEW TILE PLATFORMS
+		/*
 
 	    String tlpname = "tutorial light platform";
 		JsonValue lightplatjv = constants.get("tutorial light platform");
@@ -213,7 +216,7 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(tdpname+jj);
 			addObject(obj);
 	    }
-
+		*/
 
 	    // This world is heavier
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
@@ -401,13 +404,13 @@ public class PlatformController extends WorldController implements ContactListen
 			}
 
 			// See if we have landed on the ground.
-			if ((avatar.getSensorName().equals(fd2) && avatar != bd1 && (tile1 == 0 || tile1 == 3)) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2 && (tile2 == 0|| tile2 == 3))) {
+			if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
+				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 				avatar.setGrounded(true);
 				sensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
 			}
-			if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && (tile1 == 1) || tile1 == 3) ||
-					(phobia.getSensorName().equals(fd1) && phobia != bd2 && (tile2 == 1 || tile2 == 3))) {
+			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
+					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
 				sensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
 			}
