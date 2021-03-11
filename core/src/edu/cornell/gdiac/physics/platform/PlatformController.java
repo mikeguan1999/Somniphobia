@@ -10,6 +10,7 @@
  */
 package edu.cornell.gdiac.physics.platform;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.audio.*;
@@ -242,9 +243,10 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void update(float dt) {
 		// Process actions in object model
-		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
-		avatar.setJumping(InputController.getInstance().didPrimary());
-		avatar.setShooting(InputController.getInstance().didSecondary());
+		InputController inputController = InputController.getInstance();
+		avatar.setMovement(inputController.getHorizontal() *avatar.getForce());
+		avatar.setJumping(inputController.didJump());
+		avatar.setShooting(inputController.didDash());
 		
 		// Add a bullet if we fire
 		if (avatar.isShooting()) {
@@ -255,6 +257,11 @@ public class PlatformController extends WorldController implements ContactListen
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
 	    }
+
+	    if(InputController.getInstance().didDash()) {
+	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
+			System.out.println("Dash in direction " + dashDirection.toString());
+		}
 	}
 
 	/**
