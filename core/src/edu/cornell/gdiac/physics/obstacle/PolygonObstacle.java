@@ -53,7 +53,9 @@ public class PolygonObstacle extends SimpleObstacle {
 	private Vector2 sizeCache;
 	/** Cache of the polygon vertices (for resizing) */
 	private float[] vertices;
-	
+
+	/** Type of platform where 0 is light, 1 is dark, 2 is both*/
+	private int type;
 	/** 
 	 * Returns the dimensions of this box
 	 *
@@ -126,7 +128,25 @@ public class PolygonObstacle extends SimpleObstacle {
 		sizeCache.set(dimension.x,value);
 		setDimension(sizeCache);
 	}
-	
+
+	/**
+	 * Returns the box type
+	 *
+	 * @return the box type
+	 */
+	public int getType() {
+		return type;
+	}
+
+	/**
+	 * Sets the box type
+	 *
+	 * @param value  the box type
+	 */
+	public void setType(int value) {
+		type = value;
+	}
+
 	/**
 	 * Creates a (not necessarily convex) polygon at the origin.
 	 *
@@ -138,7 +158,7 @@ public class PolygonObstacle extends SimpleObstacle {
 	 * @param points   The polygon vertices
 	 */
 	public PolygonObstacle(float[] points) {
-		this(points, 0, 0);
+		this(points, 0, 0, 0);
 	}
 
 	/**
@@ -153,7 +173,7 @@ public class PolygonObstacle extends SimpleObstacle {
 	 * @param x  Initial x position of the polygon center
 	 * @param y  Initial y position of the polygon center
 	 */
-	public PolygonObstacle(float[] points, float x, float y) {
+	public PolygonObstacle(float[] points, float x, float y, int t) {
 		super(x, y);
 		assert points.length % 2 == 0;
 		
@@ -329,7 +349,13 @@ public class PolygonObstacle extends SimpleObstacle {
 		texture = value;
 		region = new PolygonRegion(texture,scaled,tridx);
 	}
-	
+
+	/**
+	 * checks if v is the same as the texture
+	 */
+	public boolean sameTexture(TextureRegion v){
+		return v.equals(texture);
+	}
     /**
      * Sets the drawing scale for this physics object
      *
