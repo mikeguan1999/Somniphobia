@@ -273,23 +273,6 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setFilterData(phobiaplatf);
 		addObject(phobia);
 
-		/*
-		// Create rope bridge
-		dwidth  = bridgeTexture.getRegionWidth()/scale.x;
-		dheight = bridgeTexture.getRegionHeight()/scale.y;
-		RopeBridge bridge = new RopeBridge(constants.get("bridge"), dwidth, dheight);
-		bridge.setTexture(bridgeTexture);
-		bridge.setDrawScale(scale);
-		addObject(bridge);
-		
-		// Create spinning platform
-		dwidth  = barrierTexture.getRegionWidth()/scale.x;
-		dheight = barrierTexture.getRegionHeight()/scale.y;
-		Spinner spinPlatform = new Spinner(constants.get("spinner"),dwidth,dheight);
-		spinPlatform.setDrawScale(scale);
-		spinPlatform.setTexture(barrierTexture);
-		addObject(spinPlatform);
-		*/
 		volume = constants.getFloat("volume", 1.0f);
 	}
 	
@@ -333,11 +316,7 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.setMovement(inputController.getHorizontal() *avatar.getForce());
 		avatar.setJumping(inputController.didJump());
 		avatar.setShooting(inputController.didDash());
-		
-		// Add a bullet if we fire
-		if (avatar.isShooting()) {
-			createBullet();
-		}
+
 		
 		avatar.applyForce();
 	    if (avatar.isJumping()) {
@@ -348,42 +327,6 @@ public class PlatformController extends WorldController implements ContactListen
 	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
 			System.out.println("Dash in direction " + dashDirection.toString());
 		}
-	}
-
-	/**
-	 * Add a new bullet to the world and send it in the right direction.
-	 */
-	private void createBullet() {
-		JsonValue bulletjv = constants.get("bullet");
-		float offset = bulletjv.getFloat("offset",0);
-		offset *= (avatar.isFacingRight() ? 1 : -1);
-		float radius = bulletTexture.getRegionWidth()/(2.0f*scale.x);
-		WheelObstacle bullet = new WheelObstacle(avatar.getX()+offset, avatar.getY(), radius);
-		
-	    bullet.setName("bullet");
-		bullet.setDensity(bulletjv.getFloat("density", 0));
-	    bullet.setDrawScale(scale);
-	    bullet.setTexture(bulletTexture);
-	    bullet.setBullet(true);
-	    bullet.setGravityScale(0);
-		
-		// Compute position and velocity
-		float speed = bulletjv.getFloat( "speed", 0 );
-		speed  *= (avatar.isFacingRight() ? 1 : -1);
-		bullet.setVX(speed);
-		addQueuedObject(bullet);
-
-		fireId = playSound( fireSound, fireId );
-	}
-	
-	/**
-	 * Remove a new bullet from the world.
-	 *
-	 * @param  bullet   the bullet to remove
-	 */
-	public void removeBullet(Obstacle bullet) {
-	    bullet.markRemoved(true);
-	    plopId = playSound( plopSound, plopId );
 	}
 
 	
@@ -412,14 +355,6 @@ public class PlatformController extends WorldController implements ContactListen
 			int tile1 = -1;
 			int tile2 = -1;
 
-			// Test bullet collision with world
-			if (bd1.getName().equals("bullet") && bd2 != avatar) {
-		        removeBullet(bd1);
-			}
-
-			if (bd2.getName().equals("bullet") && bd1 != avatar) {
-		        removeBullet(bd2);
-			}
 
 			// See if we have landed on the ground.
 			if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
