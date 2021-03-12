@@ -73,7 +73,11 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 
+	/** Are characters currently holding hands */
+	private boolean holdingHands;
 
+
+	private final float HAND_HOLDING_DISTANCE = 2f;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 //	protected ObjectSet<Fixture> sensorFixtures;
@@ -102,6 +106,7 @@ public class PlatformController extends WorldController implements ContactListen
 //		sensorFixtures = new ObjectSet<Fixture>();
 		lightSensorFixtures = new ObjectSet<Fixture>();
 		darkSensorFixtures = new ObjectSet<Fixture>();
+		holdingHands = false;
 	}
 
 	/**
@@ -300,7 +305,7 @@ public class PlatformController extends WorldController implements ContactListen
 			return false;
 		}
 		
-		if (!isFailure() && avatar.getY() < -1) {
+		if (!isFailure() && somni.getY() < -1 || phobia.getY() < -1) {
 			setFailure(true);
 			return false;
 		}
@@ -330,15 +335,17 @@ public class PlatformController extends WorldController implements ContactListen
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
 	    }
-
 	    // Check if switched
 		if(inputController.didSwitch()) {
 			System.out.println("Switch Characters");
 			//Switch active character
 			avatar = avatar == somni ? phobia : somni;
 		}
-
-
+		//Check if hand holding
+		if(inputController.didHoldHands()) {
+			System.out.println("Holding Hands");
+			handleHoldingHands();
+		}
 	    // Check if dashed
 	    if(inputController.didDash()) {
 	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
@@ -346,6 +353,18 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 	}
 
+	/**
+	 * Allow Somni and Phobia to hold hands if within range
+	 */
+	private void handleHoldingHands() {
+		if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
+			System.out.println("close enough to hold hands!");
+		}
+	}
+
+	private float distance(float x1, float y1, float x2, float y2) {
+		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	}
 	
 	/**
 	 * Callback method for the start of a collision
