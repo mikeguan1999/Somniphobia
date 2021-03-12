@@ -70,7 +70,9 @@ public class PlatformController extends WorldController implements ContactListen
 	private BoxObstacle goalDoor;
 
 	/** Mark set to handle more sophisticated collision callbacks */
-	protected ObjectSet<Fixture> sensorFixtures;
+//	protected ObjectSet<Fixture> sensorFixtures;
+	protected ObjectSet<Fixture> lightSensorFixtures;
+	protected ObjectSet<Fixture> darkSensorFixtures;
 
 	//Platform logic
 	/** This values so light only interacts with light and dark only interacts with dark*/
@@ -91,7 +93,9 @@ public class PlatformController extends WorldController implements ContactListen
 		setComplete(false);
 		setFailure(false);
 		world.setContactListener(this);
-		sensorFixtures = new ObjectSet<Fixture>();
+//		sensorFixtures = new ObjectSet<Fixture>();
+		lightSensorFixtures = new ObjectSet<Fixture>();
+		darkSensorFixtures = new ObjectSet<Fixture>();
 	}
 
 	/**
@@ -324,7 +328,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void update(float dt) {
 		// Process actions in object model
-		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
+		avatar.setMovement(InputController.getInstance().getHorizontal() * avatar.getForce());
 		avatar.setJumping(InputController.getInstance().didPrimary());
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		
@@ -414,12 +418,12 @@ public class PlatformController extends WorldController implements ContactListen
 			if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 				avatar.setGrounded(true);
-				sensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
+				lightSensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
 			}
 			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
-				sensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
+				darkSensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
 			}
 			
 			// Check for win condition
@@ -455,15 +459,17 @@ public class PlatformController extends WorldController implements ContactListen
 
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-			sensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
-			if (sensorFixtures.size == 0) {
+			lightSensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
+			if (lightSensorFixtures.size == 0) {
 				avatar.setGrounded(false);
+
+
 			}
 		}
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 				(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
-			sensorFixtures.remove(phobia == bd1 ? fix2 : fix1);
-			if (sensorFixtures.size == 0) {
+			darkSensorFixtures.remove(phobia == bd1 ? fix2 : fix1);
+			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
 			}
 		}
