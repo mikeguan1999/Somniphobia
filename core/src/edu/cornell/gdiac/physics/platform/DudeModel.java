@@ -59,7 +59,9 @@ public class DudeModel extends CapsuleObstacle {
 	private boolean isShooting;
 	/** The physics shape of this object */
 	private PolygonShape sensorShape;
-	
+	/** Filter of the model*/
+	private Filter filter;
+
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
 
@@ -91,7 +93,8 @@ public class DudeModel extends CapsuleObstacle {
 			faceRight = true;
 		}
 	}
-	
+
+
 	/**
 	 * Returns true if the dude is actively firing.
 	 *
@@ -208,7 +211,7 @@ public class DudeModel extends CapsuleObstacle {
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
 	 */
-	public DudeModel(JsonValue data, float width, float height) {
+	public DudeModel(JsonValue data, float width, float height, Filter f) {
 		// The shrink factors fit the image to a tigher hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),
@@ -226,6 +229,7 @@ public class DudeModel extends CapsuleObstacle {
 		shotLimit = data.getInt( "shot_cool", 0 );
 		sensorName = "DudeGroundSensor";
 		this.data = data;
+		filter = f;
 
 		// Gameplay attributes
 		isGrounded = false;
@@ -270,6 +274,8 @@ public class DudeModel extends CapsuleObstacle {
 		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
 								 sensorjv.getFloat("height",0), sensorCenter, 0.0f);
 		sensorDef.shape = sensorShape;
+		sensorDef.filter.categoryBits = filter.categoryBits;
+		sensorDef.filter.maskBits = filter.maskBits;
 
 		// Ground sensor to represent our feet
 		Fixture sensorFixture = body.createFixture( sensorDef );
