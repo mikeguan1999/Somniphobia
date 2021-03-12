@@ -159,9 +159,11 @@ public class PlatformController extends WorldController implements ContactListen
 		Filter somniplatf = new Filter();
 		somniplatf.categoryBits = somnishort;
 		somniplatf.maskBits = lightplatformshort;
+		somniplatf.groupIndex = 011;
 		Filter phobiaplatf = new Filter();
 		phobiaplatf.categoryBits = phobiashort;
 		phobiaplatf.maskBits = darkplatformshort;
+		phobiaplatf.groupIndex = 011;
 		Filter allf = new Filter();
 		allf.groupIndex = 011;
 
