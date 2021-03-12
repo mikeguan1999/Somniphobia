@@ -53,7 +53,8 @@ public class PolygonObstacle extends SimpleObstacle {
 	private Vector2 sizeCache;
 	/** Cache of the polygon vertices (for resizing) */
 	private float[] vertices;
-	
+
+
 	/** 
 	 * Returns the dimensions of this box
 	 *
@@ -126,7 +127,9 @@ public class PolygonObstacle extends SimpleObstacle {
 		sizeCache.set(dimension.x,value);
 		setDimension(sizeCache);
 	}
-	
+
+
+
 	/**
 	 * Creates a (not necessarily convex) polygon at the origin.
 	 *
@@ -156,7 +159,6 @@ public class PolygonObstacle extends SimpleObstacle {
 	public PolygonObstacle(float[] points, float x, float y) {
 		super(x, y);
 		assert points.length % 2 == 0;
-		
 		// Compute the bounds.
 		initShapes(points);
 		initBounds();
@@ -329,7 +331,13 @@ public class PolygonObstacle extends SimpleObstacle {
 		texture = value;
 		region = new PolygonRegion(texture,scaled,tridx);
 	}
-	
+
+	/**
+	 * checks if v is the same as the texture
+	 */
+	public boolean sameTexture(TextureRegion v){
+		return v.equals(texture);
+	}
     /**
      * Sets the drawing scale for this physics object
      *

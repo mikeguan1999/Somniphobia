@@ -1,56 +1,66 @@
 {
-	"textures": {
-        "shared:earth" : {
-            "file":  "shared/earthtile.png",
-            "wrapU": "repeated",
-            "wrapV": "repeated"
-        },
-        "shared:goal":   "shared/goaldoor.png",
-        "rocket:rocket": "rocket/rocket.png",
-        "rocket:main":  {
-            "file" : "rocket/flames.png",
-            "sprites" : {
-                "fire": {
-                    "rows": 1,
-                    "cols": 4
-                }
-            }
-        },
-        "rocket:left": {
-            "file" : "rocket/flames-left.png",
-            "sprites" : {
-                "fire": {
-                    "rows": 1,
-                    "cols": 4
-                }
-            }
-        },
-        "rocket:right": {
-            "file" : "rocket/flames-right.png",
-            "sprites" : {
-                "fire": {
-                    "rows": 1,
-                    "cols": 4
-                }
-            }
-        },
-        "rocket:crate01": "rocket/crate01.png",
-        "rocket:crate02": "rocket/crate02.png",
-        "platform:dude":  "platform/dude.png",
-        "platform:rope":  "platform/ropebridge.png",
-        "platform:barrier": "platform/barrier.png",
-        "platform:bullet":  "platform/bullet.png",
-        "ragdoll:bubble": "ragdoll/bubble.png",
-        "ragdoll:torso":  "ragdoll/tux_body.png",
-        "ragdoll:head":   "ragdoll/ProfWhite.png",
-        "ragdoll:thigh":  "ragdoll/tux_thigh.png",
-        "ragdoll:shin":   "ragdoll/tux_shin.png",
-        "ragdoll:arm":    "ragdoll/tux_arm.png",
-        "ragdoll:forearm":    "ragdoll/tux_forearm.png",
-        "ragdoll:crosshair":  "ragdoll/crosshair.png",
-        "ragdoll:foreground": "ragdoll/foreground.png",
-        "ragdoll:background": "ragdoll/background.png"
+  "textures": {
+    "shared:earth": {
+      "file": "shared/earthtile.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
     },
+    "shared:dark": {
+      "file": "shared/darktile.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:light": {
+      "file": "shared/lighttile.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:goal": "shared/goaldoor.png",
+    "rocket:rocket": "rocket/rocket.png",
+    "rocket:main": {
+      "file": "rocket/flames.png",
+      "sprites": {
+        "fire": {
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
+    "rocket:left": {
+      "file": "rocket/flames-left.png",
+      "sprites": {
+        "fire": {
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
+    "rocket:right": {
+      "file": "rocket/flames-right.png",
+      "sprites": {
+        "fire": {
+          "rows": 1,
+          "cols": 4
+        }
+      }
+    },
+    "rocket:crate01": "rocket/crate01.png",
+    "rocket:crate02": "rocket/crate02.png",
+    "platform:dude": "platform/dude.png",
+    "platform:rope": "platform/ropebridge.png",
+    "platform:barrier": "platform/barrier.png",
+    "platform:bullet": "platform/bullet.png",
+    "ragdoll:bubble": "ragdoll/bubble.png",
+    "ragdoll:torso": "ragdoll/tux_body.png",
+    "ragdoll:head": "ragdoll/ProfWhite.png",
+    "ragdoll:thigh": "ragdoll/tux_thigh.png",
+    "ragdoll:shin": "ragdoll/tux_shin.png",
+    "ragdoll:arm": "ragdoll/tux_arm.png",
+    "ragdoll:forearm": "ragdoll/tux_forearm.png",
+    "ragdoll:crosshair": "ragdoll/crosshair.png",
+    "ragdoll:foreground": "ragdoll/foreground.png",
+    "ragdoll:background": "ragdoll/background.png"
+  },
     "jsons"  : {
         "rocket:constants":  "rocket/constants.json",
         "platform:constants": "platform/constants.json",
