@@ -190,7 +190,7 @@ public class InputController {
 		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.Z);
 		dashPressed = Gdx.input.isKeyPressed(Input.Keys.X);
 		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);
-		switchPressed = Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET);
+		switchPressed = Gdx.input.isKeyPressed(Input.Keys.D);
 				exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 
 		// Directional controls
