@@ -62,6 +62,9 @@ public class DudeModel extends CapsuleObstacle {
 	/** Filter of the model*/
 	private Filter filter;
 
+	public static final boolean LIGHT = true;
+	public static final boolean DARK = false;
+
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
 
@@ -211,7 +214,7 @@ public class DudeModel extends CapsuleObstacle {
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
 	 */
-	public DudeModel(JsonValue data, float width, float height, Filter f) {
+	public DudeModel(JsonValue data, float width, float height, Filter f, boolean type) {
 		// The shrink factors fit the image to a tigher hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),
@@ -227,7 +230,7 @@ public class DudeModel extends CapsuleObstacle {
 		jump_force = data.getFloat( "jump_force", 0 );
 		jumpLimit = data.getInt( "jump_cool", 0 );
 		shotLimit = data.getInt( "shot_cool", 0 );
-		sensorName = "DudeGroundSensor";
+		sensorName = type == LIGHT? "SomniSensor": "PhobiaSensor";
 		this.data = data;
 		filter = f;
 
