@@ -187,26 +187,29 @@ public class InputController {
 		// Give priority to gamepad results
 		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
-		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.E) || Gdx.input.isKeyPressed(Input.Keys.O);
-		dashPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
-		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
+		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.Z);
+		dashPressed = Gdx.input.isKeyPressed(Input.Keys.X);
+		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);
 		switchPressed = Gdx.input.isKeyPressed(Input.Keys.Q) || Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET);
 				exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 
 		// Directional controls
+
+
+
 		horizontal = 0.0f;
-		if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.APOSTROPHE)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 			horizontal += 1.0f;
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.L)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			horizontal -= 1.0f;
 		}
-		
+
 		vertical = 0.0f;
-		if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.P)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			vertical += 1.0f;
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.SEMICOLON)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
 			vertical -= 1.0f;
 		}
 
