@@ -63,12 +63,17 @@ public class PlatformController extends WorldController implements ContactListen
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
-	/** Reference to the character avatar */
+	/** Reference to the active character avatar */
 	private DudeModel avatar;
-	/** Reference to Phobia*/
+
+	/** Reference to Somni DudeModel*/
+	private DudeModel somni;
+	/** Reference to Phobia DudeModel*/
 	private DudeModel phobia;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
+
+
 
 	/** Mark set to handle more sophisticated collision callbacks */
 //	protected ObjectSet<Fixture> sensorFixtures;
@@ -258,20 +263,23 @@ public class PlatformController extends WorldController implements ContactListen
 		// Create dude
 		dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new DudeModel(constants.get("dude"), dwidth, dheight, somniplatf);
-		avatar.setDrawScale(scale);
-		avatar.setTexture(avatarTexture);
-		avatar.setFilterData(somniplatf);
-		addObject(avatar);
+		somni = new DudeModel(constants.get("dude"), dwidth, dheight, somniplatf, DudeModel.LIGHT);
+		somni.setDrawScale(scale);
+		somni.setTexture(avatarTexture);
+		somni.setFilterData(somniplatf);
+		addObject(somni);
 
 		// Create Phobia
 		dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		dheight = avatarTexture.getRegionHeight()/scale.y;
-		phobia = new DudeModel(constants.get("phobia"), dwidth, dheight, phobiaplatf);
+		phobia = new DudeModel(constants.get("phobia"), dwidth, dheight, phobiaplatf, DudeModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(avatarTexture);
 		phobia.setFilterData(phobiaplatf);
 		addObject(phobia);
+
+		//Set current avatar to somni
+		avatar = somni;
 
 		volume = constants.getFloat("volume", 1.0f);
 	}
@@ -323,7 +331,16 @@ public class PlatformController extends WorldController implements ContactListen
 	    	jumpId = playSound( jumpSound, jumpId, volume );
 	    }
 
-	    if(InputController.getInstance().didDash()) {
+	    // Check if switched
+		if(inputController.didSwitch()) {
+			System.out.println("Switch Characters");
+			//Switch active character
+			avatar = avatar == somni ? phobia : somni;
+		}
+
+
+	    // Check if dashed
+	    if(inputController.didDash()) {
 	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
 			System.out.println("Dash in direction " + dashDirection.toString());
 		}
@@ -357,15 +374,16 @@ public class PlatformController extends WorldController implements ContactListen
 
 
 			// See if we have landed on the ground.
-			if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-				avatar.setGrounded(true);
-				lightSensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
+			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
+				(somni.getSensorName().equals(fd1) && somni != bd2)) {
+				somni.setGrounded(true);
+				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+
 			}
 			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
-				darkSensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
+				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
 			}
 			
 			// Check for win condition
@@ -399,18 +417,21 @@ public class PlatformController extends WorldController implements ContactListen
 		Object bd1 = body1.getUserData();
 		Object bd2 = body2.getUserData();
 
-		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-			lightSensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
+		if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
+			(somni.getSensorName().equals(fd1) && somni != bd2)) {
+
+			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
+
 			if (lightSensorFixtures.size == 0) {
-				avatar.setGrounded(false);
+				somni.setGrounded(false);
 
 
 			}
 		}
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 				(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
-			darkSensorFixtures.remove(phobia == bd1 ? fix2 : fix1);
+			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
+
 			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
 			}
