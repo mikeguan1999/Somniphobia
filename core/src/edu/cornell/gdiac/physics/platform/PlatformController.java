@@ -376,7 +376,9 @@ public class PlatformController extends WorldController implements ContactListen
 	    // Check if switched
 		if(inputController.didSwitch()) {
 			//Switch active character
-			avatar = avatar == somni ? phobia : somni;
+			if (!holdingHands) {
+				avatar = avatar == somni ? phobia : somni;
+			}
 		}
 		//Check if hand holding
 		if(inputController.didHoldHands()) {
@@ -418,9 +420,16 @@ public class PlatformController extends WorldController implements ContactListen
 
 		float avatarX = avatar.getX();
 		float avatarY = avatar.getY();
+		float avatarVX = avatar.getVX();
+		float avatarVY = avatar.getVY();
+
 		avatar = somni;
 		avatar.setPosition(avatarX, avatarY);
+		avatar.setVX(avatarVX);
+		avatar.setVY(avatarVY);
 		phobia.setPosition(avatarX - 1, avatarY);
+		phobia.setVX(avatarVX);
+		phobia.setVY(avatarVY);
 	}
 
 	/**
