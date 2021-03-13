@@ -191,7 +191,7 @@ public class InputController {
 		dashPressed = Gdx.input.isKeyPressed(Input.Keys.X);
 		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);
 		switchPressed = Gdx.input.isKeyPressed(Input.Keys.D);
-				exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
+		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 
 		// Directional controls
 
@@ -214,7 +214,7 @@ public class InputController {
 		}
 
 		// Print testing for unimplemented features
-		boolean DEBUG = true;
+		boolean DEBUG = false;
 		if (DEBUG) {
 			if(dashPressed) {
 				System.out.println("Somni/Phobia dashes");
