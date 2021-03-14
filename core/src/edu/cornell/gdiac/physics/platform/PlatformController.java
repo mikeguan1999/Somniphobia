@@ -97,6 +97,7 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short CATEGORY_SOMNI = 0x0004;  //0000000000000100
 	private final short CATEGORY_PHOBIA = 0x0008;	   	  //0000000000001000
 	private final short CATEGORY_COMBINED = 0x0010; 	  //0000000000010000
+	private final short CATEGORY_ALLPLAT = 0x0020;
 //	private short all = 11111;
 
 	private final short MASK_LPLAT = CATEGORY_SOMNI | CATEGORY_COMBINED; //Collides with all
@@ -104,9 +105,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_DPLAT = CATEGORY_PHOBIA | CATEGORY_COMBINED;
 //		private final short MASK_DPLAT = -1 ;
 
-	private final short MASK_SOMNI = CATEGORY_LPLAT;
-	private final short MASK_PHOBIA = CATEGORY_DPLAT;
-	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT;
+	private final short MASK_SOMNI = CATEGORY_LPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_PHOBIA = CATEGORY_DPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
 	/**
 	 * Creates and initialize a new instance of the platformer game
@@ -203,10 +205,12 @@ public class PlatformController extends WorldController implements ContactListen
 		combinedf.categoryBits = CATEGORY_COMBINED;
 		combinedf.maskBits = MASK_COMBINED;
 		Filter allf = new Filter();
+		allf.categoryBits = CATEGORY_ALLPLAT;
+		allf.maskBits = MASK_ALLPLAT;
 //		allf.groupIndex = 011;
 
-		allf.categoryBits = CATEGORY_COMBINED;
-		allf.maskBits = MASK_COMBINED;
+//		allf.categoryBits = CATEGORY_COMBINED;
+//		allf.maskBits = MASK_COMBINED;
 		JsonValue goal = constants.get("goal");
 		JsonValue goalpos = goal.get("pos");
 		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
@@ -267,7 +271,8 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setDrawScale(scale);
 			obj.setTexture(lightTexture);
 			obj.setName(tlpname+jj);
-			obj.setFilterData(lightplatf);
+//			obj.setFilterData(lightplatf);
+			obj.setFilterData(allf);
 			addObject(obj);
 	    }
 	    String tdpname = "tutorial dark platform";
