@@ -66,6 +66,12 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion phobiaDashSideTexture;
 	/** Texture asset for Somni's Dash up*/
 	private TextureRegion phobiaDashUpTexture;
+	/** Texture asset for dark background*/
+	private TextureRegion backgroundDarkTexture;
+	/** Texture asset for light background*/
+	private TextureRegion backgroundLightTexture;
+	/** Texture asset for background*/
+	private TextureRegion backgroundTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -170,6 +176,9 @@ public class PlatformController extends WorldController implements ContactListen
 		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
 		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_side",Texture.class));
 		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_up",Texture.class));
+		backgroundDarkTexture = new TextureRegion(directory.getEntry("platform:background_dark",Texture.class));
+		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
+		backgroundTexture = backgroundLightTexture;
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -407,6 +416,7 @@ public class PlatformController extends WorldController implements ContactListen
 			if (!holdingHands) {
 				avatar = avatar == somni ? phobia : somni;
 			}
+			backgroundTexture = backgroundTexture == backgroundLightTexture ? backgroundDarkTexture : backgroundLightTexture;
 		}
 		//Check if hand holding
 		if(inputController.didHoldHands()) {
@@ -608,6 +618,48 @@ public class PlatformController extends WorldController implements ContactListen
 			if (combinedSensorFixtures.size == 0) {
 				avatar.setGrounded(false);
 			}
+		}
+	}
+
+	/**
+	 * Draw the physics objects together with foreground and background
+	 *
+	 * This is completely overridden to support custom background and foreground art.
+	 *
+	 * @param dt Timing values from parent loop
+	 */
+	public void draw(float dt) {
+		canvas.clear();
+
+		// Draw background unscaled.
+		canvas.begin();
+		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
+		canvas.end();
+
+		canvas.begin();
+		for(Obstacle obj : objects) {
+			obj.draw(canvas);
+		}
+		canvas.end();
+
+		if (isDebug()) {
+			canvas.beginDebug();
+			for(Obstacle obj : objects) {
+				obj.drawDebug(canvas);
+			}
+			canvas.endDebug();
+		}
+		// Final message
+		if (isComplete() && !isFailure()) {
+			displayFont.setColor(Color.YELLOW);
+			canvas.begin(); // DO NOT SCALE
+			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
+			canvas.end();
+		} else if (isFailure()) {
+			displayFont.setColor(Color.RED);
+			canvas.begin(); // DO NOT SCALE
+			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
+			canvas.end();
 		}
 	}
 	
