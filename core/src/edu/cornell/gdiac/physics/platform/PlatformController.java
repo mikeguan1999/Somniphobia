@@ -257,7 +257,9 @@ public class PlatformController extends WorldController implements ContactListen
 		addQueue.clear();
 		world.dispose();
 
+		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
+		avatar = somni;
 		lead = somni;
 
 		world = new World(gravity,false);
@@ -317,7 +319,7 @@ public class PlatformController extends WorldController implements ContactListen
 	    String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 	    JsonValue defaults = constants.get("defaults");
-
+		/*
 	    for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
 	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
@@ -330,7 +332,7 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(wname+ii);
 			obj.setFilterData(allf);
 			addObject(obj);
-	    }
+	    }*/
 		String lightPlat = "lightL" + level;
 		JsonValue lightPlatJson = constants.get("lightL" + level);
 		String darkPlat = "darkL" + level;
@@ -382,7 +384,7 @@ public class PlatformController extends WorldController implements ContactListen
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
-				obj.setTexture(earthTile);
+				obj.setTexture(allTexture);
 				obj.setName(grayPlat+ii);
 				obj.setFilterData(allf);
 				addObject(obj);
@@ -444,7 +446,7 @@ public class PlatformController extends WorldController implements ContactListen
 		if (!super.preUpdate(dt)) {
 			return false;
 		}
-		if (!isFailure() && somni.getY() < -1 || phobia.getY() < -1) {
+		if (!isFailure() && (somni.getY() < -1 || phobia.getY() < -1 || combined.getY() < -1)) {
 			setFailure(true);
 			return false;
 		}
@@ -664,8 +666,8 @@ public class PlatformController extends WorldController implements ContactListen
 			}
 
 			// Check for win condition
-			if ((bd1 == avatar   && bd2 == goalDoor) ||
-					(bd1 == goalDoor && bd2 == avatar)) {
+			if ((bd1 == combined   && bd2 == goalDoor) ||
+					(bd1 == goalDoor && bd2 == combined)) {
 				setComplete(true);
 			}
 		} catch (Exception e) {
