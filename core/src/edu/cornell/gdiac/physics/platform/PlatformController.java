@@ -50,6 +50,56 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion lightTexture;
 	/** Texture asset for dark tiles*/
 	private TextureRegion darkTexture;
+	/** Texture asset for "all" tiles*/
+	private TextureRegion allTexture;
+	/** Texture asset for Somni*/
+	private TextureRegion somniTexture;
+	/** Texture asset for Somni's Walk*/
+	private TextureRegion somniWalkTexture;
+	/** Texture asset for Somni's Dash side*/
+	private TextureRegion somniDashSideTexture;
+	/** Texture asset for Somni's Dash up*/
+	private TextureRegion somniDashUpTexture;
+	/** Texture asset for phobia*/
+	private TextureRegion phobiaTexture;
+	/** Texture asset for Somni's Walk*/
+	private TextureRegion phobiaWalkTexture;
+	/** Texture asset for Somni's Dash side*/
+	private TextureRegion phobiaDashSideTexture;
+	/** Texture asset for Somni's Dash up*/
+	private TextureRegion phobiaDashUpTexture;
+	/** Texture asset for Somni*/
+	private TextureRegion somniPhobiaTexture;
+	/** Texture asset for Somni's Walk*/
+	private TextureRegion somniPhobiaWalkTexture;
+	/** Texture asset for Somni's Dash side*/
+	private TextureRegion somniPhobiaDashSideTexture;
+	/** Texture asset for Somni's Dash up*/
+	private TextureRegion somniPhobiaDashUpTexture;
+	/** Texture asset for phobia*/
+	private TextureRegion phobiaSomniTexture;
+	/** Texture asset for Somni's Walk*/
+	private TextureRegion phobiaSomniWalkTexture;
+	/** Texture asset for Somni's Dash side*/
+	private TextureRegion phobiaSomniDashSideTexture;
+	/** Texture asset for Somni's Dash up*/
+	private TextureRegion phobiaSomniDashUpTexture;
+	/** Texture asset for dark background*/
+	private TextureRegion backgroundDarkTexture;
+	/** Texture asset for light background*/
+	private TextureRegion backgroundLightTexture;
+	/** Texture asset for background*/
+	private TextureRegion backgroundTexture;
+	/** Texture asset list for somni*/
+	private TextureRegion [] somnisTexture;
+	/** Texture asset list for phobia*/
+	private TextureRegion [] phobiasTexture;
+	/** Texture asset list for somniphobia*/
+	private TextureRegion [] somniphobiasTexture;
+	/** Texture asset list for phobiasomni*/
+	private TextureRegion [] phobiasomnisTexture;
+	/** Texture asset int for action*/
+	private int action;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -73,7 +123,9 @@ public class PlatformController extends WorldController implements ContactListen
 	private DudeModel somni;
 	/** Reference to Phobia DudeModel*/
 	private DudeModel phobia;
-
+	/** Reference to leading DudeModel*/
+	private DudeModel lead;
+	/** Reference to combined DudeModel*/
 	private DudeModel combined;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
@@ -82,7 +134,7 @@ public class PlatformController extends WorldController implements ContactListen
 	private boolean holdingHands;
 
 	/** Level */
-	int level = 2;
+	int level = 1;
 
 
 	private final float HAND_HOLDING_DISTANCE = 2f;
@@ -147,8 +199,39 @@ public class PlatformController extends WorldController implements ContactListen
 		barrierTexture = new TextureRegion(directory.getEntry("platform:barrier",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
 		bridgeTexture = new TextureRegion(directory.getEntry("platform:rope",Texture.class));
+		//tiles
 		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
 		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
+		//base models
+		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
+		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
+		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:somni_dash_side",Texture.class));
+		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:somni_dash_up",Texture.class));
+		phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand",Texture.class));
+		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
+		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_side",Texture.class));
+		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_up",Texture.class));
+		//combined models
+		somniPhobiaTexture  = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
+		somniPhobiaWalkTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_walk",Texture.class));
+		somniPhobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_dash_side",Texture.class));
+		somniPhobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_dash_up",Texture.class));
+		phobiaSomniTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_stand",Texture.class));
+		phobiaSomniWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_walk",Texture.class));
+		phobiaSomniDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_side",Texture.class));
+		phobiaSomniDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_up",Texture.class));
+		backgroundDarkTexture = new TextureRegion(directory.getEntry("platform:background_dark",Texture.class));
+		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
+		backgroundTexture = backgroundLightTexture;
+		TextureRegion [] somnis = {somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
+		somnisTexture = somnis;
+		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
+		phobiasTexture = phobias;
+		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
+		somniphobiasTexture = somniphobias;
+		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
+		phobiasomnisTexture = phobiasomnis;
 
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
@@ -173,6 +256,9 @@ public class PlatformController extends WorldController implements ContactListen
 		objects.clear();
 		addQueue.clear();
 		world.dispose();
+
+		backgroundTexture = backgroundLightTexture;
+		lead = somni;
 
 		world = new World(gravity,false);
 		world.setContactListener(this);
@@ -231,6 +317,7 @@ public class PlatformController extends WorldController implements ContactListen
 	    String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 	    JsonValue defaults = constants.get("defaults");
+
 	    for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
 	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
@@ -250,11 +337,6 @@ public class PlatformController extends WorldController implements ContactListen
 		JsonValue darkPlatJson = constants.get("darkL" + level);
 		String grayPlat = "grayL" + level;
 		JsonValue grayPlatJson = constants.get("grayL" + level);
-		dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
-		System.out.println(level);
-		somni = new DudeModel(constants.get("somniL" + level), dwidth, dheight, somnif, DudeModel.LIGHT);
-		phobia = new DudeModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, DudeModel.DARK);
 
 		// Light platform
 		if (lightPlatJson != null) {
@@ -312,34 +394,35 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
 		// Create dude
-		dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
-		//somni = new DudeModel(constants.get("dude"), dwidth, dheight, somnif, DudeModel.LIGHT);
+		dwidth  = somniTexture.getRegionWidth()/scale.x;
+		dheight = somniTexture.getRegionHeight()/scale.y;
+		somni = new DudeModel(constants.get("somniL" + level), dwidth, dheight, somnif, DudeModel.LIGHT);
 		somni.setDrawScale(scale);
-		somni.setTexture(avatarTexture);
+		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
 		addObject(somni);
 
 		// Create Phobia
-		dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
-		//phobia = new DudeModel(constants.get("phobia"), dwidth, dheight, phobiaf, DudeModel.DARK);
+		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
+		dheight = phobiaTexture.getRegionHeight()/scale.y;
+		phobia = new DudeModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, DudeModel.DARK);
 		phobia.setDrawScale(scale);
-		phobia.setTexture(avatarTexture);
+		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
 		addObject(phobia);
 
-		dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
+		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
+		dheight = somniPhobiaTexture.getRegionHeight()/scale.y;
 		combined = new DudeModel(constants.get("combined"), dwidth, dheight, combinedf, DudeModel.DARK);
 		combined.setDrawScale(scale);
-		combined.setTexture(combinedTexture);
+		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
 		addObject(combined);
 
 		objects.remove(combined);
 
 		combined.setActive(false);
+		action = 0;
 		//Set current avatar to somni
 		avatar = somni;
 
@@ -387,7 +470,6 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
 		avatar.setShooting(inputController.didDash());
-
 		avatar.applyForce();
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
@@ -397,11 +479,40 @@ public class PlatformController extends WorldController implements ContactListen
 			//Switch active character
 			if (!holdingHands) {
 				avatar = avatar == somni ? phobia : somni;
+			}else{
+				lead = lead == somni ? phobia :somni;
 			}
+			backgroundTexture = backgroundTexture == backgroundLightTexture ? backgroundDarkTexture : backgroundLightTexture;
+		}
+		if(avatar !=combined) {
+			lead = avatar;
+		}
+		if(avatar.isGrounded() && !avatar.isJumping()){
+			if (avatar.getMovement() == 0f){
+				action = 0;
+			}else{
+				action = 1;
+			}
+		}else{
+			action = 2;
 		}
 		//Check if hand holding
 		if(inputController.didHoldHands()) {
 			handleHoldingHands();
+		}
+		if(holdingHands){
+			if(lead == somni){
+				combined.setTexture(somniphobiasTexture[action]);
+			}else{
+				combined.setTexture(phobiasomnisTexture[action]);
+			}
+		}
+		else{
+			if(lead == somni){
+				avatar.setTexture(somnisTexture[action]);
+			}else{
+				avatar.setTexture(phobiasTexture[action]);
+			}
 		}
 	    // Check if dashed
 	    if(inputController.didDash()) {
@@ -442,13 +553,19 @@ public class PlatformController extends WorldController implements ContactListen
 		float avatarVX = avatar.getVX();
 		float avatarVY = avatar.getVY();
 
-		avatar = somni;
+		avatar = lead;
 		avatar.setPosition(avatarX, avatarY);
 		avatar.setVX(avatarVX);
 		avatar.setVY(avatarVY);
-		phobia.setPosition(avatarX - 1, avatarY);
-		phobia.setVX(avatarVX);
-		phobia.setVY(avatarVY);
+		if(lead != phobia){
+			somni.setPosition(avatarX - 1, avatarY);
+			somni.setVX(avatarVX);
+			somni.setVY(avatarVY);
+		}else {
+			phobia.setPosition(avatarX - 1, avatarY);
+			phobia.setVX(avatarVX);
+			phobia.setVY(avatarVY);
+		}
 	}
 
 	/**
@@ -464,12 +581,14 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setActive(false);
 		combined.setActive(true);
 
+		lead = avatar;
 		objects.remove(somni);
 		objects.remove(phobia);
 		objects.add(combined);
 
 		float avatarX = avatar.getX();
 		float avatarY = avatar.getY();
+
 		avatar = combined;
 		avatar.setPosition(avatarX, avatarY);
 
@@ -599,6 +718,48 @@ public class PlatformController extends WorldController implements ContactListen
 			if (combinedSensorFixtures.size == 0) {
 				avatar.setGrounded(false);
 			}
+		}
+	}
+
+	/**
+	 * Draw the physics objects together with foreground and background
+	 *
+	 * This is completely overridden to support custom background and foreground art.
+	 *
+	 * @param dt Timing values from parent loop
+	 */
+	public void draw(float dt) {
+		canvas.clear();
+
+		// Draw background unscaled.
+		canvas.begin();
+		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
+		canvas.end();
+
+		canvas.begin();
+		for(Obstacle obj : objects) {
+			obj.draw(canvas);
+		}
+		canvas.end();
+
+		if (isDebug()) {
+			canvas.beginDebug();
+			for(Obstacle obj : objects) {
+				obj.drawDebug(canvas);
+			}
+			canvas.endDebug();
+		}
+		// Final message
+		if (isComplete() && !isFailure()) {
+			displayFont.setColor(Color.YELLOW);
+			canvas.begin(); // DO NOT SCALE
+			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
+			canvas.end();
+		} else if (isFailure()) {
+			displayFont.setColor(Color.RED);
+			canvas.begin(); // DO NOT SCALE
+			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
+			canvas.end();
 		}
 	}
 
