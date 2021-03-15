@@ -312,7 +312,7 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setDrawScale(scale);
 		phobia.setTexture(avatarTexture);
 		phobia.setFilterData(phobiaf);
-		//addObject(phobia);
+		addObject(phobia);
 
 		dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		dheight = avatarTexture.getRegionHeight()/scale.y;
@@ -511,7 +511,6 @@ public class PlatformController extends WorldController implements ContactListen
 			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2)) {
 				somni.setGrounded(true);
-				somni.setCanDash(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
 
 			}

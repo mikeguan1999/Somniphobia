@@ -140,7 +140,8 @@ public class DudeModel extends CapsuleObstacle {
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
 		}
-		isDashing = value;
+		isDashing = value && canDash;
+		if(isDashing) { canDash = false; }
 	}
 
 	/**
@@ -318,14 +319,16 @@ public class DudeModel extends CapsuleObstacle {
 		}
 		
 		// Don't want to be moving. Damp out player motion
-		if (getMovement() == 0f) {
+		if (getMovement() == 0f && isGrounded) {
 			forceCache.set(-getDamping()*getVX(),0);
 			body.applyForce(forceCache,getPosition(),true);
 		}
 		
-		// Velocity too high, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed()) {
-			setVX(Math.signum(getVX())*getMaxSpeed());
+		// Velocity too high on ground, clamp it
+		if (Math.abs(getVX()) >= getMaxSpeed() && canDash && isGrounded) {
+			setVX(Math.signum(getVX()) * getMaxSpeed());
+		} else if (Math.abs(getVX()) >= getMaxSpeed() * 1.5f) {
+			setVX(Math.signum(getVX()) * getMaxSpeed() * 1.4f);
 		} else {
 			forceCache.set(getMovement(),0);
 			body.applyForce(forceCache,getPosition(),true);
@@ -341,7 +344,6 @@ public class DudeModel extends CapsuleObstacle {
 		if (isDashing()) {
 			forceCache.set(dashDirection.scl(1.5f * jump_force));
 			body.applyLinearImpulse(forceCache, getPosition(), true);
-			canDash = false;
 		}
 	}
 	
@@ -366,7 +368,11 @@ public class DudeModel extends CapsuleObstacle {
 			dashCooldown = Math.max(0, dashCooldown - 1);
 		}
 
-		System.out.println(canDash);
+		if(isGrounded && dashCooldown <= 0) {
+			canDash = true;
+		}
+
+		//System.out.println(canDash);
 		super.update(dt);
 	}
 
