@@ -40,8 +40,6 @@ public class DudeModel extends CapsuleObstacle {
 	private final float jump_force;
 	/** Cooldown (in animation frames) for jumping */
 	private final int jumpLimit;
-	/** Cooldown (in animation frames) for shooting */
-	private final int shotLimit;
 
 	/** The current horizontal movement of the character */
 	private float   movement;
@@ -51,12 +49,16 @@ public class DudeModel extends CapsuleObstacle {
 	private int jumpCooldown;
 	/** Whether we are actively jumping */
 	private boolean isJumping;
-	/** How long until we can shoot again */
-	private int shootCooldown;
+	/** How long until we can dash again */
+	private int dashCooldown;
+	/** Whether we are actively dashing */
+	private boolean isDashing;
+	/** Whether we can dash */
+	private boolean canDash;
+	/** The current dash direction of the character */
+	private Vector2 dashDirection = new Vector2(0,0);
 	/** Whether our feet are on the ground */
 	private boolean isGrounded;
-	/** Whether we are actively shooting */
-	private boolean isShooting;
 	/** The physics shape of this object */
 	private PolygonShape sensorShape;
 	/** Filter of the model*/
@@ -97,25 +99,6 @@ public class DudeModel extends CapsuleObstacle {
 		}
 	}
 
-
-	/**
-	 * Returns true if the dude is actively firing.
-	 *
-	 * @return true if the dude is actively firing.
-	 */
-	public boolean isShooting() {
-		return isShooting && shootCooldown <= 0;
-	}
-	
-	/**
-	 * Sets whether the dude is actively firing.
-	 *
-	 * @param value whether the dude is actively firing.
-	 */
-	public void setShooting(boolean value) {
-		isShooting = value; 
-	}
-
 	/**
 	 * Returns true if the dude is actively jumping.
 	 *
@@ -133,6 +116,43 @@ public class DudeModel extends CapsuleObstacle {
 	public void setJumping(boolean value) {
 		isJumping = value; 
 	}
+
+	/**
+	 * Returns true if the dude is actively dashing.
+	 *
+	 * @return true if the dude is actively dashing.
+	 */
+	public boolean isDashing() {
+		return isDashing && !canDash && dashCooldown <= 0;
+	}
+
+	/**
+	 * Sets whether the dude is actively dashing. If so, set the dashing direction of this dude.
+	 *
+	 * @param value true if the dude is actively dashing
+	 * @param dir_X horizontal component of the dash
+	 * @param dir_Y vertical component of the dash
+	 */
+	public void setDashing(boolean value, float dir_X, float dir_Y) {
+		if(dir_X == 0 && dir_Y == 0) {
+			// Default dash in direction player faces
+			dashDirection.set(isFacingRight() ? 1 : -1, 0);
+		} else {
+			dashDirection.set(dir_X, dir_Y).nor();
+		}
+		isDashing = value && canDash;
+		if(isDashing) { canDash = false; }
+	}
+
+	/**
+	 * Sets whether the dude can dash.
+	 *
+	 * @param value whether the dude can dash.
+	 */
+	public void setCanDash(boolean value) {
+		canDash = value;
+	}
+
 
 	/**
 	 * Returns true if the dude is on the ground.
@@ -164,9 +184,9 @@ public class DudeModel extends CapsuleObstacle {
 	}
 
 	/**
-	 * Returns ow hard the brakes are applied to get a dude to stop moving
+	 * Returns how hard the brakes are applied to get a dude to stop moving
 	 *
-	 * @return ow hard the brakes are applied to get a dude to stop moving
+	 * @return how hard the brakes are applied to get a dude to stop moving
 	 */
 	public float getDamping() {
 		return damping;
@@ -215,7 +235,7 @@ public class DudeModel extends CapsuleObstacle {
 	 * @param height	The object width in physics units
 	 */
 	public DudeModel(JsonValue data, float width, float height, Filter f, boolean type) {
-		// The shrink factors fit the image to a tigher hitbox
+		// The shrink factors fit the image to a tighter hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),
 				width*data.get("shrink").getFloat( 0 ),
@@ -229,19 +249,19 @@ public class DudeModel extends CapsuleObstacle {
 		force = data.getFloat("force", 0);
 		jump_force = data.getFloat( "jump_force", 0 );
 		jumpLimit = data.getInt( "jump_cool", 0 );
-		shotLimit = data.getInt( "shot_cool", 0 );
-		sensorName = type == LIGHT? "SomniSensor": "PhobiaSensor";
+		sensorName = type == LIGHT ? "SomniSensor" : "PhobiaSensor";
 		this.data = data;
 		filter = f;
 
 		// Gameplay attributes
 		isGrounded = false;
-		isShooting = false;
 		isJumping = false;
+		isDashing = false;
 		faceRight = true;
-		
-		shootCooldown = 0;
+		canDash = true;
+
 		jumpCooldown = 0;
+		dashCooldown = 0;
 		setName("dude");
 	}
 
@@ -299,14 +319,16 @@ public class DudeModel extends CapsuleObstacle {
 		}
 		
 		// Don't want to be moving. Damp out player motion
-		if (getMovement() == 0f) {
+		if (getMovement() == 0f && isGrounded) {
 			forceCache.set(-getDamping()*getVX(),0);
 			body.applyForce(forceCache,getPosition(),true);
 		}
 		
-		// Velocity too high, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed()) {
-			setVX(Math.signum(getVX())*getMaxSpeed());
+		// Velocity too high on ground, clamp it
+		if (Math.abs(getVX()) >= getMaxSpeed() && canDash && isGrounded) {
+			setVX(Math.signum(getVX()) * getMaxSpeed());
+		} else if (Math.abs(getVX()) >= getMaxSpeed() * 1.5f) {
+			setVX(Math.signum(getVX()) * getMaxSpeed() * 1.4f);
 		} else {
 			forceCache.set(getMovement(),0);
 			body.applyForce(forceCache,getPosition(),true);
@@ -317,12 +339,19 @@ public class DudeModel extends CapsuleObstacle {
 			forceCache.set(0, jump_force);
 			body.applyLinearImpulse(forceCache,getPosition(),true);
 		}
+
+		// Dash!
+		if (isDashing()) {
+			body.setLinearVelocity(0,0);
+			forceCache.set(dashDirection.scl(1.25f * jump_force));
+			body.applyLinearImpulse(forceCache, getPosition(), true);
+		}
 	}
 	
 	/**
 	 * Updates the object's physics state (NOT GAME LOGIC).
 	 *
-	 * We use this method to reset cooldowns.
+	 * We use this method to reset cooldowns and states.
 	 *
 	 * @param dt	Number of seconds since last animation frame
 	 */
@@ -334,12 +363,17 @@ public class DudeModel extends CapsuleObstacle {
 			jumpCooldown = Math.max(0, jumpCooldown - 1);
 		}
 
-		if (isShooting()) {
-			shootCooldown = shotLimit;
+		if (isDashing()) {
+			dashCooldown = jumpLimit;
 		} else {
-			shootCooldown = Math.max(0, shootCooldown - 1);
+			dashCooldown = Math.max(0, dashCooldown - 1);
 		}
-		
+
+		if(isGrounded && dashCooldown <= 0) {
+			canDash = true;
+		}
+
+		//System.out.println(canDash);
 		super.update(dt);
 	}
 

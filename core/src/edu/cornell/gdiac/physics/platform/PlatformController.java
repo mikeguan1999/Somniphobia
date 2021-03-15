@@ -469,11 +469,13 @@ public class PlatformController extends WorldController implements ContactListen
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
-		avatar.setShooting(inputController.didDash());
+		avatar.setDashing(inputController.didDash(), inputController.getHorizontal(), inputController.getVertical());
 		avatar.applyForce();
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
-	    }
+	    } else if (avatar.isDashing()) {
+	    	// some dash sound
+		}
 	    // Check if switched
 		if(inputController.didSwitch()) {
 			//Switch active character
@@ -557,7 +559,7 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.setPosition(avatarX, avatarY);
 		avatar.setVX(avatarVX);
 		avatar.setVY(avatarVY);
-		if(lead != phobia){
+		if(lead == phobia){
 			somni.setPosition(avatarX - 1, avatarY);
 			somni.setVX(avatarVX);
 			somni.setVY(avatarVY);
