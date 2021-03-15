@@ -27,10 +27,10 @@ import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
 /**
- * Gameplay specific controller for the platformer game.  
+ * Gameplay specific controller for the platformer game.
  *
- * You will notice that asset loading is not done with static methods this time.  
- * Instance asset loading makes it easier to process our game modes in a loop, which 
+ * You will notice that asset loading is not done with static methods this time.
+ * Instance asset loading makes it easier to process our game modes in a loop, which
  * is much more scalable. However, we still want the assets themselves to be static.
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
@@ -132,6 +132,9 @@ public class PlatformController extends WorldController implements ContactListen
 
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
+
+	/** Level */
+	int level = 1;
 
 
 	private final float HAND_HOLDING_DISTANCE = 2f;
@@ -238,7 +241,7 @@ public class PlatformController extends WorldController implements ContactListen
 		constants = directory.getEntry( "platform:constants", JsonValue.class );
 		super.gatherAssets(directory);
 	}
-	
+
 	/**
 	 * Resets the status of the game so that we can play again.
 	 *
@@ -246,7 +249,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void reset() {
 		Vector2 gravity = new Vector2(world.getGravity() );
-		
+
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
 		}
@@ -261,13 +264,14 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		populateLevel();
+		populateLevel(level);
 	}
 
 	/**
 	 * Lays out the game geography.
 	 */
-	private void populateLevel() {
+	private void populateLevel(int level) {
+
 		// Add level goal
 		float dwidth  = goalTile.getRegionWidth()/scale.x;
 		float dheight = goalTile.getRegionHeight()/scale.y;
@@ -297,7 +301,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 //		allf.categoryBits = CATEGORY_COMBINED;
 //		allf.maskBits = MASK_COMBINED;
-		JsonValue goal = constants.get("goal");
+		JsonValue goal = constants.get("goalL" + level);
 		JsonValue goalpos = goal.get("pos");
 		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
@@ -313,7 +317,7 @@ public class PlatformController extends WorldController implements ContactListen
 	    String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 	    JsonValue defaults = constants.get("defaults");
-	    /*
+
 	    for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
 	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
@@ -326,58 +330,64 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(wname+ii);
 			obj.setFilterData(allf);
 			addObject(obj);
-	    }*/
-/*
-	    String pname = "platform";
-		JsonValue platjv = constants.get("platforms");
-	    for (int ii = 0; ii < platjv.size; ii++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(platjv.get(ii).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(earthTile);
-			obj.setName(pname+ii);
-			addObject(obj);
 	    }
-*/
-	    //NEW TILE PLATFORMS
+		String lightPlat = "lightL" + level;
+		JsonValue lightPlatJson = constants.get("lightL" + level);
+		String darkPlat = "darkL" + level;
+		JsonValue darkPlatJson = constants.get("darkL" + level);
+		String grayPlat = "grayL" + level;
+		JsonValue grayPlatJson = constants.get("grayL" + level);
 
+		// Light platform
+		if (lightPlatJson != null) {
+			for (int jj = 0; jj < lightPlatJson.size; jj++) {
+				PolygonObstacle obj;
+				obj = new PolygonObstacle(lightPlatJson.get(jj).asFloatArray(), 0, 0);
+				obj.setBodyType(BodyDef.BodyType.StaticBody);
+				obj.setDensity(defaults.getFloat( "density", 0.0f ));
+				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+				obj.setDrawScale(scale);
+				obj.setTexture(lightTexture);
+				obj.setName(lightPlat+jj);
+				obj.setFilterData(lightplatf);
+				addObject(obj);
+			}
+		}
 
-	    String tlpname = "tutorial light platform";
-		JsonValue lightplatjv = constants.get("tutorial light platform");
-	    for (int jj = 0; jj < lightplatjv.size; jj++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(lightplatjv.get(jj).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(allTexture);
-			obj.setName(tlpname+jj);
-//			obj.setFilterData(lightplatf);
-			obj.setFilterData(allf);
-			addObject(obj);
-	    }
-	    String tdpname = "tutorial dark platform";
-		JsonValue darkplatjv = constants.get("tutorial dark platform");
-	    for (int jj = 0; jj < darkplatjv.size; jj++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(darkplatjv.get(jj).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setFilterData(darkplatf);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(darkTexture);
-			obj.setName(tdpname+jj);
+		// Dark platform
+		if (darkPlatJson != null) {
+			for (int jj = 0; jj < darkPlatJson.size; jj++) {
+				PolygonObstacle obj;
+				obj = new PolygonObstacle(darkPlatJson.get(jj).asFloatArray(), 0, 0);
+				obj.setBodyType(BodyDef.BodyType.StaticBody);
+				obj.setDensity(defaults.getFloat( "density", 0.0f ));
+				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+				obj.setDrawScale(scale);
+				obj.setTexture(darkTexture);
+				obj.setName(darkPlat+jj);
+				obj.setFilterData(darkplatf);
+				addObject(obj);
+			}
+		}
 
-			addObject(obj);
-	    }
+		if (grayPlatJson != null) {
+			// Gray platform
+			for (int ii = 0; ii < grayPlatJson.size; ii++) {
+				PolygonObstacle obj;
+				obj = new PolygonObstacle(grayPlatJson.get(ii).asFloatArray(), 0, 0);
+				obj.setBodyType(BodyDef.BodyType.StaticBody);
+				obj.setDensity(defaults.getFloat( "density", 0.0f ));
+				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+				obj.setDrawScale(scale);
+				obj.setTexture(earthTile);
+				obj.setName(grayPlat+ii);
+				obj.setFilterData(allf);
+				addObject(obj);
+			}
+		}
 
 
 	    // This world is heavier
@@ -386,7 +396,7 @@ public class PlatformController extends WorldController implements ContactListen
 		// Create dude
 		dwidth  = somniTexture.getRegionWidth()/scale.x;
 		dheight = somniTexture.getRegionHeight()/scale.y;
-		somni = new DudeModel(constants.get("dude"), dwidth, dheight, somnif, DudeModel.LIGHT);
+		somni = new DudeModel(constants.get("somniL" + level), dwidth, dheight, somnif, DudeModel.LIGHT);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
@@ -395,7 +405,7 @@ public class PlatformController extends WorldController implements ContactListen
 		// Create Phobia
 		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
 		dheight = phobiaTexture.getRegionHeight()/scale.y;
-		phobia = new DudeModel(constants.get("phobia"), dwidth, dheight, phobiaf, DudeModel.DARK);
+		phobia = new DudeModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, DudeModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
@@ -418,7 +428,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		volume = constants.getFloat("volume", 1.0f);
 	}
-	
+
 	/**
 	 * Returns whether to process the update loop
 	 *
@@ -427,19 +437,18 @@ public class PlatformController extends WorldController implements ContactListen
 	 * normally.
 	 *
 	 * @param dt	Number of seconds since last animation frame
-	 * 
+	 *
 	 * @return whether to process the update loop
 	 */
 	public boolean preUpdate(float dt) {
 		if (!super.preUpdate(dt)) {
 			return false;
 		}
-		
 		if (!isFailure() && somni.getY() < -1 || phobia.getY() < -1) {
 			setFailure(true);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -607,11 +616,11 @@ public class PlatformController extends WorldController implements ContactListen
 	private float distance(float x1, float y1, float x2, float y2) {
 		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
-	
+
 	/**
 	 * Callback method for the start of a collision
 	 *
-	 * This method is called when we first get a collision between two objects.  We use 
+	 * This method is called when we first get a collision between two objects.  We use
 	 * this method to test if it is the "right" kind of collision.  In particular, we
 	 * use it to test if we made it to the win door.
 	 *
@@ -626,7 +635,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		Object fd1 = fix1.getUserData();
 		Object fd2 = fix2.getUserData();
-		
+
 		try {
 			Obstacle bd1 = (Obstacle)body1.getUserData();
 			Obstacle bd2 = (Obstacle)body2.getUserData();
@@ -654,7 +663,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 			// Check for win condition
 			if ((bd1 == avatar   && bd2 == goalDoor) ||
-				(bd1 == goalDoor && bd2 == avatar)) {
+					(bd1 == goalDoor && bd2 == avatar)) {
 				setComplete(true);
 			}
 		} catch (Exception e) {
@@ -669,7 +678,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 * This method is called when two objects cease to touch.  The main use of this method
 	 * is to determine when the characer is NOT on the ground.  This is how we prevent
 	 * double jumping.
-	 */ 
+	 */
 	public void endContact(Contact contact) {
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
@@ -679,7 +688,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		Object fd1 = fix1.getUserData();
 		Object fd2 = fix2.getUserData();
-		
+
 		Object bd1 = body1.getUserData();
 		Object bd2 = body2.getUserData();
 
@@ -753,7 +762,7 @@ public class PlatformController extends WorldController implements ContactListen
 			canvas.end();
 		}
 	}
-	
+
 	/** Unused ContactListener method */
 	public void postSolve(Contact contact, ContactImpulse impulse) {}
 	/** Unused ContactListener method */
