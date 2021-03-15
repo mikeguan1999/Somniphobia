@@ -50,6 +50,8 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion lightTexture;
 	/** Texture asset for dark tiles*/
 	private TextureRegion darkTexture;
+	/** Texture asset for "all" tiles*/
+	private TextureRegion allTexture;
 	/** Texture asset for Somni*/
 	private TextureRegion somniTexture;
 	/** Texture asset for Somni's Walk*/
@@ -197,6 +199,7 @@ public class PlatformController extends WorldController implements ContactListen
 		//tiles
 		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
 		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
 		//base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
@@ -353,7 +356,7 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 			obj.setDrawScale(scale);
-			obj.setTexture(lightTexture);
+			obj.setTexture(allTexture);
 			obj.setName(tlpname+jj);
 //			obj.setFilterData(lightplatf);
 			obj.setFilterData(allf);
