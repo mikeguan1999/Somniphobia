@@ -342,7 +342,8 @@ public class DudeModel extends CapsuleObstacle {
 
 		// Dash!
 		if (isDashing()) {
-			forceCache.set(dashDirection.scl(1.5f * jump_force));
+			body.setLinearVelocity(0,0);
+			forceCache.set(dashDirection.scl(1.25f * jump_force));
 			body.applyLinearImpulse(forceCache, getPosition(), true);
 		}
 	}
