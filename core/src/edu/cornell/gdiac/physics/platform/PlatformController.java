@@ -250,7 +250,10 @@ public class PlatformController extends WorldController implements ContactListen
 		objects.clear();
 		addQueue.clear();
 		world.dispose();
-		
+
+		backgroundTexture = backgroundLightTexture;
+		lead = somni;
+
 		world = new World(gravity,false);
 		world.setContactListener(this);
 		setComplete(false);
