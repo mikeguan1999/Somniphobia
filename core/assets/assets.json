@@ -6,16 +6,16 @@
       "wrapV": "repeated"
     },
     "shared:dark": {
-      "file": "shared/darktile.png",
+      "file": "platform/TileDark.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:light": {
-      "file": "shared/lighttile.png",
+      "file": "platform/TileLight.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
-    "shared:goal": "shared/goaldoor.png",
+    "shared:goal": "platform/Door.png",
     "rocket:rocket": "rocket/rocket.png",
     "rocket:main": {
       "file": "rocket/flames.png",
@@ -51,6 +51,14 @@
     "platform:rope": "platform/ropebridge.png",
     "platform:barrier": "platform/barrier.png",
     "platform:bullet": "platform/bullet.png",
+    "platform:somni_stand": "platform/SomniStand.png",
+    "platform:somni_walk": "platform/SomniWalk.png",
+    "platform:somni_dash_side": "platform/SomniSide.png",
+    "platform:somni_dash_up": "platform/SomniUp.png",
+    "platform:phobia_stand": "platform/PhobiaStand.png",
+    "platform:phobia_walk": "platform/PhobiaWalk.png",
+    "platform:phobia_dash_side": "platform/PhobiaSide.png",
+    "platform:phobia_dash_up": "platform/PhobiaUp.png",
     "ragdoll:bubble": "ragdoll/bubble.png",
     "ragdoll:torso": "ragdoll/tux_body.png",
     "ragdoll:head": "ragdoll/ProfWhite.png",

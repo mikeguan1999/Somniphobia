@@ -50,6 +50,22 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion lightTexture;
 	/** Texture asset for dark tiles*/
 	private TextureRegion darkTexture;
+	/** Texture asset for Somni*/
+	private TextureRegion somniTexture;
+	/** Texture asset for Somni's Walk*/
+	private TextureRegion somniWalkTexture;
+	/** Texture asset for Somni's Dash side*/
+	private TextureRegion somniDashSideTexture;
+	/** Texture asset for Somni's Dash up*/
+	private TextureRegion somniDashUpTexture;
+	/** Texture asset for phobia*/
+	private TextureRegion phobiaTexture;
+	/** Texture asset for Somni's Walk*/
+	private TextureRegion phobiaWalkTexture;
+	/** Texture asset for Somni's Dash side*/
+	private TextureRegion phobiaDashSideTexture;
+	/** Texture asset for Somni's Dash up*/
+	private TextureRegion phobiaDashUpTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -146,7 +162,14 @@ public class PlatformController extends WorldController implements ContactListen
 		bridgeTexture = new TextureRegion(directory.getEntry("platform:rope",Texture.class));
 		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
 		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
-
+		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
+		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
+		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:somni_dash_side",Texture.class));
+		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:somni_dash_up",Texture.class));
+		phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand",Texture.class));
+		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
+		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_side",Texture.class));
+		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_up",Texture.class));
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -297,20 +320,20 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
 		// Create dude
-		dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
+		dwidth  = somniTexture.getRegionWidth()/scale.x;
+		dheight = somniTexture.getRegionHeight()/scale.y;
 		somni = new DudeModel(constants.get("dude"), dwidth, dheight, somnif, DudeModel.LIGHT);
 		somni.setDrawScale(scale);
-		somni.setTexture(avatarTexture);
+		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
 		addObject(somni);
 
 		// Create Phobia
-		dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
+		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
+		dheight = phobiaTexture.getRegionHeight()/scale.y;
 		phobia = new DudeModel(constants.get("phobia"), dwidth, dheight, phobiaf, DudeModel.DARK);
 		phobia.setDrawScale(scale);
-		phobia.setTexture(avatarTexture);
+		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
 		addObject(phobia);
 
