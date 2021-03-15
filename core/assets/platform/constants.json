@@ -49,7 +49,7 @@
 		"shrink": [ 0.95, 0.7 ],
 		"force": 20.0,
 		"damping": 10.0,
-		"density": 1.0,
+		"density": 0.5,
 		"friction": 1.0,
 		"maxspeed": 5.0,
 		"jump_force": 5.5,
