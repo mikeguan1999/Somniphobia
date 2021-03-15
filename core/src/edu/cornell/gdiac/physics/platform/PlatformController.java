@@ -312,7 +312,7 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setDrawScale(scale);
 		phobia.setTexture(avatarTexture);
 		phobia.setFilterData(phobiaf);
-		addObject(phobia);
+		//addObject(phobia);
 
 		dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		dheight = avatarTexture.getRegionHeight()/scale.y;
@@ -372,12 +372,14 @@ public class PlatformController extends WorldController implements ContactListen
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
-		avatar.setShooting(inputController.didDash());
+		avatar.setDashing(inputController.didDash(), inputController.getHorizontal(), inputController.getVertical());
 
 		avatar.applyForce();
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
-	    }
+	    } else if (avatar.isDashing()) {
+	    	// some dash sound
+		}
 	    // Check if switched
 		if(inputController.didSwitch()) {
 			//Switch active character
@@ -388,11 +390,6 @@ public class PlatformController extends WorldController implements ContactListen
 		//Check if hand holding
 		if(inputController.didHoldHands()) {
 			handleHoldingHands();
-		}
-	    // Check if dashed
-	    if(inputController.didDash()) {
-	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
-			System.out.println("Dash in direction " + dashDirection.toString());
 		}
 	}
 
@@ -514,6 +511,7 @@ public class PlatformController extends WorldController implements ContactListen
 			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2)) {
 				somni.setGrounded(true);
+				somni.setCanDash(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
 
 			}
