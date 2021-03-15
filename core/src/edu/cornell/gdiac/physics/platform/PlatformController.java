@@ -538,13 +538,19 @@ public class PlatformController extends WorldController implements ContactListen
 		float avatarVX = avatar.getVX();
 		float avatarVY = avatar.getVY();
 
-		avatar = somni;
+		avatar = lead;
 		avatar.setPosition(avatarX, avatarY);
 		avatar.setVX(avatarVX);
 		avatar.setVY(avatarVY);
-		phobia.setPosition(avatarX - 1, avatarY);
-		phobia.setVX(avatarVX);
-		phobia.setVY(avatarVY);
+		if(lead != phobia){
+			somni.setPosition(avatarX - 1, avatarY);
+			somni.setVX(avatarVX);
+			somni.setVY(avatarVY);
+		}else {
+			phobia.setPosition(avatarX - 1, avatarY);
+			phobia.setVX(avatarVX);
+			phobia.setVY(avatarVY);
+		}
 	}
 
 	/**
