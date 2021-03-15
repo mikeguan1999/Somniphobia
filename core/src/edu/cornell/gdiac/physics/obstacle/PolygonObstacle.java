@@ -54,8 +54,7 @@ public class PolygonObstacle extends SimpleObstacle {
 	/** Cache of the polygon vertices (for resizing) */
 	private float[] vertices;
 
-	/** Type of platform where 0 is light, 1 is dark, 2 is both*/
-	private int type;
+
 	/** 
 	 * Returns the dimensions of this box
 	 *
@@ -129,23 +128,7 @@ public class PolygonObstacle extends SimpleObstacle {
 		setDimension(sizeCache);
 	}
 
-	/**
-	 * Returns the box type
-	 *
-	 * @return the box type
-	 */
-	public int getType() {
-		return type;
-	}
 
-	/**
-	 * Sets the box type
-	 *
-	 * @param value  the box type
-	 */
-	public void setType(int value) {
-		type = value;
-	}
 
 	/**
 	 * Creates a (not necessarily convex) polygon at the origin.
@@ -158,7 +141,7 @@ public class PolygonObstacle extends SimpleObstacle {
 	 * @param points   The polygon vertices
 	 */
 	public PolygonObstacle(float[] points) {
-		this(points, 0, 0, 0);
+		this(points, 0, 0);
 	}
 
 	/**
@@ -173,10 +156,9 @@ public class PolygonObstacle extends SimpleObstacle {
 	 * @param x  Initial x position of the polygon center
 	 * @param y  Initial y position of the polygon center
 	 */
-	public PolygonObstacle(float[] points, float x, float y, int t) {
+	public PolygonObstacle(float[] points, float x, float y) {
 		super(x, y);
 		assert points.length % 2 == 0;
-		
 		// Compute the bounds.
 		initShapes(points);
 		initBounds();

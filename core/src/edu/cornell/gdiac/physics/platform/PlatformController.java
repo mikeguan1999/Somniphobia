@@ -12,6 +12,7 @@ package edu.cornell.gdiac.physics.platform;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.audio.*;
 import com.badlogic.gdx.assets.*;
@@ -37,6 +38,8 @@ import edu.cornell.gdiac.physics.obstacle.*;
 public class PlatformController extends WorldController implements ContactListener {
 	/** Texture asset for character avatar */
 	private TextureRegion avatarTexture;
+	/** Texture asset for combined character avatar */
+	private TextureRegion combinedTexture;
 	/** Texture asset for the spinning barrier */
 	private TextureRegion barrierTexture;
 	/** Texture asset for the bullet */
@@ -70,6 +73,8 @@ public class PlatformController extends WorldController implements ContactListen
 	private DudeModel somni;
 	/** Reference to Phobia DudeModel*/
 	private DudeModel phobia;
+
+	private DudeModel combined;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 
@@ -77,7 +82,6 @@ public class PlatformController extends WorldController implements ContactListen
 	private boolean holdingHands;
 
 	/** Level */
-
 	int level = 2;
 
 
@@ -88,13 +92,26 @@ public class PlatformController extends WorldController implements ContactListen
 	protected ObjectSet<Fixture> lightSensorFixtures;
 	protected ObjectSet<Fixture> darkSensorFixtures;
 
+	protected ObjectSet<Fixture> combinedSensorFixtures;
 	//Platform logic
 	/** This values so light only interacts with light and dark only interacts with dark*/
-	private short lightplatformshort = 00010;
-	private short darkplatformshort = 00100;
-	private short somnishort = 01000;
-	private short phobiashort = 10000;
-	private short all = 11111;
+	private final short CATEGORY_LPLAT = 0x0001;  //0000000000000001
+	private final short CATEGORY_DPLAT = 0x0002;  //0000000000000010
+	private final short CATEGORY_SOMNI = 0x0004;  //0000000000000100
+	private final short CATEGORY_PHOBIA = 0x0008;	   	  //0000000000001000
+	private final short CATEGORY_COMBINED = 0x0010; 	  //0000000000010000
+	private final short CATEGORY_ALLPLAT = 0x0020;
+//	private short all = 11111;
+
+	private final short MASK_LPLAT = CATEGORY_SOMNI | CATEGORY_COMBINED; //Collides with all
+
+	private final short MASK_DPLAT = CATEGORY_PHOBIA | CATEGORY_COMBINED;
+//		private final short MASK_DPLAT = -1 ;
+
+	private final short MASK_SOMNI = CATEGORY_LPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_PHOBIA = CATEGORY_DPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
 	/**
 	 * Creates and initialize a new instance of the platformer game
@@ -102,7 +119,9 @@ public class PlatformController extends WorldController implements ContactListen
 	 * The game has default gravity and other settings
 	 */
 	public PlatformController() {
+
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
+		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
@@ -110,6 +129,7 @@ public class PlatformController extends WorldController implements ContactListen
 //		sensorFixtures = new ObjectSet<Fixture>();
 		lightSensorFixtures = new ObjectSet<Fixture>();
 		darkSensorFixtures = new ObjectSet<Fixture>();
+		combinedSensorFixtures = new ObjectSet<Fixture>();
 		holdingHands = false;
 	}
 
@@ -123,6 +143,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void gatherAssets(AssetDirectory directory) {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
+		combinedTexture = new TextureRegion(directory.getEntry("platform:combined",Texture.class));
 		barrierTexture = new TextureRegion(directory.getEntry("platform:barrier",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
 		bridgeTexture = new TextureRegion(directory.getEntry("platform:rope",Texture.class));
@@ -171,22 +192,29 @@ public class PlatformController extends WorldController implements ContactListen
 
 		//create filters
 		Filter lightplatf = new Filter();
-		lightplatf.categoryBits = lightplatformshort;
-		lightplatf.maskBits = somnishort;
+		lightplatf.categoryBits = CATEGORY_LPLAT;
+		lightplatf.maskBits = MASK_LPLAT;
 		Filter darkplatf = new Filter();
-		darkplatf.categoryBits = darkplatformshort;
-		darkplatf.maskBits = phobiashort;
-		Filter somniplatf = new Filter();
-		somniplatf.categoryBits = somnishort;
-		somniplatf.maskBits = lightplatformshort;
-		somniplatf.groupIndex = 011;
-		Filter phobiaplatf = new Filter();
-		phobiaplatf.categoryBits = phobiashort;
-		phobiaplatf.maskBits = darkplatformshort;
-		phobiaplatf.groupIndex = 011;
+		darkplatf.categoryBits = CATEGORY_DPLAT;
+		darkplatf.maskBits = MASK_DPLAT;
+		Filter somnif = new Filter();
+		somnif.categoryBits = CATEGORY_SOMNI;
+		somnif.maskBits = MASK_SOMNI;
+//		somniplatf.groupIndex = 011;
+		Filter phobiaf = new Filter();
+		phobiaf.categoryBits = CATEGORY_PHOBIA;
+		phobiaf.maskBits = MASK_PHOBIA;
+//		phobiaplatf.groupIndex = 011;
+		Filter combinedf = new Filter();
+		combinedf.categoryBits = CATEGORY_COMBINED;
+		combinedf.maskBits = MASK_COMBINED;
 		Filter allf = new Filter();
-		allf.groupIndex = 011;
+		allf.categoryBits = CATEGORY_ALLPLAT;
+		allf.maskBits = MASK_ALLPLAT;
+//		allf.groupIndex = 011;
 
+//		allf.categoryBits = CATEGORY_COMBINED;
+//		allf.maskBits = MASK_COMBINED;
 		JsonValue goal = constants.get("goalL" + level);
 		JsonValue goalpos = goal.get("pos");
 		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
@@ -200,12 +228,12 @@ public class PlatformController extends WorldController implements ContactListen
 		goalDoor.setName("goal");
 		addObject(goalDoor);
 
-		String wname = "wall";
-		JsonValue walljv = constants.get("walls");
-		JsonValue defaults = constants.get("defaults");
-		for (int ii = 0; ii < walljv.size; ii++) {
-			PolygonObstacle obj;
-			obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
+	    String wname = "wall";
+	    JsonValue walljv = constants.get("walls");
+	    JsonValue defaults = constants.get("defaults");
+	    for (int ii = 0; ii < walljv.size; ii++) {
+	        PolygonObstacle obj;
+	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
 			obj.setBodyType(BodyDef.BodyType.StaticBody);
 			obj.setDensity(defaults.getFloat( "density", 0.0f ));
 			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
@@ -215,8 +243,7 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(wname+ii);
 			obj.setFilterData(allf);
 			addObject(obj);
-		}
-
+	    }
 		String lightPlat = "lightL" + level;
 		JsonValue lightPlatJson = constants.get("lightL" + level);
 		String darkPlat = "darkL" + level;
@@ -225,8 +252,9 @@ public class PlatformController extends WorldController implements ContactListen
 		JsonValue grayPlatJson = constants.get("grayL" + level);
 		dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		dheight = avatarTexture.getRegionHeight()/scale.y;
-		somni = new DudeModel(constants.get("somniL" + level), dwidth, dheight, somniplatf, DudeModel.LIGHT);
-		phobia = new DudeModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaplatf, DudeModel.DARK);
+		System.out.println(level);
+		somni = new DudeModel(constants.get("somniL" + level), dwidth, dheight, somnif, DudeModel.LIGHT);
+		phobia = new DudeModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, DudeModel.DARK);
 
 		// Light platform
 		if (lightPlatJson != null) {
@@ -279,21 +307,39 @@ public class PlatformController extends WorldController implements ContactListen
 			}
 		}
 
-		// Create Somni
+
+	    // This world is heavier
+		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
+
+		// Create dude
+		dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		dheight = avatarTexture.getRegionHeight()/scale.y;
+		//somni = new DudeModel(constants.get("dude"), dwidth, dheight, somnif, DudeModel.LIGHT);
 		somni.setDrawScale(scale);
 		somni.setTexture(avatarTexture);
-		somni.setFilterData(somniplatf);
+		somni.setFilterData(somnif);
 		addObject(somni);
 
 		// Create Phobia
+		dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		dheight = avatarTexture.getRegionHeight()/scale.y;
+		//phobia = new DudeModel(constants.get("phobia"), dwidth, dheight, phobiaf, DudeModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(avatarTexture);
-		phobia.setFilterData(phobiaplatf);
+		phobia.setFilterData(phobiaf);
 		addObject(phobia);
 
-		// This world is heavier
-		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
+		dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		dheight = avatarTexture.getRegionHeight()/scale.y;
+		combined = new DudeModel(constants.get("combined"), dwidth, dheight, combinedf, DudeModel.DARK);
+		combined.setDrawScale(scale);
+		combined.setTexture(combinedTexture);
+		combined.setFilterData(combinedf);
+		addObject(combined);
 
+		objects.remove(combined);
+
+		combined.setActive(false);
 		//Set current avatar to somni
 		avatar = somni;
 
@@ -315,7 +361,6 @@ public class PlatformController extends WorldController implements ContactListen
 		if (!super.preUpdate(dt)) {
 			return false;
 		}
-
 		if (!isFailure() && somni.getY() < -1 || phobia.getY() < -1) {
 			setFailure(true);
 			return false;
@@ -336,30 +381,31 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void update(float dt) {
 		// Process actions in object model
+//		lightSensorFixtures.clear();
+//		darkSensorFixtures.clear();
 		InputController inputController = InputController.getInstance();
-		avatar.setMovement(inputController.getHorizontal() *avatar.getForce());
+		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
 		avatar.setShooting(inputController.didDash());
 
-
 		avatar.applyForce();
-		if (avatar.isJumping()) {
-			jumpId = playSound( jumpSound, jumpId, volume );
-		}
-		// Check if switched
+	    if (avatar.isJumping()) {
+	    	jumpId = playSound( jumpSound, jumpId, volume );
+	    }
+	    // Check if switched
 		if(inputController.didSwitch()) {
-			System.out.println("Switch Characters");
 			//Switch active character
-			avatar = avatar == somni ? phobia : somni;
+			if (!holdingHands) {
+				avatar = avatar == somni ? phobia : somni;
+			}
 		}
 		//Check if hand holding
 		if(inputController.didHoldHands()) {
-			System.out.println("Holding Hands");
 			handleHoldingHands();
 		}
-		// Check if dashed
-		if(inputController.didDash()) {
-			Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
+	    // Check if dashed
+	    if(inputController.didDash()) {
+	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
 			System.out.println("Dash in direction " + dashDirection.toString());
 		}
 	}
@@ -368,11 +414,86 @@ public class PlatformController extends WorldController implements ContactListen
 	 * Allow Somni and Phobia to hold hands if within range
 	 */
 	private void handleHoldingHands() {
-		if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
+		if (holdingHands) {
+			endHoldHands();
+			holdingHands = false;
+		}
+		else if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
 			System.out.println("close enough to hold hands!");
+			holdHands();
+			holdingHands = true;
 		}
 	}
 
+	/**
+	 * Stops holding hands
+	 */
+	private void endHoldHands() {
+		somni.setActive(true);
+		phobia.setActive(true);
+		combined.setActive(false);
+
+		objects.add(somni);
+		objects.add(phobia);
+		objects.remove(combined);
+
+		float avatarX = avatar.getX();
+		float avatarY = avatar.getY();
+		float avatarVX = avatar.getVX();
+		float avatarVY = avatar.getVY();
+
+		avatar = somni;
+		avatar.setPosition(avatarX, avatarY);
+		avatar.setVX(avatarVX);
+		avatar.setVY(avatarVY);
+		phobia.setPosition(avatarX - 1, avatarY);
+		phobia.setVX(avatarVX);
+		phobia.setVY(avatarVY);
+	}
+
+	/**
+	 * Somni and Phobia hold hands
+	 */
+	private void holdHands() {
+//		Vector2 anchor1 = new Vector2();
+//		Vector2 anchor2 = new Vector2(.1f,0);
+//
+//		RevoluteJointDef jointDef = new RevoluteJointDef();
+
+		somni.setActive(false);
+		phobia.setActive(false);
+		combined.setActive(true);
+
+		objects.remove(somni);
+		objects.remove(phobia);
+		objects.add(combined);
+
+		float avatarX = avatar.getX();
+		float avatarY = avatar.getY();
+		avatar = combined;
+		avatar.setPosition(avatarX, avatarY);
+
+
+//		System.out.println(lightSensorFixtures.size);
+//		System.out.println(darkSensorFixtures.size);
+
+//		jointDef.bodyA = somni.getBody();
+//		jointDef.bodyB = phobia.getBody();
+//		jointDef.localAnchorA.set(anchor1);
+//		jointDef.localAnchorB.set(anchor2);
+//		jointDef.collideConnected = false;
+//		Joint joint = world.createJoint(jointDef);
+////		joints.add(joint);
+	}
+
+	/**
+	 * Finds the Euclidean distance between two coordinates
+	 * @param x1 x value of first coord
+	 * @param y1 y value of first coord
+	 * @param x2 x value of second coord
+	 * @param y2 y value of second coord
+	 * @return The distance between two coordinates
+	 */
 	private float distance(float x1, float y1, float x2, float y2) {
 		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
@@ -405,7 +526,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 			// See if we have landed on the ground.
 			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
-					(somni.getSensorName().equals(fd1) && somni != bd2)) {
+				(somni.getSensorName().equals(fd1) && somni != bd2)) {
 				somni.setGrounded(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
 
@@ -414,6 +535,11 @@ public class PlatformController extends WorldController implements ContactListen
 					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
 				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
+			}
+			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1) ||
+					(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
+				avatar.setGrounded(true);
+				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
 			}
 
 			// Check for win condition
@@ -448,7 +574,7 @@ public class PlatformController extends WorldController implements ContactListen
 		Object bd2 = body2.getUserData();
 
 		if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
-				(somni.getSensorName().equals(fd1) && somni != bd2)) {
+			(somni.getSensorName().equals(fd1) && somni != bd2)) {
 
 			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
 
@@ -464,6 +590,14 @@ public class PlatformController extends WorldController implements ContactListen
 
 			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
+			}
+		}
+		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
+				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
+			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
+
+			if (combinedSensorFixtures.size == 0) {
+				avatar.setGrounded(false);
 			}
 		}
 	}
