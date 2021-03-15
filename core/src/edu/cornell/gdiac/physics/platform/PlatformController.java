@@ -10,7 +10,9 @@
  */
 package edu.cornell.gdiac.physics.platform;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.audio.*;
 import com.badlogic.gdx.assets.*;
@@ -25,10 +27,10 @@ import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
 /**
- * Gameplay specific controller for the platformer game.  
+ * Gameplay specific controller for the platformer game.
  *
- * You will notice that asset loading is not done with static methods this time.  
- * Instance asset loading makes it easier to process our game modes in a loop, which 
+ * You will notice that asset loading is not done with static methods this time.
+ * Instance asset loading makes it easier to process our game modes in a loop, which
  * is much more scalable. However, we still want the assets themselves to be static.
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
@@ -36,6 +38,8 @@ import edu.cornell.gdiac.physics.obstacle.*;
 public class PlatformController extends WorldController implements ContactListener {
 	/** Texture asset for character avatar */
 	private TextureRegion avatarTexture;
+	/** Texture asset for combined character avatar */
+	private TextureRegion combinedTexture;
 	/** Texture asset for the spinning barrier */
 	private TextureRegion barrierTexture;
 	/** Texture asset for the bullet */
@@ -62,15 +66,52 @@ public class PlatformController extends WorldController implements ContactListen
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
-	/** Reference to the character avatar */
+	/** Reference to the active character avatar */
 	private DudeModel avatar;
-	/** Reference to Phobia*/
+
+	/** Reference to Somni DudeModel*/
+	private DudeModel somni;
+	/** Reference to Phobia DudeModel*/
 	private DudeModel phobia;
+
+	private DudeModel combined;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 
+	/** Are characters currently holding hands */
+	private boolean holdingHands;
+
+	/** Level */
+	int level = 2;
+
+
+	private final float HAND_HOLDING_DISTANCE = 2f;
+
 	/** Mark set to handle more sophisticated collision callbacks */
-	protected ObjectSet<Fixture> sensorFixtures;
+//	protected ObjectSet<Fixture> sensorFixtures;
+	protected ObjectSet<Fixture> lightSensorFixtures;
+	protected ObjectSet<Fixture> darkSensorFixtures;
+
+	protected ObjectSet<Fixture> combinedSensorFixtures;
+	//Platform logic
+	/** This values so light only interacts with light and dark only interacts with dark*/
+	private final short CATEGORY_LPLAT = 0x0001;  //0000000000000001
+	private final short CATEGORY_DPLAT = 0x0002;  //0000000000000010
+	private final short CATEGORY_SOMNI = 0x0004;  //0000000000000100
+	private final short CATEGORY_PHOBIA = 0x0008;	   	  //0000000000001000
+	private final short CATEGORY_COMBINED = 0x0010; 	  //0000000000010000
+	private final short CATEGORY_ALLPLAT = 0x0020;
+//	private short all = 11111;
+
+	private final short MASK_LPLAT = CATEGORY_SOMNI | CATEGORY_COMBINED; //Collides with all
+
+	private final short MASK_DPLAT = CATEGORY_PHOBIA | CATEGORY_COMBINED;
+//		private final short MASK_DPLAT = -1 ;
+
+	private final short MASK_SOMNI = CATEGORY_LPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_PHOBIA = CATEGORY_DPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
+	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
 	/**
 	 * Creates and initialize a new instance of the platformer game
@@ -78,12 +119,18 @@ public class PlatformController extends WorldController implements ContactListen
 	 * The game has default gravity and other settings
 	 */
 	public PlatformController() {
+
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
+		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
 		world.setContactListener(this);
-		sensorFixtures = new ObjectSet<Fixture>();
+//		sensorFixtures = new ObjectSet<Fixture>();
+		lightSensorFixtures = new ObjectSet<Fixture>();
+		darkSensorFixtures = new ObjectSet<Fixture>();
+		combinedSensorFixtures = new ObjectSet<Fixture>();
+		holdingHands = false;
 	}
 
 	/**
@@ -96,6 +143,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void gatherAssets(AssetDirectory directory) {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
+		combinedTexture = new TextureRegion(directory.getEntry("platform:combined",Texture.class));
 		barrierTexture = new TextureRegion(directory.getEntry("platform:barrier",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
 		bridgeTexture = new TextureRegion(directory.getEntry("platform:rope",Texture.class));
@@ -110,7 +158,7 @@ public class PlatformController extends WorldController implements ContactListen
 		constants = directory.getEntry( "platform:constants", JsonValue.class );
 		super.gatherAssets(directory);
 	}
-	
+
 	/**
 	 * Resets the status of the game so that we can play again.
 	 *
@@ -118,30 +166,56 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void reset() {
 		Vector2 gravity = new Vector2(world.getGravity() );
-		
+
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
 		}
 		objects.clear();
 		addQueue.clear();
 		world.dispose();
-		
+
 		world = new World(gravity,false);
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		populateLevel();
+		populateLevel(level);
 	}
 
 	/**
 	 * Lays out the game geography.
 	 */
-	private void populateLevel() {
+	private void populateLevel(int level) {
+
 		// Add level goal
 		float dwidth  = goalTile.getRegionWidth()/scale.x;
 		float dheight = goalTile.getRegionHeight()/scale.y;
 
-		JsonValue goal = constants.get("goal");
+		//create filters
+		Filter lightplatf = new Filter();
+		lightplatf.categoryBits = CATEGORY_LPLAT;
+		lightplatf.maskBits = MASK_LPLAT;
+		Filter darkplatf = new Filter();
+		darkplatf.categoryBits = CATEGORY_DPLAT;
+		darkplatf.maskBits = MASK_DPLAT;
+		Filter somnif = new Filter();
+		somnif.categoryBits = CATEGORY_SOMNI;
+		somnif.maskBits = MASK_SOMNI;
+//		somniplatf.groupIndex = 011;
+		Filter phobiaf = new Filter();
+		phobiaf.categoryBits = CATEGORY_PHOBIA;
+		phobiaf.maskBits = MASK_PHOBIA;
+//		phobiaplatf.groupIndex = 011;
+		Filter combinedf = new Filter();
+		combinedf.categoryBits = CATEGORY_COMBINED;
+		combinedf.maskBits = MASK_COMBINED;
+		Filter allf = new Filter();
+		allf.categoryBits = CATEGORY_ALLPLAT;
+		allf.maskBits = MASK_ALLPLAT;
+//		allf.groupIndex = 011;
+
+//		allf.categoryBits = CATEGORY_COMBINED;
+//		allf.maskBits = MASK_COMBINED;
+		JsonValue goal = constants.get("goalL" + level);
 		JsonValue goalpos = goal.get("pos");
 		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
@@ -159,7 +233,7 @@ public class PlatformController extends WorldController implements ContactListen
 	    JsonValue defaults = constants.get("defaults");
 	    for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0, 0);
+	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
 			obj.setBodyType(BodyDef.BodyType.StaticBody);
 			obj.setDensity(defaults.getFloat( "density", 0.0f ));
 			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
@@ -167,56 +241,72 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setDrawScale(scale);
 			obj.setTexture(earthTile);
 			obj.setName(wname+ii);
+			obj.setFilterData(allf);
 			addObject(obj);
 	    }
+		String lightPlat = "lightL" + level;
+		JsonValue lightPlatJson = constants.get("lightL" + level);
+		String darkPlat = "darkL" + level;
+		JsonValue darkPlatJson = constants.get("darkL" + level);
+		String grayPlat = "grayL" + level;
+		JsonValue grayPlatJson = constants.get("grayL" + level);
+		dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		dheight = avatarTexture.getRegionHeight()/scale.y;
+		System.out.println(level);
+		somni = new DudeModel(constants.get("somniL" + level), dwidth, dheight, somnif, DudeModel.LIGHT);
+		phobia = new DudeModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, DudeModel.DARK);
 
-	    String pname = "platform";
-		JsonValue platjv = constants.get("platforms");
-	    for (int ii = 0; ii < platjv.size; ii++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(platjv.get(ii).asFloatArray(), 0, 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(earthTile);
-			obj.setName(pname+ii);
-			addObject(obj);
-	    }
+		// Light platform
+		if (lightPlatJson != null) {
+			for (int jj = 0; jj < lightPlatJson.size; jj++) {
+				PolygonObstacle obj;
+				obj = new PolygonObstacle(lightPlatJson.get(jj).asFloatArray(), 0, 0);
+				obj.setBodyType(BodyDef.BodyType.StaticBody);
+				obj.setDensity(defaults.getFloat( "density", 0.0f ));
+				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+				obj.setDrawScale(scale);
+				obj.setTexture(lightTexture);
+				obj.setName(lightPlat+jj);
+				obj.setFilterData(lightplatf);
+				addObject(obj);
+			}
+		}
 
-	    //NEW TILE PLATFORMS
-		/*
+		// Dark platform
+		if (darkPlatJson != null) {
+			for (int jj = 0; jj < darkPlatJson.size; jj++) {
+				PolygonObstacle obj;
+				obj = new PolygonObstacle(darkPlatJson.get(jj).asFloatArray(), 0, 0);
+				obj.setBodyType(BodyDef.BodyType.StaticBody);
+				obj.setDensity(defaults.getFloat( "density", 0.0f ));
+				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+				obj.setDrawScale(scale);
+				obj.setTexture(darkTexture);
+				obj.setName(darkPlat+jj);
+				obj.setFilterData(darkplatf);
+				addObject(obj);
+			}
+		}
 
-	    String tlpname = "tutorial light platform";
-		JsonValue lightplatjv = constants.get("tutorial light platform");
-	    for (int jj = 0; jj < lightplatjv.size; jj++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(lightplatjv.get(jj).asFloatArray(), 0, 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(lightTexture);
-			obj.setName(tlpname+jj);
-			addObject(obj);
-	    }
-	    String tdpname = "tutorial dark platform";
-		JsonValue darkplatjv = constants.get("tutorial dark platform");
-	    for (int jj = 0; jj < darkplatjv.size; jj++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(darkplatjv.get(jj).asFloatArray(), 0, 0, 1);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(darkTexture);
-			obj.setName(tdpname+jj);
-			addObject(obj);
-	    }
-		*/
+		if (grayPlatJson != null) {
+			// Gray platform
+			for (int ii = 0; ii < grayPlatJson.size; ii++) {
+				PolygonObstacle obj;
+				obj = new PolygonObstacle(grayPlatJson.get(ii).asFloatArray(), 0, 0);
+				obj.setBodyType(BodyDef.BodyType.StaticBody);
+				obj.setDensity(defaults.getFloat( "density", 0.0f ));
+				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+				obj.setDrawScale(scale);
+				obj.setTexture(earthTile);
+				obj.setName(grayPlat+ii);
+				obj.setFilterData(allf);
+				addObject(obj);
+			}
+		}
+
 
 	    // This world is heavier
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
@@ -224,38 +314,38 @@ public class PlatformController extends WorldController implements ContactListen
 		// Create dude
 		dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new DudeModel(constants.get("dude"), dwidth, dheight);
-		avatar.setDrawScale(scale);
-		avatar.setTexture(avatarTexture);
-		addObject(avatar);
+		//somni = new DudeModel(constants.get("dude"), dwidth, dheight, somnif, DudeModel.LIGHT);
+		somni.setDrawScale(scale);
+		somni.setTexture(avatarTexture);
+		somni.setFilterData(somnif);
+		addObject(somni);
 
 		// Create Phobia
 		dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		dheight = avatarTexture.getRegionHeight()/scale.y;
-		phobia = new DudeModel(constants.get("dude"), dwidth, dheight);
+		//phobia = new DudeModel(constants.get("phobia"), dwidth, dheight, phobiaf, DudeModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(avatarTexture);
+		phobia.setFilterData(phobiaf);
 		addObject(phobia);
 
-		// Create rope bridge
-		dwidth  = bridgeTexture.getRegionWidth()/scale.x;
-		dheight = bridgeTexture.getRegionHeight()/scale.y;
-		RopeBridge bridge = new RopeBridge(constants.get("bridge"), dwidth, dheight);
-		bridge.setTexture(bridgeTexture);
-		bridge.setDrawScale(scale);
-		addObject(bridge);
-		
-		// Create spinning platform
-		dwidth  = barrierTexture.getRegionWidth()/scale.x;
-		dheight = barrierTexture.getRegionHeight()/scale.y;
-		Spinner spinPlatform = new Spinner(constants.get("spinner"),dwidth,dheight);
-		spinPlatform.setDrawScale(scale);
-		spinPlatform.setTexture(barrierTexture);
-		addObject(spinPlatform);
+		dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		dheight = avatarTexture.getRegionHeight()/scale.y;
+		combined = new DudeModel(constants.get("combined"), dwidth, dheight, combinedf, DudeModel.DARK);
+		combined.setDrawScale(scale);
+		combined.setTexture(combinedTexture);
+		combined.setFilterData(combinedf);
+		addObject(combined);
+
+		objects.remove(combined);
+
+		combined.setActive(false);
+		//Set current avatar to somni
+		avatar = somni;
 
 		volume = constants.getFloat("volume", 1.0f);
 	}
-	
+
 	/**
 	 * Returns whether to process the update loop
 	 *
@@ -264,19 +354,18 @@ public class PlatformController extends WorldController implements ContactListen
 	 * normally.
 	 *
 	 * @param dt	Number of seconds since last animation frame
-	 * 
+	 *
 	 * @return whether to process the update loop
 	 */
 	public boolean preUpdate(float dt) {
 		if (!super.preUpdate(dt)) {
 			return false;
 		}
-		
-		if (!isFailure() && avatar.getY() < -1) {
+		if (!isFailure() && somni.getY() < -1 || phobia.getY() < -1) {
 			setFailure(true);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -292,62 +381,127 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void update(float dt) {
 		// Process actions in object model
-		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
-		avatar.setJumping(InputController.getInstance().didPrimary());
-		avatar.setShooting(InputController.getInstance().didSecondary());
-		
-		// Add a bullet if we fire
-		if (avatar.isShooting()) {
-			createBullet();
-		}
-		
+//		lightSensorFixtures.clear();
+//		darkSensorFixtures.clear();
+		InputController inputController = InputController.getInstance();
+		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
+		avatar.setJumping(inputController.didJump());
+		avatar.setShooting(inputController.didDash());
+
 		avatar.applyForce();
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
 	    }
+	    // Check if switched
+		if(inputController.didSwitch()) {
+			//Switch active character
+			if (!holdingHands) {
+				avatar = avatar == somni ? phobia : somni;
+			}
+		}
+		//Check if hand holding
+		if(inputController.didHoldHands()) {
+			handleHoldingHands();
+		}
+	    // Check if dashed
+	    if(inputController.didDash()) {
+	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
+			System.out.println("Dash in direction " + dashDirection.toString());
+		}
 	}
 
 	/**
-	 * Add a new bullet to the world and send it in the right direction.
+	 * Allow Somni and Phobia to hold hands if within range
 	 */
-	private void createBullet() {
-		JsonValue bulletjv = constants.get("bullet");
-		float offset = bulletjv.getFloat("offset",0);
-		offset *= (avatar.isFacingRight() ? 1 : -1);
-		float radius = bulletTexture.getRegionWidth()/(2.0f*scale.x);
-		WheelObstacle bullet = new WheelObstacle(avatar.getX()+offset, avatar.getY(), radius);
-		
-	    bullet.setName("bullet");
-		bullet.setDensity(bulletjv.getFloat("density", 0));
-	    bullet.setDrawScale(scale);
-	    bullet.setTexture(bulletTexture);
-	    bullet.setBullet(true);
-	    bullet.setGravityScale(0);
-		
-		// Compute position and velocity
-		float speed = bulletjv.getFloat( "speed", 0 );
-		speed  *= (avatar.isFacingRight() ? 1 : -1);
-		bullet.setVX(speed);
-		addQueuedObject(bullet);
-
-		fireId = playSound( fireSound, fireId );
+	private void handleHoldingHands() {
+		if (holdingHands) {
+			endHoldHands();
+			holdingHands = false;
+		}
+		else if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
+			System.out.println("close enough to hold hands!");
+			holdHands();
+			holdingHands = true;
+		}
 	}
-	
+
 	/**
-	 * Remove a new bullet from the world.
-	 *
-	 * @param  bullet   the bullet to remove
+	 * Stops holding hands
 	 */
-	public void removeBullet(Obstacle bullet) {
-	    bullet.markRemoved(true);
-	    plopId = playSound( plopSound, plopId );
+	private void endHoldHands() {
+		somni.setActive(true);
+		phobia.setActive(true);
+		combined.setActive(false);
+
+		objects.add(somni);
+		objects.add(phobia);
+		objects.remove(combined);
+
+		float avatarX = avatar.getX();
+		float avatarY = avatar.getY();
+		float avatarVX = avatar.getVX();
+		float avatarVY = avatar.getVY();
+
+		avatar = somni;
+		avatar.setPosition(avatarX, avatarY);
+		avatar.setVX(avatarVX);
+		avatar.setVY(avatarVY);
+		phobia.setPosition(avatarX - 1, avatarY);
+		phobia.setVX(avatarVX);
+		phobia.setVY(avatarVY);
 	}
 
-	
+	/**
+	 * Somni and Phobia hold hands
+	 */
+	private void holdHands() {
+//		Vector2 anchor1 = new Vector2();
+//		Vector2 anchor2 = new Vector2(.1f,0);
+//
+//		RevoluteJointDef jointDef = new RevoluteJointDef();
+
+		somni.setActive(false);
+		phobia.setActive(false);
+		combined.setActive(true);
+
+		objects.remove(somni);
+		objects.remove(phobia);
+		objects.add(combined);
+
+		float avatarX = avatar.getX();
+		float avatarY = avatar.getY();
+		avatar = combined;
+		avatar.setPosition(avatarX, avatarY);
+
+
+//		System.out.println(lightSensorFixtures.size);
+//		System.out.println(darkSensorFixtures.size);
+
+//		jointDef.bodyA = somni.getBody();
+//		jointDef.bodyB = phobia.getBody();
+//		jointDef.localAnchorA.set(anchor1);
+//		jointDef.localAnchorB.set(anchor2);
+//		jointDef.collideConnected = false;
+//		Joint joint = world.createJoint(jointDef);
+////		joints.add(joint);
+	}
+
+	/**
+	 * Finds the Euclidean distance between two coordinates
+	 * @param x1 x value of first coord
+	 * @param y1 y value of first coord
+	 * @param x2 x value of second coord
+	 * @param y2 y value of second coord
+	 * @return The distance between two coordinates
+	 */
+	private float distance(float x1, float y1, float x2, float y2) {
+		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	}
+
 	/**
 	 * Callback method for the start of a collision
 	 *
-	 * This method is called when we first get a collision between two objects.  We use 
+	 * This method is called when we first get a collision between two objects.  We use
 	 * this method to test if it is the "right" kind of collision.  In particular, we
 	 * use it to test if we made it to the win door.
 	 *
@@ -362,62 +516,35 @@ public class PlatformController extends WorldController implements ContactListen
 
 		Object fd1 = fix1.getUserData();
 		Object fd2 = fix2.getUserData();
-		
+
 		try {
 			Obstacle bd1 = (Obstacle)body1.getUserData();
 			Obstacle bd2 = (Obstacle)body2.getUserData();
 			int tile1 = -1;
 			int tile2 = -1;
-			try{
-				if(((PolygonObstacle)bd1).getType() == 0 ){
-					tile1 = 0;
-				}
-				else if(((PolygonObstacle)bd1).getType() == 1 ){
-					tile1 = 1;
-				}
-				else{
-					tile1 = 2;
-				}
-			}catch (Exception e) {
-				tile1 = -1;
-			}
-			try{
-				if(((PolygonObstacle)bd2).getType() == 0 ){
-					tile2 = 0;
-				}
-				else if(((PolygonObstacle)bd2).getType() == 1 ){
-					tile2 = 1;
-				}
-				else{
-					tile2 = 2;
-				}
-			}catch (Exception e) {
-				tile2 = -1;
-			}
-			// Test bullet collision with world
-			if (bd1.getName().equals("bullet") && bd2 != avatar) {
-		        removeBullet(bd1);
-			}
 
-			if (bd2.getName().equals("bullet") && bd1 != avatar) {
-		        removeBullet(bd2);
-			}
 
 			// See if we have landed on the ground.
-			if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-				avatar.setGrounded(true);
-				sensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
+			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
+				(somni.getSensorName().equals(fd1) && somni != bd2)) {
+				somni.setGrounded(true);
+				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+
 			}
 			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
-				sensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
+				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
 			}
-			
+			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1) ||
+					(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
+				avatar.setGrounded(true);
+				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
+			}
+
 			// Check for win condition
 			if ((bd1 == avatar   && bd2 == goalDoor) ||
-				(bd1 == goalDoor && bd2 == avatar)) {
+					(bd1 == goalDoor && bd2 == avatar)) {
 				setComplete(true);
 			}
 		} catch (Exception e) {
@@ -432,7 +559,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 * This method is called when two objects cease to touch.  The main use of this method
 	 * is to determine when the characer is NOT on the ground.  This is how we prevent
 	 * double jumping.
-	 */ 
+	 */
 	public void endContact(Contact contact) {
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
@@ -442,19 +569,39 @@ public class PlatformController extends WorldController implements ContactListen
 
 		Object fd1 = fix1.getUserData();
 		Object fd2 = fix2.getUserData();
-		
+
 		Object bd1 = body1.getUserData();
 		Object bd2 = body2.getUserData();
 
+		if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
+			(somni.getSensorName().equals(fd1) && somni != bd2)) {
+
+			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
+
+			if (lightSensorFixtures.size == 0) {
+				somni.setGrounded(false);
+
+
+			}
+		}
+		if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
+				(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
+			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
+
+			if (darkSensorFixtures.size == 0) {
+				phobia.setGrounded(false);
+			}
+		}
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-			sensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
-			if (sensorFixtures.size == 0) {
+				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
+			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
+
+			if (combinedSensorFixtures.size == 0) {
 				avatar.setGrounded(false);
 			}
 		}
 	}
-	
+
 	/** Unused ContactListener method */
 	public void postSolve(Contact contact, ContactImpulse impulse) {}
 	/** Unused ContactListener method */
