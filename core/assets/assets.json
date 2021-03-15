@@ -4,6 +4,10 @@
       "file": "shared/earthtile.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
+    },"shared:all": {
+      "file": "shared/alltile.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
     },
     "shared:dark": {
       "file": "platform/TileDark.png",
