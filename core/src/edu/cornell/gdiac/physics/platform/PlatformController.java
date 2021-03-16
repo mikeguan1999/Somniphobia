@@ -688,15 +688,15 @@ public class PlatformController extends WorldController implements ContactListen
 
 
 			// See if we have landed on the ground.
-			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
-				(somni.getSensorName().equals(fd1) && somni != bd2)) {
+			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
+				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
 				somni.setGrounded(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
 //				somni.canJump = true;
 
 			}
-			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
-					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
+			if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
+					(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
 				phobia.setGrounded(true);
 				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
 //				phobia.canJump = true;
