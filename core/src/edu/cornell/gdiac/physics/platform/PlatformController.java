@@ -144,7 +144,7 @@ public class PlatformController extends WorldController implements ContactListen
 	private boolean holdingHands;
 
 	/** Level */
-	int level = 2;
+	private int level;
 
 	private final float HAND_HOLDING_DISTANCE = 2f;
 
@@ -340,24 +340,8 @@ public class PlatformController extends WorldController implements ContactListen
 		addObject(goalDoor);
 		addObjectTo(goalDoor, sharedtag);
 
-	    String wname = "wall";
-	    JsonValue walljv = constants.get("walls");
 	    JsonValue defaults = constants.get("defaults");
-		/*
-	    for (int ii = 0; ii < walljv.size; ii++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(earthTile);
-			obj.setName(wname+ii);
-			obj.setFilterData(allf);
-			addObject(obj);
-			addObjectTo(goalDoor, 0);
-	    }*/
+
 		String lightPlat = "lightL" + level;
 		JsonValue lightPlatJson = constants.get("lightL" + level);
 		String darkPlat = "darkL" + level;
@@ -368,14 +352,19 @@ public class PlatformController extends WorldController implements ContactListen
 		// Light platform
 		if (lightPlatJson != null) {
 			for (int jj = 0; jj < lightPlatJson.size; jj++) {
-				PolygonObstacle obj;
-				obj = new PolygonObstacle(lightPlatJson.get(jj).asFloatArray(), 0, 0);
+				BoxObstacle obj;
+				float[] bounds = lightPlatJson.get(jj).asFloatArray();
+				float width = bounds[2]-bounds[0];
+				float height = bounds[5]-bounds[1];
+				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
 				obj.setBodyType(BodyDef.BodyType.StaticBody);
 				obj.setDensity(defaults.getFloat( "density", 0.0f ));
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
-				obj.setTexture(lightTexture);
+				TextureRegion newLightTexture = new TextureRegion(lightTexture);
+				newLightTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+				obj.setTexture(newLightTexture);
 				obj.setName(lightPlat+jj);
 				obj.setFilterData(lightplatf);
 				addObject(obj);
@@ -386,14 +375,19 @@ public class PlatformController extends WorldController implements ContactListen
 		// Dark platform
 		if (darkPlatJson != null) {
 			for (int jj = 0; jj < darkPlatJson.size; jj++) {
-				PolygonObstacle obj;
-				obj = new PolygonObstacle(darkPlatJson.get(jj).asFloatArray(), 0, 0);
+				BoxObstacle obj;
+				float[] bounds = darkPlatJson.get(jj).asFloatArray();
+				float width = bounds[2]-bounds[0];
+				float height = bounds[5]-bounds[1];
+				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
 				obj.setBodyType(BodyDef.BodyType.StaticBody);
 				obj.setDensity(defaults.getFloat( "density", 0.0f ));
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
-				obj.setTexture(darkTexture);
+				TextureRegion newDarkTexture = new TextureRegion(darkTexture);
+				newDarkTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+				obj.setTexture(newDarkTexture);
 				obj.setName(darkPlat+jj);
 				obj.setFilterData(darkplatf);
 				addObject(obj);
@@ -403,16 +397,21 @@ public class PlatformController extends WorldController implements ContactListen
 
 		if (grayPlatJson != null) {
 			// Gray platform
-			for (int ii = 0; ii < grayPlatJson.size; ii++) {
-				PolygonObstacle obj;
-				obj = new PolygonObstacle(grayPlatJson.get(ii).asFloatArray(), 0, 0);
+			for (int jj = 0; jj < grayPlatJson.size; jj++) {
+				BoxObstacle obj;
+				float[] bounds = grayPlatJson.get(jj).asFloatArray();
+				float width = bounds[2]-bounds[0];
+				float height = bounds[5]-bounds[1];
+				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
 				obj.setBodyType(BodyDef.BodyType.StaticBody);
 				obj.setDensity(defaults.getFloat( "density", 0.0f ));
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
-				obj.setTexture(allTexture);
-				obj.setName(grayPlat+ii);
+				TextureRegion newAllTexture = new TextureRegion(allTexture);
+				newAllTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+				obj.setTexture(newAllTexture);
+				obj.setName(grayPlat+jj);
 				obj.setFilterData(allf);
 				addObject(obj);
 				addObjectTo(obj, sharedtag);
@@ -672,7 +671,6 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param contact The two bodies that collided
 	 */
 	public void beginContact(Contact contact) {
-		System.out.println("Collision begin");
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -730,7 +728,6 @@ public class PlatformController extends WorldController implements ContactListen
 	 * double jumping.
 	 */
 	public void endContact(Contact contact) {
-		System.out.println("Collision end");
 
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
@@ -750,10 +747,7 @@ public class PlatformController extends WorldController implements ContactListen
 			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
 
 			if (lightSensorFixtures.size == 0) {
-				System.out.println("not grounded");
 				somni.setGrounded(false);
-
-
 			}
 		}
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
