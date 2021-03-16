@@ -130,6 +130,22 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 
+	/** shared objects */
+	protected PooledList<Obstacle> sharedObjects  = new PooledList<Obstacle>();
+	/** shared objects */
+	protected PooledList<Obstacle> lightObjects  = new PooledList<Obstacle>();
+	/** shared objects */
+	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
+
+	private int sharedtag = 0;
+	private int lighttag = 1;
+	private int darktag = 2;
+
+	private boolean lightclear = false;
+	private boolean darkclear = false;
+	private boolean sharedclear = false;
+	private boolean allclear = false;
+
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
 
@@ -253,7 +269,19 @@ public class PlatformController extends WorldController implements ContactListen
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
 		}
+		for(Obstacle obj : sharedObjects) {
+			obj.deactivatePhysics(world);
+		}
+		for(Obstacle obj : darkObjects) {
+			obj.deactivatePhysics(world);
+		}
+		for(Obstacle obj : lightObjects) {
+			obj.deactivatePhysics(world);
+		}
 		objects.clear();
+		sharedObjects.clear();
+		lightObjects.clear();
+		darkObjects.clear();
 		addQueue.clear();
 		world.dispose();
 
@@ -315,6 +343,7 @@ public class PlatformController extends WorldController implements ContactListen
 		goalDoor.setTexture(goalTile);
 		goalDoor.setName("goal");
 		addObject(goalDoor);
+		addObjectTo(goalDoor, sharedtag);
 
 	    String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
@@ -332,6 +361,7 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(wname+ii);
 			obj.setFilterData(allf);
 			addObject(obj);
+			addObjectTo(goalDoor, 0);
 	    }*/
 		String lightPlat = "lightL" + level;
 		JsonValue lightPlatJson = constants.get("lightL" + level);
@@ -354,6 +384,7 @@ public class PlatformController extends WorldController implements ContactListen
 				obj.setName(lightPlat+jj);
 				obj.setFilterData(lightplatf);
 				addObject(obj);
+				addObjectTo(obj, lighttag);
 			}
 		}
 
@@ -371,6 +402,7 @@ public class PlatformController extends WorldController implements ContactListen
 				obj.setName(darkPlat+jj);
 				obj.setFilterData(darkplatf);
 				addObject(obj);
+				addObjectTo(obj, darktag);
 			}
 		}
 
@@ -388,6 +420,7 @@ public class PlatformController extends WorldController implements ContactListen
 				obj.setName(grayPlat+ii);
 				obj.setFilterData(allf);
 				addObject(obj);
+				addObjectTo(obj, sharedtag);
 			}
 		}
 
@@ -403,6 +436,8 @@ public class PlatformController extends WorldController implements ContactListen
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
 		addObject(somni);
+		addObjectTo(somni, sharedtag);
+		somni.setActive(true);
 
 		// Create Phobia
 		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
@@ -412,6 +447,8 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
 		addObject(phobia);
+		addObjectTo(phobia, sharedtag);
+		phobia.setActive(true);
 
 		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
 		dheight = somniPhobiaTexture.getRegionHeight()/scale.y;
@@ -420,14 +457,16 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
 		addObject(combined);
+		addObjectTo(combined, sharedtag);
+		combined.setActive(true);
 
 		objects.remove(combined);
+		sharedObjects.remove(combined);
 
 		combined.setActive(false);
 		action = 0;
 		//Set current avatar to somni
 		avatar = somni;
-
 		volume = constants.getFloat("volume", 1.0f);
 	}
 
@@ -468,11 +507,14 @@ public class PlatformController extends WorldController implements ContactListen
 		// Process actions in object model
 //		lightSensorFixtures.clear();
 //		darkSensorFixtures.clear();
+
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
 		avatar.setDashing(inputController.didDash(), inputController.getHorizontal(), inputController.getVertical());
+
 		avatar.applyForce();
+		//handleworldview();
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
 	    } else if (avatar.isDashing()) {
@@ -523,6 +565,7 @@ public class PlatformController extends WorldController implements ContactListen
 	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
 			System.out.println("Dash in direction " + dashDirection.toString());
 		}
+
 	}
 
 	/**
@@ -548,9 +591,9 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setActive(true);
 		combined.setActive(false);
 
-		objects.add(somni);
-		objects.add(phobia);
-		objects.remove(combined);
+		sharedObjects.add(somni);
+		sharedObjects.add(phobia);
+		sharedObjects.remove(combined);
 
 		float avatarX = avatar.getX();
 		float avatarY = avatar.getY();
@@ -586,9 +629,9 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setActive(true);
 
 		lead = avatar;
-		objects.remove(somni);
-		objects.remove(phobia);
-		objects.add(combined);
+		sharedObjects.remove(somni);
+		sharedObjects.remove(phobia);
+		sharedObjects.add(combined);
 
 		float avatarX = avatar.getX();
 		float avatarY = avatar.getY();
@@ -740,18 +783,69 @@ public class PlatformController extends WorldController implements ContactListen
 		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
 		canvas.end();
 
-		canvas.begin();
-		for(Obstacle obj : objects) {
-			obj.draw(canvas);
+
+		if(avatar == somni){
+			canvas.begin();
+			for(Obstacle obj : sharedObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : lightObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+		}else if (avatar == phobia){
+			canvas.begin();
+			for(Obstacle obj : sharedObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : darkObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+		}else{
+			canvas.begin();
+			for(Obstacle obj : sharedObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : lightObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : darkObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
 		}
-		canvas.end();
 
 		if (isDebug()) {
-			canvas.beginDebug();
+			/*canvas.beginDebug();
 			for(Obstacle obj : objects) {
 				obj.drawDebug(canvas);
 			}
+			canvas.endDebug();*/
+			canvas.beginDebug();
+			for(Obstacle obj : sharedObjects) {
+				obj.drawDebug(canvas);
+			}
 			canvas.endDebug();
+			canvas.beginDebug();
+			for(Obstacle obj : lightObjects) {
+				obj.drawDebug(canvas);
+			}
+			canvas.endDebug();
+			canvas.beginDebug();
+			for(Obstacle obj : darkObjects) {
+				obj.drawDebug(canvas);
+			}
+			canvas.endDebug();
+
 		}
 		// Final message
 		if (isComplete() && !isFailure()) {
@@ -789,4 +883,30 @@ public class PlatformController extends WorldController implements ContactListen
 			fireSound.stop(fireId);
 		}
 	}
+
+	/**
+	 * adds objects to correct list
+	 * 0 for shared
+	 * 1 for light
+	 * else for dark
+	 * @param obj obstacle to add
+	 * @param l index
+	 */
+	private void addObjectTo(Obstacle obj, int l){
+		assert inBounds(obj) : "Object is not in bounds";
+		if( l == sharedtag){
+			sharedObjects.add(obj);
+			//obj.activatePhysics(world);
+		}
+		else if( l == lighttag){
+			lightObjects.add(obj);
+			//obj.activatePhysics(world);
+		}else{
+			darkObjects.add(obj);
+			//obj.activatePhysics(world);
+		}
+	}
+
+
+
 }
