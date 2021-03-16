@@ -144,8 +144,7 @@ public class PlatformController extends WorldController implements ContactListen
 	private boolean holdingHands;
 
 	/** Level */
-	int level = 1;
-
+	int level = 2;
 
 	private final float HAND_HOLDING_DISTANCE = 2f;
 
@@ -175,12 +174,13 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+
 	/**
 	 * Creates and initialize a new instance of the platformer game
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public PlatformController() {
+	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
 		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
@@ -193,6 +193,7 @@ public class PlatformController extends WorldController implements ContactListen
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
 		holdingHands = false;
+		this.level = level;
 	}
 
 	/**
@@ -429,6 +430,7 @@ public class PlatformController extends WorldController implements ContactListen
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
+		somni.setBullet(true);
 		addObject(somni);
 		addObjectTo(somni, sharedtag);
 		somni.setActive(true);
@@ -440,6 +442,7 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
+		phobia.setBullet(true);
 		addObject(phobia);
 		addObjectTo(phobia, sharedtag);
 		phobia.setActive(true);
@@ -450,6 +453,7 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
+		combined.setBullet(true);
 		addObject(combined);
 		addObjectTo(combined, sharedtag);
 		combined.setActive(true);
@@ -558,7 +562,6 @@ public class PlatformController extends WorldController implements ContactListen
 	    if(inputController.didDash() && holdingHands) {
 	    	endHoldHands();
 		}
-
 	}
 
 	/**
@@ -569,8 +572,6 @@ public class PlatformController extends WorldController implements ContactListen
 			endHoldHands();
 		}
 		else if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
-			System.out.println("close enough to hold hands!");
-
 			holdHands();
 		}
 	}
@@ -583,9 +584,12 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setActive(true);
 		combined.setActive(false);
 
+		objects.add(somni);
+		objects.add(phobia);
 		sharedObjects.add(somni);
 		sharedObjects.add(phobia);
 		sharedObjects.remove(combined);
+		objects.remove(combined);
 
 		float avatarX = avatar.getX();
 		float avatarY = avatar.getY();
@@ -598,11 +602,13 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.setVY(avatarVY);
 		float dampeningFactor = -0.25f;
 		if(lead == phobia){
+			phobia.setCanDash(true);
 			somni.setPosition(avatarX - 1, avatarY);
 			somni.setVX(avatarVX * dampeningFactor);
 			somni.setVY(0);
 			somni.setFacingRight(combined.isFacingRight());
 		}else {
+			somni.setCanDash(true);
 			phobia.setPosition(avatarX - 1, avatarY);
 			phobia.setVX(avatarVX * dampeningFactor);
 			phobia.setVY(0);
@@ -627,6 +633,9 @@ public class PlatformController extends WorldController implements ContactListen
 		lead = avatar;
 		sharedObjects.remove(somni);
 		sharedObjects.remove(phobia);
+		objects.remove(somni);
+		objects.remove(phobia);
+		objects.add(combined);
 		sharedObjects.add(combined);
 		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
 
@@ -663,6 +672,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param contact The two bodies that collided
 	 */
 	public void beginContact(Contact contact) {
+		System.out.println("Collision begin");
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -684,18 +694,22 @@ public class PlatformController extends WorldController implements ContactListen
 				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
 				somni.setGrounded(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+//				somni.canJump = true;
 
 			}
 			if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
 					(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
 				phobia.setGrounded(true);
 				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
+//				phobia.canJump = true;
 			}
 			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 					(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 				avatar.setGrounded(true);
 				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
+//				combined.canJump = true;
 			}
+
 
 			// Check for win condition
 			if ((bd1 == combined   && bd2 == goalDoor) ||
@@ -716,6 +730,8 @@ public class PlatformController extends WorldController implements ContactListen
 	 * double jumping.
 	 */
 	public void endContact(Contact contact) {
+		System.out.println("Collision end");
+
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -734,6 +750,7 @@ public class PlatformController extends WorldController implements ContactListen
 			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
 
 			if (lightSensorFixtures.size == 0) {
+				System.out.println("not grounded");
 				somni.setGrounded(false);
 
 

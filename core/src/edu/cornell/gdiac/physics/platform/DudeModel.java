@@ -126,6 +126,10 @@ public class DudeModel extends CapsuleObstacle {
 		return isDashing && !canDash && dashCooldown <= 0;
 	}
 
+	public void setCanDash(boolean value) {
+		canDash = value;
+	}
+
 	/**
 	 * Sets whether the dude is actively dashing. If so, set the dashing direction of this dude.
 	 *
