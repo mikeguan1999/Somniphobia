@@ -40,12 +40,6 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion avatarTexture;
 	/** Texture asset for combined character avatar */
 	private TextureRegion combinedTexture;
-	/** Texture asset for the spinning barrier */
-	private TextureRegion barrierTexture;
-	/** Texture asset for the bullet */
-	private TextureRegion bulletTexture;
-	/** Texture asset for the bridge plank */
-	private TextureRegion bridgeTexture;
 	/** Texture asset for light tiles*/
 	private TextureRegion lightTexture;
 	/** Texture asset for dark tiles*/
@@ -130,6 +124,22 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 
+	/** shared objects */
+	protected PooledList<Obstacle> sharedObjects  = new PooledList<Obstacle>();
+	/** shared objects */
+	protected PooledList<Obstacle> lightObjects  = new PooledList<Obstacle>();
+	/** shared objects */
+	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
+
+	private int sharedtag = 0;
+	private int lighttag = 1;
+	private int darktag = 2;
+
+	private boolean lightclear = false;
+	private boolean darkclear = false;
+	private boolean sharedclear = false;
+	private boolean allclear = false;
+
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
 
@@ -198,14 +208,13 @@ public class PlatformController extends WorldController implements ContactListen
 	public void gatherAssets(AssetDirectory directory) {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
 		combinedTexture = new TextureRegion(directory.getEntry("platform:combined",Texture.class));
-		barrierTexture = new TextureRegion(directory.getEntry("platform:barrier",Texture.class));
-		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
-		bridgeTexture = new TextureRegion(directory.getEntry("platform:rope",Texture.class));
-		//tiles
+
+		// Tiles
 		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
 		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
 		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
-		//base models
+
+		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
 		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:somni_dash_side",Texture.class));
@@ -214,7 +223,8 @@ public class PlatformController extends WorldController implements ContactListen
 		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
 		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_side",Texture.class));
 		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_up",Texture.class));
-		//combined models
+
+		// Combined models
 		somniPhobiaTexture  = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 		somniPhobiaWalkTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_walk",Texture.class));
 		somniPhobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_dash_side",Texture.class));
@@ -226,6 +236,7 @@ public class PlatformController extends WorldController implements ContactListen
 		backgroundDarkTexture = new TextureRegion(directory.getEntry("platform:background_dark",Texture.class));
 		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
 		backgroundTexture = backgroundLightTexture;
+
 		TextureRegion [] somnis = {somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
 		somnisTexture = somnis;
 		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
@@ -234,7 +245,6 @@ public class PlatformController extends WorldController implements ContactListen
 		somniphobiasTexture = somniphobias;
 		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
 		phobiasomnisTexture = phobiasomnis;
-
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -255,11 +265,25 @@ public class PlatformController extends WorldController implements ContactListen
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
 		}
+		for(Obstacle obj : sharedObjects) {
+			obj.deactivatePhysics(world);
+		}
+		for(Obstacle obj : darkObjects) {
+			obj.deactivatePhysics(world);
+		}
+		for(Obstacle obj : lightObjects) {
+			obj.deactivatePhysics(world);
+		}
 		objects.clear();
+		sharedObjects.clear();
+		lightObjects.clear();
+		darkObjects.clear();
 		addQueue.clear();
 		world.dispose();
 
+		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
+		avatar = somni;
 		lead = somni;
 
 		world = new World(gravity,false);
@@ -315,11 +339,12 @@ public class PlatformController extends WorldController implements ContactListen
 		goalDoor.setTexture(goalTile);
 		goalDoor.setName("goal");
 		addObject(goalDoor);
+		addObjectTo(goalDoor, sharedtag);
 
 	    String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 	    JsonValue defaults = constants.get("defaults");
-
+		/*
 	    for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
 	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
@@ -332,7 +357,8 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(wname+ii);
 			obj.setFilterData(allf);
 			addObject(obj);
-	    }
+			addObjectTo(goalDoor, 0);
+	    }*/
 		String lightPlat = "lightL" + level;
 		JsonValue lightPlatJson = constants.get("lightL" + level);
 		String darkPlat = "darkL" + level;
@@ -354,6 +380,7 @@ public class PlatformController extends WorldController implements ContactListen
 				obj.setName(lightPlat+jj);
 				obj.setFilterData(lightplatf);
 				addObject(obj);
+				addObjectTo(obj, lighttag);
 			}
 		}
 
@@ -371,6 +398,7 @@ public class PlatformController extends WorldController implements ContactListen
 				obj.setName(darkPlat+jj);
 				obj.setFilterData(darkplatf);
 				addObject(obj);
+				addObjectTo(obj, darktag);
 			}
 		}
 
@@ -384,10 +412,11 @@ public class PlatformController extends WorldController implements ContactListen
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
-				obj.setTexture(earthTile);
+				obj.setTexture(allTexture);
 				obj.setName(grayPlat+ii);
 				obj.setFilterData(allf);
 				addObject(obj);
+				addObjectTo(obj, sharedtag);
 			}
 		}
 
@@ -404,6 +433,8 @@ public class PlatformController extends WorldController implements ContactListen
 		somni.setFilterData(somnif);
 		somni.setBullet(true);
 		addObject(somni);
+		addObjectTo(somni, sharedtag);
+		somni.setActive(true);
 
 		// Create Phobia
 		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
@@ -414,6 +445,8 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setFilterData(phobiaf);
 		phobia.setBullet(true);
 		addObject(phobia);
+		addObjectTo(phobia, sharedtag);
+		phobia.setActive(true);
 
 		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
 		dheight = somniPhobiaTexture.getRegionHeight()/scale.y;
@@ -423,14 +456,16 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setFilterData(combinedf);
 		combined.setBullet(true);
 		addObject(combined);
+		addObjectTo(combined, sharedtag);
+		combined.setActive(true);
 
 		objects.remove(combined);
+		sharedObjects.remove(combined);
 
 		combined.setActive(false);
 		action = 0;
 		//Set current avatar to somni
 		avatar = somni;
-
 		volume = constants.getFloat("volume", 1.0f);
 	}
 
@@ -449,7 +484,7 @@ public class PlatformController extends WorldController implements ContactListen
 		if (!super.preUpdate(dt)) {
 			return false;
 		}
-		if (!isFailure() && somni.getY() < -1 || phobia.getY() < -1) {
+		if (!isFailure() && (somni.getY() < -1 || phobia.getY() < -1 || combined.getY() < -1)) {
 			setFailure(true);
 			return false;
 		}
@@ -471,11 +506,14 @@ public class PlatformController extends WorldController implements ContactListen
 		// Process actions in object model
 //		lightSensorFixtures.clear();
 //		darkSensorFixtures.clear();
+
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
 		avatar.setDashing(inputController.didDash(), inputController.getHorizontal(), inputController.getVertical());
+
 		avatar.applyForce();
+		//handleworldview();
 	    if (avatar.isJumping()) {
 	    	jumpId = playSound( jumpSound, jumpId, volume );
 	    } else if (avatar.isDashing()) {
@@ -521,11 +559,11 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.setTexture(phobiasTexture[action]);
 			}
 		}
-	    // Check if dashed
-	    if(inputController.didDash()) {
-	    	Vector2 dashDirection = new Vector2(inputController.getHorizontal(), inputController.getVertical()).nor();
-			System.out.println("Dash in direction " + dashDirection.toString());
+	    // Check for propel
+	    if(inputController.didDash() && holdingHands) {
+	    	endHoldHands();
 		}
+
 	}
 
 	/**
@@ -534,12 +572,11 @@ public class PlatformController extends WorldController implements ContactListen
 	private void handleHoldingHands() {
 		if (holdingHands) {
 			endHoldHands();
-			holdingHands = false;
 		}
 		else if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
 			System.out.println("close enough to hold hands!");
+
 			holdHands();
-			holdingHands = true;
 		}
 	}
 
@@ -551,9 +588,9 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setActive(true);
 		combined.setActive(false);
 
-		objects.add(somni);
-		objects.add(phobia);
-		objects.remove(combined);
+		sharedObjects.add(somni);
+		sharedObjects.add(phobia);
+		sharedObjects.remove(combined);
 
 		float avatarX = avatar.getX();
 		float avatarY = avatar.getY();
@@ -564,15 +601,19 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.setPosition(avatarX, avatarY);
 		avatar.setVX(avatarVX);
 		avatar.setVY(avatarVY);
+		float dampeningFactor = -0.25f;
 		if(lead == phobia){
 			somni.setPosition(avatarX - 1, avatarY);
-			somni.setVX(avatarVX);
-			somni.setVY(avatarVY);
+			somni.setVX(avatarVX * dampeningFactor);
+			somni.setVY(0);
+			somni.setFacingRight(combined.isFacingRight());
 		}else {
 			phobia.setPosition(avatarX - 1, avatarY);
-			phobia.setVX(avatarVX);
-			phobia.setVY(avatarVY);
+			phobia.setVX(avatarVX * dampeningFactor);
+			phobia.setVY(0);
+			phobia.setFacingRight(combined.isFacingRight());
 		}
+		holdingHands = false;
 	}
 
 	/**
@@ -589,27 +630,20 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setActive(true);
 
 		lead = avatar;
-		objects.remove(somni);
-		objects.remove(phobia);
-		objects.add(combined);
+		sharedObjects.remove(somni);
+		sharedObjects.remove(phobia);
+		sharedObjects.add(combined);
+		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
 
-		float avatarX = avatar.getX();
-		float avatarY = avatar.getY();
+
+		DudeModel follower = somni == avatar ? phobia : somni;
+		float avatarX = follower.getX();
+		float avatarY = follower.getY();
 
 		avatar = combined;
 		avatar.setPosition(avatarX, avatarY);
 
-
-//		System.out.println(lightSensorFixtures.size);
-//		System.out.println(darkSensorFixtures.size);
-
-//		jointDef.bodyA = somni.getBody();
-//		jointDef.bodyB = phobia.getBody();
-//		jointDef.localAnchorA.set(anchor1);
-//		jointDef.localAnchorB.set(anchor2);
-//		jointDef.collideConnected = false;
-//		Joint joint = world.createJoint(jointDef);
-////		joints.add(joint);
+		holdingHands = true;
 	}
 
 	/**
@@ -674,8 +708,8 @@ public class PlatformController extends WorldController implements ContactListen
 
 
 			// Check for win condition
-			if ((bd1 == avatar   && bd2 == goalDoor) ||
-					(bd1 == goalDoor && bd2 == avatar)) {
+			if ((bd1 == combined   && bd2 == goalDoor) ||
+					(bd1 == goalDoor && bd2 == combined)) {
 				setComplete(true);
 			}
 		} catch (Exception e) {
@@ -750,18 +784,69 @@ public class PlatformController extends WorldController implements ContactListen
 		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
 		canvas.end();
 
-		canvas.begin();
-		for(Obstacle obj : objects) {
-			obj.draw(canvas);
+
+		if(avatar == somni){
+			canvas.begin();
+			for(Obstacle obj : sharedObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : lightObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+		}else if (avatar == phobia){
+			canvas.begin();
+			for(Obstacle obj : sharedObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : darkObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+		}else{
+			canvas.begin();
+			for(Obstacle obj : sharedObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : lightObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+			canvas.begin();
+			for(Obstacle obj : darkObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
 		}
-		canvas.end();
 
 		if (isDebug()) {
-			canvas.beginDebug();
+			/*canvas.beginDebug();
 			for(Obstacle obj : objects) {
 				obj.drawDebug(canvas);
 			}
+			canvas.endDebug();*/
+			canvas.beginDebug();
+			for(Obstacle obj : sharedObjects) {
+				obj.drawDebug(canvas);
+			}
 			canvas.endDebug();
+			canvas.beginDebug();
+			for(Obstacle obj : lightObjects) {
+				obj.drawDebug(canvas);
+			}
+			canvas.endDebug();
+			canvas.beginDebug();
+			for(Obstacle obj : darkObjects) {
+				obj.drawDebug(canvas);
+			}
+			canvas.endDebug();
+
 		}
 		// Final message
 		if (isComplete() && !isFailure()) {
@@ -799,4 +884,30 @@ public class PlatformController extends WorldController implements ContactListen
 			fireSound.stop(fireId);
 		}
 	}
+
+	/**
+	 * adds objects to correct list
+	 * 0 for shared
+	 * 1 for light
+	 * else for dark
+	 * @param obj obstacle to add
+	 * @param l index
+	 */
+	private void addObjectTo(Obstacle obj, int l){
+		assert inBounds(obj) : "Object is not in bounds";
+		if( l == sharedtag){
+			sharedObjects.add(obj);
+			//obj.activatePhysics(world);
+		}
+		else if( l == lighttag){
+			lightObjects.add(obj);
+			//obj.activatePhysics(world);
+		}else{
+			darkObjects.add(obj);
+			//obj.activatePhysics(world);
+		}
+	}
+
+
+
 }
