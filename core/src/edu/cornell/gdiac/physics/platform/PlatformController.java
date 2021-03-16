@@ -689,21 +689,21 @@ public class PlatformController extends WorldController implements ContactListen
 			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2)) {
 				somni.setGrounded(true);
-//				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
-				somni.canJump = true;
+				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+//				somni.canJump = true;
 
 			}
 			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
-//				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
-				phobia.canJump = true;
+				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
+//				phobia.canJump = true;
 			}
 			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 					(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 				avatar.setGrounded(true);
-//				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
-				combined.canJump = true;
+				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
+//				combined.canJump = true;
 			}
 
 
@@ -743,29 +743,29 @@ public class PlatformController extends WorldController implements ContactListen
 		if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
 			(somni.getSensorName().equals(fd1) && somni != bd2)) {
 
-//			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
+			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
 
-//			if (lightSensorFixtures.size == 0) {
+			if (lightSensorFixtures.size == 0) {
 				somni.setGrounded(false);
 
 
-//			}
+			}
 		}
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 				(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
-//			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
+			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
 
-//			if (darkSensorFixtures.size == 0) {
+			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
-//			}
+			}
 		}
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-//			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
+			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
 
-//			if (combinedSensorFixtures.size == 0) {
+			if (combinedSensorFixtures.size == 0) {
 				avatar.setGrounded(false);
-//			}
+			}
 		}
 	}
 
