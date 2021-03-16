@@ -750,6 +750,7 @@ public class PlatformController extends WorldController implements ContactListen
 			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
 
 			if (lightSensorFixtures.size == 0) {
+				System.out.println("not grounded");
 				somni.setGrounded(false);
 
 
