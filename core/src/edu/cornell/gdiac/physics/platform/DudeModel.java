@@ -145,16 +145,6 @@ public class DudeModel extends CapsuleObstacle {
 	}
 
 	/**
-	 * Sets whether the dude can dash.
-	 *
-	 * @param value whether the dude can dash.
-	 */
-	public void setCanDash(boolean value) {
-		canDash = value;
-	}
-
-
-	/**
 	 * Returns true if the dude is on the ground.
 	 *
 	 * @return true if the dude is on the ground.
@@ -221,6 +211,15 @@ public class DudeModel extends CapsuleObstacle {
 	 */
 	public boolean isFacingRight() {
 		return faceRight;
+	}
+
+	/**
+	 * Sets whether the dude is facing right.
+	 *
+	 * @param value whether the dude is facing right.
+	 */
+	public void setFacingRight(boolean value) {
+		faceRight = value;
 	}
 
 	/**
