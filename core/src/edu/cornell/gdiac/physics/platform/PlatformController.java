@@ -174,12 +174,13 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+
 	/**
 	 * Creates and initialize a new instance of the platformer game
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public PlatformController() {
+	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
 		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
@@ -192,6 +193,7 @@ public class PlatformController extends WorldController implements ContactListen
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
 		holdingHands = false;
+		this.level = level;
 	}
 
 	/**
@@ -428,6 +430,7 @@ public class PlatformController extends WorldController implements ContactListen
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
+		somni.setBullet(true);
 		addObject(somni);
 		addObjectTo(somni, sharedtag);
 		somni.setActive(true);
@@ -439,6 +442,7 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
+		phobia.setBullet(true);
 		addObject(phobia);
 		addObjectTo(phobia, sharedtag);
 		phobia.setActive(true);
@@ -449,6 +453,7 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
+		combined.setBullet(true);
 		addObject(combined);
 		addObjectTo(combined, sharedtag);
 		combined.setActive(true);
@@ -667,6 +672,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param contact The two bodies that collided
 	 */
 	public void beginContact(Contact contact) {
+		System.out.println("Collision begin");
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -688,18 +694,22 @@ public class PlatformController extends WorldController implements ContactListen
 				(somni.getSensorName().equals(fd1) && somni != bd2)) {
 				somni.setGrounded(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+//				somni.canJump = true;
 
 			}
 			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
 				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
+//				phobia.canJump = true;
 			}
 			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 					(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 				avatar.setGrounded(true);
 				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
+//				combined.canJump = true;
 			}
+
 
 			// Check for win condition
 			if ((bd1 == combined   && bd2 == goalDoor) ||
@@ -720,6 +730,8 @@ public class PlatformController extends WorldController implements ContactListen
 	 * double jumping.
 	 */
 	public void endContact(Contact contact) {
+		System.out.println("Collision end");
+
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
