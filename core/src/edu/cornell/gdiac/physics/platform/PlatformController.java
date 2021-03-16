@@ -134,7 +134,7 @@ public class PlatformController extends WorldController implements ContactListen
 	private boolean holdingHands;
 
 	/** Level */
-	int level = 1;
+	private int level;
 
 
 	private final float HAND_HOLDING_DISTANCE = 2f;
@@ -165,12 +165,13 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+
 	/**
 	 * Creates and initialize a new instance of the platformer game
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public PlatformController() {
+	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
 		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
@@ -183,6 +184,7 @@ public class PlatformController extends WorldController implements ContactListen
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
 		holdingHands = false;
+		this.level = level;
 	}
 
 	/**
@@ -400,6 +402,7 @@ public class PlatformController extends WorldController implements ContactListen
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
+		somni.setBullet(true);
 		addObject(somni);
 
 		// Create Phobia
@@ -409,6 +412,7 @@ public class PlatformController extends WorldController implements ContactListen
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
+		phobia.setBullet(true);
 		addObject(phobia);
 
 		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
@@ -417,6 +421,7 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
+		combined.setBullet(true);
 		addObject(combined);
 
 		objects.remove(combined);
@@ -629,6 +634,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param contact The two bodies that collided
 	 */
 	public void beginContact(Contact contact) {
+		System.out.println("Collision begin");
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -649,19 +655,23 @@ public class PlatformController extends WorldController implements ContactListen
 			if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2)) {
 				somni.setGrounded(true);
-				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+//				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+				somni.canJump = true;
 
 			}
 			if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 					(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
 				phobia.setGrounded(true);
-				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
+//				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
+				phobia.canJump = true;
 			}
 			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 					(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 				avatar.setGrounded(true);
-				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
+//				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
+				combined.canJump = true;
 			}
+
 
 			// Check for win condition
 			if ((bd1 == avatar   && bd2 == goalDoor) ||
@@ -682,6 +692,8 @@ public class PlatformController extends WorldController implements ContactListen
 	 * double jumping.
 	 */
 	public void endContact(Contact contact) {
+		System.out.println("Collision end");
+
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -697,29 +709,29 @@ public class PlatformController extends WorldController implements ContactListen
 		if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
 			(somni.getSensorName().equals(fd1) && somni != bd2)) {
 
-			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
+//			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
 
-			if (lightSensorFixtures.size == 0) {
+//			if (lightSensorFixtures.size == 0) {
 				somni.setGrounded(false);
 
 
-			}
+//			}
 		}
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
 				(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
-			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
+//			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
 
-			if (darkSensorFixtures.size == 0) {
+//			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
-			}
+//			}
 		}
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
+//			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
 
-			if (combinedSensorFixtures.size == 0) {
+//			if (combinedSensorFixtures.size == 0) {
 				avatar.setGrounded(false);
-			}
+//			}
 		}
 	}
 

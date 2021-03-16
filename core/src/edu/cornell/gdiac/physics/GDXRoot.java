@@ -35,7 +35,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
 	/** The World Controller */
-	private WorldController controller;
+	private WorldController[] controllers;
+	/** Player mode for the the game proper (CONTROLLER CLASS) */
+	private int current;
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -57,7 +59,12 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		// Initialize the Platformer Controller
 
-		controller = new PlatformController();
+		controllers = new WorldController[3];
+		controllers[0] = new PlatformController(0);
+		controllers[1] = new PlatformController(1);
+		controllers[2] = new PlatformController(2);
+
+
 		loading.setScreenListener(this);
 		setScreen(loading);
 	}
@@ -71,7 +78,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		// Call dispose on our children
 		setScreen(null);
 
-		controller.dispose();
+		for(int ii = 0; ii < controllers.length; ii++) {
+			controllers[ii].dispose();
+		}
+
 
 		canvas.dispose();
 		canvas = null;
@@ -109,28 +119,30 @@ public class GDXRoot extends Game implements ScreenListener {
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
 		if (screen == loading) {
+			for(int ii = 0; ii < controllers.length; ii++) {
 
-			directory = loading.getAssets();
-			controller.gatherAssets(directory);
-			controller.setScreenListener(this);
-			controller.setCanvas(canvas);
+				directory = loading.getAssets();
+				controllers[ii].gatherAssets(directory);
+				controllers[ii].setScreenListener(this);
+				controllers[ii].setCanvas(canvas);
+			}
 
-
-			controller.reset();
-			setScreen(controller);
+			controllers[current].reset();
+			setScreen(controllers[current]);
 
 			
 			loading.dispose();
 			loading = null;
 		} else if (exitCode == WorldController.EXIT_NEXT) {
-
-			controller.reset();
-			setScreen(controller);
+			current = (current + 1 ) % controllers.length;
+			controllers[current].reset();
+			setScreen(controllers[current]);
 		} else if (exitCode == WorldController.EXIT_PREV) {
 
+			current = (current+controllers.length-1) % controllers.length;
 
-			controller.reset();
-			setScreen(controller);
+			controllers[current].reset();
+			setScreen(controllers[current]);
 		} else if (exitCode == WorldController.EXIT_QUIT) {
 			// We quit the main application
 			Gdx.app.exit();

@@ -41,6 +41,9 @@ public class InputController {
 	}
 	
 	// Fields to manage buttons
+	/** Whether the button to advanced worlds was pressed. */
+	private boolean nextPressed;
+	private boolean nextPrevious;
 	/** Whether the reset button was pressed. */
 	private boolean resetPressed;
 	private boolean resetPrevious;
@@ -62,6 +65,9 @@ public class InputController {
 	/** Whether the exit button was pressed. */
 	private boolean exitPressed;
 	private boolean exitPrevious;
+
+	private boolean prevPressed;
+	private boolean prevPrevious;
 	
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -87,6 +93,25 @@ public class InputController {
 	 * @return the amount of vertical movement. 
 	 */
 	public float getVertical() { return vertical; }
+
+	/**
+	 * Returns true if the player wants to go to the next level.
+	 *
+	 * @return true if the player wants to go to the next level.
+	 */
+	public boolean didAdvance() {
+		return nextPressed && !nextPrevious;
+	}
+
+	/**
+	 * Returns true if the player wants to go to the previous level.
+	 *
+	 * @return true if the player wants to go to the previous level.
+	 */
+	public boolean didRetreat() {
+		return prevPressed && !prevPrevious;
+	}
+
 
 	/**
 	 * Returns true if the jump button was pressed.
@@ -163,6 +188,7 @@ public class InputController {
 		return exitPressed && !exitPrevious;
 	}
 
+
 	/**
 	 * Reads the input for the player and converts the result into game logic.
 	 */
@@ -176,6 +202,8 @@ public class InputController {
 		resetPrevious  = resetPressed;
 		debugPrevious  = debugPressed;
 		exitPrevious = exitPressed;
+		nextPrevious = nextPressed;
+		prevPrevious = prevPressed;
 
 		readKeyboard();
 	}
@@ -192,6 +220,8 @@ public class InputController {
 		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);
 		switchPressed = Gdx.input.isKeyPressed(Input.Keys.D);
 		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
+		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
+		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
 
 		// Directional controls
 
