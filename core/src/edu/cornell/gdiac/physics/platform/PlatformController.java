@@ -701,8 +701,8 @@ public class PlatformController extends WorldController implements ContactListen
 				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
 //				phobia.canJump = true;
 			}
-			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-					(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
+			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
+					(avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
 				avatar.setGrounded(true);
 				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
 //				combined.canJump = true;
@@ -741,8 +741,8 @@ public class PlatformController extends WorldController implements ContactListen
 		Object bd1 = body1.getUserData();
 		Object bd2 = body2.getUserData();
 
-		if ((somni.getSensorName().equals(fd2) && somni != bd1) ||
-			(somni.getSensorName().equals(fd1) && somni != bd2)) {
+		if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
+			(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
 
 			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
 
@@ -750,16 +750,16 @@ public class PlatformController extends WorldController implements ContactListen
 				somni.setGrounded(false);
 			}
 		}
-		if ((phobia.getSensorName().equals(fd2) && phobia != bd1) ||
-				(phobia.getSensorName().equals(fd1) && phobia != bd2)) {
+		if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
+				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
 			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
 
 			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
 			}
 		}
-		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
+		if ((avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
+				(avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
 			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
 
 			if (combinedSensorFixtures.size == 0) {
