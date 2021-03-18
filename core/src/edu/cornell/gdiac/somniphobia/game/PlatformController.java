@@ -8,7 +8,7 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * Updated asset version, 2/6/2021
  */
-package edu.cornell.gdiac.physics.platform;
+package edu.cornell.gdiac.somniphobia.game;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.*;
@@ -23,8 +23,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.util.*;
-import edu.cornell.gdiac.physics.*;
-import edu.cornell.gdiac.physics.obstacle.*;
+import edu.cornell.gdiac.somniphobia.*;
+import edu.cornell.gdiac.somniphobia.obstacle.*;
 
 /**
  * Gameplay specific controller for the platformer game.
@@ -205,8 +205,8 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherAssets(AssetDirectory directory) {
-		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
-		combinedTexture = new TextureRegion(directory.getEntry("platform:combined",Texture.class));
+		avatarTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
+		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 
 		// Tiles
 		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));

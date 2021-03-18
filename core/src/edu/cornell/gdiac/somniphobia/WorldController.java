@@ -14,7 +14,7 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * LibGDX version, 2/6/2015
  */
-package edu.cornell.gdiac.physics;
+package edu.cornell.gdiac.somniphobia;
 
 import java.util.Iterator;
 
@@ -29,7 +29,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.util.*;
-import edu.cornell.gdiac.physics.obstacle.*;
+import edu.cornell.gdiac.somniphobia.obstacle.*;
 
 /**
  * Base class for a world-specific controller.
@@ -285,7 +285,7 @@ public abstract class WorldController implements Screen {
 	 */
 	public void gatherAssets(AssetDirectory directory) {
 		// Allocate the tiles
-		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
+//		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		goalTile  = new TextureRegion(directory.getEntry( "shared:goal", Texture.class ));
 		displayFont = directory.getEntry( "shared:retro" ,BitmapFont.class);
 	}
