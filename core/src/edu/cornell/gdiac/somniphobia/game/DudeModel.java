@@ -212,6 +212,10 @@ public class DudeModel extends CapsuleObstacle {
 	 * @param dir_Y vertical component of the dash
 	 */
 	public void dashOrPropel(boolean isPropel, float dir_X, float dir_Y) {
+		if(isGrounded && dir_Y < 0) {
+			return;
+		}
+
 		if (dir_X == 0 && dir_Y == 0) {
 			// Default dash in direction player faces
 			dashDirection.set(isFacingRight() ? 1 : -1, 0);
