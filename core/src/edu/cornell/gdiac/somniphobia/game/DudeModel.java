@@ -32,6 +32,8 @@ public class DudeModel extends CapsuleObstacle {
 	private final float force;
 	/** The amount to slow the character down */
 	private final float damping;
+	/** The amount to slow the character down during dashing*/
+	private final float dashDamping;
 	/** The maximum character speed */
 	private final float maxspeed;
 	/** Identifier to allow us to track the sensor in ContactListener */
@@ -109,6 +111,7 @@ public class DudeModel extends CapsuleObstacle {
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
+		dashDamping = .3f;
 //		jumpForce = data.getFloat( "jump_force", 0 );
 		jumpForce = 8f;
 		jumpLimit = data.getInt( "jump_cool", 0 );
@@ -427,10 +430,17 @@ public class DudeModel extends CapsuleObstacle {
 		if(isDashing) {
 //			System.out.println("dashing");
 			float currDashDist = getPosition().dst(dashStartPos);
-			if (currDashDist >= dashDistance) {
+			forceCache.set(-3*getVX(),-3*getVY());
+			body.applyForce(forceCache,getPosition(),true);
+//			if (currDashDist >= dashDistance) {
+//				setDashing(false);
+//				forceCache.set(0,0);
+//				setLinearVelocity(forceCache);
+//			}
+			if(Math.abs(getVY()) <= 3f && Math.abs(getVX()) <= 3f) {
 				setDashing(false);
-				forceCache.set(0,0);
-				setLinearVelocity(forceCache);
+//				forceCache.set(0,0);
+//				setLinearVelocity(forceCache);
 			}
 
 		}
