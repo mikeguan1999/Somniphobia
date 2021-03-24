@@ -8,20 +8,17 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * Updated asset version, 2/6/2021
  */
-package edu.cornell.gdiac.somniphobia.game;
+package edu.cornell.gdiac.somniphobia.game.controllers;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.audio.*;
-import com.badlogic.gdx.assets.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
+import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
@@ -111,16 +108,16 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Physics constants for initialization */
 	private JsonValue constants;
 	/** Reference to the active character avatar */
-	private DudeModel avatar;
+	private CharacterModel avatar;
 
 	/** Reference to Somni DudeModel*/
-	private DudeModel somni;
+	private CharacterModel somni;
 	/** Reference to Phobia DudeModel*/
-	private DudeModel phobia;
+	private CharacterModel phobia;
 	/** Reference to leading DudeModel*/
-	private DudeModel lead;
+	private CharacterModel lead;
 	/** Reference to combined DudeModel*/
-	private DudeModel combined;
+	private CharacterModel combined;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 
@@ -425,7 +422,7 @@ public class PlatformController extends WorldController implements ContactListen
 		// Create dude
 		dwidth  = somniTexture.getRegionWidth()/scale.x;
 		dheight = somniTexture.getRegionHeight()/scale.y;
-		somni = new DudeModel(constants.get("somniL" + level), dwidth, dheight, somnif, DudeModel.LIGHT);
+		somni = new CharacterModel(constants.get("somniL" + level), dwidth, dheight, somnif, CharacterModel.LIGHT);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
@@ -437,7 +434,7 @@ public class PlatformController extends WorldController implements ContactListen
 		// Create Phobia
 		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
 		dheight = phobiaTexture.getRegionHeight()/scale.y;
-		phobia = new DudeModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, DudeModel.DARK);
+		phobia = new CharacterModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, CharacterModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
@@ -448,7 +445,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
 		dheight = somniPhobiaTexture.getRegionHeight()/scale.y;
-		combined = new DudeModel(constants.get("combined"), dwidth, dheight, combinedf, DudeModel.DARK);
+		combined = new CharacterModel(constants.get("combined"), dwidth, dheight, combinedf, CharacterModel.DARK);
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
@@ -513,7 +510,7 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.applyForce();
 		//handleworldview();
 	    if (avatar.isJumping()) {
-	    	jumpId = playSound( jumpSound, jumpId, volume );
+	    	//jumpId = playSound( jumpSound, jumpId, volume );
 	    } else if (avatar.isDashing()) {
 	    	// some dash sound
 		}
@@ -639,7 +636,7 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
 
 
-		DudeModel follower = somni == avatar ? phobia : somni;
+		CharacterModel follower = somni == avatar ? phobia : somni;
 		float avatarX = follower.getX();
 		float avatarY = follower.getY();
 
