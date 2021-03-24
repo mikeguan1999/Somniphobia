@@ -388,7 +388,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		if (grayPlatJson != null) {
 			// Gray platform
-			for (int jj = 5; jj < grayPlatJson.size; jj++) {
+			for (int jj = 0; jj < grayPlatJson.size; jj++) {
 				BoxObstacle obj;
 				float[] bounds = grayPlatJson.get(jj).asFloatArray();
 				float width = bounds[2]-bounds[0];
