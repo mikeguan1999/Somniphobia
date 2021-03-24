@@ -159,12 +159,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short CATEGORY_PHOBIA = 0x0008;	   	  //0000000000001000
 	private final short CATEGORY_COMBINED = 0x0010; 	  //0000000000010000
 	private final short CATEGORY_ALLPLAT = 0x0020;
-//	private short all = 11111;
 
 	private final short MASK_LPLAT = CATEGORY_SOMNI | CATEGORY_COMBINED; //Collides with all
 
 	private final short MASK_DPLAT = CATEGORY_PHOBIA | CATEGORY_COMBINED;
-//		private final short MASK_DPLAT = -1 ;
 
 	private final short MASK_SOMNI = CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_PHOBIA = CATEGORY_DPLAT | CATEGORY_ALLPLAT;
@@ -185,7 +183,6 @@ public class PlatformController extends WorldController implements ContactListen
 		setComplete(false);
 		setFailure(false);
 		world.setContactListener(this);
-//		sensorFixtures = new ObjectSet<Fixture>();
 		lightSensorFixtures = new ObjectSet<Fixture>();
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
@@ -308,18 +305,15 @@ public class PlatformController extends WorldController implements ContactListen
 		Filter somnif = new Filter();
 		somnif.categoryBits = CATEGORY_SOMNI;
 		somnif.maskBits = MASK_SOMNI;
-//		somniplatf.groupIndex = 011;
 		Filter phobiaf = new Filter();
 		phobiaf.categoryBits = CATEGORY_PHOBIA;
 		phobiaf.maskBits = MASK_PHOBIA;
-//		phobiaplatf.groupIndex = 011;
 		Filter combinedf = new Filter();
 		combinedf.categoryBits = CATEGORY_COMBINED;
 		combinedf.maskBits = MASK_COMBINED;
 		Filter allf = new Filter();
 		allf.categoryBits = CATEGORY_ALLPLAT;
 		allf.maskBits = MASK_ALLPLAT;
-//		allf.groupIndex = 011;
 
 //		allf.categoryBits = CATEGORY_COMBINED;
 //		allf.maskBits = MASK_COMBINED;
