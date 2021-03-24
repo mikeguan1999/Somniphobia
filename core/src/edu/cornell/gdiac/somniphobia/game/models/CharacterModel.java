@@ -92,9 +92,9 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setMovement(float value) {
 		movement = value; 
 		// Change facing if appropriate
-		if (movement < 0) {
+		if (movement > 0) {
 			faceRight = false;
-		} else if (movement > 0) {
+		} else if (movement < 0) {
 			faceRight = true;
 		}
 	}
