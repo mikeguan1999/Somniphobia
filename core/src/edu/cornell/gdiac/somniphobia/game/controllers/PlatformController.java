@@ -523,7 +523,7 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.applyForce();
 		//handleworldview();
 	    if (avatar.isJumping()) {
-	    	jumpId = playSound( jumpSound, jumpId, volume );
+	    	//jumpId = playSound( jumpSound, jumpId, volume );
 	    } else if (avatar.isDashing()) {
 	    	// some dash sound
 		}

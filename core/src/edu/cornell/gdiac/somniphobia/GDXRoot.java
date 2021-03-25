@@ -11,7 +11,7 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * Updated asset version, 2/6/2021
  */
- package edu.cornell.gdiac.somniphobia;
+package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
@@ -57,13 +57,14 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas  = new GameCanvas();
 		loading = new LoadingMode("assets.json",canvas,1);
 
-		// Initialize the Platformer Controller
+		// menu = new MenuController();
 
+		// Initialize the Platformer Controller
+		// TODO
 		controllers = new WorldController[3];
 		controllers[0] = new PlatformController(0);
 		controllers[1] = new PlatformController(1);
 		controllers[2] = new PlatformController(2);
-
 
 		loading.setScreenListener(this);
 		setScreen(loading);

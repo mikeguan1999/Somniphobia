@@ -46,8 +46,6 @@ import edu.cornell.gdiac.somniphobia.obstacle.*;
  * place nicely with the static assets.
  */
 public abstract class WorldController implements Screen {
-	/** The texture for walls and platforms */
-	protected TextureRegion earthTile;
 	/** The texture for the exit condition */
 	protected TextureRegion goalTile;
 	/** The font for giving messages to the player */
@@ -79,9 +77,9 @@ public abstract class WorldController implements Screen {
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
 	/** All the objects in the world. */
-	protected PooledList<Obstacle> objects  = new PooledList<Obstacle>();
+	protected PooledList<Obstacle> objects  = new PooledList<>();
 	/** Queue for adding objects */
-	protected PooledList<Obstacle> addQueue = new PooledList<Obstacle>();
+	protected PooledList<Obstacle> addQueue = new PooledList<>();
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
 
@@ -285,7 +283,6 @@ public abstract class WorldController implements Screen {
 	 */
 	public void gatherAssets(AssetDirectory directory) {
 		// Allocate the tiles
-//		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		goalTile  = new TextureRegion(directory.getEntry( "shared:goal", Texture.class ));
 		displayFont = directory.getEntry( "shared:retro" ,BitmapFont.class);
 	}

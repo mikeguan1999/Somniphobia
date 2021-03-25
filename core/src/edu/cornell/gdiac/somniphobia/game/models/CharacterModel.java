@@ -484,4 +484,5 @@ public class CharacterModel extends CapsuleObstacle {
 		super.drawDebug(canvas);
 		canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);
 	}
+
 }
