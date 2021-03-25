@@ -505,7 +505,20 @@ public class PlatformController extends WorldController implements ContactListen
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
-		avatar.setDashing(inputController.didDash(), inputController.getHorizontal(), inputController.getVertical());
+
+
+
+		if(inputController.didDash()) {
+			if (holdingHands) {
+				// Check for propel
+				endHoldHands();
+				avatar.dashOrPropel(true, inputController.getHorizontal(), inputController.getVertical());
+
+			} else {
+				avatar.dashOrPropel(false, inputController.getHorizontal(), inputController.getVertical());
+			}
+		}
+
 
 		avatar.applyForce();
 		//handleworldview();
@@ -513,6 +526,12 @@ public class PlatformController extends WorldController implements ContactListen
 	    	//jumpId = playSound( jumpSound, jumpId, volume );
 	    } else if (avatar.isDashing()) {
 	    	// some dash sound
+		}
+
+	    if (avatar.isDashing()) {
+	    	avatar.setGravityScale(0f);
+		} else {
+	    	avatar.setGravityScale(1);
 		}
 	    // Check if switched
 		if(inputController.didSwitch()) {
@@ -554,10 +573,7 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.setTexture(phobiasTexture[action]);
 			}
 		}
-	    // Check for propel
-	    if(inputController.didDash() && holdingHands) {
-	    	endHoldHands();
-		}
+
 	}
 
 	/**
@@ -684,9 +700,21 @@ public class PlatformController extends WorldController implements ContactListen
 			int tile2 = -1;
 
 
+			// See if we have collided with a wall
+			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
+					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
+					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
+				System.out.println("collision");
+				avatar.setDashing(false);
+				avatar.setGravityScale(1);
+
+			}
+
+
 			// See if we have landed on the ground.
 			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
+				System.out.println("collided with wall");
 				somni.setGrounded(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
 //				somni.canJump = true;
@@ -750,6 +778,7 @@ public class PlatformController extends WorldController implements ContactListen
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
 				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
 			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
+
 
 			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
