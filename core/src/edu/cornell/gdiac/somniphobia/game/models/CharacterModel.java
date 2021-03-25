@@ -8,7 +8,7 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * Updated asset version, 2/6/2021
  */
-package edu.cornell.gdiac.somniphobia.game;
+package edu.cornell.gdiac.somniphobia.game.models;
 
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
@@ -24,7 +24,7 @@ import edu.cornell.gdiac.somniphobia.obstacle.*;
  * Note that this class returns to static loading.  That is because there are
  * no other subclasses that we might loop through.
  */
-public class DudeModel extends CapsuleObstacle {
+public class CharacterModel extends CapsuleObstacle {
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
 
@@ -94,7 +94,7 @@ public class DudeModel extends CapsuleObstacle {
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
 	 */
-	public DudeModel(JsonValue data, float width, float height, Filter f, boolean type) {
+	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type) {
 		// The shrink factors fit the image to a tighter hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),

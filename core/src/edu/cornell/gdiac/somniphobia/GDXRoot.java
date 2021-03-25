@@ -14,9 +14,9 @@
  package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
-import edu.cornell.gdiac.somniphobia.game.*;
 
 /**
  * Root class for a LibGDX.  
