@@ -111,7 +111,7 @@ public class DudeModel extends CapsuleObstacle {
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
-		dashDamping = .3f;
+		dashDamping = 5f;
 //		jumpForce = data.getFloat( "jump_force", 0 );
 		jumpForce = 8f;
 		jumpLimit = data.getInt( "jump_cool", 0 );
@@ -119,7 +119,7 @@ public class DudeModel extends CapsuleObstacle {
 		this.data = data;
 		filter = f;
 
-		dashVelocity = 20f;
+		dashVelocity = 30f;
 
 		// Gameplay attributes
 		isGrounded = false;
@@ -224,6 +224,8 @@ public class DudeModel extends CapsuleObstacle {
 			dashDirection.set(isFacingRight() ? 1 : -1, 0);
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
+//			dashDirection.set(dir_X, dir_Y);
+
 
 		}
 		dashStartPos.set(getPosition());
@@ -383,7 +385,8 @@ public class DudeModel extends CapsuleObstacle {
 //			setVX(Math.signum(getVX()) * getMaxSpeed() * 1.4f);
 //		}
 		else if (!isDashing()){
-			forceCache.set(getMovement() * .5f,getVY());
+			forceCache.set(getMovement() * .3f,getVY());
+
 //			body.applyForce(forceCache,getPosition(),true);
 			body.setLinearVelocity(forceCache);
 		}
@@ -429,15 +432,22 @@ public class DudeModel extends CapsuleObstacle {
 
 		if(isDashing) {
 //			System.out.println("dashing");
-			float currDashDist = getPosition().dst(dashStartPos);
-			forceCache.set(-3*getVX(),-3*getVY());
+//			float currDashDist = getPosition().dst(dashStartPos);
+//			if (forceCache.equals()) {
+//				forceCache.set(getMovement() * .3f,getVY());
+//
+//			}
+
+			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
 			body.applyForce(forceCache,getPosition(),true);
 //			if (currDashDist >= dashDistance) {
 //				setDashing(false);
 //				forceCache.set(0,0);
 //				setLinearVelocity(forceCache);
 //			}
-			if(Math.abs(getVY()) <= 3f && Math.abs(getVX()) <= 3f) {
+			if(getLinearVelocity().len() < 5f) {
+
+
 				setDashing(false);
 //				forceCache.set(0,0);
 //				setLinearVelocity(forceCache);
