@@ -222,11 +222,11 @@ public class CharacterModel extends CapsuleObstacle {
 		if (dir_X == 0 && dir_Y == 0) {
 			// Default dash in direction player faces
 			dashDirection.set(isFacingRight() ? 1 : -1, 0);
+//			System.out.println(dashDirection);
+
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
-//			dashDirection.set(dir_X, dir_Y);
-
-
+//			System.out.println(dashDirection);
 		}
 		dashStartPos.set(getPosition());
 		isDashing = canDash;
@@ -370,13 +370,13 @@ public class CharacterModel extends CapsuleObstacle {
 		if (!isActive()) {
 			return;
 		}
-		
+
 		// Don't want to be moving. Damp out player motion
-		if (getMovement() == 0f && isGrounded) {
+		if (getMovement() == 0f && isGrounded && !isDashing) {
 			forceCache.set(-getDamping()*getVX(),0);
 			body.applyForce(forceCache,getPosition(),true);
 		}
-		
+
 		// Velocity too high on ground, clamp it
 		if (Math.abs(getVX()) >= getMaxSpeed() && !isDashing() && isGrounded) {
 			setVX(Math.signum(getVX()) * getMaxSpeed());
@@ -393,19 +393,19 @@ public class CharacterModel extends CapsuleObstacle {
 
 		// Jump!
 		if (isJumping()) {
-			forceCache.set(0, jumpForce);
-			body.applyLinearImpulse(forceCache,getPosition(),true);
+			forceCache.set(0, jumpForce * 1.5f);
+//			body.applyLinearImpulse(forceCache,getPosition(),true);
+			body.setLinearVelocity(forceCache);
 		}
 
 		// Dash!
 		if (isDashing() && !dashed) {
-			System.out.println("Dash in direction: (" + dashDirection.x + "," + dashDirection.y);
-//			body.setLinearVelocity(0,0);
+//			System.out.println("Dash in direction: (" + dashDirection.x + "," + dashDirection.y);
 			forceCache.set(dashDirection.scl(dashVelocity));
-			body.setLinearVelocity(forceCache);
-			dashed = true;
-//			body.applyForce(forceCache, getPosition(), true);
 
+			body.setLinearVelocity(forceCache);
+			System.out.println(body.getLinearVelocity());
+			dashed = true;
 		}
 	}
 	
@@ -431,23 +431,23 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 
 		if(isDashing) {
-//			System.out.println("dashing");
-//			float currDashDist = getPosition().dst(dashStartPos);
-//			if (forceCache.equals()) {
-//				forceCache.set(getMovement() * .3f,getVY());
-//
-//			}
+			System.out.println(getVY());
+//			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
+//			body.applyForce(forceCache,getPosition(),true);
 
-			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
-			body.applyForce(forceCache,getPosition(),true);
+			body.setLinearVelocity(.8f * getVX(), .8f * getVY());
+
+
+
+			// Dash based on distance
 //			if (currDashDist >= dashDistance) {
 //				setDashing(false);
 //				forceCache.set(0,0);
 //				setLinearVelocity(forceCache);
 //			}
+
+			//Dash using dampening
 			if(getLinearVelocity().len() < 5f) {
-
-
 				setDashing(false);
 //				forceCache.set(0,0);
 //				setLinearVelocity(forceCache);

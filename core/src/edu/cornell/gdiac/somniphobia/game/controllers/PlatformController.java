@@ -180,7 +180,6 @@ public class PlatformController extends WorldController implements ContactListen
 	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
-		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
@@ -543,6 +542,8 @@ public class PlatformController extends WorldController implements ContactListen
 		if(inputController.didSwitch()) {
 			//Switch active character
 			if (!holdingHands) {
+				avatar.setVX(0f);
+				avatar.setVY(0f);
 				avatar = avatar == somni ? phobia : somni;
 
 			}else{
@@ -711,7 +712,6 @@ public class PlatformController extends WorldController implements ContactListen
 			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
 					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
 					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-				System.out.println("collision");
 				avatar.setDashing(false);
 				avatar.setGravityScale(1);
 
@@ -721,7 +721,6 @@ public class PlatformController extends WorldController implements ContactListen
 			// See if we have landed on the ground.
 			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
-				System.out.println("collided with wall");
 				somni.setGrounded(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
 //				somni.canJump = true;
