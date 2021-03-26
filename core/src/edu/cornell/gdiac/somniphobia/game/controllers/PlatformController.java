@@ -10,7 +10,11 @@
  */
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -171,7 +175,21 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+	private Slider [] sliders;
+	//private Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
 
+	public Widget sliderMenu;
+
+	public void createSliders(){
+		Slider s = new Slider(0.5f, 20f, 0.1f, false, new Slider.SliderStyle());
+		Batch b = canvas.getBatch();
+		sliderMenu.layout();
+		s.draw(b, 1.0f);
+	}
+
+	public void applySliders(){
+
+	}
 	/**
 	 * Creates and initialize a new instance of the platformer game
 	 *

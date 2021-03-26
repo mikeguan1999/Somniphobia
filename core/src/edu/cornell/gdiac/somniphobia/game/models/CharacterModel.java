@@ -82,6 +82,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache;
 
+	/** Getters and setters*/
 
 	/**
 	 * Creates a new dude avatar with the given physics data

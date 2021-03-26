@@ -131,6 +131,9 @@ public class GameCanvas {
     	holder = null;
     }
 
+    public Batch getBatch(){
+    	return spriteBatch;
+	}
 	/**
 	 * Returns the width of this canvas
 	 *
