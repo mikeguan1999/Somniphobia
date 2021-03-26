@@ -528,16 +528,23 @@ public class PlatformController extends WorldController implements ContactListen
 	    	// some dash sound
 		}
 
-	    if (avatar.isDashing()) {
-	    	avatar.setGravityScale(0f);
+	    if (somni.isDashing()) {
+	    	somni.setGravityScale(0f);
 		} else {
-	    	avatar.setGravityScale(1);
+	    	somni.setGravityScale(1);
+		}
+
+		if (phobia.isDashing()) {
+			phobia.setGravityScale(0f);
+		} else {
+			phobia.setGravityScale(1);
 		}
 	    // Check if switched
 		if(inputController.didSwitch()) {
 			//Switch active character
 			if (!holdingHands) {
 				avatar = avatar == somni ? phobia : somni;
+
 			}else{
 				lead = lead == somni ? phobia :somni;
 			}
