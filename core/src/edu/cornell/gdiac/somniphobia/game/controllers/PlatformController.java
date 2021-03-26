@@ -10,11 +10,13 @@
  */
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
@@ -33,6 +35,8 @@ import edu.cornell.gdiac.somniphobia.obstacle.*;
  * place nicely with the static assets.
  */
 public class PlatformController extends WorldController implements ContactListener {
+	private OrthographicCamera camera;
+
 	/** Texture asset for character avatar */
 	private TextureRegion avatarTexture;
 	/** Texture asset for combined character avatar */
@@ -502,6 +506,7 @@ public class PlatformController extends WorldController implements ContactListen
 //		lightSensorFixtures.clear();
 //		darkSensorFixtures.clear();
 
+
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
@@ -773,6 +778,13 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param dt Timing values from parent loop
 	 */
 	public void draw(float dt) {
+		camera = canvas.getCamera();
+//		camera.setToOrtho(false, canvas.getWidth(), canvas.getHeight());
+		float lerp = 100f;
+		Vector3 position = camera.position;
+		position.x += ((somni.getX()+canvas.getWidth()/2) - position.x) * lerp * Gdx.graphics.getDeltaTime();
+		position.y += ((somni.getY()+canvas.getHeight()/2) - position.y) * lerp * Gdx.graphics.getDeltaTime();
+		camera.update();
 		canvas.clear();
 
 		// Draw background unscaled.

@@ -23,6 +23,9 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.physics.box2d.*;
+import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
+import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
+import jdk.tools.jlink.internal.Platform;
 
 /**
  * Primary view class for the game, abstracting the basic graphics calls.
@@ -41,6 +44,8 @@ public class GameCanvas {
 		/** We are drawing outlines */
 		DEBUG
 	}
+
+	public OrthographicCamera getCamera(){return camera;}
 	
 	/**
 	 * Enumeration of supported BlendStates.
@@ -103,7 +108,12 @@ public class GameCanvas {
 		debugRender = new ShapeRenderer();
 		
 		// Set the projection matrix (for proper scaling)
-		camera = new OrthographicCamera(getWidth(),getHeight());
+		camera = new OrthographicCamera(getWidth()/2,getHeight()/2);
+
+
+//		camera = new OrthographicCamera(50,50);
+//		camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+		System.out.println(camera.position);
 		camera.setToOrtho(false);
 		spriteBatch.setProjectionMatrix(camera.combined);
 		debugRender.setProjectionMatrix(camera.combined);
@@ -114,6 +124,7 @@ public class GameCanvas {
 		global = new Matrix4();
 		vertex = new Vector2();
 	}
+
 		
     /**
      * Eliminate any resources that should be garbage collected manually.

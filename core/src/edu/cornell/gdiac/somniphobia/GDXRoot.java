@@ -17,6 +17,7 @@ import com.badlogic.gdx.*;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 
 /**
  * Root class for a LibGDX.  
@@ -39,6 +40,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 
+	private OrthographicCamera cam;
+
 	/**
 	 * Creates a new game from the configuration settings.
 	 *
@@ -55,6 +58,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	 */
 	public void create() {
 		canvas  = new GameCanvas();
+
 		loading = new LoadingMode("assets.json",canvas,1);
 
 		// menu = new MenuController();
@@ -65,6 +69,18 @@ public class GDXRoot extends Game implements ScreenListener {
 		controllers[0] = new PlatformController(0);
 		controllers[1] = new PlatformController(1);
 		controllers[2] = new PlatformController(2);
+
+		// Constructs a new OrthographicCamera, using the given viewport width and height
+		// Height is multiplied by aspect ratio.
+
+		float w = Gdx.graphics.getWidth();
+		float h = Gdx.graphics.getHeight();
+
+		cam = new OrthographicCamera(30, 30 * (h / w));
+
+		cam.position.set(cam.viewportWidth / 2f, cam.viewportHeight / 2f, 0);
+		cam.update();
+
 
 		loading.setScreenListener(this);
 		setScreen(loading);
@@ -82,7 +98,6 @@ public class GDXRoot extends Game implements ScreenListener {
 		for(int ii = 0; ii < controllers.length; ii++) {
 			controllers[ii].dispose();
 		}
-
 
 		canvas.dispose();
 		canvas = null;
