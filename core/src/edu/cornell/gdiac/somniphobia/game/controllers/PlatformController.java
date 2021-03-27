@@ -780,16 +780,19 @@ public class PlatformController extends WorldController implements ContactListen
 	public void draw(float dt) {
 		camera = canvas.getCamera();
 //		camera.setToOrtho(false, canvas.getWidth(), canvas.getHeight());
-		float lerp = 100f;
+		float scale = 10f;
 		Vector3 position = camera.position;
-		position.x += ((somni.getX()+canvas.getWidth()/2) - position.x) * lerp * Gdx.graphics.getDeltaTime();
-		position.y += ((somni.getY()+canvas.getHeight()/2) - position.y) * lerp * Gdx.graphics.getDeltaTime();
+		float minimum = canvas.getWidth()/2;
+		position.x = Math.max(canvas.getWidth()/2, somni.getX()*scale+canvas.getWidth()/2);
+		System.out.println(somni.getX()*Gdx.graphics.getDeltaTime());
+//		position.y = (somni.getY()*lerp+canvas.getHeight()/2);
 		camera.update();
+		canvas.setCamera(camera);
 		canvas.clear();
 
 		// Draw background unscaled.
 		canvas.begin();
-		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
+		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth()+100,canvas.getHeight()+100);
 		canvas.end();
 
 

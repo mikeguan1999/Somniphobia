@@ -46,6 +46,7 @@ public class GameCanvas {
 	}
 
 	public OrthographicCamera getCamera(){return camera;}
+	public void setCamera(OrthographicCamera value){camera=value;}
 	
 	/**
 	 * Enumeration of supported BlendStates.
@@ -108,7 +109,8 @@ public class GameCanvas {
 		debugRender = new ShapeRenderer();
 		
 		// Set the projection matrix (for proper scaling)
-		camera = new OrthographicCamera(getWidth()/2,getHeight()/2);
+		camera = new OrthographicCamera(getWidth(),getHeight());
+		System.out.println(camera.far);
 
 
 //		camera = new OrthographicCamera(50,50);
