@@ -197,49 +197,51 @@ public class PlatformController extends WorldController implements ContactListen
 	public void createSliders(){
 		sliders = new Slider [2];
 		labels = new Label[2];
+
+
 		Stage stage = new Stage(new ScreenViewport());
 		Table table= new Table();
 		Batch b = canvas.getBatch();
+		ChangeListener slide = new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider slider = (Slider) actor;
+				float value = slider.getValue();
+				System.out.println(value);
+			}
+		};
+
+
 		Slider.SliderStyle style =
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
 		BitmapFont font = displayFont;
 		font.getData().setScale(.3f, .3f);
 		Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
+
+
 		Slider s = new Slider(0.5f, 20f, 0.1f, false, style);
 		s.setValue(10);
-		s.setTouchable(Touchable.enabled);
+		s.setPosition(100, 500);
+		stage.addActor(s);
+		s.addListener(slide);
+		sliders[0] = s;
+
 		Label test1 = new Label("Test 1", labelStyle);
 		test1.setPosition(10, 500);
 		labels[0] = test1;
-		s.setPosition(100, 500);
-		sliders[0] = s;
-		stage.addActor(s);
-		s.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				Slider slider = (Slider) actor;
-				float value = slider.getValue();
-				System.out.println(value);
-			}
-		});
+
+
 		Slider s2 = new Slider(1f, 10f, 0.1f, false, style);
 		s2.setValue(5);
-		s2.setTouchable(Touchable.enabled);
+		s2.setPosition(100, 450);
+		s2.addListener(slide);
+		stage.addActor(s2);
+		sliders[1] = s2;
 
 		Label test2 = new Label("Test 2", labelStyle);
 		test2.setPosition(10, 450);
 		labels[1] = test2;
-		s2.setPosition(100, 450);
-		sliders[1] = s2;
-		stage.addActor(s2);
-		s2.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				Slider slider = (Slider) actor;
-				float value = slider.getValue();
-				System.out.println(value);
-			}
-		});
+
 		Gdx.input.setInputProcessor(stage);
 
 //		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
