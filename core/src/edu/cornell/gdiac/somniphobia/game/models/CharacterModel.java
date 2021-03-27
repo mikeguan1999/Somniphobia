@@ -29,22 +29,22 @@ public class CharacterModel extends CapsuleObstacle {
 	private final JsonValue data;
 
 	/** The factor to multiply by the input */
-	private final float force;
+	private float force;
 	/** The amount to slow the character down */
-	private final float damping;
+	private float damping;
 	/** The amount to slow the character down during dashing*/
-	private final float dashDamping;
+	private float dashDamping;
 	/** The maximum character speed */
-	private final float maxspeed;
+	private float maxspeed;
 	/** Identifier to allow us to track the sensor in ContactListener */
 	private final String sensorName;
 	/** The impulse for the character jump */
-	private final float jumpForce;
+	private float jumpForce;
 
 	/** The velocity for the character dash */
-	private final float dashVelocity;
+	private float dashVelocity;
 	/** Cooldown (in animation frames) for jumping */
-	private final int jumpLimit;
+	private int jumpLimit;
 
 	/** The current horizontal movement of the character */
 	private float   movement;
@@ -83,7 +83,39 @@ public class CharacterModel extends CapsuleObstacle {
 	private final Vector2 forceCache;
 
 	/** Getters and setters*/
-
+	public float getDashDamping(){
+		return dashDamping;
+	}
+	public void setDashDamping(float f){
+		dashDamping = f;
+	}
+	public float getJumpForce(){
+		return jumpForce;
+	}
+	public void setJumpForce(float f){
+		jumpForce = f;
+	}
+	public float getDashVelocity(){
+		return dashVelocity;
+	}
+	public void setDashVelocity(float f){
+		dashVelocity = f;
+	}
+	public float getDashDistance(){
+		return dashDistance;
+	}
+	public void setDashDistance(float f){
+		dashDistance = f;
+	}
+	public float getCharacterFriction(){
+		return getFriction();
+	}
+	public void setCharacterFriction(float f){
+		setFriction(f);
+	}
+	public void setCharacterForce(float f){
+		force = f;
+	}
 	/**
 	 * Creates a new dude avatar with the given physics data
 	 *
@@ -104,6 +136,7 @@ public class CharacterModel extends CapsuleObstacle {
 		setDensity(data.getFloat("density", 0));
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
 		setFixedRotation(true);
+
 
 		dashStartPos = new Vector2(0, 0);
 		dashDirection = new Vector2(0,0);

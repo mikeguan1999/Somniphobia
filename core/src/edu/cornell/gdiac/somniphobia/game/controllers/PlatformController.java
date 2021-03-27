@@ -159,7 +159,7 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Level */
 	private int level;
 
-	private final float HAND_HOLDING_DISTANCE = 2f;
+	private float HAND_HOLDING_DISTANCE = 2f;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 //	protected ObjectSet<Fixture> sensorFixtures;
@@ -195,8 +195,8 @@ public class PlatformController extends WorldController implements ContactListen
 
 	public int tes = 0;
 	public void createSliders(){
-		sliders = new Slider [2];
-		labels = new Label[2];
+		sliders = new Slider [7];
+		labels = new Label[7];
 
 
 		Stage stage = new Stage(new ScreenViewport());
@@ -211,6 +211,10 @@ public class PlatformController extends WorldController implements ContactListen
 			}
 		};
 
+		float current = 0;
+		float max = 0;
+		float min = 0;
+
 
 		Slider.SliderStyle style =
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
@@ -218,29 +222,185 @@ public class PlatformController extends WorldController implements ContactListen
 		font.getData().setScale(.3f, .3f);
 		Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
+		//Dash Velocity
+		current = avatar.getDashVelocity();
+		max = current * 1.5f;
+		min = current * 0.5f;
 
-		Slider s = new Slider(0.5f, 20f, 0.1f, false, style);
-		s.setValue(10);
-		s.setPosition(100, 500);
+		Slider s = new Slider(min, max, 0.1f, false, style);
+		s.setValue(current);
+		s.setPosition(10, 500);
 		stage.addActor(s);
-		s.addListener(slide);
+		s.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Dash Velocity : " + f);
+				somni.setDashVelocity(f);
+				phobia.setDashVelocity(f);
+				combined.setDashVelocity(f);
+			}
+		});
 		sliders[0] = s;
 
-		Label test1 = new Label("Test 1", labelStyle);
-		test1.setPosition(10, 500);
+		Label test1 = new Label("Dash Velocity", labelStyle);
+		test1.setPosition(10, 532);
 		labels[0] = test1;
 
+		//Dash Distance
+		current = avatar.getDashDistance();
+		max = current * 1.5f;
+		min = current * 0.5f;
 
-		Slider s2 = new Slider(1f, 10f, 0.1f, false, style);
-		s2.setValue(5);
-		s2.setPosition(100, 450);
-		s2.addListener(slide);
+		Slider s2 = new Slider(min, max, 0.1f, false, style);
+		s2.setValue(current);
+		s2.setPosition(10, 443);
+		s2.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Dash Distance : " + f);
+				somni.setDashDistance(f);
+				phobia.setDashDistance(f);
+				combined.setDashDistance(f);
+			}
+		});
 		stage.addActor(s2);
 		sliders[1] = s2;
 
-		Label test2 = new Label("Test 2", labelStyle);
-		test2.setPosition(10, 450);
+		Label test2 = new Label("Dash Distance", labelStyle);
+		test2.setPosition(10, 475);
 		labels[1] = test2;
+
+		//Dash Dampening
+		current = avatar.getDashDistance();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s3 = new Slider(min, max, 0.1f, false, style);
+		s3.setValue(current);
+		s3.setPosition(10, 386);
+		s3.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Dash Dampening : " + f);
+				somni.setDashDamping(f);
+				phobia.setDashDamping(f);
+				combined.setDashDamping(f);
+			}
+		});
+		stage.addActor(s3);
+		sliders[2] = s3;
+
+		Label test3 = new Label("Dash Dampening", labelStyle);
+		test3.setPosition(10, 418);
+		labels[2] = test3;
+
+		//Jump Force
+		current = avatar.getJumpForce();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s4 = new Slider(min, max, 0.1f, false, style);
+		s4.setValue(current);
+		s4.setPosition(10, 329);
+		s4.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Jump Force : " + f);
+				somni.setJumpForce(f);
+				phobia.setJumpForce(f);
+				combined.setJumpForce(f);
+			}
+		});
+		stage.addActor(s4);
+		sliders[3] = s4;
+
+		Label test4 = new Label("Jump Force", labelStyle);
+		test4.setPosition(10, 361);
+		labels[3] = test4;
+
+		//Hand Holding Distance
+		current = HAND_HOLDING_DISTANCE;
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s5 = new Slider(min, max, 0.1f, false, style);
+		s5.setValue(current);
+		s5.setPosition(10, 272);
+		s5.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Hand Holding Distance : " + f);
+				HAND_HOLDING_DISTANCE = f;
+			}
+		});
+		stage.addActor(s5);
+		sliders[4] = s5;
+
+		Label test5 = new Label("Hand Holding Distance", labelStyle);
+		test5.setPosition(10, 304);
+		labels[4] = test5;
+
+		//Character Friction
+		current = avatar.getCharacterFriction();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s6 = new Slider(min, max, 0.1f, false, style);
+		s6.setValue(current);
+		s6.setPosition(10, 215);
+		s6.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Character Friction : " + f);
+				somni.setCharacterFriction(f);
+				phobia.setCharacterFriction(f);
+				combined.setCharacterFriction(f);
+			}
+		});
+		stage.addActor(s6);
+		sliders[5] = s6;
+
+		Label test6 = new Label("Character Friction", labelStyle);
+		test6.setPosition(10, 247);
+		labels[5] = test6;
+
+		//Character Force
+		current = avatar.getForce();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s7 = new Slider(min, max, 0.1f, false, style);
+		s7.setValue(current);
+		s7.setPosition(10, 158);
+		s7.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Character Force : " + f);
+				somni.setCharacterForce(f);
+				phobia.setCharacterForce(f);
+				combined.setCharacterForce(f);
+			}
+		});
+		stage.addActor(s7);
+		sliders[6] = s7;
+
+		Label test7 = new Label("Character Force", labelStyle);
+		test7.setPosition(10, 190);
+		labels[6] = test7;
 
 		Gdx.input.setInputProcessor(stage);
 
@@ -263,6 +423,56 @@ public class PlatformController extends WorldController implements ContactListen
 	}
 
 	public void applySliders(){
+		// 0 Dash Velocity, 1 Dash Distance, 2 Dash Dampening, 3 Jump Force,
+		// 4 Hand Holding Distance, 5 Character Friction, 6 Character force
+		Slider s = sliders[0];
+		float f = s.getValue();
+		System.out.println("Dash Velocity : " + f);
+		somni.setDashVelocity(f);
+		phobia.setDashVelocity(f);
+		combined.setDashVelocity(f);
+
+		s = sliders[1];
+		f = s.getValue();
+		System.out.println("Dash Distance : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[2];
+		f = s.getValue();
+		System.out.println("Dash Dampening : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[3];
+		f = s.getValue();
+		System.out.println("Jump Force : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[4];
+		f = s.getValue();
+		System.out.println("Hand Holding Distance : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[5];
+		f = s.getValue();
+		System.out.println("Character Friction : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[6];
+		f = s.getValue();
+		System.out.println("Character Force : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
 
 	}
 	/**
