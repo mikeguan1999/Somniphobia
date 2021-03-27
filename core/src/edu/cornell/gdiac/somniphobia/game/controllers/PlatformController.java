@@ -11,14 +11,13 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.*;
@@ -34,6 +33,8 @@ import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
+
+import java.awt.*;
 
 /**
  * Gameplay specific controller for the platformer game.
@@ -187,6 +188,7 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
 	private Slider [] sliders;
+	private Label [] labels;
 	//private Skin skin = new Skin(Gdx.files.internal("core/assets/shadeui/uiskin.atlas"));
 
 	public Widget sliderMenu;
@@ -194,14 +196,22 @@ public class PlatformController extends WorldController implements ContactListen
 	public int tes = 0;
 	public void createSliders(){
 		sliders = new Slider [2];
+		labels = new Label[2];
 		Stage stage = new Stage(new ScreenViewport());
 		Table table= new Table();
 		Batch b = canvas.getBatch();
-		Slider s = new Slider(0.5f, 20f, 0.1f, false,
-				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture)));
+		Slider.SliderStyle style =
+				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
+		BitmapFont font = displayFont;
+		font.getData().setScale(.3f, .3f);
+		Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
+		Slider s = new Slider(0.5f, 20f, 0.1f, false, style);
 		s.setValue(10);
 		s.setTouchable(Touchable.enabled);
-		s.setPosition(300, 200);
+		Label test1 = new Label("Test 1", labelStyle);
+		test1.setPosition(10, 500);
+		labels[0] = test1;
+		s.setPosition(100, 500);
 		sliders[0] = s;
 		stage.addActor(s);
 		s.addListener(new ChangeListener() {
@@ -212,11 +222,14 @@ public class PlatformController extends WorldController implements ContactListen
 				System.out.println(value);
 			}
 		});
-		Slider s2 = new Slider(1f, 10f, 0.1f, false,
-				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture)));
+		Slider s2 = new Slider(1f, 10f, 0.1f, false, style);
 		s2.setValue(5);
 		s2.setTouchable(Touchable.enabled);
-		s2.setPosition(300, 100);
+
+		Label test2 = new Label("Test 2", labelStyle);
+		test2.setPosition(10, 450);
+		labels[1] = test2;
+		s2.setPosition(100, 450);
 		sliders[1] = s2;
 		stage.addActor(s2);
 		s2.addListener(new ChangeListener() {
@@ -241,6 +254,8 @@ public class PlatformController extends WorldController implements ContactListen
 		Batch b = canvas.getBatch();
 		for (int i = 0; i < sliders.length; i++) {
 			Slider s = sliders[i];
+			Label l= labels[i];
+			l.draw(b, 1.0f);
 			s.draw(b, 1.0f);
 		}
 	}
@@ -904,7 +919,6 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 
 		canvas.end();
-
 
 
 		if(avatar == somni){
