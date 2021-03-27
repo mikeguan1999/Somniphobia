@@ -102,7 +102,8 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Texture asset list for phobiasomni*/
 	private TextureRegion [] phobiasomnisTexture;
 
-	private Texture sliderTexture;
+	private Texture sliderBarTexture;
+	private Texture sliderKnobTexture;
 	/** Texture asset int for action*/
 	private int action;
 
@@ -192,18 +193,33 @@ public class PlatformController extends WorldController implements ContactListen
 
 	public int tes = 0;
 	public void createSliders(){
-		sliders = new Slider [1];
+		sliders = new Slider [2];
 		Stage stage = new Stage(new ScreenViewport());
 		Table table= new Table();
-		Slider s = new Slider(0.5f, 20f, 0.1f, false,
-				new Slider.SliderStyle(new TextureRegionDrawable(sliderTexture), new TextureRegionDrawable(sliderTexture)));
-		//Slider slidersk = new Slider(0.5f, 20f, 0.1f, false, skin);
-		stage.addActor(s);
 		Batch b = canvas.getBatch();
+		Slider s = new Slider(0.5f, 20f, 0.1f, false,
+				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture)));
 		s.setValue(10);
 		s.setTouchable(Touchable.enabled);
-
+		s.setPosition(300, 200);
+		sliders[0] = s;
+		stage.addActor(s);
 		s.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider slider = (Slider) actor;
+				float value = slider.getValue();
+				System.out.println(value);
+			}
+		});
+		Slider s2 = new Slider(1f, 10f, 0.1f, false,
+				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture)));
+		s2.setValue(5);
+		s2.setTouchable(Touchable.enabled);
+		s2.setPosition(300, 100);
+		sliders[1] = s2;
+		stage.addActor(s2);
+		s2.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				Slider slider = (Slider) actor;
@@ -217,15 +233,14 @@ public class PlatformController extends WorldController implements ContactListen
 //		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
 //		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
 //		sliderMenu.layout();
-		s.setPosition(300, 200);
-		sliders[0] = s;
+
 		s.draw(b, 1.0f);
 
 	}
 	public void drawSliders(){
-		if (sliders[0]!= null) {
-			Batch b = canvas.getBatch();
-			Slider s = sliders[0];
+		Batch b = canvas.getBatch();
+		for (int i = 0; i < sliders.length; i++) {
+			Slider s = sliders[i];
 			s.draw(b, 1.0f);
 		}
 	}
@@ -313,7 +328,8 @@ public class PlatformController extends WorldController implements ContactListen
 //		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
 //		sliderTexture = internal.getEntry("progress.backleft", TextureRegion.class);
 
-		sliderTexture = directory.getEntry( "shared:all", Texture.class);
+		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
+		sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
