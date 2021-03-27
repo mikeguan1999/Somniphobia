@@ -13,9 +13,11 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -24,6 +26,8 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
@@ -182,35 +186,48 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
 	private Slider [] sliders;
-	//private Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+	//private Skin skin = new Skin(Gdx.files.internal("core/assets/shadeui/uiskin.atlas"));
 
 	public Widget sliderMenu;
 
+	public int tes = 0;
 	public void createSliders(){
+		sliders = new Slider [1];
+		Stage stage = new Stage(new ScreenViewport());
+		Table table= new Table();
 		Slider s = new Slider(0.5f, 20f, 0.1f, false,
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderTexture), new TextureRegionDrawable(sliderTexture)));
+		//Slider slidersk = new Slider(0.5f, 20f, 0.1f, false, skin);
+		stage.addActor(s);
 		Batch b = canvas.getBatch();
 		s.setValue(10);
 		s.setTouchable(Touchable.enabled);
-
 
 		s.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				Slider slider = (Slider) actor;
-
 				float value = slider.getValue();
 				System.out.println(value);
 			}
 		});
+		Gdx.input.setInputProcessor(stage);
 
 //		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
 //		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
 //		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
 //		sliderMenu.layout();
 		s.setPosition(300, 200);
+		sliders[0] = s;
 		s.draw(b, 1.0f);
 
+	}
+	public void drawSliders(){
+		if (sliders[0]!= null) {
+			Batch b = canvas.getBatch();
+			Slider s = sliders[0];
+			s.draw(b, 1.0f);
+		}
 	}
 
 	public void applySliders(){
@@ -514,6 +531,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		combined.setActive(false);
 		action = 0;
+
 		//Set current avatar to somni
 		avatar = somni;
 		volume = constants.getFloat("volume", 1.0f);
@@ -862,9 +880,13 @@ public class PlatformController extends WorldController implements ContactListen
 		// Draw background unscaled.
 		canvas.begin();
 //		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
+		if (tes == 0) {
+			createSliders();
+			tes = 1;
+		}else {
+			drawSliders();
+		}
 
-
-		createSliders();
 		canvas.end();
 
 
