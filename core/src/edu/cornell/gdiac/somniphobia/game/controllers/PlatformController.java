@@ -12,9 +12,13 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -93,6 +97,8 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion [] somniphobiasTexture;
 	/** Texture asset list for phobiasomni*/
 	private TextureRegion [] phobiasomnisTexture;
+
+	private Texture sliderTexture;
 	/** Texture asset int for action*/
 	private int action;
 
@@ -181,10 +187,30 @@ public class PlatformController extends WorldController implements ContactListen
 	public Widget sliderMenu;
 
 	public void createSliders(){
-		Slider s = new Slider(0.5f, 20f, 0.1f, false, new Slider.SliderStyle());
+		Slider s = new Slider(0.5f, 20f, 0.1f, false,
+				new Slider.SliderStyle(new TextureRegionDrawable(sliderTexture), new TextureRegionDrawable(sliderTexture)));
 		Batch b = canvas.getBatch();
-		sliderMenu.layout();
+		s.setValue(10);
+		s.setTouchable(Touchable.enabled);
+
+
+		s.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider slider = (Slider) actor;
+
+				float value = slider.getValue();
+				System.out.println(value);
+			}
+		});
+
+//		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
+//		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
+//		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
+//		sliderMenu.layout();
+		s.setPosition(300, 200);
 		s.draw(b, 1.0f);
+
 	}
 
 	public void applySliders(){
@@ -259,7 +285,18 @@ public class PlatformController extends WorldController implements ContactListen
 		somniphobiasTexture = somniphobias;
 		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
 		phobiasomnisTexture = phobiasomnis;
+		AssetDirectory internal = new AssetDirectory( "loading.json" );
+		internal.loadAssets();
+		internal.finishLoading();
 
+
+//
+//		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
+//		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
+//		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
+//		sliderTexture = internal.getEntry("progress.backleft", TextureRegion.class);
+
+		sliderTexture = directory.getEntry( "shared:all", Texture.class);
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
@@ -824,8 +861,12 @@ public class PlatformController extends WorldController implements ContactListen
 
 		// Draw background unscaled.
 		canvas.begin();
-		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
+//		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
+
+
+		createSliders();
 		canvas.end();
+
 
 
 		if(avatar == somni){
