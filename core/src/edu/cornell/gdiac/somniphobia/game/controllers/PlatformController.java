@@ -599,7 +599,9 @@ public class PlatformController extends WorldController implements ContactListen
 		newX = Math.min(newX, 900);
 		camera.position.x = newX;
 
-		camera.position.y = avatar.getY()*7+canvas.getHeight()/2;
+		float newY = avatar.getY()*7+canvas.getHeight()/2;
+		newY = Math.max(newY, canvas.getHeight()/2);
+		camera.position.y = newY;
 
 		camera.update();
 	}
