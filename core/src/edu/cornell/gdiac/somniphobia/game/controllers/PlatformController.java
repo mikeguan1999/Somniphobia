@@ -592,11 +592,14 @@ public class PlatformController extends WorldController implements ContactListen
 //		else{
 //			camera.position.x = newX;
 //		}
-		if (newX>canvas.getWidth()/2+10 && newX<900) {
-			camera.position.x = newX;
-		}
+//		if (newX>canvas.getWidth()/2 && newX<900) {
+//			camera.position.x = newX;
+//		}
+		newX = Math.max(canvas.getWidth()/2, newX);
+		newX = Math.min(newX, 900);
+		camera.position.x = newX;
 
-//		camera.position.y = avatar.getY()+canvas.getHeight()/2;
+		camera.position.y = avatar.getY()*7+canvas.getHeight()/2;
 
 		camera.update();
 	}
@@ -820,7 +823,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		// Draw background unscaled.
 		canvas.begin();
-		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth()+700,canvas.getHeight()+100);
+		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth()+700,canvas.getHeight()+700);
 		canvas.end();
 
 
