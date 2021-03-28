@@ -505,7 +505,26 @@ public class PlatformController extends WorldController implements ContactListen
 		// Process actions in object model
 //		lightSensorFixtures.clear();
 //		darkSensorFixtures.clear();
+//
+		camera = canvas.getCamera();
+//		if (Gdx.input.isTouched()){
+//			System.out.println("here");
+//			System.out.println(100 * dt);
+//			camera.position.x += 100 * dt;
+//			System.out.println(camera.position.x);
+//			camera.update();
+//		}
 
+
+
+////		camera.setToOrtho(false, canvas.getWidth(), canvas.getHeight());
+//		float scale = 10f;
+//		Vector3 position = camera.position;
+//		float minimum = canvas.getWidth()/2;
+//		position.x = Math.max(canvas.getWidth()/2, somni.getX()*scale+canvas.getWidth()/2);
+//		System.out.println(somni.getX()*Gdx.graphics.getDeltaTime());
+////		9position.y = (somni.getY()*lerp+canvas.getHeight()/2);
+//		camera.update();
 
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
@@ -563,6 +582,26 @@ public class PlatformController extends WorldController implements ContactListen
 	    if(inputController.didDash() && holdingHands) {
 	    	endHoldHands();
 		}
+
+	    float newX = avatar.getX()*15+470;
+	    System.out.println(newX);
+
+//	    if (somni.getX()<3.6){
+//	    	camera.position.x = 512;
+//		}
+//		else{
+//			camera.position.x = newX;
+//		}
+
+//		formula for maximum bound: mapWidth - canvas.getWidth/2
+//		900 is arbitary atm
+		if (newX>canvas.getWidth()/2 && newX<900) {
+			camera.position.x = newX;
+		}
+
+//		camera.position.y = avatar.getY()+canvas.getHeight()/2;
+
+		camera.update();
 	}
 
 	/**
@@ -778,21 +817,13 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param dt Timing values from parent loop
 	 */
 	public void draw(float dt) {
-		camera = canvas.getCamera();
-//		camera.setToOrtho(false, canvas.getWidth(), canvas.getHeight());
-		float scale = 10f;
-		Vector3 position = camera.position;
-		float minimum = canvas.getWidth()/2;
-		position.x = Math.max(canvas.getWidth()/2, somni.getX()*scale+canvas.getWidth()/2);
-		System.out.println(somni.getX()*Gdx.graphics.getDeltaTime());
-//		position.y = (somni.getY()*lerp+canvas.getHeight()/2);
-		camera.update();
+
 		canvas.setCamera(camera);
 		canvas.clear();
 
 		// Draw background unscaled.
 		canvas.begin();
-		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth()+100,canvas.getHeight()+100);
+		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth()+700,canvas.getHeight()+100);
 		canvas.end();
 
 

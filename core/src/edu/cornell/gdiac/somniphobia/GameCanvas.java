@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 import jdk.tools.jlink.internal.Platform;
@@ -81,6 +82,8 @@ public class GameCanvas {
 	
 	/** Camera for the underlying SpriteBatch */
 	private OrthographicCamera camera;
+
+	private FitViewport gameport;
 	
 	/** Value to cache window width (if we are currently full screen) */
 	int width;
@@ -109,14 +112,14 @@ public class GameCanvas {
 		debugRender = new ShapeRenderer();
 		
 		// Set the projection matrix (for proper scaling)
-		camera = new OrthographicCamera(getWidth(),getHeight());
-		System.out.println(camera.far);
-
-
+		camera = new OrthographicCamera(getWidth(), getHeight());
+//		gameport = new FitViewport(getWidth(), getHeight(), camera);
+//		camera.position.set(getWidth()/2, getHeight()/2, 0);
 //		camera = new OrthographicCamera(50,50);
-//		camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+		camera.translate(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+		camera.update();
+//		camera.setToOrtho(false, getWidth(), getHeight());
 		System.out.println(camera.position);
-		camera.setToOrtho(false);
 		spriteBatch.setProjectionMatrix(camera.combined);
 		debugRender.setProjectionMatrix(camera.combined);
 
