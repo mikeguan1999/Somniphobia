@@ -592,9 +592,6 @@ public class PlatformController extends WorldController implements ContactListen
 //		else{
 //			camera.position.x = newX;
 //		}
-
-//		formula for maximum bound: mapWidth - canvas.getWidth/2
-//		900 is arbitary atm
 		if (newX>canvas.getWidth()/2 && newX<900) {
 			camera.position.x = newX;
 		}
