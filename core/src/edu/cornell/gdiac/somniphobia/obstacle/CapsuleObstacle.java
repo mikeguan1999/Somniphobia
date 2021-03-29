@@ -72,6 +72,20 @@ public class CapsuleObstacle extends SimpleObstacle {
     /** The seam offset of the core rectangle */
     private float seamEpsilon;
 
+
+    /** Returns the core rectangular Fixture */
+    public Fixture getCore() {
+    	return core;
+	}
+	/** Returns the top cap fixture */
+	public Fixture getCap1() {
+    	return cap1;
+	}
+	/** Returns the bottom cap fixture */
+	public Fixture getCap2() {
+    	return cap2;
+	}
+
 	/** 
 	 * Returns the dimensions of this box
 	 *
@@ -497,7 +511,7 @@ public class CapsuleObstacle extends SimpleObstacle {
 				dx = (float)(r*Math.cos(Math.PI/2.0f+getAngle()));
 				dy = (float)(r*Math.sin(Math.PI/2.0f+getAngle()));
 			}
-			canvas.drawPhysics(end1,Color.YELLOW,getX()+dx,getY()+dy,drawScale.x,drawScale.y);			
+			canvas.drawPhysics(end1,Color.YELLOW,getX()+dx,getY()+dy,drawScale.x,drawScale.y);
 		}
 		if (cap2 != null) {
 			// Need to manually rotate caps off axis
