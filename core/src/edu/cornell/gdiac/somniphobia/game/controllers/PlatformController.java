@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -35,6 +36,7 @@ import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 
 import java.awt.*;
+
 /**
  * Gameplay specific controller for the platformer game.
  *
@@ -45,6 +47,8 @@ import java.awt.*;
  * place nicely with the static assets.
  */
 public class PlatformController extends WorldController implements ContactListener {
+	private OrthographicCamera camera;
+
 	/** Texture asset for character avatar */
 	private TextureRegion avatarTexture;
 	/** Texture asset for combined character avatar */
@@ -101,10 +105,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion [] somniphobiasTexture;
 	/** Texture asset list for phobiasomni*/
 	private TextureRegion [] phobiasomnisTexture;
-
 	/** Texture for slider bars*/
 	private Texture sliderBarTexture;
 	private Texture sliderKnobTexture;
+
 
 	/** Texture asset int for action*/
 	private int action;
@@ -149,6 +153,11 @@ public class PlatformController extends WorldController implements ContactListen
 	private int lighttag = 1;
 	private int darktag = 2;
 
+	private boolean lightclear = false;
+	private boolean darkclear = false;
+	private boolean sharedclear = false;
+	private boolean allclear = false;
+
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
 
@@ -183,7 +192,6 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
-
 	private Slider [] sliders;
 	private Label [] labels;
 	//private Skin skin = new Skin(Gdx.files.internal("core/assets/shadeui/uiskin.atlas"));
@@ -202,6 +210,7 @@ public class PlatformController extends WorldController implements ContactListen
 	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
+		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
@@ -213,6 +222,7 @@ public class PlatformController extends WorldController implements ContactListen
 		holdingHands = false;
 		this.level = level;
 	}
+
 
 	/**
 	 * Creates sliders to adjust game constants.
@@ -242,7 +252,7 @@ public class PlatformController extends WorldController implements ContactListen
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
 		BitmapFont font = displayFont;
 		font.getData().setScale(.3f, .3f);
-		Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
+		Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.GREEN);
 
 		//Dash Velocity
 		current = avatar.getDashVelocity();
@@ -448,7 +458,10 @@ public class PlatformController extends WorldController implements ContactListen
 		Batch b = canvas.getBatch();
 		for (int i = 0; i < sliders.length; i++) {
 			Slider s = sliders[i];
+			s.setPosition(camera.position.x - canvas.getWidth()/2.5f, s.getY());
 			Label l= labels[i];
+			l.setPosition(camera.position.x - canvas.getWidth()/2.5f, l.getY());
+
 			l.draw(b, 1.0f);
 			s.draw(b, 1.0f);
 		}
@@ -508,6 +521,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 	}
 
+
 	/**
 	 * Gather the assets for this controller.
 	 *
@@ -547,6 +561,16 @@ public class PlatformController extends WorldController implements ContactListen
 		backgroundDarkTexture = new TextureRegion(directory.getEntry("platform:background_dark",Texture.class));
 		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
 		backgroundTexture = backgroundLightTexture;
+
+		TextureRegion [] somnis = {somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
+		somnisTexture = somnis;
+		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
+		phobiasTexture = phobias;
+		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
+		somniphobiasTexture = somniphobias;
+		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
+		phobiasomnisTexture = phobiasomnis;
+
 
 		somnisTexture = new TextureRegion[]{somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
 		phobiasTexture = new TextureRegion[]{phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
@@ -816,15 +840,11 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		// Process actions in object model
-//		lightSensorFixtures.clear();
-//		darkSensorFixtures.clear();
+
 
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
-
-
 
 		if(inputController.didDash()) {
 			if (holdingHands) {
@@ -836,7 +856,29 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.dashOrPropel(false, inputController.getHorizontal(), inputController.getVertical());
 			}
 		}
+		// Process actions in object model
+//		lightSensorFixtures.clear();
+//		darkSensorFixtures.clear();
+//
+		camera = canvas.getCamera();
+//		if (Gdx.input.isTouched()){
+//			System.out.println("here");
+//			System.out.println(100 * dt);
+//			camera.position.x += 100 * dt;
+//			System.out.println(camera.position.x);
+//			camera.update();
+//		}
 
+
+
+////		camera.setToOrtho(false, canvas.getWidth(), canvas.getHeight());
+//		float scale = 10f;
+//		Vector3 position = camera.position;
+//		float minimum = canvas.getWidth()/2;
+//		position.x = Math.max(canvas.getWidth()/2, somni.getX()*scale+canvas.getWidth()/2);
+//		System.out.println(somni.getX()*Gdx.graphics.getDeltaTime());
+////		9position.y = (somni.getY()*lerp+canvas.getHeight()/2);
+//		camera.update();
 
 		somni.applyForce();
 		phobia.applyForce();
@@ -847,6 +889,7 @@ public class PlatformController extends WorldController implements ContactListen
 	    } else if (avatar.isDashing()) {
 	    	// some dash sound
 		}
+
 
 		if (somni.isDashing()) {
 			somni.setGravityScale(0f);
@@ -859,16 +902,13 @@ public class PlatformController extends WorldController implements ContactListen
 		} else {
 			phobia.setGravityScale(1);
 		}
+
 	    // Check if switched
 		if(inputController.didSwitch()) {
-//			avatar.setDashing(false);
 			//Switch active character
 			if (!holdingHands) {
 				avatar.setMovement(0f);
-
-
 				avatar = avatar == somni ? phobia : somni;
-
 			}else{
 				lead = lead == somni ? phobia :somni;
 			}
@@ -904,7 +944,38 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.setTexture(phobiasTexture[action]);
 			}
 		}
+	    // Check for propel
 
+	    float newX = avatar.getX()*35+470;
+//	    System.out.println(newX);
+
+//	    if (somni.getX()<3.6){
+//	    	camera.position.x = 512;
+//		}
+//		else{
+//			camera.position.x = newX;
+//		}
+//		if (newX>canvas.getWidth()/2 && newX<900) {
+//			camera.position.x = newX;
+//		}
+		newX = Math.max(canvas.getWidth()/2, newX- canvas.getWidth()/2);
+		newX = Math.min(newX, 1000);
+
+		float newY = avatar.getY()*3+canvas.getHeight()/2;
+		System.out.println(newY);
+		newY = Math.min(305, newY);
+
+
+//		System.out.println(newY);
+		if (newY>=canvas.getHeight()/2){
+			camera.position.y = newY;
+			camera.position.x = newX;
+		}
+
+//		camera.position.x = newX;
+
+
+		camera.update();
 	}
 
 	/**
@@ -951,7 +1022,7 @@ public class PlatformController extends WorldController implements ContactListen
 			somni.setVY(0);
 		}else {
 			somni.setCanDash(true);
-			phobia.setPosition(avatarX , avatarY);
+			phobia.setPosition(avatarX, avatarY);
 			phobia.setVX(avatarVX * dampeningFactor);
 			phobia.setVY(0);
 		}
@@ -1030,7 +1101,6 @@ public class PlatformController extends WorldController implements ContactListen
 			int tile1 = -1;
 			int tile2 = -1;
 
-
 			// See if we have collided with a wall
 			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
 					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
@@ -1039,7 +1109,6 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.setGravityScale(1);
 
 			}
-
 
 			// See if we have landed on the ground.
 			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
@@ -1108,7 +1177,6 @@ public class PlatformController extends WorldController implements ContactListen
 				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
 			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
 
-
 			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
 			}
@@ -1131,12 +1199,13 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param dt Timing values from parent loop
 	 */
 	public void draw(float dt) {
+
+		canvas.setCamera(camera);
 		canvas.clear();
 
 		// Draw background unscaled.
 		canvas.begin();
-		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
-
+		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth()+700,canvas.getHeight()+700);
 		if (slidersActive()) {
 			if (tes == 0) {
 				createSliders();
@@ -1215,12 +1284,17 @@ public class PlatformController extends WorldController implements ContactListen
 		if (isComplete() && !isFailure()) {
 			displayFont.setColor(Color.YELLOW);
 			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
+			displayFont.getData().setScale(1f, 1f);
+
+			canvas.drawTextCameraCentered("VICTORY!", displayFont, camera.position.x, camera.position.y);
 			canvas.end();
 		} else if (isFailure()) {
 			displayFont.setColor(Color.RED);
 			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
+			displayFont.getData().setScale(1f, 1f);
+
+			canvas.drawTextCameraCentered("FAILURE!", displayFont, camera.position.x, camera.position.y);
+//			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
 			canvas.end();
 		}
 	}

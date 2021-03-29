@@ -177,7 +177,7 @@ public class CharacterModel extends CapsuleObstacle {
 
 	/**
 	 * Returns left/right movement of this character.
-	 * 
+	 *
 	 * This is the result of input times dude force.
 	 *
 	 * @return left/right movement of this character.
@@ -185,16 +185,16 @@ public class CharacterModel extends CapsuleObstacle {
 	public float getMovement() {
 		return movement;
 	}
-	
+
 	/**
 	 * Sets left/right movement of this character.
-	 * 
+	 *
 	 * This is the result of input times dude force.
 	 *
 	 * @param value left/right movement of this character.
 	 */
 	public void setMovement(float value) {
-		movement = value; 
+		movement = value;
 		// Change facing if appropriate
 		if (movement < 0) {
 			faceRight = false;
@@ -211,14 +211,14 @@ public class CharacterModel extends CapsuleObstacle {
 	public boolean isJumping() {
 		return isJumping && isGrounded && jumpCooldown <= 0;
 	}
-	
+
 	/**
 	 * Sets whether the dude is actively jumping.
 	 *
 	 * @param value whether the dude is actively jumping.
 	 */
 	public void setJumping(boolean value) {
-		isJumping = value; 
+		isJumping = value;
 	}
 
 	/**
@@ -296,14 +296,14 @@ public class CharacterModel extends CapsuleObstacle {
 	public boolean isGrounded() {
 		return isGrounded;
 	}
-	
+
 	/**
 	 * Sets whether the dude is on the ground.
 	 *
 	 * @param value whether the dude is on the ground.
 	 */
 	public void setGrounded(boolean value) {
-		isGrounded = value; 
+		isGrounded = value;
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class CharacterModel extends CapsuleObstacle {
 	public float getDamping() {
 		return damping;
 	}
-	
+
 	/**
 	 * Returns the upper limit on dude left-right movement.  
 	 *
@@ -344,7 +344,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 *
 	 * @return the name of the ground sensor
 	 */
-	public String getSensorName() { 
+	public String getSensorName() {
 		return sensorName;
 	}
 
@@ -406,10 +406,10 @@ public class CharacterModel extends CapsuleObstacle {
 		// Ground sensor to represent our feet
 		Fixture sensorFixture = body.createFixture( sensorDef );
 		sensorFixture.setUserData(getSensorName());
-		
+
 		return true;
 	}
-	
+
 
 	/**
 	 * Applies the force to the body of this dude
@@ -458,7 +458,7 @@ public class CharacterModel extends CapsuleObstacle {
 			dashed = true;
 		}
 	}
-	
+
 	/**
 	 * Updates the object's physics state (NOT GAME LOGIC).
 	 *
@@ -521,7 +521,7 @@ public class CharacterModel extends CapsuleObstacle {
 		float effect = faceRight ? -1.0f : 1.0f;
 		canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),effect,1.0f);
 	}
-	
+
 	/**
 	 * Draws the outline of the physics body.
 	 *

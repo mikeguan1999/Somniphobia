@@ -121,7 +121,7 @@ public class CapsuleObstacle extends SimpleObstacle {
 		markDirty(true);
 		resize(width, height);
 	}
-	
+
 	/**
 	 * Returns the box width
 	 *

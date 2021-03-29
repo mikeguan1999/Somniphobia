@@ -559,7 +559,7 @@ public abstract class WorldController implements Screen {
 	public void render(float delta) {
 		if (active) {
 			if (preUpdate(delta)) {
-				update(delta); // This is the one that must be defined.
+				update(delta); // This is the one that must be defined
 				postUpdate(delta);
 			}
 			draw(delta);
