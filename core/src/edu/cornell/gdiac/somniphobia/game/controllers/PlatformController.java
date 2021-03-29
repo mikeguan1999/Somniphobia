@@ -271,44 +271,19 @@ public class PlatformController extends WorldController implements ContactListen
 		sliders[0] = s;
 		labels[0] = test1;
 
-		//Dash Distance
-		current = avatar.getDashDistance();
-		max = current * 1.5f;
-		min = current * 0.5f;
-
-		Slider s2 = new Slider(min, max, 0.1f, false, style);
-		s2.setValue(current);
-		s2.setPosition(10, 443);
-		s2.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				Slider s = (Slider) actor;
-				float f = s.getValue();
-				System.out.println("Dash Distance : " + f);
-				somni.setDashDistance(f);
-				phobia.setDashDistance(f);
-				combined.setDashDistance(f);
-			}
-		});
-		stage.addActor(s2);
-		sliders[1] = s2;
-
-		Label test2 = new Label("Dash Distance", labelStyle);
-		test2.setPosition(10, 475);
-		labels[1] = test2;
-
 		//Dash Dampening
 		current = avatar.getDashDamping();
 		max = current * 2.5f;
 		min = current * 0.5f;
 
-		Slider s3 = new Slider(min, max, 0.1f, false, style);
-		s3.setValue(current);
-		s3.setPosition(10, 386);
-		final Label test3 = new Label("Dash Dampening: " + current, labelStyle);
-		test3.setPosition(10, 418);
+		Slider s2 = new Slider(min, max, 0.1f, false, style);
+		s2.setValue(current);
+		s2.setPosition(10, 443);
+		final Label test2 = new Label("Dash Dampening: " + current, labelStyle);
+		test2.setPosition(10, 475);
 
-		s3.addListener(new ChangeListener() {
+
+		s2.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				Slider s = (Slider) actor;
@@ -317,7 +292,35 @@ public class PlatformController extends WorldController implements ContactListen
 				somni.setDashDamping(f);
 				phobia.setDashDamping(f);
 				combined.setDashDamping(f);
-				test3.setText("Dash Dampening : " + f);
+				test2.setText("Dash Dampening : " + f);
+			}
+		});
+		stage.addActor(s2);
+		sliders[1] = s2;
+		labels[1] = test2;
+
+		//Dash Dampening
+		current = world.getGravity().y;
+
+
+		min = current * 2.5f;
+		max = current * 0.5f;
+
+		Slider s3 = new Slider(min, max, 0.1f, false, style);
+		s3.setValue(current);
+		s3.setPosition(10, 386);
+		final Label test3 = new Label("Gravity: " + current, labelStyle);
+		test3.setPosition(10, 418);
+
+		s3.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Gravity: " + f);
+				world.setGravity( new Vector2(0,f) );
+
+				test3.setText("Gravity : " + f);
 			}
 		});
 		stage.addActor(s3);
@@ -545,14 +548,10 @@ public class PlatformController extends WorldController implements ContactListen
 		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
 		backgroundTexture = backgroundLightTexture;
 
-		TextureRegion [] somnis = {somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
-		somnisTexture = somnis;
-		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
-		phobiasTexture = phobias;
-		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
-		somniphobiasTexture = somniphobias;
-		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
-		phobiasomnisTexture = phobiasomnis;
+		somnisTexture = new TextureRegion[]{somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
+		phobiasTexture = new TextureRegion[]{phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
+		somniphobiasTexture = new TextureRegion[]{somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
+		phobiasomnisTexture = new TextureRegion[]{phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
 		AssetDirectory internal = new AssetDirectory( "loading.json" );
 		internal.loadAssets();
 		internal.finishLoading();
@@ -865,8 +864,9 @@ public class PlatformController extends WorldController implements ContactListen
 //			avatar.setDashing(false);
 			//Switch active character
 			if (!holdingHands) {
-				avatar.setVX(0f);
-				avatar.setVY(0f);
+				avatar.setMovement(0f);
+
+
 				avatar = avatar == somni ? phobia : somni;
 
 			}else{
@@ -946,17 +946,17 @@ public class PlatformController extends WorldController implements ContactListen
 		float dampeningFactor = -0.25f;
 		if(lead == phobia){
 			phobia.setCanDash(true);
-			somni.setPosition(avatarX - 1, avatarY);
+			somni.setPosition(avatarX, avatarY);
 			somni.setVX(avatarVX * dampeningFactor);
 			somni.setVY(0);
-			somni.setFacingRight(combined.isFacingRight());
 		}else {
 			somni.setCanDash(true);
-			phobia.setPosition(avatarX - 1, avatarY);
+			phobia.setPosition(avatarX , avatarY);
 			phobia.setVX(avatarVX * dampeningFactor);
 			phobia.setVY(0);
-			phobia.setFacingRight(combined.isFacingRight());
 		}
+		somni.setFacingRight(combined.isFacingRight());
+		phobia.setFacingRight(combined.isFacingRight());
 		holdingHands = false;
 	}
 
@@ -1035,7 +1035,6 @@ public class PlatformController extends WorldController implements ContactListen
 			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
 					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
 					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-				System.out.println("collision");
 				avatar.endDashing();
 				avatar.setGravityScale(1);
 
