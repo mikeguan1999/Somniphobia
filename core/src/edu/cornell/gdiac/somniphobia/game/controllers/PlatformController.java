@@ -839,7 +839,9 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 
 
-		avatar.applyForce();
+		somni.applyForce();
+		phobia.applyForce();
+		combined.applyForce();
 		//handleworldview();
 	    if (avatar.isJumping()) {
 	    	//jumpId = playSound( jumpSound, jumpId, volume );
@@ -1033,7 +1035,8 @@ public class PlatformController extends WorldController implements ContactListen
 			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
 					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
 					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-				avatar.setDashing(false);
+				System.out.println("collision");
+				avatar.endDashing();
 				avatar.setGravityScale(1);
 
 			}

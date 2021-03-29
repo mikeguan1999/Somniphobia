@@ -273,6 +273,17 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Ends the dashing and sets velocity to 0 if we haven't done so
+	 */
+	public void endDashing() {
+		if (isDashing) {
+			isDashing = false;
+			setVY(0f);
+			setVX(0f);
+		}
+	}
+
+	/**
 	 * Returns true if the dude is on the ground.
 	 *
 	 * @return true if the dude is on the ground.
