@@ -584,7 +584,7 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 
 	    float newX = avatar.getX()*15+470;
-	    System.out.println(newX);
+//	    System.out.println(newX);
 
 //	    if (somni.getX()<3.6){
 //	    	camera.position.x = 512;
@@ -597,11 +597,18 @@ public class PlatformController extends WorldController implements ContactListen
 //		}
 		newX = Math.max(canvas.getWidth()/2, newX);
 		newX = Math.min(newX, 900);
-		camera.position.x = newX;
 
 		float newY = avatar.getY()*7+canvas.getHeight()/2;
 		newY = Math.max(newY, canvas.getHeight()/2);
-		camera.position.y = newY;
+
+//		System.out.println(newY);
+		if (newY>canvas.getHeight()/2){
+			camera.position.y = newY;
+			camera.position.x = newX;
+		}
+
+//		camera.position.x = newX;
+
 
 		camera.update();
 	}
@@ -896,12 +903,13 @@ public class PlatformController extends WorldController implements ContactListen
 		if (isComplete() && !isFailure()) {
 			displayFont.setColor(Color.YELLOW);
 			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
+			canvas.drawTextCameraCentered("VICTORY!", displayFont, camera.position.x, camera.position.y);
 			canvas.end();
 		} else if (isFailure()) {
 			displayFont.setColor(Color.RED);
 			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
+			canvas.drawTextCameraCentered("FAILURE!", displayFont, camera.position.x, camera.position.y);
+//			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
 			canvas.end();
 		}
 	}

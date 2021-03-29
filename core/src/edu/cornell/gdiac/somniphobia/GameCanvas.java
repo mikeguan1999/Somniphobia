@@ -926,8 +926,22 @@ public class GameCanvas {
 		GlyphLayout layout = new GlyphLayout(font,text);
 		float x = (getWidth()  - layout.width) / 2.0f;
 		float y = (getHeight() + layout.height) / 2.0f;
+		System.out.println(x);
+		System.out.println(y);
 		font.draw(spriteBatch, layout, x, y+offset);
     }
+
+	public void drawTextCameraCentered(String text, BitmapFont font, float cameraX, float cameraY) {
+		if (active != DrawPass.STANDARD) {
+			Gdx.app.error("GameCanvas", "Cannot draw without active begin()", new IllegalStateException());
+			return;
+		}
+
+		GlyphLayout layout = new GlyphLayout(font,text);
+		float x = cameraX-getWidth()/5;
+		float y = cameraY;
+		font.draw(spriteBatch, layout, x, y);
+	}
     
 	/**
 	 * Start the debug drawing sequence.
