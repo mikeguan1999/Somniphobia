@@ -598,8 +598,10 @@ public class PlatformController extends WorldController implements ContactListen
 		newX = Math.max(canvas.getWidth()/2, newX- canvas.getWidth()/2);
 		newX = Math.min(newX, 1000);
 
-		float newY = avatar.getY()+canvas.getHeight()/2;
-		newY = Math.max(newY, canvas.getHeight()/2);
+		float newY = avatar.getY()*3+canvas.getHeight()/2;
+		System.out.println(newY);
+		newY = Math.min(305, newY);
+
 
 //		System.out.println(newY);
 		if (newY>=canvas.getHeight()/2){
