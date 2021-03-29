@@ -148,10 +148,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private int lighttag = 1;
 	private int darktag = 2;
 
-	private boolean lightclear = false;
-	private boolean darkclear = false;
-	private boolean sharedclear = false;
-	private boolean allclear = false;
+//	private boolean lightclear = false;
+//	private boolean darkclear = false;
+//	private boolean sharedclear = false;
+//	private boolean allclear = false;
 
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
@@ -194,13 +194,20 @@ public class PlatformController extends WorldController implements ContactListen
 	public Widget sliderMenu;
 
 	public int tes = 0;
-	public void createSliders(){
-		sliders = new Slider [7];
+
+
+
+
+	/**
+	 * Creates sliders to adjust game constants.
+	 */
+	public void createSliders() {
+		sliders = new Slider[7];
 		labels = new Label[7];
 
 
 		Stage stage = new Stage(new ScreenViewport());
-		Table table= new Table();
+//		Table table= new Table();
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
 			@Override
@@ -214,7 +221,6 @@ public class PlatformController extends WorldController implements ContactListen
 		float current = 0;
 		float max = 0;
 		float min = 0;
-
 
 		Slider.SliderStyle style =
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
@@ -231,6 +237,9 @@ public class PlatformController extends WorldController implements ContactListen
 		s.setValue(current);
 		s.setPosition(10, 500);
 		stage.addActor(s);
+
+		final Label test1 = new Label("Dash Velocity: " + avatar.getDashVelocity(), labelStyle);
+		test1.setPosition(10, 532);
 		s.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -240,12 +249,10 @@ public class PlatformController extends WorldController implements ContactListen
 				somni.setDashVelocity(f);
 				phobia.setDashVelocity(f);
 				combined.setDashVelocity(f);
+				test1.setText("Dash Velocity: " + f);
 			}
 		});
 		sliders[0] = s;
-
-		Label test1 = new Label("Dash Velocity", labelStyle);
-		test1.setPosition(10, 532);
 		labels[0] = test1;
 
 		//Dash Distance
@@ -275,13 +282,16 @@ public class PlatformController extends WorldController implements ContactListen
 		labels[1] = test2;
 
 		//Dash Dampening
-		current = avatar.getDashDistance();
-		max = current * 1.5f;
+		current = avatar.getDashDamping();
+		max = current * 2.5f;
 		min = current * 0.5f;
 
 		Slider s3 = new Slider(min, max, 0.1f, false, style);
 		s3.setValue(current);
 		s3.setPosition(10, 386);
+		final Label test3 = new Label("Dash Dampening: " + current, labelStyle);
+		test3.setPosition(10, 418);
+
 		s3.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -291,13 +301,13 @@ public class PlatformController extends WorldController implements ContactListen
 				somni.setDashDamping(f);
 				phobia.setDashDamping(f);
 				combined.setDashDamping(f);
+				test3.setText("Dash Dampening : " + f);
 			}
 		});
 		stage.addActor(s3);
 		sliders[2] = s3;
 
-		Label test3 = new Label("Dash Dampening", labelStyle);
-		test3.setPosition(10, 418);
+
 		labels[2] = test3;
 
 		//Jump Force
@@ -308,6 +318,9 @@ public class PlatformController extends WorldController implements ContactListen
 		Slider s4 = new Slider(min, max, 0.1f, false, style);
 		s4.setValue(current);
 		s4.setPosition(10, 329);
+		final Label test4 = new Label("Jump Force: " + current, labelStyle);
+		test4.setPosition(10, 361);
+
 		s4.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -317,13 +330,11 @@ public class PlatformController extends WorldController implements ContactListen
 				somni.setJumpForce(f);
 				phobia.setJumpForce(f);
 				combined.setJumpForce(f);
+				test4.setText("Jump Force : " + f);
 			}
 		});
 		stage.addActor(s4);
 		sliders[3] = s4;
-
-		Label test4 = new Label("Jump Force", labelStyle);
-		test4.setPosition(10, 361);
 		labels[3] = test4;
 
 		//Hand Holding Distance
@@ -334,6 +345,9 @@ public class PlatformController extends WorldController implements ContactListen
 		Slider s5 = new Slider(min, max, 0.1f, false, style);
 		s5.setValue(current);
 		s5.setPosition(10, 272);
+		final Label test5 = new Label("Hand Holding Distance: " + current, labelStyle);
+		test5.setPosition(10, 304);
+
 		s5.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -341,13 +355,11 @@ public class PlatformController extends WorldController implements ContactListen
 				float f = s.getValue();
 				System.out.println("Hand Holding Distance : " + f);
 				HAND_HOLDING_DISTANCE = f;
+				test5.setText("Hand Holding Distance : " + f);
 			}
 		});
 		stage.addActor(s5);
 		sliders[4] = s5;
-
-		Label test5 = new Label("Hand Holding Distance", labelStyle);
-		test5.setPosition(10, 304);
 		labels[4] = test5;
 
 		//Character Friction
@@ -358,6 +370,9 @@ public class PlatformController extends WorldController implements ContactListen
 		Slider s6 = new Slider(min, max, 0.1f, false, style);
 		s6.setValue(current);
 		s6.setPosition(10, 215);
+		final Label test6 = new Label("Character Friction: " + current, labelStyle);
+		test6.setPosition(10, 247);
+
 		s6.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -367,13 +382,12 @@ public class PlatformController extends WorldController implements ContactListen
 				somni.setCharacterFriction(f);
 				phobia.setCharacterFriction(f);
 				combined.setCharacterFriction(f);
+				test6.setText("Character Friction : " + f);
 			}
 		});
 		stage.addActor(s6);
 		sliders[5] = s6;
 
-		Label test6 = new Label("Character Friction", labelStyle);
-		test6.setPosition(10, 247);
 		labels[5] = test6;
 
 		//Character Force
@@ -384,30 +398,29 @@ public class PlatformController extends WorldController implements ContactListen
 		Slider s7 = new Slider(min, max, 0.1f, false, style);
 		s7.setValue(current);
 		s7.setPosition(10, 158);
+		final Label test7 = new Label("Movement Speed : " + current, labelStyle);
+		test7.setPosition(10, 190);
+
 		s7.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				Slider s = (Slider) actor;
 				float f = s.getValue();
-				System.out.println("Character Force : " + f);
+				System.out.println("Movement Speed : " + f);
 				somni.setCharacterForce(f);
 				phobia.setCharacterForce(f);
 				combined.setCharacterForce(f);
+				test7.setText("Movement Speed : " + f);
 			}
 		});
 		stage.addActor(s7);
 		sliders[6] = s7;
 
-		Label test7 = new Label("Character Force", labelStyle);
-		test7.setPosition(10, 190);
+
 		labels[6] = test7;
 
 		Gdx.input.setInputProcessor(stage);
 
-//		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
-//		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
-//		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
-//		sliderMenu.layout();
 
 		s.draw(b, 1.0f);
 
@@ -1122,15 +1135,18 @@ public class PlatformController extends WorldController implements ContactListen
 
 		// Draw background unscaled.
 		canvas.begin();
-//		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
-		if (tes == 0) {
-			createSliders();
-			tes = 1;
-		}else {
-			drawSliders();
-		}
+		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
 
+		if (slidersActive()) {
+			if (tes == 0) {
+				createSliders();
+				tes = 1;
+			} else {
+				drawSliders();
+			}
+		}
 		canvas.end();
+
 
 
 		if(avatar == somni){

@@ -436,7 +436,8 @@ public class CharacterModel extends CapsuleObstacle {
 			System.out.println("Dash in direction: (" + dashDirection.x + "," + dashDirection.y);
 //			body.setLinearVelocity(0,0);
 			forceCache.set(dashDirection.scl(dashVelocity));
-			body.setLinearVelocity(forceCache);
+//			body.setLinearVelocity(forceCache);
+			body.applyLinearImpulse(forceCache, getPosition(), true);
 			dashed = true;
 //			body.applyForce(forceCache, getPosition(), true);
 
