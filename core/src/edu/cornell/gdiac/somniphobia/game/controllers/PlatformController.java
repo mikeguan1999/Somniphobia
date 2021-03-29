@@ -607,8 +607,8 @@ public class PlatformController extends WorldController implements ContactListen
 
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
-		avatar = somni;
-		lead = somni;
+		avatar = phobia;
+		lead = phobia;
 
 		world = new World(gravity,false);
 		world.setContactListener(this);
@@ -789,7 +789,7 @@ public class PlatformController extends WorldController implements ContactListen
 		action = 0;
 
 		//Set current avatar to somni
-		avatar = somni;
+		avatar = phobia;
 		volume = constants.getFloat("volume", 1.0f);
 	}
 
@@ -857,15 +857,24 @@ public class PlatformController extends WorldController implements ContactListen
 	    	// some dash sound
 		}
 
-	    if (avatar.isDashing()) {
-	    	avatar.setGravityScale(0f);
+		if (somni.isDashing()) {
+			somni.setGravityScale(0f);
 		} else {
-	    	avatar.setGravityScale(1);
+			somni.setGravityScale(1);
+		}
+
+		if (phobia.isDashing()) {
+			phobia.setGravityScale(0f);
+		} else {
+			phobia.setGravityScale(1);
 		}
 	    // Check if switched
 		if(inputController.didSwitch()) {
+//			avatar.setDashing(false);
 			//Switch active character
 			if (!holdingHands) {
+				avatar.setVX(0f);
+				avatar.setVY(0f);
 				avatar = avatar == somni ? phobia : somni;
 			}else{
 				lead = lead == somni ? phobia :somni;
@@ -1033,7 +1042,6 @@ public class PlatformController extends WorldController implements ContactListen
 			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
 					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
 					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-				System.out.println("collision");
 				avatar.setDashing(false);
 				avatar.setGravityScale(1);
 
@@ -1043,7 +1051,6 @@ public class PlatformController extends WorldController implements ContactListen
 			// See if we have landed on the ground.
 			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
-				System.out.println("collided with wall");
 				somni.setGrounded(true);
 				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
 //				somni.canJump = true;
