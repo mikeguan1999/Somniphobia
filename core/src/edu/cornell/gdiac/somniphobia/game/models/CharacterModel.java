@@ -43,6 +43,8 @@ public class CharacterModel extends CapsuleObstacle {
 
 	/** The velocity for the character dash */
 	private float dashVelocity;
+	/** The velocity to stop dashing */
+	private float dashEndVelocity;
 	/** Cooldown (in animation frames) for jumping */
 	private int jumpLimit;
 
@@ -59,8 +61,8 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Whether we are actively dashing */
 	private boolean isDashing;
 
-	/** Distance to dash */
-	private float dashDistance;
+//	/** Distance to dash */
+//	private float dashDistance;
 	/** Whether we have applied initial dash velocity */
 	private boolean dashed;
 	/** Whether we can dash */
@@ -83,6 +85,8 @@ public class CharacterModel extends CapsuleObstacle {
 	private final Vector2 forceCache;
 
 	/** Getters and setters*/
+	public float getDashEndVelocity() { return dashEndVelocity; }
+	public void setDashEndVelocity(float f) { dashEndVelocity = f; }
 	public float getDashDamping(){
 		return dashDamping;
 	}
@@ -101,12 +105,12 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setDashVelocity(float f){
 		dashVelocity = f;
 	}
-	public float getDashDistance(){
-		return dashDistance;
-	}
-	public void setDashDistance(float f){
-		dashDistance = f;
-	}
+//	public float getDashDistance(){
+//		return dashDistance;
+//	}
+//	public void setDashDistance(float f){
+//		dashDistance = f;
+//	}
 	public float getCharacterFriction(){
 		return getFriction();
 	}
@@ -153,7 +157,8 @@ public class CharacterModel extends CapsuleObstacle {
 		this.data = data;
 		filter = f;
 
-		dashVelocity = 30f;
+		dashVelocity = 35f;
+		dashEndVelocity = 1.5f;
 
 		// Gameplay attributes
 		isGrounded = false;
@@ -163,7 +168,7 @@ public class CharacterModel extends CapsuleObstacle {
 		canDash = true;
 		dashed = false;
 
-		dashDistance = 3.5f;
+//		dashDistance = 3.5f;
 
 		jumpCooldown = 0;
 		dashCooldown = 0;
@@ -476,10 +481,7 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 
 		if(isDashing) {
-			System.out.println(getVY());
-//			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
-//			body.applyForce(forceCache,getPosition(),true);
-
+//			System.out.println(getVY());
 			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
 			body.applyForce(forceCache,getPosition(),true);
 //			body.setLinearVelocity(.8f * getVX(), .8f * getVY());
@@ -494,7 +496,7 @@ public class CharacterModel extends CapsuleObstacle {
 //			}
 
 			//Dash using dampening
-			if(getLinearVelocity().len() < 5f) {
+			if(getLinearVelocity().len() < dashEndVelocity) {
 				setDashing(false);
 //				forceCache.set(0,0);
 //				setLinearVelocity(forceCache);

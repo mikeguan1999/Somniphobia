@@ -381,15 +381,15 @@ public class PlatformController extends WorldController implements ContactListen
 		sliders[4] = s5;
 		labels[4] = test5;
 
-		//Character Friction
-		current = avatar.getCharacterFriction();
-		max = current * 1.5f;
+		//Dash End Velocity
+		current = avatar.getDashEndVelocity();
+		max = current * 4f;
 		min = current * 0.5f;
 
 		Slider s6 = new Slider(min, max, 0.1f, false, style);
 		s6.setValue(current);
 		s6.setPosition(10, 215);
-		final Label test6 = new Label("Character Friction: " + current, labelStyle);
+		final Label test6 = new Label("Dash End Velocity: " + current, labelStyle);
 		test6.setPosition(10, 247);
 
 		s6.addListener(new ChangeListener() {
@@ -397,11 +397,11 @@ public class PlatformController extends WorldController implements ContactListen
 			public void changed(ChangeEvent event, Actor actor) {
 				Slider s = (Slider) actor;
 				float f = s.getValue();
-				System.out.println("Character Friction : " + f);
-				somni.setCharacterFriction(f);
-				phobia.setCharacterFriction(f);
-				combined.setCharacterFriction(f);
-				test6.setText("Character Friction : " + f);
+				System.out.println("Dash End Velocity : " + f);
+				somni.setDashEndVelocity(f);
+				phobia.setDashEndVelocity(f);
+				combined.setDashEndVelocity(f);
+				test6.setText("Dash End Velocity : " + f);
 			}
 		});
 		stage.addActor(s6);
@@ -466,45 +466,45 @@ public class PlatformController extends WorldController implements ContactListen
 
 		s = sliders[1];
 		f = s.getValue();
-		System.out.println("Dash Distance : " + f);
-		somni.setDashDistance(f);
-		phobia.setDashDistance(f);
-		combined.setDashDistance(f);
-
-		s = sliders[2];
-		f = s.getValue();
 		System.out.println("Dash Dampening : " + f);
-		somni.setDashDistance(f);
-		phobia.setDashDistance(f);
-		combined.setDashDistance(f);
+		somni.setDashDamping(f);
+		phobia.setDashDamping(f);
+		combined.setDashDamping(f);
 
-		s = sliders[3];
-		f = s.getValue();
-		System.out.println("Jump Force : " + f);
-		somni.setDashDistance(f);
-		phobia.setDashDistance(f);
-		combined.setDashDistance(f);
-
-		s = sliders[4];
-		f = s.getValue();
-		System.out.println("Hand Holding Distance : " + f);
-		somni.setDashDistance(f);
-		phobia.setDashDistance(f);
-		combined.setDashDistance(f);
-
-		s = sliders[5];
-		f = s.getValue();
-		System.out.println("Character Friction : " + f);
-		somni.setDashDistance(f);
-		phobia.setDashDistance(f);
-		combined.setDashDistance(f);
-
-		s = sliders[6];
-		f = s.getValue();
-		System.out.println("Character Force : " + f);
-		somni.setDashDistance(f);
-		phobia.setDashDistance(f);
-		combined.setDashDistance(f);
+//		s = sliders[2];
+//		f = s.getValue();
+//		System.out.println("Dash Dampening : " + f);
+//		somni.setDashDistance(f);
+//		phobia.setDashDistance(f);
+//		combined.setDashDistance(f);
+//
+//		s = sliders[3];
+//		f = s.getValue();
+//		System.out.println("Jump Force : " + f);
+//		somni.setDashDistance(f);
+//		phobia.setDashDistance(f);
+//		combined.setDashDistance(f);
+//
+//		s = sliders[4];
+//		f = s.getValue();
+//		System.out.println("Hand Holding Distance : " + f);
+//		somni.setDashDistance(f);
+//		phobia.setDashDistance(f);
+//		combined.setDashDistance(f);
+//
+//		s = sliders[5];
+//		f = s.getValue();
+//		System.out.println("Character Friction : " + f);
+//		somni.setDashDistance(f);
+//		phobia.setDashDistance(f);
+//		combined.setDashDistance(f);
+//
+//		s = sliders[6];
+//		f = s.getValue();
+//		System.out.println("Character Force : " + f);
+//		somni.setDashDistance(f);
+//		phobia.setDashDistance(f);
+//		combined.setDashDistance(f);
 
 	}
 
