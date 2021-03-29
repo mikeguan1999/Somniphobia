@@ -72,7 +72,7 @@ public abstract class WorldController implements Screen {
 	/** Height of the game world in Box2d units */
 	protected static final float DEFAULT_HEIGHT = 18.0f;
 	/** The default value of gravity (going down) */
-	protected static final float DEFAULT_GRAVITY = -4.9f;
+	protected static final float DEFAULT_GRAVITY = -20f;
 	
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -98,6 +98,8 @@ public abstract class WorldController implements Screen {
 	private boolean failed;
 	/** Whether or not debug mode is active */
 	private boolean debug;
+	/** Whether or not sliders are active */
+	private boolean sliders;
 	/** Countdown active for winning or losing */
 	private int countdown;
 
@@ -110,6 +112,16 @@ public abstract class WorldController implements Screen {
 	 */
 	public boolean isDebug( ) {
 		return debug;
+	}
+
+
+	/**
+	 * Returns true if sliders are active.
+	 *
+	 * @return true if sliders are active.
+	 */
+	public boolean slidersActive( ) {
+		return sliders;
 	}
 
 	/**
@@ -355,6 +367,11 @@ public abstract class WorldController implements Screen {
 		// Toggle debug
 		if (input.didDebug()) {
 			debug = !debug;
+		}
+
+		// Toggle sliders
+		if (input.didToggleSliders()) {
+			sliders = !sliders;
 		}
 		
 		// Handle resets

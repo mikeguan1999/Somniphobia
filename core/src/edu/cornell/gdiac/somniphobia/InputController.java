@@ -62,6 +62,11 @@ public class InputController {
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
 	private boolean debugPrevious;
+
+	/** Whether the slider toggle was pressed. */
+	private boolean sliderToggled;
+	private boolean sliderToggledPrevious;
+
 	/** Whether the exit button was pressed. */
 	private boolean exitPressed;
 	private boolean exitPrevious;
@@ -178,6 +183,16 @@ public class InputController {
 	public boolean didDebug() {
 		return debugPressed && !debugPrevious;
 	}
+
+
+	/**
+	 * Returns true if the player wants to go toggle the debug mode.
+	 *
+	 * @return true if the player wants to go toggle the debug mode.
+	 */
+	public boolean didToggleSliders() {
+		return sliderToggled && !sliderToggledPrevious;
+	}
 	
 	/**
 	 * Returns true if the exit button was pressed.
@@ -201,6 +216,7 @@ public class InputController {
 		switchPrevious = switchPressed;
 		resetPrevious  = resetPressed;
 		debugPrevious  = debugPressed;
+		sliderToggledPrevious = sliderToggled;
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
@@ -215,6 +231,7 @@ public class InputController {
 		// Give priority to gamepad results
 		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
+		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.S);
 		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.Z);
 		dashPressed = Gdx.input.isKeyPressed(Input.Keys.X);
 		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);

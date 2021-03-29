@@ -29,17 +29,22 @@ public class CharacterModel extends CapsuleObstacle {
 	private final JsonValue data;
 
 	/** The factor to multiply by the input */
-	private final float force;
+	private float force;
 	/** The amount to slow the character down */
-	private final float damping;
+	private float damping;
+	/** The amount to slow the character down during dashing*/
+	private float dashDamping;
 	/** The maximum character speed */
-	private final float maxspeed;
+	private float maxspeed;
 	/** Identifier to allow us to track the sensor in ContactListener */
 	private final String sensorName;
 	/** The impulse for the character jump */
-	private final float jump_force;
+	private float jumpForce;
+
+	/** The velocity for the character dash */
+	private float dashVelocity;
 	/** Cooldown (in animation frames) for jumping */
-	private final int jumpLimit;
+	private int jumpLimit;
 
 	/** The current horizontal movement of the character */
 	private float   movement;
@@ -53,10 +58,17 @@ public class CharacterModel extends CapsuleObstacle {
 	private int dashCooldown;
 	/** Whether we are actively dashing */
 	private boolean isDashing;
+
+	/** Distance to dash */
+	private float dashDistance;
+	/** Whether we have applied initial dash velocity */
+	private boolean dashed;
 	/** Whether we can dash */
 	private boolean canDash;
 	/** The current dash direction of the character */
-	private Vector2 dashDirection = new Vector2(0,0);
+	private Vector2 dashDirection;
+	/** The start position of the current dash */
+	private Vector2 dashStartPos;
 	/** Whether our feet are on the ground */
 	private boolean isGrounded;
 	/** The physics shape of this object */
@@ -68,8 +80,95 @@ public class CharacterModel extends CapsuleObstacle {
 	public static final boolean DARK = false;
 
 	/** Cache for internal force calculations */
-	private final Vector2 forceCache = new Vector2();
+	private final Vector2 forceCache;
 
+	/** Getters and setters*/
+	public float getDashDamping(){
+		return dashDamping;
+	}
+	public void setDashDamping(float f){
+		dashDamping = f;
+	}
+	public float getJumpForce(){
+		return jumpForce;
+	}
+	public void setJumpForce(float f){
+		jumpForce = f;
+	}
+	public float getDashVelocity(){
+		return dashVelocity;
+	}
+	public void setDashVelocity(float f){
+		dashVelocity = f;
+	}
+	public float getDashDistance(){
+		return dashDistance;
+	}
+	public void setDashDistance(float f){
+		dashDistance = f;
+	}
+	public float getCharacterFriction(){
+		return getFriction();
+	}
+	public void setCharacterFriction(float f){
+		setFriction(f);
+	}
+	public void setCharacterForce(float f){
+		force = f;
+	}
+	/**
+	 * Creates a new dude avatar with the given physics data
+	 *
+	 * The size is expressed in physics units NOT pixels.  In order for
+	 * drawing to work properly, you MUST set the drawScale. The drawScale
+	 * converts the physics units to pixels.
+	 *
+	 * @param data  	The physics constants for this dude
+	 * @param width		The object width in physics units
+	 * @param height	The object width in physics units
+	 */
+	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type) {
+		// The shrink factors fit the image to a tighter hitbox
+		super(	data.get("pos").getFloat(0),
+				data.get("pos").getFloat(1),
+				width*data.get("shrink").getFloat( 0 ),
+				height*data.get("shrink").getFloat( 1 ));
+		setDensity(data.getFloat("density", 0));
+		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
+		setFixedRotation(true);
+
+
+		dashStartPos = new Vector2(0, 0);
+		dashDirection = new Vector2(0,0);
+		forceCache = new Vector2();
+
+		maxspeed = data.getFloat("maxspeed", 0);
+		damping = data.getFloat("damping", 0);
+		force = data.getFloat("force", 0);
+		dashDamping = 5f;
+//		jumpForce = data.getFloat( "jump_force", 0 );
+		jumpForce = 8f;
+		jumpLimit = data.getInt( "jump_cool", 0 );
+		sensorName = type == LIGHT ? "SomniSensor" : "PhobiaSensor";
+		this.data = data;
+		filter = f;
+
+		dashVelocity = 30f;
+
+		// Gameplay attributes
+		isGrounded = false;
+		isJumping = false;
+		isDashing = false;
+		faceRight = true;
+		canDash = true;
+		dashed = false;
+
+		dashDistance = 3.5f;
+
+		jumpCooldown = 0;
+		dashCooldown = 0;
+		setName("dude");
+	}
 
 	/**
 	 * Returns left/right movement of this character.
@@ -123,29 +222,65 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @return true if the dude is actively dashing.
 	 */
 	public boolean isDashing() {
-		return isDashing && !canDash && dashCooldown <= 0;
+		return isDashing;
 	}
 
+	/**
+	 * Sets whether character can dash
+	 * @param value whether character can dash
+	 */
 	public void setCanDash(boolean value) {
 		canDash = value;
 	}
 
 	/**
-	 * Sets whether the dude is actively dashing. If so, set the dashing direction of this dude.
+	 * Sets whether character is actively dashing
+	 * @param b true if character is actively dashing
+	 */
+	public void setDashing(boolean b) {
+		isDashing = b;
+	}
+
+	/**
+	 * Performs a dash or propel
 	 *
-	 * @param value true if the dude is actively dashing
+	 * @param isPropel whether character propelled
 	 * @param dir_X horizontal component of the dash
 	 * @param dir_Y vertical component of the dash
 	 */
-	public void setDashing(boolean value, float dir_X, float dir_Y) {
-		if(dir_X == 0 && dir_Y == 0) {
+	public void dashOrPropel(boolean isPropel, float dir_X, float dir_Y) {
+		if(isGrounded && dir_Y < 0) {
+			return;
+		}
+
+		if (dir_X == 0 && dir_Y == 0) {
 			// Default dash in direction player faces
 			dashDirection.set(isFacingRight() ? 1 : -1, 0);
+//			System.out.println(dashDirection);
+
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
+//			System.out.println(dashDirection);
 		}
-		isDashing = value && canDash;
-		if(isDashing) { canDash = false; }
+		dashStartPos.set(getPosition());
+		isDashing = canDash;
+		if (isDashing) {
+			if (!isPropel) {
+				canDash = false;
+			}
+			dashed = false;
+		}
+	}
+
+	/**
+	 * Ends the dashing and sets velocity to 0 if we haven't done so
+	 */
+	public void endDashing() {
+		if (isDashing) {
+			isDashing = false;
+			setVY(0f);
+			setVX(0f);
+		}
 	}
 
 	/**
@@ -226,47 +361,7 @@ public class CharacterModel extends CapsuleObstacle {
 		faceRight = value;
 	}
 
-	/**
-	 * Creates a new dude avatar with the given physics data
-	 *
-	 * The size is expressed in physics units NOT pixels.  In order for 
-	 * drawing to work properly, you MUST set the drawScale. The drawScale 
-	 * converts the physics units to pixels.
-	 *
-	 * @param data  	The physics constants for this dude
-	 * @param width		The object width in physics units
-	 * @param height	The object width in physics units
-	 */
-	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type) {
-		// The shrink factors fit the image to a tighter hitbox
-		super(	data.get("pos").getFloat(0),
-				data.get("pos").getFloat(1),
-				width*data.get("shrink").getFloat( 0 ),
-				height*data.get("shrink").getFloat( 1 ));
-        setDensity(data.getFloat("density", 0));
-		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
-		setFixedRotation(true);
 
-		maxspeed = data.getFloat("maxspeed", 0);
-		damping = data.getFloat("damping", 0);
-		force = data.getFloat("force", 0);
-		jump_force = data.getFloat( "jump_force", 0 );
-		jumpLimit = data.getInt( "jump_cool", 0 );
-		sensorName = type == LIGHT ? "SomniSensor" : "PhobiaSensor";
-		this.data = data;
-		filter = f;
-
-		// Gameplay attributes
-		isGrounded = false;
-		isJumping = false;
-		isDashing = false;
-		faceRight = true;
-		canDash = true;
-
-		jumpCooldown = 0;
-		dashCooldown = 0;
-		setName("dude");
-	}
 
 	/**
 	 * Creates the physics Body(s) for this object, adding them to the world.
@@ -320,34 +415,42 @@ public class CharacterModel extends CapsuleObstacle {
 		if (!isActive()) {
 			return;
 		}
-		
+
 		// Don't want to be moving. Damp out player motion
-		if (getMovement() == 0f && isGrounded) {
+		if (getMovement() == 0f && isGrounded && !isDashing) {
 			forceCache.set(-getDamping()*getVX(),0);
 			body.applyForce(forceCache,getPosition(),true);
 		}
-		
+
 		// Velocity too high on ground, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed() && canDash && isGrounded) {
+		if (Math.abs(getVX()) >= getMaxSpeed() && !isDashing() && isGrounded) {
 			setVX(Math.signum(getVX()) * getMaxSpeed());
-		} else if (Math.abs(getVX()) >= getMaxSpeed() * 1.5f) {
-			setVX(Math.signum(getVX()) * getMaxSpeed() * 1.4f);
-		} else {
-			forceCache.set(getMovement(),0);
-			body.applyForce(forceCache,getPosition(),true);
+		}
+//		else if (Math.abs(getVX()) >= getMaxSpeed() * 1.5f && !isDashing()) {
+//			setVX(Math.signum(getVX()) * getMaxSpeed() * 1.4f);
+//		}
+		else if (!isDashing()){
+			forceCache.set(getMovement() * .3f,getVY());
+
+//			body.applyForce(forceCache,getPosition(),true);
+			body.setLinearVelocity(forceCache);
 		}
 
 		// Jump!
 		if (isJumping()) {
-			forceCache.set(0, jump_force);
-			body.applyLinearImpulse(forceCache,getPosition(),true);
+			forceCache.set(0, jumpForce * 1.5f);
+//			body.applyLinearImpulse(forceCache,getPosition(),true);
+			body.setLinearVelocity(forceCache);
 		}
 
 		// Dash!
-		if (isDashing()) {
-			body.setLinearVelocity(0,0);
-			forceCache.set(dashDirection.scl(1.25f * jump_force));
-			body.applyLinearImpulse(forceCache, getPosition(), true);
+		if (isDashing() && !dashed) {
+//			System.out.println("Dash in direction: (" + dashDirection.x + "," + dashDirection.y);
+			forceCache.set(dashDirection.scl(dashVelocity));
+			body.setLinearVelocity(forceCache);
+
+//			body.applyLinearImpulse(forceCache, getPosition(), true);
+			dashed = true;
 		}
 	}
 	
@@ -370,6 +473,33 @@ public class CharacterModel extends CapsuleObstacle {
 			dashCooldown = jumpLimit;
 		} else {
 			dashCooldown = Math.max(0, dashCooldown - 1);
+		}
+
+		if(isDashing) {
+			System.out.println(getVY());
+//			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
+//			body.applyForce(forceCache,getPosition(),true);
+
+			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
+			body.applyForce(forceCache,getPosition(),true);
+//			body.setLinearVelocity(.8f * getVX(), .8f * getVY());
+
+
+
+			// Dash based on distance
+//			if (currDashDist >= dashDistance) {
+//				setDashing(false);
+//				forceCache.set(0,0);
+//				setLinearVelocity(forceCache);
+//			}
+
+			//Dash using dampening
+			if(getLinearVelocity().len() < 5f) {
+				setDashing(false);
+//				forceCache.set(0,0);
+//				setLinearVelocity(forceCache);
+			}
+
 		}
 
 		if(isGrounded && dashCooldown <= 0) {

@@ -10,12 +10,23 @@
  */
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
@@ -23,6 +34,7 @@ import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 
+import java.awt.*;
 /**
  * Gameplay specific controller for the platformer game.
  *
@@ -89,6 +101,11 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion [] somniphobiasTexture;
 	/** Texture asset list for phobiasomni*/
 	private TextureRegion [] phobiasomnisTexture;
+
+	/** Texture for slider bars*/
+	private Texture sliderBarTexture;
+	private Texture sliderKnobTexture;
+
 	/** Texture asset int for action*/
 	private int action;
 
@@ -132,18 +149,13 @@ public class PlatformController extends WorldController implements ContactListen
 	private int lighttag = 1;
 	private int darktag = 2;
 
-	private boolean lightclear = false;
-	private boolean darkclear = false;
-	private boolean sharedclear = false;
-	private boolean allclear = false;
-
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
 
 	/** Level */
 	private int level;
 
-	private final float HAND_HOLDING_DISTANCE = 2f;
+	private float HAND_HOLDING_DISTANCE = 2f;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 //	protected ObjectSet<Fixture> sensorFixtures;
@@ -172,6 +184,16 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
 
+	private Slider [] sliders;
+	private Label [] labels;
+	//private Skin skin = new Skin(Gdx.files.internal("core/assets/shadeui/uiskin.atlas"));
+
+	public Widget sliderMenu;
+
+	public int tes = 0;
+
+
+
 	/**
 	 * Creates and initialize a new instance of the platformer game
 	 *
@@ -180,7 +202,6 @@ public class PlatformController extends WorldController implements ContactListen
 	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
-		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
@@ -191,6 +212,300 @@ public class PlatformController extends WorldController implements ContactListen
 		combinedSensorFixtures = new ObjectSet<Fixture>();
 		holdingHands = false;
 		this.level = level;
+	}
+
+	/**
+	 * Creates sliders to adjust game constants.
+	 */
+	public void createSliders() {
+		sliders = new Slider[7];
+		labels = new Label[7];
+
+
+		Stage stage = new Stage(new ScreenViewport());
+//		Table table= new Table();
+		Batch b = canvas.getBatch();
+		ChangeListener slide = new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider slider = (Slider) actor;
+				float value = slider.getValue();
+				System.out.println(value);
+			}
+		};
+
+		float current = 0;
+		float max = 0;
+		float min = 0;
+
+		Slider.SliderStyle style =
+				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
+		BitmapFont font = displayFont;
+		font.getData().setScale(.3f, .3f);
+		Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
+
+		//Dash Velocity
+		current = avatar.getDashVelocity();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s = new Slider(min, max, 0.1f, false, style);
+		s.setValue(current);
+		s.setPosition(10, 500);
+		stage.addActor(s);
+
+		final Label test1 = new Label("Dash Velocity: " + avatar.getDashVelocity(), labelStyle);
+		test1.setPosition(10, 532);
+		s.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Dash Velocity : " + f);
+				somni.setDashVelocity(f);
+				phobia.setDashVelocity(f);
+				combined.setDashVelocity(f);
+				test1.setText("Dash Velocity: " + f);
+			}
+		});
+		sliders[0] = s;
+		labels[0] = test1;
+
+		//Dash Dampening
+		current = avatar.getDashDamping();
+		max = current * 2.5f;
+		min = current * 0.5f;
+
+		Slider s2 = new Slider(min, max, 0.1f, false, style);
+		s2.setValue(current);
+		s2.setPosition(10, 443);
+		final Label test2 = new Label("Dash Dampening: " + current, labelStyle);
+		test2.setPosition(10, 475);
+
+
+		s2.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Dash Dampening : " + f);
+				somni.setDashDamping(f);
+				phobia.setDashDamping(f);
+				combined.setDashDamping(f);
+				test2.setText("Dash Dampening : " + f);
+			}
+		});
+		stage.addActor(s2);
+		sliders[1] = s2;
+		labels[1] = test2;
+
+		//Dash Dampening
+		current = world.getGravity().y;
+
+
+		min = current * 2.5f;
+		max = current * 0.5f;
+
+		Slider s3 = new Slider(min, max, 0.1f, false, style);
+		s3.setValue(current);
+		s3.setPosition(10, 386);
+		final Label test3 = new Label("Gravity: " + current, labelStyle);
+		test3.setPosition(10, 418);
+
+		s3.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Gravity: " + f);
+				world.setGravity( new Vector2(0,f) );
+
+				test3.setText("Gravity : " + f);
+			}
+		});
+		stage.addActor(s3);
+		sliders[2] = s3;
+
+
+		labels[2] = test3;
+
+		//Jump Force
+		current = avatar.getJumpForce();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s4 = new Slider(min, max, 0.1f, false, style);
+		s4.setValue(current);
+		s4.setPosition(10, 329);
+		final Label test4 = new Label("Jump Force: " + current, labelStyle);
+		test4.setPosition(10, 361);
+
+		s4.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Jump Force : " + f);
+				somni.setJumpForce(f);
+				phobia.setJumpForce(f);
+				combined.setJumpForce(f);
+				test4.setText("Jump Force : " + f);
+			}
+		});
+		stage.addActor(s4);
+		sliders[3] = s4;
+		labels[3] = test4;
+
+		//Hand Holding Distance
+		current = HAND_HOLDING_DISTANCE;
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s5 = new Slider(min, max, 0.1f, false, style);
+		s5.setValue(current);
+		s5.setPosition(10, 272);
+		final Label test5 = new Label("Hand Holding Distance: " + current, labelStyle);
+		test5.setPosition(10, 304);
+
+		s5.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Hand Holding Distance : " + f);
+				HAND_HOLDING_DISTANCE = f;
+				test5.setText("Hand Holding Distance : " + f);
+			}
+		});
+		stage.addActor(s5);
+		sliders[4] = s5;
+		labels[4] = test5;
+
+		//Character Friction
+		current = avatar.getCharacterFriction();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s6 = new Slider(min, max, 0.1f, false, style);
+		s6.setValue(current);
+		s6.setPosition(10, 215);
+		final Label test6 = new Label("Character Friction: " + current, labelStyle);
+		test6.setPosition(10, 247);
+
+		s6.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Character Friction : " + f);
+				somni.setCharacterFriction(f);
+				phobia.setCharacterFriction(f);
+				combined.setCharacterFriction(f);
+				test6.setText("Character Friction : " + f);
+			}
+		});
+		stage.addActor(s6);
+		sliders[5] = s6;
+
+		labels[5] = test6;
+
+		//Character Force
+		current = avatar.getForce();
+		max = current * 1.5f;
+		min = current * 0.5f;
+
+		Slider s7 = new Slider(min, max, 0.1f, false, style);
+		s7.setValue(current);
+		s7.setPosition(10, 158);
+		final Label test7 = new Label("Movement Speed : " + current, labelStyle);
+		test7.setPosition(10, 190);
+
+		s7.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				Slider s = (Slider) actor;
+				float f = s.getValue();
+				System.out.println("Movement Speed : " + f);
+				somni.setCharacterForce(f);
+				phobia.setCharacterForce(f);
+				combined.setCharacterForce(f);
+				test7.setText("Movement Speed : " + f);
+			}
+		});
+		stage.addActor(s7);
+		sliders[6] = s7;
+
+
+		labels[6] = test7;
+
+		Gdx.input.setInputProcessor(stage);
+
+
+		s.draw(b, 1.0f);
+
+	}
+	public void drawSliders(){
+		Batch b = canvas.getBatch();
+		for (int i = 0; i < sliders.length; i++) {
+			Slider s = sliders[i];
+			Label l= labels[i];
+			l.draw(b, 1.0f);
+			s.draw(b, 1.0f);
+		}
+	}
+
+	public void applySliders(){
+		// 0 Dash Velocity, 1 Dash Distance, 2 Dash Dampening, 3 Jump Force,
+		// 4 Hand Holding Distance, 5 Character Friction, 6 Character force
+		Slider s = sliders[0];
+		float f = s.getValue();
+		System.out.println("Dash Velocity : " + f);
+		somni.setDashVelocity(f);
+		phobia.setDashVelocity(f);
+		combined.setDashVelocity(f);
+
+		s = sliders[1];
+		f = s.getValue();
+		System.out.println("Dash Distance : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[2];
+		f = s.getValue();
+		System.out.println("Dash Dampening : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[3];
+		f = s.getValue();
+		System.out.println("Jump Force : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[4];
+		f = s.getValue();
+		System.out.println("Hand Holding Distance : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[5];
+		f = s.getValue();
+		System.out.println("Character Friction : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
+		s = sliders[6];
+		f = s.getValue();
+		System.out.println("Character Force : " + f);
+		somni.setDashDistance(f);
+		phobia.setDashDistance(f);
+		combined.setDashDistance(f);
+
 	}
 
 	/**
@@ -233,14 +548,17 @@ public class PlatformController extends WorldController implements ContactListen
 		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
 		backgroundTexture = backgroundLightTexture;
 
-		TextureRegion [] somnis = {somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
-		somnisTexture = somnis;
-		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
-		phobiasTexture = phobias;
-		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
-		somniphobiasTexture = somniphobias;
-		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
-		phobiasomnisTexture = phobiasomnis;
+		somnisTexture = new TextureRegion[]{somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
+		phobiasTexture = new TextureRegion[]{phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
+		somniphobiasTexture = new TextureRegion[]{somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
+		phobiasomnisTexture = new TextureRegion[]{phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
+		AssetDirectory internal = new AssetDirectory( "loading.json" );
+		internal.loadAssets();
+		internal.finishLoading();
+
+		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
+		sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
+
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -279,8 +597,8 @@ public class PlatformController extends WorldController implements ContactListen
 
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
-		avatar = somni;
-		lead = somni;
+		avatar = phobia;
+		lead = phobia;
 
 		world = new World(gravity,false);
 		world.setContactListener(this);
@@ -460,7 +778,7 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setActive(false);
 		action = 0;
 		//Set current avatar to somni
-		avatar = somni;
+		avatar = phobia;
 		volume = constants.getFloat("volume", 1.0f);
 	}
 
@@ -505,20 +823,52 @@ public class PlatformController extends WorldController implements ContactListen
 		InputController inputController = InputController.getInstance();
 		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
 		avatar.setJumping(inputController.didJump());
-		avatar.setDashing(inputController.didDash(), inputController.getHorizontal(), inputController.getVertical());
 
-		avatar.applyForce();
+
+
+		if(inputController.didDash()) {
+			if (holdingHands) {
+				// Check for propel
+				endHoldHands();
+				avatar.dashOrPropel(true, inputController.getHorizontal(), inputController.getVertical());
+
+			} else {
+				avatar.dashOrPropel(false, inputController.getHorizontal(), inputController.getVertical());
+			}
+		}
+
+
+		somni.applyForce();
+		phobia.applyForce();
+		combined.applyForce();
 		//handleworldview();
 	    if (avatar.isJumping()) {
 	    	//jumpId = playSound( jumpSound, jumpId, volume );
 	    } else if (avatar.isDashing()) {
 	    	// some dash sound
 		}
+
+		if (somni.isDashing()) {
+			somni.setGravityScale(0f);
+		} else {
+			somni.setGravityScale(1);
+		}
+
+		if (phobia.isDashing()) {
+			phobia.setGravityScale(0f);
+		} else {
+			phobia.setGravityScale(1);
+		}
 	    // Check if switched
 		if(inputController.didSwitch()) {
+//			avatar.setDashing(false);
 			//Switch active character
 			if (!holdingHands) {
+				avatar.setMovement(0f);
+
+
 				avatar = avatar == somni ? phobia : somni;
+
 			}else{
 				lead = lead == somni ? phobia :somni;
 			}
@@ -554,10 +904,7 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.setTexture(phobiasTexture[action]);
 			}
 		}
-	    // Check for propel
-	    if(inputController.didDash() && holdingHands) {
-	    	endHoldHands();
-		}
+
 	}
 
 	/**
@@ -599,17 +946,17 @@ public class PlatformController extends WorldController implements ContactListen
 		float dampeningFactor = -0.25f;
 		if(lead == phobia){
 			phobia.setCanDash(true);
-			somni.setPosition(avatarX - 1, avatarY);
+			somni.setPosition(avatarX, avatarY);
 			somni.setVX(avatarVX * dampeningFactor);
 			somni.setVY(0);
-			somni.setFacingRight(combined.isFacingRight());
 		}else {
 			somni.setCanDash(true);
-			phobia.setPosition(avatarX - 1, avatarY);
+			phobia.setPosition(avatarX , avatarY);
 			phobia.setVX(avatarVX * dampeningFactor);
 			phobia.setVY(0);
-			phobia.setFacingRight(combined.isFacingRight());
 		}
+		somni.setFacingRight(combined.isFacingRight());
+		phobia.setFacingRight(combined.isFacingRight());
 		holdingHands = false;
 	}
 
@@ -684,6 +1031,16 @@ public class PlatformController extends WorldController implements ContactListen
 			int tile2 = -1;
 
 
+			// See if we have collided with a wall
+			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
+					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
+					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
+				avatar.endDashing();
+				avatar.setGravityScale(1);
+
+			}
+
+
 			// See if we have landed on the ground.
 			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
 				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
@@ -751,6 +1108,7 @@ public class PlatformController extends WorldController implements ContactListen
 				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
 			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
 
+
 			if (darkSensorFixtures.size == 0) {
 				phobia.setGrounded(false);
 			}
@@ -778,6 +1136,15 @@ public class PlatformController extends WorldController implements ContactListen
 		// Draw background unscaled.
 		canvas.begin();
 		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth(),canvas.getHeight());
+
+		if (slidersActive()) {
+			if (tes == 0) {
+				createSliders();
+				tes = 1;
+			} else {
+				drawSliders();
+			}
+		}
 		canvas.end();
 
 
@@ -903,7 +1270,6 @@ public class PlatformController extends WorldController implements ContactListen
 			//obj.activatePhysics(world);
 		}
 	}
-
 
 
 }
