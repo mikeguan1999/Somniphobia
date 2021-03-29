@@ -16,6 +16,8 @@
       "wrapV": "repeated"
     },
     "shared:goal": "platform/Door.png",
+    "platform:sliderbar": "platform/sliderbar.png",
+    "platform:sliderknob": "platform/sliderknob.png",
     "platform:SomniPhobia_stand": "platform/SomniPhobiaStand.png",
     "platform:PhobiaSomni_stand": "platform/PhobiaSomniStand.png",
     "platform:barrier": "platform/barrier.png",
@@ -45,7 +47,7 @@
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",
         "platform:pew"  : "platform/pew.mp3",
-        "platform:plop" : "platform/plop.mp3",
+        "platform:plop" : "platform/plop.mp3"
     },
     "fonts": {
         "shared:retro": {
