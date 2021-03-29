@@ -35,7 +35,6 @@ import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 
 import java.awt.*;
-
 /**
  * Gameplay specific controller for the platformer game.
  *
@@ -103,8 +102,10 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Texture asset list for phobiasomni*/
 	private TextureRegion [] phobiasomnisTexture;
 
+	/** Texture for slider bars*/
 	private Texture sliderBarTexture;
 	private Texture sliderKnobTexture;
+
 	/** Texture asset int for action*/
 	private int action;
 
@@ -148,11 +149,6 @@ public class PlatformController extends WorldController implements ContactListen
 	private int lighttag = 1;
 	private int darktag = 2;
 
-//	private boolean lightclear = false;
-//	private boolean darkclear = false;
-//	private boolean sharedclear = false;
-//	private boolean allclear = false;
-
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
 
@@ -187,6 +183,7 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+
 	private Slider [] sliders;
 	private Label [] labels;
 	//private Skin skin = new Skin(Gdx.files.internal("core/assets/shadeui/uiskin.atlas"));
@@ -197,6 +194,25 @@ public class PlatformController extends WorldController implements ContactListen
 
 
 
+	/**
+	 * Creates and initialize a new instance of the platformer game
+	 *
+	 * The game has default gravity and other settings
+	 */
+	public PlatformController(int level) {
+
+		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
+		setDebug(false);
+		setComplete(false);
+		setFailure(false);
+		world.setContactListener(this);
+//		sensorFixtures = new ObjectSet<Fixture>();
+		lightSensorFixtures = new ObjectSet<Fixture>();
+		darkSensorFixtures = new ObjectSet<Fixture>();
+		combinedSensorFixtures = new ObjectSet<Fixture>();
+		holdingHands = false;
+		this.level = level;
+	}
 
 	/**
 	 * Creates sliders to adjust game constants.
@@ -488,26 +504,6 @@ public class PlatformController extends WorldController implements ContactListen
 		combined.setDashDistance(f);
 
 	}
-	/**
-	 * Creates and initialize a new instance of the platformer game
-	 *
-	 * The game has default gravity and other settings
-	 */
-	public PlatformController(int level) {
-
-		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
-		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
-		setDebug(false);
-		setComplete(false);
-		setFailure(false);
-		world.setContactListener(this);
-//		sensorFixtures = new ObjectSet<Fixture>();
-		lightSensorFixtures = new ObjectSet<Fixture>();
-		darkSensorFixtures = new ObjectSet<Fixture>();
-		combinedSensorFixtures = new ObjectSet<Fixture>();
-		holdingHands = false;
-		this.level = level;
-	}
 
 	/**
 	 * Gather the assets for this controller.
@@ -561,15 +557,10 @@ public class PlatformController extends WorldController implements ContactListen
 		internal.loadAssets();
 		internal.finishLoading();
 
-
-//
-//		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
-//		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
-//		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
-//		sliderTexture = internal.getEntry("progress.backleft", TextureRegion.class);
-
 		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
 		sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
+
+
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
@@ -787,7 +778,6 @@ public class PlatformController extends WorldController implements ContactListen
 
 		combined.setActive(false);
 		action = 0;
-
 		//Set current avatar to somni
 		avatar = phobia;
 		volume = constants.getFloat("volume", 1.0f);
@@ -876,6 +866,7 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.setVX(0f);
 				avatar.setVY(0f);
 				avatar = avatar == somni ? phobia : somni;
+
 			}else{
 				lead = lead == somni ? phobia :somni;
 			}
@@ -1155,7 +1146,6 @@ public class PlatformController extends WorldController implements ContactListen
 		canvas.end();
 
 
-
 		if(avatar == somni){
 			canvas.begin();
 			for(Obstacle obj : sharedObjects) {
@@ -1278,7 +1268,6 @@ public class PlatformController extends WorldController implements ContactListen
 			//obj.activatePhysics(world);
 		}
 	}
-
 
 
 }
