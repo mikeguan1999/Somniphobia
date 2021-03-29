@@ -158,7 +158,7 @@ public class CharacterModel extends CapsuleObstacle {
 		filter = f;
 
 		dashVelocity = 35f;
-		dashEndVelocity = 1.5f;
+		dashEndVelocity = 4f;
 
 		// Gameplay attributes
 		isGrounded = false;

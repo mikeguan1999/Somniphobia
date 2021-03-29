@@ -192,6 +192,8 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+
+	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
 	private Label [] labels;
 	//private Skin skin = new Skin(Gdx.files.internal("core/assets/shadeui/uiskin.atlas"));
@@ -210,7 +212,7 @@ public class PlatformController extends WorldController implements ContactListen
 	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
-		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
+//		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
@@ -252,7 +254,7 @@ public class PlatformController extends WorldController implements ContactListen
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
 		BitmapFont font = displayFont;
 		font.getData().setScale(.3f, .3f);
-		Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.GREEN);
+		labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
 		//Dash Velocity
 		current = avatar.getDashVelocity();
@@ -962,7 +964,7 @@ public class PlatformController extends WorldController implements ContactListen
 		newX = Math.min(newX, 1000);
 
 		float newY = avatar.getY()*3+canvas.getHeight()/2;
-		System.out.println(newY);
+//		System.out.println(newY);
 		newY = Math.min(305, newY);
 
 
@@ -1211,6 +1213,10 @@ public class PlatformController extends WorldController implements ContactListen
 				createSliders();
 				tes = 1;
 			} else {
+				displayFont.getData().setScale(.3f, .3f);
+				labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
+
+
 				drawSliders();
 			}
 		}
