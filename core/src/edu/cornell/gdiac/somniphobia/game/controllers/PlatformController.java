@@ -583,7 +583,7 @@ public class PlatformController extends WorldController implements ContactListen
 	    	endHoldHands();
 		}
 
-	    float newX = avatar.getX()*15+470;
+	    float newX = avatar.getX()*35+470;
 //	    System.out.println(newX);
 
 //	    if (somni.getX()<3.6){
@@ -595,14 +595,14 @@ public class PlatformController extends WorldController implements ContactListen
 //		if (newX>canvas.getWidth()/2 && newX<900) {
 //			camera.position.x = newX;
 //		}
-		newX = Math.max(canvas.getWidth()/2, newX);
-		newX = Math.min(newX, 900);
+		newX = Math.max(canvas.getWidth()/2, newX- canvas.getWidth()/2);
+		newX = Math.min(newX, 1000);
 
-		float newY = avatar.getY()*7+canvas.getHeight()/2;
+		float newY = avatar.getY()+canvas.getHeight()/2;
 		newY = Math.max(newY, canvas.getHeight()/2);
 
 //		System.out.println(newY);
-		if (newY>canvas.getHeight()/2){
+		if (newY>=canvas.getHeight()/2){
 			camera.position.y = newY;
 			camera.position.x = newX;
 		}
