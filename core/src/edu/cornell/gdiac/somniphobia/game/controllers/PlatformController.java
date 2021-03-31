@@ -658,23 +658,20 @@ public class PlatformController extends WorldController implements ContactListen
 		Filter somnif = new Filter();
 		somnif.categoryBits = CATEGORY_SOMNI;
 		somnif.maskBits = MASK_SOMNI;
-//		somniplatf.groupIndex = 011;
 		Filter phobiaf = new Filter();
 		phobiaf.categoryBits = CATEGORY_PHOBIA;
 		phobiaf.maskBits = MASK_PHOBIA;
-//		phobiaplatf.groupIndex = 011;
 		Filter combinedf = new Filter();
 		combinedf.categoryBits = CATEGORY_COMBINED;
 		combinedf.maskBits = MASK_COMBINED;
 		Filter allf = new Filter();
 		allf.categoryBits = CATEGORY_ALLPLAT;
 		allf.maskBits = MASK_ALLPLAT;
-//		allf.groupIndex = 011;
 
-//		allf.categoryBits = CATEGORY_COMBINED;
-//		allf.maskBits = MASK_COMBINED;
-		JsonValue goal = constants.get("goalL" + level);
-		JsonValue goalpos = goal.get("pos");
+
+		//set goal constants
+		JsonValue goal = constants.get("goal");
+		JsonValue goalpos = goal.get("pos" + level);
 		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
 		goalDoor.setDensity(goal.getFloat("density", 0));
@@ -687,96 +684,62 @@ public class PlatformController extends WorldController implements ContactListen
 		addObject(goalDoor);
 		addObjectTo(goalDoor, sharedtag);
 
-	    JsonValue defaults = constants.get("defaults");
-
-		String lightPlat = "lightL" + level;
-		JsonValue lightPlatJson = constants.get("lightL" + level);
-		String darkPlat = "darkL" + level;
-		JsonValue darkPlatJson = constants.get("darkL" + level);
-		String grayPlat = "grayL" + level;
-		JsonValue grayPlatJson = constants.get("grayL" + level);
-
-		// Light platform
-		if (lightPlatJson != null) {
-			for (int jj = 0; jj < lightPlatJson.size; jj++) {
-				BoxObstacle obj;
-				float[] bounds = lightPlatJson.get(jj).asFloatArray();
-				float width = bounds[2]-bounds[0];
-				float height = bounds[5]-bounds[1];
-				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
-				obj.setBodyType(BodyDef.BodyType.StaticBody);
-				obj.setDensity(defaults.getFloat( "density", 0.0f ));
-				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				obj.setDrawScale(scale);
-				TextureRegion newLightTexture = new TextureRegion(lightTexture);
-				newLightTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
-				obj.setTexture(newLightTexture);
-				obj.setName(lightPlat+jj);
-				obj.setFilterData(lightplatf);
-				addObject(obj);
-				addObjectTo(obj, lighttag);
-			}
-		}
-
-		// Dark platform
-		if (darkPlatJson != null) {
-			for (int jj = 0; jj < darkPlatJson.size; jj++) {
-				BoxObstacle obj;
-				float[] bounds = darkPlatJson.get(jj).asFloatArray();
-				float width = bounds[2]-bounds[0];
-				float height = bounds[5]-bounds[1];
-				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
-				obj.setBodyType(BodyDef.BodyType.StaticBody);
-				obj.setDensity(defaults.getFloat( "density", 0.0f ));
-				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				obj.setDrawScale(scale);
-				TextureRegion newDarkTexture = new TextureRegion(darkTexture);
-				newDarkTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
-				obj.setTexture(newDarkTexture);
-				obj.setName(darkPlat+jj);
-				obj.setFilterData(darkplatf);
-				addObject(obj);
-				addObjectTo(obj, darktag);
-			}
-		}
-
-		if (grayPlatJson != null) {
-			// Gray platform
-			for (int jj = 0; jj < grayPlatJson.size; jj++) {
-				BoxObstacle obj;
-				float[] bounds = grayPlatJson.get(jj).asFloatArray();
-				float width = bounds[2]-bounds[0];
-				float height = bounds[5]-bounds[1];
-				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
-				obj.setBodyType(BodyDef.BodyType.StaticBody);
-				obj.setDensity(defaults.getFloat( "density", 0.0f ));
-				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				obj.setDrawScale(scale);
-				TextureRegion newAllTexture = new TextureRegion(allTexture);
-				newAllTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
-				obj.setTexture(newAllTexture);
-				obj.setName(grayPlat+jj);
-				obj.setFilterData(allf);
-				addObject(obj);
-				addObjectTo(obj, sharedtag);
-			}
-		}
+		//set default vals
+		JsonValue defaults = constants.get("defaults");
 
 
-	    // This world is heavier
+		String lightPlat = "light"+level;
+		JsonValue lightPlatJson = constants.get("light"+level);
+		String darkPlat = "dark"+level;
+		JsonValue darkPlatJson = constants.get("dark"+level);
+		String grayPlat = "gray"+level;
+		JsonValue grayPlatJson = constants.get("gray"+level);
+
+		//group platform constants together for access in following for-loop
+		JsonValue[] xPlatJson = {lightPlatJson, darkPlatJson, grayPlatJson};
+		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
+		String[] xPlat = {lightPlat, darkPlat, grayPlat};
+		Filter[] xPlatf = {lightplatf, darkplatf, allf};
+		int[] xtag = {lighttag, darktag, sharedtag};
+
+
+		//set platform constants for light, dark, and combined
+		for(int i=0; i<=2; i++)
+		{
+			if (xPlatJson[i] != null) {
+				for (int jj = 0; jj < xPlatJson[i].size; jj++) {
+					BoxObstacle obj;
+					float[] bounds = xPlatJson[i].get(jj).asFloatArray();
+					float width = bounds[2]-bounds[0];
+					float height = bounds[5]-bounds[1];
+					obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
+					obj.setBodyType(BodyDef.BodyType.StaticBody);
+					obj.setDensity(defaults.getFloat( "density", 0.0f ));
+					obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+					obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+					obj.setDrawScale(scale);
+					TextureRegion newXTexture = new TextureRegion(xTexture[i]);
+					newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+					obj.setTexture(newXTexture);
+					obj.setName(xPlat[i]+jj);
+					obj.setFilterData(xPlatf[i]);
+					addObject(obj);
+					addObjectTo(obj, xtag[i]);
+				}
+			}}
+
+		// This world is heavier
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
 		// Set level bounds
+		//Jenna change to json ref
 		widthUpperBound = 1000;
 		heightUpperBound = 1000;
 
 		// Create Somni
 		dwidth  = somniTexture.getRegionWidth()/scale.x;
 		dheight = somniTexture.getRegionHeight()/scale.y;
-		somni = new CharacterModel(constants.get("somniL" + level), dwidth, dheight, somnif, CharacterModel.LIGHT);
+		somni = new CharacterModel(constants.get("somni"), dwidth, dheight, somnif, CharacterModel.LIGHT, ""+level);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
@@ -785,10 +748,11 @@ public class PlatformController extends WorldController implements ContactListen
 		addObjectTo(somni, sharedtag);
 		somni.setActive(true);
 
+
 		// Create Phobia
 		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
 		dheight = phobiaTexture.getRegionHeight()/scale.y;
-		phobia = new CharacterModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, CharacterModel.DARK);
+		phobia = new CharacterModel(constants.get("phobia"), dwidth, dheight, phobiaf, CharacterModel.DARK, ""+level);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
@@ -797,9 +761,11 @@ public class PlatformController extends WorldController implements ContactListen
 		addObjectTo(phobia, sharedtag);
 		phobia.setActive(true);
 
+
+		//Create Combined
 		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
 		dheight = somniPhobiaTexture.getRegionHeight()/scale.y;
-		combined = new CharacterModel(constants.get("combined"), dwidth, dheight, combinedf, CharacterModel.DARK);
+		combined = new CharacterModel(constants.get("combined"), dwidth, dheight, combinedf, CharacterModel.DARK, "");
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
@@ -808,13 +774,14 @@ public class PlatformController extends WorldController implements ContactListen
 		addObjectTo(combined, sharedtag);
 		combined.setActive(true);
 
+		//Remove combined
 		objects.remove(combined);
 		sharedObjects.remove(combined);
-
 		combined.setActive(false);
+
 		action = 0;
-		//Set current avatar to somni
-		avatar = phobia;
+		//Set current avatar to Somni
+		avatar = somni;
 		volume = constants.getFloat("volume", 1.0f);
 	}
 
@@ -941,7 +908,6 @@ public class PlatformController extends WorldController implements ContactListen
 		newX = Math.min(newX, widthUpperBound);
 		newX = Math.max(canvas.getWidth() / 2, newX );
 		camera.position.x += (newX - camera.position.x) * LERP * dt;
-		System.out.println(camera.position.x);
 
 		float newY = avatar.getY() * canvas.PPM;
 		newY = Math.min(newY, heightUpperBound);

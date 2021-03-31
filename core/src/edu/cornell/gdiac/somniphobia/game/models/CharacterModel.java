@@ -131,10 +131,10 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
 	 */
-	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type) {
+	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type, String level) {
 		// The shrink factors fit the image to a tighter hitbox
-		super(	data.get("pos").getFloat(0),
-				data.get("pos").getFloat(1),
+		super(	data.get("pos"+level).getFloat(0),
+				data.get("pos"+level).getFloat(1),
 				width*data.get("shrink").getFloat( 0 ),
 				height*data.get("shrink").getFloat( 1 ));
 		setDensity(data.getFloat("density", 0));
