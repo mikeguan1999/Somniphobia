@@ -116,6 +116,8 @@ public class GameCanvas {
 
 	private FitViewport gameport;
 
+	public final float PPM = 32;
+
 	/**
 	 * Value to cache window width (if we are currently full screen)
 	 */
@@ -154,12 +156,8 @@ public class GameCanvas {
 
 		// Set the projection matrix (for proper scaling)
 		camera = new OrthographicCamera(getWidth(), getHeight());
-//		gameport = new FitViewport(getWidth(), getHeight(), camera);
-//		camera.position.set(getWidth()/2, getHeight()/2, 0);
-//		camera = new OrthographicCamera(50,50);
 		camera.translate(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
 		camera.update();
-//		camera.setToOrtho(false, getWidth(), getHeight());
 		System.out.println(camera.position);
 		spriteBatch.setProjectionMatrix(camera.combined);
 		debugRender.setProjectionMatrix(camera.combined);

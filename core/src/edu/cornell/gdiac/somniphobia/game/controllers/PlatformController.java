@@ -164,6 +164,10 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Level */
 	private int level;
 
+	/** Camera stuff */
+	private float widthUpperBound, heightUpperBound;
+	private float LERP = 2f;
+
 	private float HAND_HOLDING_DISTANCE = 2f;
 
 	/** Mark set to handle more sophisticated collision callbacks */
@@ -223,6 +227,8 @@ public class PlatformController extends WorldController implements ContactListen
 		combinedSensorFixtures = new ObjectSet<Fixture>();
 		holdingHands = false;
 		this.level = level;
+		widthUpperBound = 0;
+		heightUpperBound = 0;
 	}
 
 
@@ -763,7 +769,11 @@ public class PlatformController extends WorldController implements ContactListen
 	    // This world is heavier
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
-		// Create dude
+		// Set level bounds
+		widthUpperBound = 1000;
+		heightUpperBound = 1000;
+
+		// Create Somni
 		dwidth  = somniTexture.getRegionWidth()/scale.x;
 		dheight = somniTexture.getRegionHeight()/scale.y;
 		somni = new CharacterModel(constants.get("somniL" + level), dwidth, dheight, somnif, CharacterModel.LIGHT);
@@ -858,29 +868,6 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.dashOrPropel(false, inputController.getHorizontal(), inputController.getVertical());
 			}
 		}
-		// Process actions in object model
-//		lightSensorFixtures.clear();
-//		darkSensorFixtures.clear();
-//
-		camera = canvas.getCamera();
-//		if (Gdx.input.isTouched()){
-//			System.out.println("here");
-//			System.out.println(100 * dt);
-//			camera.position.x += 100 * dt;
-//			System.out.println(camera.position.x);
-//			camera.update();
-//		}
-
-
-
-////		camera.setToOrtho(false, canvas.getWidth(), canvas.getHeight());
-//		float scale = 10f;
-//		Vector3 position = camera.position;
-//		float minimum = canvas.getWidth()/2;
-//		position.x = Math.max(canvas.getWidth()/2, somni.getX()*scale+canvas.getWidth()/2);
-//		System.out.println(somni.getX()*Gdx.graphics.getDeltaTime());
-////		9position.y = (somni.getY()*lerp+canvas.getHeight()/2);
-//		camera.update();
 
 		somni.applyForce();
 		phobia.applyForce();
@@ -946,36 +933,20 @@ public class PlatformController extends WorldController implements ContactListen
 				avatar.setTexture(phobiasTexture[action]);
 			}
 		}
-	    // Check for propel
 
-	    float newX = avatar.getX()*35+470;
-//	    System.out.println(newX);
+		// Set camera position bounded by the canvas size
+		camera = canvas.getCamera();
 
-//	    if (somni.getX()<3.6){
-//	    	camera.position.x = 512;
-//		}
-//		else{
-//			camera.position.x = newX;
-//		}
-//		if (newX>canvas.getWidth()/2 && newX<900) {
-//			camera.position.x = newX;
-//		}
-		newX = Math.max(canvas.getWidth()/2, newX- canvas.getWidth()/2);
-		newX = Math.min(newX, 1000);
+	    float newX = avatar.getX() * canvas.PPM;
+		newX = Math.min(newX, widthUpperBound);
+		newX = Math.max(canvas.getWidth() / 2, newX );
+		camera.position.x += (newX - camera.position.x) * LERP * dt;
+		System.out.println(camera.position.x);
 
-		float newY = avatar.getY()*3+canvas.getHeight()/2;
-//		System.out.println(newY);
-		newY = Math.min(305, newY);
-
-
-//		System.out.println(newY);
-		if (newY>=canvas.getHeight()/2){
-			camera.position.y = newY;
-			camera.position.x = newX;
-		}
-
-//		camera.position.x = newX;
-
+		float newY = avatar.getY() * canvas.PPM;
+		newY = Math.min(newY, heightUpperBound);
+		newY = Math.max(canvas.getHeight() / 2, newY );
+		camera.position.y += (newY - camera.position.y) * LERP * dt;
 
 		camera.update();
 	}
@@ -1200,6 +1171,8 @@ public class PlatformController extends WorldController implements ContactListen
 	 *
 	 * @param dt Timing values from parent loop
 	 */
+	float previousValue = 0;
+	float lastValue = 0;
 	public void draw(float dt) {
 
 		canvas.setCamera(camera);
@@ -1207,7 +1180,9 @@ public class PlatformController extends WorldController implements ContactListen
 
 		// Draw background unscaled.
 		canvas.begin();
-		canvas.draw(backgroundTexture, Color.WHITE, 0, 0,canvas.getWidth()+700,canvas.getHeight()+700);
+		float x = camera.position.x - canvas.getWidth() / 2;
+		float y = camera.position.y - canvas.getHeight() / 2;
+		canvas.draw(backgroundTexture, Color.WHITE, x, y, canvas.getWidth() ,canvas.getHeight());
 		if (slidersActive()) {
 			if (tes == 0) {
 				createSliders();
