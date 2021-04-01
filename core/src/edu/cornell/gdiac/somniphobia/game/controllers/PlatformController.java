@@ -923,8 +923,8 @@ public class PlatformController extends WorldController implements ContactListen
 				lead = lead == somni ? phobia :somni;
 			}
 			switching = !switching;
-			backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
-					backgroundLightTexture;
+			/*backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
+					backgroundLightTexture;*/
 		}
 		if(avatar !=combined) {
 			lead = avatar;
@@ -1228,7 +1228,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		//Mask obstacles
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
-		PooledList<Obstacle> objects = lead.equals(phobia) ? lightObjects : darkObjects;
+		PooledList<Obstacle> objects = character.equals(somni) ? lightObjects : darkObjects;
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
@@ -1257,9 +1257,9 @@ public class PlatformController extends WorldController implements ContactListen
 
 		// Draw lead and follower's rift
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
-		drawCharacterRift(cameraX, cameraY, maskWidth, maskHeight, holdingHands ? combined : follower);
+		drawCharacterRift(cameraX, cameraY, maskWidth, maskHeight, holdingHands ? combined : maskLeader);
 		// Check if switching and update mask drawing
-		/*if(switching) {
+		if(switching) {
 			maskWidth += maskWidth > MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
 			maskHeight += maskHeight > MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
 			if(maskWidth > MAX_MASK_SIZE) {
@@ -1270,11 +1270,19 @@ public class PlatformController extends WorldController implements ContactListen
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
 			}
-			//drawCharacterRift(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, lead);
+			drawCharacterRift(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
 		} else {
 			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
 			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
-		}*/
+
+			// Draw lead platform
+			canvas.begin();
+			PooledList<Obstacle> objects = lead.equals(somni) ? lightObjects : darkObjects;
+			for(Obstacle obj : objects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+		}
 
 		// Draw current model
 		canvas.begin();
@@ -1293,14 +1301,6 @@ public class PlatformController extends WorldController implements ContactListen
 			if (!(obj instanceof CharacterModel)) {
 				obj.draw(canvas);
 			}
-		}
-		canvas.end();
-
-		// Draw lead platform
-		canvas.begin();
-		PooledList<Obstacle> objects = lead.equals(somni) ? lightObjects : darkObjects;
-		for(Obstacle obj : objects) {
-			obj.draw(canvas);
 		}
 		canvas.end();
 
