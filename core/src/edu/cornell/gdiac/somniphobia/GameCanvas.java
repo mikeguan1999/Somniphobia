@@ -79,6 +79,11 @@ public class GameCanvas {
 		 */
 		NO_PREMULT,
 		/**
+		 * (DST) Alpha blending on, assuming the colors have no pre-multipled alpha?
+		 */
+		NO_PREMULT_DST,
+		TEST,
+		/**
 		 * Color values are added together, causing a white-out effect
 		 */
 		ADDITIVE,
@@ -86,6 +91,17 @@ public class GameCanvas {
 		 * Color values are draw on top of one another with no transparency support
 		 */
 		OPAQUE
+	}
+
+	public enum ChannelState {
+		/**
+		 * R, G, B, and A channels are passed to the FrameBuffer
+		 */
+		ALL,
+		/**
+		 * Only the alpha channel is passed to the FrameBuffer
+		 */
+		ALPHA
 	}
 
 
@@ -108,6 +124,11 @@ public class GameCanvas {
 	 * The current color blending mode
 	 */
 	private BlendState blend;
+
+	/**
+	 * The current channel mode
+	 */
+	private ChannelState channel;
 
 	/**
 	 * Camera for the underlying SpriteBatch
@@ -365,6 +386,9 @@ public class GameCanvas {
 			case NO_PREMULT:
 				spriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 				break;
+			case NO_PREMULT_DST:
+				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA);
+				break;
 			case ALPHA_BLEND:
 				spriteBatch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 				break;
@@ -374,8 +398,30 @@ public class GameCanvas {
 			case OPAQUE:
 				spriteBatch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
 				break;
+			case TEST:
+				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE);
+				break;
 		}
 		blend = state;
+	}
+
+	/**
+	 * Sets the channel state for this canvas.
+	 * @param state the state for channels the FrameBuffer will receive
+	 */
+	public void setChannelState(ChannelState state) {
+		if (state == channel) {
+			return;
+		}
+		switch (state) {
+			case ALL:
+				Gdx.gl.glColorMask(true, true, true, true);
+				break;
+			case ALPHA:
+				Gdx.gl.glColorMask(false, false, false, true);
+				break;
+		}
+		channel = state;
 	}
 
 	/**
@@ -388,38 +434,16 @@ public class GameCanvas {
 	}
 
 	/**
-	 * Start a standard drawing sequence.
+	 * Start a custom drawing sequence.
 	 * <p>
 	 * Nothing is flushed to the graphics card until the method end() is called.
-	 *
-	 * @param affine the global transform apply to the camera
+	 * @param blendState   The custom blend mode to use
+	 * @param channelState The custom channel mode to use
 	 */
-	public void begin(Affine2 affine) {
-		global.setAsAffine(affine);
-		global.mulLeft(camera.combined);
-		spriteBatch.setProjectionMatrix(global);
-
-		setBlendState(BlendState.NO_PREMULT);
-		spriteBatch.begin();
-		active = DrawPass.STANDARD;
-	}
-
-	/**
-	 * Start a standard drawing sequence.
-	 * <p>
-	 * Nothing is flushed to the graphics card until the method end() is called.
-	 *
-	 * @param sx the amount to scale the x-axis
-	 * @param sy the amount to scale the y-axis
-	 */
-	public void begin(float sx, float sy) {
-		global.idt();
-		global.scl(sx, sy, 1.0f);
-		global.mulLeft(camera.combined);
-		spriteBatch.setProjectionMatrix(global);
-
-		spriteBatch.begin();
-		active = DrawPass.STANDARD;
+	public void beginCustom(BlendState blendState, ChannelState channelState) {
+		setBlendState(blendState);
+		setChannelState(channelState);
+		begin();
 	}
 
 	/**
@@ -439,6 +463,16 @@ public class GameCanvas {
 	public void end() {
 		spriteBatch.end();
 		active = DrawPass.INACTIVE;
+	}
+
+	/**
+	 * Ends a custom drawing sequence, flushing textures to the graphics card
+	 * and setting the blend and channel states back to default.
+	 */
+	public void endCustom() {
+		setBlendState(BlendState.NO_PREMULT);
+		setChannelState(ChannelState.ALL);
+		end();
 	}
 
 	/**
