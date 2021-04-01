@@ -94,7 +94,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Radius of the object (used for collisions) */
 	private float radius;
 	/** How fast we change frames (one frame per 10 calls to update) */
-	private static final float ANIMATION_SPEED = 0.07f;
+	private static final float ANIMATION_SPEED = 0.1f;
 	/** The number of animation frames in our filmstrip */
 	private int   NUM_ANIM_FRAMES = 2;
 	/** Texture for animated objects */
@@ -244,12 +244,30 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Returns true if the dude is actively falling.
+	 *
+	 * @return true if the dude is actively falling.
+	 */
+	public boolean isFalling() {
+		return this.getVY() < 0;
+	}
+
+	/**
 	 * Returns true if the dude is actively dashing.
 	 *
 	 * @return true if the dude is actively dashing.
 	 */
 	public boolean isDashing() {
 		return isDashing;
+	}
+
+	/**
+	 * Returns true if the dude is actively dashing straight up.
+	 *
+	 * @return true if the dude is actively dashing straight up.
+	 */
+	public boolean isDashingUp() {
+		return (isDashing && dashDirection.x == 0);
 	}
 
 	/**
