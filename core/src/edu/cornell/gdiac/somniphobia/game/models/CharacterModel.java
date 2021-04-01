@@ -10,6 +10,7 @@
  */
 package edu.cornell.gdiac.somniphobia.game.models;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
+import edu.cornell.gdiac.util.FilmStrip;
 
 /**
  * Player avatar for the plaform game.
@@ -83,6 +85,26 @@ public class CharacterModel extends CapsuleObstacle {
 
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache;
+
+	/// VARIABLES FOR DRAWING AND ANIMATION
+	/** CURRENT image for this object. May change over time. */
+	private FilmStrip animator;
+	/** Reference to texture origin */
+	private Vector2 origin;
+	/** Radius of the object (used for collisions) */
+	private float radius;
+	/** How fast we change frames (one frame per 10 calls to update) */
+	private static final float ANIMATION_SPEED = 0.07f;
+	/** The number of animation frames in our filmstrip */
+	private int   NUM_ANIM_FRAMES = 2;
+	/** Texture for animated objects */
+	private Texture texture;
+	/** Current animation frame for this shell */
+	private float animeframe = 0.0f;
+	/** Pixel width of the current texture */
+	private double entirePixelWidth;
+	/** Pixel width of the current frame in the texture */
+	private double framePixelWidth = 32;
 
 	/** Getters and setters*/
 	public float getDashEndVelocity() { return dashEndVelocity; }
@@ -410,6 +432,24 @@ public class CharacterModel extends CapsuleObstacle {
 		return true;
 	}
 
+	/**
+	 * Allows for animated character motions. It sets the texture to prepare to draw.
+	 *
+	 * This method overrides the setTexture method in SimpleObstacle
+	 */
+	public void setTexture(TextureRegion textureRegion) {
+		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		entirePixelWidth = texture.getWidth();
+		if (entirePixelWidth < framePixelWidth) {
+			entirePixelWidth = framePixelWidth;
+		}
+		System.out.println(entirePixelWidth);
+		NUM_ANIM_FRAMES = (int)(entirePixelWidth/framePixelWidth);
+		animator = new FilmStrip(texture,1,NUM_ANIM_FRAMES,NUM_ANIM_FRAMES);
+		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		radius = animator.getRegionHeight() / 2.0f;
+	}
+
 
 	/**
 	 * Applies the force to the body of this dude
@@ -467,6 +507,14 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+
+		// Increase animation frame
+		animeframe += ANIMATION_SPEED;
+		if (animeframe >= NUM_ANIM_FRAMES) {
+
+			animeframe -= NUM_ANIM_FRAMES;
+		}
+
 		// Apply cooldowns
 		if (isJumping()) {
 			jumpCooldown = jumpLimit;
@@ -519,7 +567,10 @@ public class CharacterModel extends CapsuleObstacle {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? -1.0f : 1.0f;
-		canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),effect,1.0f);
+//		canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),effect,1.0f);
+		animator.setFrame((int)animeframe);
+		canvas.draw(animator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+				effect, 1.0f);
 	}
 
 	/**
