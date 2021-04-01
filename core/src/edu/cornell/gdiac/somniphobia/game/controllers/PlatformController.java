@@ -67,14 +67,18 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion somniDashSideTexture;
 	/** Texture asset for Somni's Dash up*/
 	private TextureRegion somniDashUpTexture;
+	/** Texture asset for Somni's Falling*/
+	private TextureRegion somniFallTexture;
 	/** Texture asset for phobia*/
 	private TextureRegion phobiaTexture;
-	/** Texture asset for Somni's Walk*/
+	/** Texture asset for Phobia's Walk*/
 	private TextureRegion phobiaWalkTexture;
-	/** Texture asset for Somni's Dash side*/
+	/** Texture asset for Phobia's Dash side*/
 	private TextureRegion phobiaDashSideTexture;
-	/** Texture asset for Somni's Dash up*/
+	/** Texture asset for Phobia's Dash up*/
 	private TextureRegion phobiaDashUpTexture;
+	/** Texture asset for Phobia's Falling*/
+	private TextureRegion phobiaFallTexture;
 	/** Texture asset for Somni*/
 	private TextureRegion somniPhobiaTexture;
 	/** Texture asset for Somni's Walk*/
@@ -549,13 +553,16 @@ public class PlatformController extends WorldController implements ContactListen
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
-		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
-		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:somni_dash_side",Texture.class));
-		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:somni_dash_up",Texture.class));
+		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk_cycle",Texture.class));
+		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
+		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
+		somniFallTexture = new TextureRegion(directory.getEntry("platform:Somni_Falling", Texture.class));
+
 		phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand",Texture.class));
-		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
-		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_side",Texture.class));
-		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_up",Texture.class));
+		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk_cycle",Texture.class));
+		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:Phobia_Jump_Dash",Texture.class));
+		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:Phobia_Stand_Jump",Texture.class));
+		phobiaFallTexture = new TextureRegion(directory.getEntry("platform:Phobia_Falling", Texture.class));
 
 		// Combined models
 		somniPhobiaTexture  = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
@@ -570,9 +577,9 @@ public class PlatformController extends WorldController implements ContactListen
 		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
 		backgroundTexture = backgroundLightTexture;
 
-		TextureRegion [] somnis = {somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
+		TextureRegion [] somnis = {somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture, somniFallTexture};
 		somnisTexture = somnis;
-		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
+		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture, phobiaFallTexture};
 		phobiasTexture = phobias;
 		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
 		somniphobiasTexture = somniphobias;
@@ -580,10 +587,10 @@ public class PlatformController extends WorldController implements ContactListen
 		phobiasomnisTexture = phobiasomnis;
 
 
-		somnisTexture = new TextureRegion[]{somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
-		phobiasTexture = new TextureRegion[]{phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
-		somniphobiasTexture = new TextureRegion[]{somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
-		phobiasomnisTexture = new TextureRegion[]{phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
+//		somnisTexture = new TextureRegion[]{somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
+//		phobiasTexture = new TextureRegion[]{phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
+//		somniphobiasTexture = new TextureRegion[]{somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
+//		phobiasomnisTexture = new TextureRegion[]{phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
 		AssetDirectory internal = new AssetDirectory( "loading.json" );
 		internal.loadAssets();
 		internal.finishLoading();
@@ -874,14 +881,24 @@ public class PlatformController extends WorldController implements ContactListen
 			lead = avatar;
 		}
 		if(avatar.isGrounded() && !avatar.isJumping()){
+
 			if (avatar.getMovement() == 0f){
-				action = 0;
+				action = 0; // Idle
 			}else{
-				action = 1;
+				action = 1; // Walk
 			}
 		}else{
-			action = 2;
+			action = 4; // Jump
 		}
+		if (avatar.isDashing() && !avatar.isDashingUp()) {
+			action = 2; // Side dash
+		}
+		if (avatar.isFalling() && !holdingHands) { //! CHANGE CODE HERE WHEN ADD ASSET 4 TO HANDHOLDING!
+			action = 4; // Falling
+		}
+
+
+
 		//Check if hand holding
 		if(inputController.didHoldHands()) {
 			handleHoldingHands();
