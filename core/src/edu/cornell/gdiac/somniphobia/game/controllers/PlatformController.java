@@ -732,9 +732,8 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
 		// Set level bounds
-		//Jenna change to json ref
-		widthUpperBound = 1000;
-		heightUpperBound = 1000;
+		widthUpperBound = constants.get("bounds").getInt("width"+level);
+		heightUpperBound = constants.get("bounds").getInt("height"+level);
 
 		// Create Somni
 		dwidth  = somniTexture.getRegionWidth()/scale.x;
