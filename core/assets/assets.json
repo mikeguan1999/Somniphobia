@@ -15,7 +15,39 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:placeholder_all": {
+      "file": "platform/T_placeholder_all.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:placeholder_dark": {
+      "file": "platform/T_placeholder_dark.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:placeholder_light": {
+      "file": "platform/T_placeholder_light.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:cloud_all": {
+      "file": "platform/T_cloud_all.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:cloud_dark": {
+      "file": "platform/T_cloud_dark.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:cloud_light": {
+      "file": "platform/T_cloud_light.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
+    "shared:goalOLD": "platform/DoorOLD.png",
     "platform:sliderbar": "platform/sliderbar.png",
     "platform:sliderknob": "platform/sliderknob.png",
     "platform:SomniPhobia_stand": "platform/SomniPhobiaStand.png",
