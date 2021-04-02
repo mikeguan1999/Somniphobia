@@ -561,9 +561,9 @@ public class PlatformController extends WorldController implements ContactListen
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 
 		// Tiles
-		lightTexture = new TextureRegion(directory.getEntry( "shared:placeholder_light", Texture.class ));
-		darkTexture = new TextureRegion(directory.getEntry( "shared:placeholder_dark", Texture.class ));
-		allTexture = new TextureRegion(directory.getEntry( "shared:placeholder_all", Texture.class ));
+		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
+		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
@@ -901,7 +901,7 @@ public class PlatformController extends WorldController implements ContactListen
 				shrinking = true;
 			}
 			switching = !switching;
-			System.out.println(maskLeader.equals(somni) ? "Somni" : "Phobia");
+			//System.out.println(maskLeader.equals(somni) ? "Somni" : "Phobia");
 		}
 		if(avatar !=combined) {
 			lead = avatar;
@@ -1258,7 +1258,7 @@ public class PlatformController extends WorldController implements ContactListen
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
 				maskLeader = follower;
-				System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
+				//System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
 			}
