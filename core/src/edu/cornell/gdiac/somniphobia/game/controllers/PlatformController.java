@@ -244,7 +244,8 @@ public class PlatformController extends WorldController implements ContactListen
 		labels = new Label[7];
 
 
-		Stage stage = new Stage(new ScreenViewport());
+
+		Stage stage = new Stage(new ScreenViewport(camera));
 //		Table table= new Table();
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
@@ -470,9 +471,9 @@ public class PlatformController extends WorldController implements ContactListen
 		Batch b = canvas.getBatch();
 		for (int i = 0; i < sliders.length; i++) {
 			Slider s = sliders[i];
-			s.setPosition(camera.position.x - canvas.getWidth()/2.5f, s.getY());
+			s.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + camera.position.y - canvas.getHeight()/3f);
 			Label l= labels[i];
-			l.setPosition(camera.position.x - canvas.getWidth()/2.5f, l.getY());
+			l.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + 32 +  + camera.position.y - canvas.getHeight()/3f);
 
 			l.draw(b, 1.0f);
 			s.draw(b, 1.0f);
