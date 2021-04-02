@@ -249,7 +249,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @return true if the dude is actively falling.
 	 */
 	public boolean isFalling() {
-		return this.getVY() < 0;
+		return isJumping && this.getVY() < 0;
 	}
 
 	/**
@@ -461,7 +461,7 @@ public class CharacterModel extends CapsuleObstacle {
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
 		}
-		System.out.println(entirePixelWidth);
+//		System.out.println(entirePixelWidth);
 		NUM_ANIM_FRAMES = (int)(entirePixelWidth/framePixelWidth);
 		animator = new FilmStrip(texture,1,NUM_ANIM_FRAMES,NUM_ANIM_FRAMES);
 		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
@@ -530,7 +530,7 @@ public class CharacterModel extends CapsuleObstacle {
 		animeframe += ANIMATION_SPEED;
 		if (animeframe >= NUM_ANIM_FRAMES) {
 
-			animeframe -= NUM_ANIM_FRAMES;
+			animeframe = 0;
 		}
 
 		// Apply cooldowns

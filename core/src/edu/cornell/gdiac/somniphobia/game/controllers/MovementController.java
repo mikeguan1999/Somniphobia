@@ -79,6 +79,10 @@ public class MovementController implements ContactListener {
         this.holdingHands = false;
     }
 
+    public CharacterModel getLead() {
+        return lead;
+    }
+
     public CharacterModel getSomni() {
         return somni;
     }
@@ -90,6 +94,7 @@ public class MovementController implements ContactListener {
     public CharacterModel getPhobia() {
         return phobia;
     }
+
     public void setPhobia(CharacterModel phobia) {
         this.phobia = phobia;
     }
@@ -163,7 +168,7 @@ public class MovementController implements ContactListener {
     /**
      * Main update loop for character movement
      */
-    public void update() {
+    public int update() {
         InputController inputController = InputController.getInstance();
         avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
         avatar.setJumping(inputController.didJump());
@@ -208,23 +213,47 @@ public class MovementController implements ContactListener {
             }
             setSwitchedCharacters(true);
         }
+        else {
+            setSwitchedCharacters(false);
+        }
         if(avatar !=combined) {
             lead = avatar;
         }
+
+
         int action = 0;
+//        if(avatar.isGrounded() && !avatar.isJumping()){
+//            if (avatar.getMovement() == 0f){
+//                action = 0;
+//            }else{
+//                action = 1;
+//            }
+//        }else{
+//            action = 2;
+//        }
         if(avatar.isGrounded() && !avatar.isJumping()){
+
             if (avatar.getMovement() == 0f){
-                action = 0;
+                action = 0; // Idle
             }else{
-                action = 1;
+                action = 1; // Walk
             }
         }else{
-            action = 2;
+            action = 4; // Jump
         }
+        if (avatar.isDashing() && !avatar.isDashingUp()) {
+            action = 2; // Side dash
+        }
+        if (avatar.isFalling() && !holdingHands) { //! CHANGE CODE HERE WHEN ADD ASSET 4 TO HANDHOLDING!
+            action = 4; // Falling
+        }
+
         //Check if hand holding
         if(inputController.didHoldHands()) {
             handleHoldingHands();
         }
+
+        return action;
 //        if(holdingHands){
 //            if(lead == somni){
 //                combined.setTexture(somniphobiasTexture[action]);
