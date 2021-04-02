@@ -158,7 +158,6 @@ public class GameCanvas {
 		camera = new OrthographicCamera(getWidth(), getHeight());
 		camera.translate(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
 		camera.update();
-		System.out.println(camera.position);
 		spriteBatch.setProjectionMatrix(camera.combined);
 		debugRender.setProjectionMatrix(camera.combined);
 
@@ -975,8 +974,6 @@ public class GameCanvas {
 		GlyphLayout layout = new GlyphLayout(font, text);
 		float x = (getWidth() - layout.width) / 2.0f;
 		float y = (getHeight() + layout.height) / 2.0f;
-		System.out.println(x);
-		System.out.println(y);
 		font.draw(spriteBatch, layout, x, y + offset);
 	}
 
