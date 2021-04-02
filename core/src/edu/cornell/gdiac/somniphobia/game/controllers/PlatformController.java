@@ -67,6 +67,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion somniDashSideTexture;
 	/** Texture asset for Somni's Dash up*/
 	private TextureRegion somniDashUpTexture;
+	/** Texture asset for Somni's Falling*/
+	private TextureRegion somniFallTexture;
+	/** Texture asset for Phobia's Falling*/
+	private TextureRegion phobiaFallTexture;
 	/** Texture asset for phobia*/
 	private TextureRegion phobiaTexture;
 	/** Texture asset for Somni's Walk*/
@@ -551,12 +555,17 @@ public class PlatformController extends WorldController implements ContactListen
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
-		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:somni_dash_side",Texture.class));
-		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:somni_dash_up",Texture.class));
+
+		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
+		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
+		somniFallTexture = new TextureRegion(directory.getEntry("platform:Somni_Falling", Texture.class));
+
 		phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand",Texture.class));
 		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
-		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_side",Texture.class));
-		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_dash_up",Texture.class));
+		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:Phobia_Jump_Dash",Texture.class));
+		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:Phobia_Stand_Jump",Texture.class));
+		phobiaFallTexture = new TextureRegion(directory.getEntry("platform:Phobia_Falling", Texture.class));
+
 
 		// Combined models
 		somniPhobiaTexture  = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
@@ -575,9 +584,9 @@ public class PlatformController extends WorldController implements ContactListen
 		somnisTexture = somnis;
 		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
 		phobiasTexture = phobias;
-		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
+		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture, somniPhobiaDashUpTexture};
 		somniphobiasTexture = somniphobias;
-		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
+		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture, phobiaSomniDashUpTexture};
 		phobiasomnisTexture = phobiasomnis;
 
 
@@ -736,9 +745,8 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
 		// Set level bounds
-		//Jenna change to json ref
-		widthUpperBound = 1000;
-		heightUpperBound = 1000;
+		widthUpperBound = constants.get("bounds").getInt("width"+level);
+		heightUpperBound = constants.get("bounds").getInt("height"+level);
 
 		// Create Somni
 		dwidth  = somniTexture.getRegionWidth()/scale.x;
@@ -830,6 +838,22 @@ public class PlatformController extends WorldController implements ContactListen
 
 		movementController.update();
 		CharacterModel avatar = movementController.getAvatar();
+
+		if(holdingHands){
+            if(lead == somni){
+                combined.setTexture(somniphobiasTexture[action]);
+            }else{
+                combined.setTexture(phobiasomnisTexture[action]);
+            }
+        }
+        else{
+            if(lead == somni){
+                avatar.setTexture(somnisTexture[action]);
+            }else{
+                avatar.setTexture(phobiasTexture[action]);
+            }
+        }
+
 
 		// Set camera position bounded by the canvas size
 		camera = canvas.getCamera();
