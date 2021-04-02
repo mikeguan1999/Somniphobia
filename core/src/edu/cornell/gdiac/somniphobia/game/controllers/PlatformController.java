@@ -184,6 +184,8 @@ public class PlatformController extends WorldController implements ContactListen
 	float maskWidth, maskHeight;
 	/** Whether or not the mask is in the process of switching*/
 	boolean switching;
+	/** Whether or not the mask is shrinking (switch occurred early on) */
+	boolean shrinking;
 	/** The character to perform the mask effect from */
 	CharacterModel maskLeader;
 
@@ -922,9 +924,13 @@ public class PlatformController extends WorldController implements ContactListen
 			}else{
 				lead = lead == somni ? phobia :somni;
 			}
+
+			// Check if switching pressed early
+			if(switching) {
+				shrinking = true;
+			}
 			switching = !switching;
-			/*backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
-					backgroundLightTexture;*/
+			System.out.println(maskLeader.equals(somni) ? "Somni" : "Phobia");
 		}
 		if(avatar !=combined) {
 			lead = avatar;
@@ -1195,11 +1201,12 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param character The character to center the mask on
 	 */
 	public void drawMask(float cameraX, float cameraY, float maskWidth, float maskHeight, CharacterModel character) {
+		character = holdingHands ? combined : character;
 		float leadCenterX = character.getX() * canvas.PPM + character.getWidth() / 2 - maskWidth / 2;
 		float leadCenterY = character.getY() * canvas.PPM + character.getHeight() / 2 - maskHeight / 2;
 		canvas.beginCustom(GameCanvas.BlendState.OPAQUE, GameCanvas.ChannelState.ALPHA);
 		if(alpha_background == null) {
-			Pixmap pixmap=new Pixmap((int) canvas.getWidth(), (int) canvas.getHeight(), Pixmap.Format.RGBA8888);
+			Pixmap pixmap=new Pixmap(canvas.getWidth(), canvas.getHeight(), Pixmap.Format.RGBA8888);
 			pixmap.setColor(Color.CLEAR);
 			pixmap.fillRectangle(0,0, pixmap.getWidth(), pixmap.getHeight());
 			alpha_background = new Texture(pixmap);
@@ -1215,18 +1222,18 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param cameraY The y-coord for the camera origin
 	 * @param character The character whose environment is being drawn
 	 */
-	public void drawCharacterRift(float cameraX, float cameraY, float maskWidth, float maskHeight,
-										 CharacterModel character) {
-		// Mask the environment around character
-
-		// Mask background
-		drawMask(cameraX, cameraY, maskWidth, maskHeight, character);
+	public void drawCharacterRift(float cameraX, float cameraY, CharacterModel character) {
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
 		TextureRegion background = character.equals(somni) ? backgroundDarkTexture : backgroundLightTexture;
 		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
+	}
 
-		//Mask obstacles
+	/**
+	 * Draws the necessary textures for the character's platforms.
+	 * @param character The character whose environment is being drawn
+	 */
+	public void drawCharacterPlatform(CharacterModel character) {
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
 		PooledList<Obstacle> objects = character.equals(somni) ? lightObjects : darkObjects;
 		for(Obstacle obj : objects) {
@@ -1255,34 +1262,62 @@ public class PlatformController extends WorldController implements ContactListen
 		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 
-		// Draw lead and follower's rift
+		drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+		drawCharacterRift(cameraX, cameraY, maskLeader);
+		drawCharacterPlatform(maskLeader);
+
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
-		drawCharacterRift(cameraX, cameraY, maskWidth, maskHeight, holdingHands ? combined : maskLeader);
 		// Check if switching and update mask drawing
 		if(switching) {
-			maskWidth += maskWidth > MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
-			maskHeight += maskHeight > MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
-			if(maskWidth > MAX_MASK_SIZE) {
+			maskWidth += maskWidth >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
+			maskHeight += maskHeight >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
+			if(maskWidth >= MAX_MASK_SIZE) {
 				maskWidth = MIN_MASK_DIMENSIONS.x;
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
 				maskLeader = follower;
+				System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
 			}
-			drawCharacterRift(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
+			drawMask(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
+			drawCharacterRift(cameraX, cameraY, follower);
+			drawCharacterPlatform(follower);
 		} else {
-			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
-			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
+			/*if(maskWidth == MIN)
+			if(shrinking) {
+				drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+				drawCharacterRift(cameraX, cameraY, maskLeader);
+				drawCharacterPlatform(maskLeader);
+			}*/
 
 			// Draw lead platform
 			canvas.begin();
-			PooledList<Obstacle> objects = lead.equals(somni) ? lightObjects : darkObjects;
-			for(Obstacle obj : objects) {
+			for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
 				obj.draw(canvas);
 			}
 			canvas.end();
+
+			// Draw follower platforms if holding hands
+			canvas.begin();
+			if(holdingHands) {
+				for(Obstacle obj : lead.equals(somni) ? darkObjects : lightObjects) {
+					obj.draw(canvas);
+				}
+			}
+			canvas.end();
+			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
+			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
 		}
+		// Draw shared platforms
+		canvas.begin();
+		for(Obstacle obj : sharedObjects) {
+			// Ignore characters which we draw separately
+			if (!(obj instanceof CharacterModel)) {
+				obj.draw(canvas);
+			}
+		}
+		canvas.end();
 
 		// Draw current model
 		canvas.begin();
@@ -1291,16 +1326,6 @@ public class PlatformController extends WorldController implements ContactListen
 		} else {
 			follower.draw(canvas);
 			lead.draw(canvas);
-		}
-		canvas.end();
-
-		// Draw shared platforms
-		canvas.begin();
-		for(Obstacle obj : sharedObjects) {
-			// Ignore characters which we draw separately
-			if (!(obj instanceof CharacterModel)) {
-				obj.draw(canvas);
-			}
 		}
 		canvas.end();
 
