@@ -855,7 +855,11 @@ public class PlatformController extends WorldController implements ContactListen
 		if(inputController.didDash()) {
 			if (holdingHands) {
 				// Check for propel
+				somni.setVX(0f);
+				phobia.setVX(0f);
+
 				endHoldHands();
+
 				avatar.dashOrPropel(true, inputController.getHorizontal(), inputController.getVertical());
 
 			} else {
@@ -968,7 +972,7 @@ public class PlatformController extends WorldController implements ContactListen
 			endHoldHands();
 		}
 		else if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
-			holdHands();
+			beginHoldHands();
 		}
 	}
 
@@ -994,19 +998,24 @@ public class PlatformController extends WorldController implements ContactListen
 
 		avatar = lead;
 		avatar.setPosition(avatarX, avatarY);
-		avatar.setVX(avatarVX);
-		avatar.setVY(avatarVY);
+//		avatar.setVX(avatarVX);
+//		avatar.setVY(avatarVY);
 		float dampeningFactor = -0.25f;
 		if(lead == phobia){
 			phobia.setCanDash(true);
 			somni.setPosition(avatarX, avatarY);
-			somni.setVX(avatarVX * dampeningFactor);
+//			somni.setVX(avatarVX * dampeningFactor);
+			somni.setVX(0);
 			somni.setVY(0);
+			System.out.println(somni.getVX());
+
 		}else {
 			somni.setCanDash(true);
 			phobia.setPosition(avatarX, avatarY);
-			phobia.setVX(avatarVX * dampeningFactor);
+//			phobia.setVX(avatarVX * dampeningFactor);
+			phobia.setVX(0);
 			phobia.setVY(0);
+			System.out.println(phobia.getVX());
 		}
 		somni.setFacingRight(combined.isFacingRight());
 		phobia.setFacingRight(combined.isFacingRight());
@@ -1016,11 +1025,13 @@ public class PlatformController extends WorldController implements ContactListen
 	/**
 	 * Somni and Phobia hold hands
 	 */
-	private void holdHands() {
+	private void beginHoldHands() {
 //		Vector2 anchor1 = new Vector2();
 //		Vector2 anchor2 = new Vector2(.1f,0);
 //
 //		RevoluteJointDef jointDef = new RevoluteJointDef();
+		somni.setMovement(0f);
+		phobia.setMovement(0f);
 
 		somni.setActive(false);
 		phobia.setActive(false);
@@ -1033,7 +1044,7 @@ public class PlatformController extends WorldController implements ContactListen
 		objects.remove(phobia);
 		objects.add(combined);
 		sharedObjects.add(combined);
-		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
+//		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
 
 
 		CharacterModel follower = somni == avatar ? phobia : somni;
