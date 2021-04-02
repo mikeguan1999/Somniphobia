@@ -65,11 +65,12 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		// Initialize the Platformer Controller
 		// TODO
-		controllers = new WorldController[4];
+		controllers = new WorldController[5];
 		controllers[0] = new PlatformController(0);
 		controllers[1] = new PlatformController(1);
 		controllers[2] = new PlatformController(2);
 		controllers[3] = new PlatformController(3);
+		controllers[4] = new PlatformController(4);
 
 		// Constructs a new OrthographicCamera, using the given viewport width and height
 		// Height is multiplied by aspect ratio.
