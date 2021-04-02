@@ -1128,6 +1128,7 @@ public class PlatformController extends WorldController implements ContactListen
 			if (lightSensorFixtures.size == 0) {
 				somni.setGrounded(false);
 			}
+
 		}
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
 				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
