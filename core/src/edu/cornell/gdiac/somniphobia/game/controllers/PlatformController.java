@@ -708,16 +708,19 @@ public class PlatformController extends WorldController implements ContactListen
 			for (int jj = 0; jj < lightPlatJson.size; jj++) {
 				BoxObstacle obj;
 				float[] bounds = lightPlatJson.get(jj).asFloatArray();
-				float width = bounds[2]-bounds[0];
-				float height = bounds[5]-bounds[1];
-				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
+//				float width = bounds[2]-bounds[0];
+//				float height = bounds[5]-bounds[1];
+				float width = bounds[2];
+				float height = bounds[3];
+				obj = new BoxObstacle(bounds[0], bounds[1], bounds[2], bounds[3]);
 				obj.setBodyType(BodyDef.BodyType.StaticBody);
 				obj.setDensity(defaults.getFloat( "density", 0.0f ));
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
 				TextureRegion newLightTexture = new TextureRegion(lightTexture);
-				newLightTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+				newLightTexture.setRegion(bounds[0]+0.5f*width, bounds[1]+0.5f+height,
+						bounds[0]-0.5f*width, bounds[1]-0.5f+height);
 				obj.setTexture(newLightTexture);
 				obj.setName(lightPlat+jj);
 				obj.setFilterData(lightplatf);
@@ -731,16 +734,19 @@ public class PlatformController extends WorldController implements ContactListen
 			for (int jj = 0; jj < darkPlatJson.size; jj++) {
 				BoxObstacle obj;
 				float[] bounds = darkPlatJson.get(jj).asFloatArray();
-				float width = bounds[2]-bounds[0];
-				float height = bounds[5]-bounds[1];
-				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
+//				float width = bounds[2]-bounds[0];
+//				float height = bounds[5]-bounds[1];
+				float width = bounds[2];
+				float height = bounds[3];
+				obj = new BoxObstacle(bounds[0], bounds[1], bounds[2], bounds[3]);
 				obj.setBodyType(BodyDef.BodyType.StaticBody);
 				obj.setDensity(defaults.getFloat( "density", 0.0f ));
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
 				TextureRegion newDarkTexture = new TextureRegion(darkTexture);
-				newDarkTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+				newDarkTexture.setRegion(bounds[0]+0.5f*width, bounds[1]+0.5f+height,
+						bounds[0]-0.5f*width, bounds[1]-0.5f+height);
 				obj.setTexture(newDarkTexture);
 				obj.setName(darkPlat+jj);
 				obj.setFilterData(darkplatf);
@@ -754,16 +760,19 @@ public class PlatformController extends WorldController implements ContactListen
 			for (int jj = 0; jj < grayPlatJson.size; jj++) {
 				BoxObstacle obj;
 				float[] bounds = grayPlatJson.get(jj).asFloatArray();
-				float width = bounds[2]-bounds[0];
-				float height = bounds[5]-bounds[1];
-				obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
+//				float width = bounds[2]-bounds[0];
+//				float height = bounds[5]-bounds[1];
+				float width = bounds[2];
+				float height = bounds[3];
+				obj = new BoxObstacle(bounds[0], bounds[1], bounds[2], bounds[3]);
 				obj.setBodyType(BodyDef.BodyType.StaticBody);
 				obj.setDensity(defaults.getFloat( "density", 0.0f ));
 				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				obj.setDrawScale(scale);
 				TextureRegion newAllTexture = new TextureRegion(allTexture);
-				newAllTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+				newAllTexture.setRegion(bounds[0]+0.5f*width, bounds[1]+0.5f+height,
+						bounds[0]-0.5f*width, bounds[1]-0.5f+height);
 				obj.setTexture(newAllTexture);
 				obj.setName(grayPlat+jj);
 				obj.setFilterData(allf);
