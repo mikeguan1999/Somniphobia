@@ -708,7 +708,7 @@ public class PlatformController extends WorldController implements ContactListen
 		goalDoor.setName("goal");
 		addObject(goalDoor);
 		addObjectTo(goalDoor, sharedtag);
-		
+
 		//set default vals
 		JsonValue defaults = constants.get("defaults");
 
