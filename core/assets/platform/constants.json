@@ -1,36 +1,33 @@
 {
 	"defaults": {
 		"gravity": -25,
-		"friction": 0.4,
+		"friction": 0.0,
 		"density": 0.0,
 		"restitution": 0.1,
 		"volume": 0.8
 	},
-	"goalL0": {
-		"pos": [ 29.5, 7.5 ],
+	"goal":
+	{
+		"pos0": [ 29.5, 7.5 ],
+		"pos1": [ 25.0, 11.5],
+		"pos2": [ 30.25, 3.0 ],
+		"pos3": [ 47.5, 4 ],
+		"pos4": [ 29.5, 18.0 ],
 		"density": 0.0,
 		"friction": 0.0,
 		"restitution": 0.0
 	},
-	"goalL1": {
-		"pos": [ 25.0, 11.5 ],
-		"density": 0.0,
-		"friction": 0.0,
-		"restitution": 0.0
-	},
-	"goalL2": {
-		"pos": [ 30.25, 3.0 ],
-		"density": 0.0,
-		"friction": 0.0,
-		"restitution": 0.0
-	},
-	"somniL0": {
-		"pos": [ 3.5, 5.0 ],
+	"somni": {
+		"pos0": [ 3.5, 5.0 ],
+		"pos1": [ 3.5, 5.5 ],
+		"pos2": [ 9.0, 13.0 ],
+		"pos3": [ 3.5, 5.0 ],
+		"pos4": [ 8.5, 25.0 ],
 		"shrink": [ 0.95, 0.7 ],
 		"force": 20.0,
 		"damping": 10.0,
 		"density": 0.5,
-		"friction": 0.0,
+		"friction": 0.25,
 		"maxspeed": 5.0,
 		"jump_force": 6.0,
 		"jump_cool": 30,
@@ -40,13 +37,17 @@
 			"height": 0.05
 		}
 	},
-	"phobiaL0": {
-		"pos": [ 1.5, 5.0 ],
+	"phobia": {
+		"pos0": [ 1.5, 5.0 ],
+		"pos1": [ 2.5, 5.5 ],
+		"pos2": [ 9.0, 16.0 ],
+		"pos3": [ 1.5, 7.0 ],
+		"pos4": [ 10.5, 11.0 ],
 		"shrink": [ 0.95, 0.7 ],
 		"force": 20.0,
 		"damping": 10.0,
 		"density": 0.5,
-		"friction": 0.0,
+		"friction": 0.25,
 		"maxspeed": 5.0,
 		"jump_force": 6.0,
 		"jump_cool": 30,
@@ -56,45 +57,14 @@
 			"height": 0.05
 		}
 	},
-	"somniL1": {
-		"pos": [ 3.5, 5.5 ],
-		"shrink": [ 0.95, 0.7 ],
-		"force": 20.0,
-		"damping": 10.0,
-		"density": 0.5,
-		"friction": 0.0,
-		"maxspeed": 5.0,
-		"jump_force": 5.0,
-		"jump_cool": 30,
-		"shot_cool": 40,
-		"sensor": {
-			"shrink": 0.6,
-			"height": 0.05
-		}
-	},
-	"phobiaL1": {
-		"pos": [ 2.5, 5.5 ],
-		"shrink": [ 0.95, 0.7 ],
-		"force": 20.0,
-		"damping": 10.0,
-		"density": 0.5,
-		"friction": 0.0,
-		"maxspeed": 5.0,
-		"jump_force": 5.0,
-		"jump_cool": 30,
-		"shot_cool": 40,
-		"sensor": {
-			"shrink": 0.6,
-			"height": 0.05
-		}
-	},
+
 	"combined": {
 		"pos": [ 23.5, 5.0 ],
 		"shrink": [ 0.95, 0.7 ],
 		"force": 20.0,
 		"damping": 10.0,
 		"density": 0.41,
-		"friction": 0.0,
+		"friction": 0.25,
 		"maxspeed": 5.0,
 		"jump_force": 5.0,
 		"jump_cool": 30,
@@ -104,54 +74,18 @@
 			"height": 0.05
 		}
 	},
-	"somniL2": {
-		"pos": [ 9.0, 13.0 ],
-		"shrink": [ 0.95, 0.7 ],
-		"force": 20.0,
-		"damping": 10.0,
-		"density": 0.5,
-		"friction": 0,
-		"maxspeed": 5.0,
-		"jump_force": 5.0,
-		"jump_cool": 30,
-		"shot_cool": 40,
-		"sensor": {
-			"shrink": 0.6,
-			"height": 0.05
-		}
-	},
-	"phobiaL2": {
-		"pos": [ 9.0, 16.0 ],
-		"shrink": [ 0.95, 0.7 ],
-		"force": 20.0,
-		"damping": 10.0,
-		"density": 0.5,
-		"friction": 0,
-		"maxspeed": 5.0,
-		"jump_force": 5.0,
-		"jump_cool": 30,
-		"shot_cool": 40,
-		"sensor": {
-			"shrink": 0.6,
-			"height": 0.05
-		}
-	},
-	"bridge": {
-		"pos": [ 9.0, 3.8 ],
-		"width": 14.0,
-		"density": 1.0,
-		"pin_radius": 0.1
-	},
-	"spinner": {
-		"pos": [ 13.0, 12.5 ],
-		"low_density": 0.0,
-		"high_density": 10.0,
-		"radius": 0.1
-	},
-	"bullet": {
-		"offset": 0.2,
-		"speed": 20.0,
-		"density": 10.0
+
+	"bounds": {
+		"width0": 1000,
+		"height0": 1000,
+		"width1": 1000,
+		"height1": 1000,
+		"width2": 1000,
+		"height2": 1000,
+		"width3": 1500,
+		"height3": 1000,
+		"width4": 1000,
+		"height4": 1500
 	},
 	"walls": [
 		[
@@ -230,5 +164,6 @@
 	],
 	"grayL2": [
 		[30.0, 2.5, 4.0, 1.0]
+
 	]
 }

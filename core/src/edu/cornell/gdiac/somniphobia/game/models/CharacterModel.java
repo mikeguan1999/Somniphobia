@@ -96,7 +96,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** How fast we change frames (one frame per 10 calls to update) */
 	private static final float ANIMATION_SPEED = 0.1f;
 	/** The number of animation frames in our filmstrip */
-	private int   NUM_ANIM_FRAMES = 2;
+	private int numAnimFrames = 2;
 	/** Texture for animated objects */
 	private Texture texture;
 	/** Current animation frame for this shell */
@@ -153,10 +153,10 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
 	 */
-	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type) {
+	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type, String level) {
 		// The shrink factors fit the image to a tighter hitbox
-		super(	data.get("pos").getFloat(0),
-				data.get("pos").getFloat(1),
+		super(	data.get("pos"+level).getFloat(0),
+				data.get("pos"+level).getFloat(1),
 				width*data.get("shrink").getFloat( 0 ),
 				height*data.get("shrink").getFloat( 1 ));
 		setDensity(data.getFloat("density", 0));
@@ -461,9 +461,11 @@ public class CharacterModel extends CapsuleObstacle {
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
 		}
-		System.out.println(entirePixelWidth);
-		NUM_ANIM_FRAMES = (int)(entirePixelWidth/framePixelWidth);
-		animator = new FilmStrip(texture,1,NUM_ANIM_FRAMES,NUM_ANIM_FRAMES);
+		numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
+		animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
+		if(animeframe > numAnimFrames) {
+			animeframe -= numAnimFrames;
+		}
 		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
 	}
@@ -528,9 +530,9 @@ public class CharacterModel extends CapsuleObstacle {
 
 		// Increase animation frame
 		animeframe += ANIMATION_SPEED;
-		if (animeframe >= NUM_ANIM_FRAMES) {
+		if (animeframe >= numAnimFrames) {
 
-			animeframe -= NUM_ANIM_FRAMES;
+			animeframe -= numAnimFrames;
 		}
 
 		// Apply cooldowns

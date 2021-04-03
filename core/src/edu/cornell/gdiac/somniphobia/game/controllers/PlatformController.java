@@ -112,6 +112,9 @@ public class PlatformController extends WorldController implements ContactListen
 	/** Texture for slider bars*/
 	private Texture sliderBarTexture;
 	private Texture sliderKnobTexture;
+	/** Texture for masking */
+	private TextureRegion circle_mask;
+	private Texture alpha_background;
 
 
 	/** Texture asset int for action*/
@@ -174,13 +177,28 @@ public class PlatformController extends WorldController implements ContactListen
 
 	private float HAND_HOLDING_DISTANCE = 2f;
 
+	/** Masking stuff */
+	/** Dimensions for the mask when at its smallest */
+	Vector2 MIN_MASK_DIMENSIONS;
+	/** Max size for the mask to reach to extend off the screen TODO: replace with bounds checking*/
+	float MAX_MASK_SIZE;
+	/** Amount to increase and decrease rift mask size with */
+	float INCREMENT_AMOUNT;
+	/** Current width and height of the mask */
+	float maskWidth, maskHeight;
+	/** Whether or not the mask is in the process of switching*/
+	boolean switching;
+	/** Whether or not the mask is shrinking (switch occurred early on) */
+	boolean shrinking;
+	/** The character to perform the mask effect from */
+	CharacterModel maskLeader;
+
 	/** Mark set to handle more sophisticated collision callbacks */
-//	protected ObjectSet<Fixture> sensorFixtures;
 	protected ObjectSet<Fixture> lightSensorFixtures;
 	protected ObjectSet<Fixture> darkSensorFixtures;
 
 	protected ObjectSet<Fixture> combinedSensorFixtures;
-	//Platform logic
+	// Platform logic
 	/** This values so light only interacts with light and dark only interacts with dark*/
 	private final short CATEGORY_LPLAT = 0x0001;  //0000000000000001
 	private final short CATEGORY_DPLAT = 0x0002;  //0000000000000010
@@ -188,12 +206,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private final short CATEGORY_PHOBIA = 0x0008;	   	  //0000000000001000
 	private final short CATEGORY_COMBINED = 0x0010; 	  //0000000000010000
 	private final short CATEGORY_ALLPLAT = 0x0020;
-//	private short all = 11111;
 
 	private final short MASK_LPLAT = CATEGORY_SOMNI | CATEGORY_COMBINED; //Collides with all
 
 	private final short MASK_DPLAT = CATEGORY_PHOBIA | CATEGORY_COMBINED;
-//		private final short MASK_DPLAT = -1 ;
 
 	private final short MASK_SOMNI = CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_PHOBIA = CATEGORY_DPLAT | CATEGORY_ALLPLAT;
@@ -204,7 +220,6 @@ public class PlatformController extends WorldController implements ContactListen
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
 	private Label [] labels;
-	//private Skin skin = new Skin(Gdx.files.internal("core/assets/shadeui/uiskin.atlas"));
 
 	public Widget sliderMenu;
 
@@ -220,12 +235,10 @@ public class PlatformController extends WorldController implements ContactListen
 	public PlatformController(int level) {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
-//		System.out.println(MASK_DPLAT & CATEGORY_PHOBIA);
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
 		world.setContactListener(this);
-//		sensorFixtures = new ObjectSet<Fixture>();
 		lightSensorFixtures = new ObjectSet<Fixture>();
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
@@ -244,7 +257,8 @@ public class PlatformController extends WorldController implements ContactListen
 		labels = new Label[7];
 
 
-		Stage stage = new Stage(new ScreenViewport());
+
+		Stage stage = new Stage(new ScreenViewport(camera));
 //		Table table= new Table();
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
@@ -470,9 +484,9 @@ public class PlatformController extends WorldController implements ContactListen
 		Batch b = canvas.getBatch();
 		for (int i = 0; i < sliders.length; i++) {
 			Slider s = sliders[i];
-			s.setPosition(camera.position.x - canvas.getWidth()/2.5f, s.getY());
+			s.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + camera.position.y - canvas.getHeight()/3f);
 			Label l= labels[i];
-			l.setPosition(camera.position.x - canvas.getWidth()/2.5f, l.getY());
+			l.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + 32 +  + camera.position.y - canvas.getHeight()/3f);
 
 			l.draw(b, 1.0f);
 			s.draw(b, 1.0f);
@@ -553,13 +567,13 @@ public class PlatformController extends WorldController implements ContactListen
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
-		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk_cycle",Texture.class));
+		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
 		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
 		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
 		somniFallTexture = new TextureRegion(directory.getEntry("platform:Somni_Falling", Texture.class));
 
 		phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand",Texture.class));
-		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk_cycle",Texture.class));
+		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
 		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:Phobia_Jump_Dash",Texture.class));
 		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:Phobia_Stand_Jump",Texture.class));
 		phobiaFallTexture = new TextureRegion(directory.getEntry("platform:Phobia_Falling", Texture.class));
@@ -581,23 +595,26 @@ public class PlatformController extends WorldController implements ContactListen
 		somnisTexture = somnis;
 		TextureRegion [] phobias = {phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture, phobiaFallTexture};
 		phobiasTexture = phobias;
-		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
+		TextureRegion [] somniphobias = {somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture, somniPhobiaDashUpTexture};
 		somniphobiasTexture = somniphobias;
-		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
+		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture, phobiaSomniDashUpTexture};
 		phobiasomnisTexture = phobiasomnis;
 
+		// Setup masking
+		circle_mask = new TextureRegion(directory.getEntry("circle_mask",Texture.class));
+		Vector2 mask_size = new Vector2(circle_mask.getRegionWidth(), circle_mask.getRegionHeight());
+		MIN_MASK_DIMENSIONS = new Vector2(mask_size).scl(0.125f);
+		maskWidth = MIN_MASK_DIMENSIONS.x;
+		maskHeight = MIN_MASK_DIMENSIONS.y;
+		MAX_MASK_SIZE = MIN_MASK_DIMENSIONS.x * 22.5f;
+		INCREMENT_AMOUNT = 50;
 
-//		somnisTexture = new TextureRegion[]{somniTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture};
-//		phobiasTexture = new TextureRegion[]{phobiaTexture,phobiaWalkTexture,phobiaDashSideTexture,phobiaDashUpTexture};
-//		somniphobiasTexture = new TextureRegion[]{somniPhobiaTexture,somniPhobiaWalkTexture,somniPhobiaDashSideTexture,somniPhobiaDashUpTexture};
-//		phobiasomnisTexture = new TextureRegion[]{phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture};
 		AssetDirectory internal = new AssetDirectory( "loading.json" );
 		internal.loadAssets();
 		internal.finishLoading();
 
 		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
 		sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
-
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -638,6 +655,7 @@ public class PlatformController extends WorldController implements ContactListen
 		backgroundTexture = backgroundLightTexture;
 		avatar = phobia;
 		lead = phobia;
+		maskLeader = somni;
 
 		world = new World(gravity,false);
 		world.setContactListener(this);
@@ -665,23 +683,20 @@ public class PlatformController extends WorldController implements ContactListen
 		Filter somnif = new Filter();
 		somnif.categoryBits = CATEGORY_SOMNI;
 		somnif.maskBits = MASK_SOMNI;
-//		somniplatf.groupIndex = 011;
 		Filter phobiaf = new Filter();
 		phobiaf.categoryBits = CATEGORY_PHOBIA;
 		phobiaf.maskBits = MASK_PHOBIA;
-//		phobiaplatf.groupIndex = 011;
 		Filter combinedf = new Filter();
 		combinedf.categoryBits = CATEGORY_COMBINED;
 		combinedf.maskBits = MASK_COMBINED;
 		Filter allf = new Filter();
 		allf.categoryBits = CATEGORY_ALLPLAT;
 		allf.maskBits = MASK_ALLPLAT;
-//		allf.groupIndex = 011;
 
-//		allf.categoryBits = CATEGORY_COMBINED;
-//		allf.maskBits = MASK_COMBINED;
-		JsonValue goal = constants.get("goalL" + level);
-		JsonValue goalpos = goal.get("pos");
+
+		//set goal constants
+		JsonValue goal = constants.get("goal");
+		JsonValue goalpos = goal.get("pos" + level);
 		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
 		goalDoor.setDensity(goal.getFloat("density", 0));
@@ -693,106 +708,64 @@ public class PlatformController extends WorldController implements ContactListen
 		goalDoor.setName("goal");
 		addObject(goalDoor);
 		addObjectTo(goalDoor, sharedtag);
-
-	    JsonValue defaults = constants.get("defaults");
-
-		String lightPlat = "lightL" + level;
-		JsonValue lightPlatJson = constants.get("lightL" + level);
-		String darkPlat = "darkL" + level;
-		JsonValue darkPlatJson = constants.get("darkL" + level);
-		String grayPlat = "grayL" + level;
-		JsonValue grayPlatJson = constants.get("grayL" + level);
-
-		// Light platform
-		if (lightPlatJson != null) {
-			for (int jj = 0; jj < lightPlatJson.size; jj++) {
-				BoxObstacle obj;
-				float[] bounds = lightPlatJson.get(jj).asFloatArray();
-//				float width = bounds[2]-bounds[0];
-//				float height = bounds[5]-bounds[1];
-				float width = bounds[2];
-				float height = bounds[3];
-				obj = new BoxObstacle(bounds[0], bounds[1], bounds[2], bounds[3]);
-				obj.setBodyType(BodyDef.BodyType.StaticBody);
-				obj.setDensity(defaults.getFloat( "density", 0.0f ));
-				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				obj.setDrawScale(scale);
-				TextureRegion newLightTexture = new TextureRegion(lightTexture);
-				newLightTexture.setRegion(bounds[0]+0.5f*width, bounds[1]+0.5f+height,
-						bounds[0]-0.5f*width, bounds[1]-0.5f+height);
-				obj.setTexture(newLightTexture);
-				obj.setName(lightPlat+jj);
-				obj.setFilterData(lightplatf);
-				addObject(obj);
-				addObjectTo(obj, lighttag);
-			}
-		}
-
-		// Dark platform
-		if (darkPlatJson != null) {
-			for (int jj = 0; jj < darkPlatJson.size; jj++) {
-				BoxObstacle obj;
-				float[] bounds = darkPlatJson.get(jj).asFloatArray();
-//				float width = bounds[2]-bounds[0];
-//				float height = bounds[5]-bounds[1];
-				float width = bounds[2];
-				float height = bounds[3];
-				obj = new BoxObstacle(bounds[0], bounds[1], bounds[2], bounds[3]);
-				obj.setBodyType(BodyDef.BodyType.StaticBody);
-				obj.setDensity(defaults.getFloat( "density", 0.0f ));
-				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				obj.setDrawScale(scale);
-				TextureRegion newDarkTexture = new TextureRegion(darkTexture);
-				newDarkTexture.setRegion(bounds[0]+0.5f*width, bounds[1]+0.5f+height,
-						bounds[0]-0.5f*width, bounds[1]-0.5f+height);
-				obj.setTexture(newDarkTexture);
-				obj.setName(darkPlat+jj);
-				obj.setFilterData(darkplatf);
-				addObject(obj);
-				addObjectTo(obj, darktag);
-			}
-		}
-
-		if (grayPlatJson != null) {
-			// Gray platform
-			for (int jj = 0; jj < grayPlatJson.size; jj++) {
-				BoxObstacle obj;
-				float[] bounds = grayPlatJson.get(jj).asFloatArray();
-//				float width = bounds[2]-bounds[0];
-//				float height = bounds[5]-bounds[1];
-				float width = bounds[2];
-				float height = bounds[3];
-				obj = new BoxObstacle(bounds[0], bounds[1], bounds[2], bounds[3]);
-				obj.setBodyType(BodyDef.BodyType.StaticBody);
-				obj.setDensity(defaults.getFloat( "density", 0.0f ));
-				obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-				obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				obj.setDrawScale(scale);
-				TextureRegion newAllTexture = new TextureRegion(allTexture);
-				newAllTexture.setRegion(bounds[0]+0.5f*width, bounds[1]+0.5f+height,
-						bounds[0]-0.5f*width, bounds[1]-0.5f+height);
-				obj.setTexture(newAllTexture);
-				obj.setName(grayPlat+jj);
-				obj.setFilterData(allf);
-				addObject(obj);
-				addObjectTo(obj, sharedtag);
-			}
-		}
+		
+		//set default vals
+		JsonValue defaults = constants.get("defaults");
 
 
-	    // This world is heavier
+		String lightPlat = "light"+level;
+		JsonValue lightPlatJson = constants.get("light"+level);
+		String darkPlat = "dark"+level;
+		JsonValue darkPlatJson = constants.get("dark"+level);
+		String grayPlat = "gray"+level;
+		JsonValue grayPlatJson = constants.get("gray"+level);
+
+		//group platform constants together for access in following for-loop
+		JsonValue[] xPlatJson = {lightPlatJson, darkPlatJson, grayPlatJson};
+		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
+		String[] xPlat = {lightPlat, darkPlat, grayPlat};
+		Filter[] xPlatf = {lightplatf, darkplatf, allf};
+		int[] xtag = {lighttag, darktag, sharedtag};
+
+
+		//set platform constants for light, dark, and combined
+		for(int i=0; i<=2; i++)
+		{
+			if (xPlatJson[i] != null) {
+				for (int jj = 0; jj < xPlatJson[i].size; jj++) {
+					BoxObstacle obj;
+					float[] bounds = xPlatJson[i].get(jj).asFloatArray();
+					float width = bounds[2];
+					float height = bounds[3];
+					obj = new BoxObstacle(bounds[0], bounds[1], bounds[2], bounds[3]);
+					obj.setBodyType(BodyDef.BodyType.StaticBody);
+					obj.setDensity(defaults.getFloat( "density", 0.0f ));
+					obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+					obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+					obj.setDrawScale(scale);
+					TextureRegion newXTexture = new TextureRegion(xTexture[i]);
+					newXTexture.setRegion(bounds[0]+0.5f*width, bounds[1]+0.5f+height,
+							bounds[0]-0.5f*width, bounds[1]-0.5f+height);
+					obj.setTexture(newXTexture);
+					obj.setName(xPlat[i]+jj);
+					obj.setFilterData(xPlatf[i]);
+					addObject(obj);
+					addObjectTo(obj, xtag[i]);
+				}
+			}}
+
+		// This world is heavier
+
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
 		// Set level bounds
-		widthUpperBound = 1000;
-		heightUpperBound = 1000;
+		widthUpperBound = constants.get("bounds").getInt("width"+level);
+		heightUpperBound = constants.get("bounds").getInt("height"+level);
 
 		// Create Somni
 		dwidth  = somniTexture.getRegionWidth()/scale.x;
 		dheight = somniTexture.getRegionHeight()/scale.y;
-		somni = new CharacterModel(constants.get("somniL" + level), dwidth, dheight, somnif, CharacterModel.LIGHT);
+		somni = new CharacterModel(constants.get("somni"), dwidth, dheight, somnif, CharacterModel.LIGHT, ""+level);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
@@ -801,10 +774,11 @@ public class PlatformController extends WorldController implements ContactListen
 		addObjectTo(somni, sharedtag);
 		somni.setActive(true);
 
+
 		// Create Phobia
 		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
 		dheight = phobiaTexture.getRegionHeight()/scale.y;
-		phobia = new CharacterModel(constants.get("phobiaL" + level), dwidth, dheight, phobiaf, CharacterModel.DARK);
+		phobia = new CharacterModel(constants.get("phobia"), dwidth, dheight, phobiaf, CharacterModel.DARK, ""+level);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
@@ -813,9 +787,11 @@ public class PlatformController extends WorldController implements ContactListen
 		addObjectTo(phobia, sharedtag);
 		phobia.setActive(true);
 
+
+		//Create Combined
 		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
 		dheight = somniPhobiaTexture.getRegionHeight()/scale.y;
-		combined = new CharacterModel(constants.get("combined"), dwidth, dheight, combinedf, CharacterModel.DARK);
+		combined = new CharacterModel(constants.get("combined"), dwidth, dheight, combinedf, CharacterModel.DARK, "");
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
@@ -824,13 +800,17 @@ public class PlatformController extends WorldController implements ContactListen
 		addObjectTo(combined, sharedtag);
 		combined.setActive(true);
 
+		//Remove combined
 		objects.remove(combined);
 		sharedObjects.remove(combined);
-
 		combined.setActive(false);
+
 		action = 0;
-		//Set current avatar to somni
+
+		//Set current avatar to Phobia
 		avatar = phobia;
+		maskLeader = somni;
+
 		volume = constants.getFloat("volume", 1.0f);
 	}
 
@@ -877,7 +857,11 @@ public class PlatformController extends WorldController implements ContactListen
 		if(inputController.didDash()) {
 			if (holdingHands) {
 				// Check for propel
+				somni.setVX(0f);
+				phobia.setVX(0f);
+
 				endHoldHands();
+
 				avatar.dashOrPropel(true, inputController.getHorizontal(), inputController.getVertical());
 
 			} else {
@@ -917,7 +901,13 @@ public class PlatformController extends WorldController implements ContactListen
 			}else{
 				lead = lead == somni ? phobia :somni;
 			}
-			backgroundTexture = backgroundTexture == backgroundLightTexture ? backgroundDarkTexture : backgroundLightTexture;
+
+			// Check if switching pressed early
+			if(switching) {
+				shrinking = true;
+			}
+			switching = !switching;
+			//System.out.println(maskLeader.equals(somni) ? "Somni" : "Phobia");
 		}
 		if(avatar !=combined) {
 			lead = avatar;
@@ -967,7 +957,6 @@ public class PlatformController extends WorldController implements ContactListen
 		newX = Math.min(newX, widthUpperBound);
 		newX = Math.max(canvas.getWidth() / 2, newX );
 		camera.position.x += (newX - camera.position.x) * LERP * dt;
-		System.out.println(camera.position.x);
 
 		float newY = avatar.getY() * canvas.PPM;
 		newY = Math.min(newY, heightUpperBound);
@@ -985,7 +974,7 @@ public class PlatformController extends WorldController implements ContactListen
 			endHoldHands();
 		}
 		else if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
-			holdHands();
+			beginHoldHands();
 		}
 	}
 
@@ -1011,19 +1000,24 @@ public class PlatformController extends WorldController implements ContactListen
 
 		avatar = lead;
 		avatar.setPosition(avatarX, avatarY);
-		avatar.setVX(avatarVX);
-		avatar.setVY(avatarVY);
+//		avatar.setVX(avatarVX);
+//		avatar.setVY(avatarVY);
 		float dampeningFactor = -0.25f;
 		if(lead == phobia){
 			phobia.setCanDash(true);
 			somni.setPosition(avatarX, avatarY);
-			somni.setVX(avatarVX * dampeningFactor);
+//			somni.setVX(avatarVX * dampeningFactor);
+			somni.setVX(0);
 			somni.setVY(0);
+			System.out.println(somni.getVX());
+
 		}else {
 			somni.setCanDash(true);
 			phobia.setPosition(avatarX, avatarY);
-			phobia.setVX(avatarVX * dampeningFactor);
+//			phobia.setVX(avatarVX * dampeningFactor);
+			phobia.setVX(0);
 			phobia.setVY(0);
+			System.out.println(phobia.getVX());
 		}
 		somni.setFacingRight(combined.isFacingRight());
 		phobia.setFacingRight(combined.isFacingRight());
@@ -1033,11 +1027,13 @@ public class PlatformController extends WorldController implements ContactListen
 	/**
 	 * Somni and Phobia hold hands
 	 */
-	private void holdHands() {
+	private void beginHoldHands() {
 //		Vector2 anchor1 = new Vector2();
 //		Vector2 anchor2 = new Vector2(.1f,0);
 //
 //		RevoluteJointDef jointDef = new RevoluteJointDef();
+		somni.setMovement(0f);
+		phobia.setMovement(0f);
 
 		somni.setActive(false);
 		phobia.setActive(false);
@@ -1050,7 +1046,7 @@ public class PlatformController extends WorldController implements ContactListen
 		objects.remove(phobia);
 		objects.add(combined);
 		sharedObjects.add(combined);
-		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
+//		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
 
 
 		CharacterModel follower = somni == avatar ? phobia : somni;
@@ -1171,6 +1167,7 @@ public class PlatformController extends WorldController implements ContactListen
 			if (lightSensorFixtures.size == 0) {
 				somni.setGrounded(false);
 			}
+
 		}
 		if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
 				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
@@ -1191,24 +1188,144 @@ public class PlatformController extends WorldController implements ContactListen
 	}
 
 	/**
+	 * Draws the necessary textures to mask properly.
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param maskWidth The width of the mask
+	 * @param maskHeight The height of the mask
+	 * @param character The character to center the mask on
+	 */
+	public void drawMask(float cameraX, float cameraY, float maskWidth, float maskHeight, CharacterModel character) {
+		character = holdingHands ? combined : character;
+		float leadCenterX = character.getX() * canvas.PPM + character.getWidth() / 2 - maskWidth / 2;
+		float leadCenterY = character.getY() * canvas.PPM + character.getHeight() / 2 - maskHeight / 2;
+		canvas.beginCustom(GameCanvas.BlendState.OPAQUE, GameCanvas.ChannelState.ALPHA);
+		if(alpha_background == null) {
+			Pixmap pixmap=new Pixmap(canvas.getWidth(), canvas.getHeight(), Pixmap.Format.RGBA8888);
+			pixmap.setColor(Color.CLEAR);
+			pixmap.fillRectangle(0,0, pixmap.getWidth(), pixmap.getHeight());
+			alpha_background = new Texture(pixmap);
+		}
+		canvas.draw(alpha_background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		canvas.draw(circle_mask, Color.WHITE, leadCenterX, leadCenterY, maskWidth, maskHeight);
+		canvas.endCustom();
+	}
+
+	/**
+	 * Draws the necessary textures for the character's realm rift.
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param character The character whose environment is being drawn
+	 */
+	public void drawCharacterRift(float cameraX, float cameraY, CharacterModel character) {
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+		TextureRegion background = character.equals(somni) ? backgroundDarkTexture : backgroundLightTexture;
+		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		canvas.endCustom();
+	}
+
+	/**
+	 * Draws the necessary textures for the character's platforms.
+	 * @param character The character whose environment is being drawn
+	 */
+	public void drawCharacterPlatform(CharacterModel character) {
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+		PooledList<Obstacle> objects = character.equals(somni) ? lightObjects : darkObjects;
+		for(Obstacle obj : objects) {
+			obj.draw(canvas);
+		}
+		canvas.endCustom();
+	}
+
+	/**
 	 * Draw the physics objects together with foreground and background
 	 *
 	 * This is completely overridden to support custom background and foreground art.
 	 *
 	 * @param dt Timing values from parent loop
 	 */
-	float previousValue = 0;
-	float lastValue = 0;
 	public void draw(float dt) {
 
 		canvas.setCamera(camera);
 		canvas.clear();
 
-		// Draw background unscaled.
+		float cameraX = camera.position.x - canvas.getWidth() / 2;
+		float cameraY = camera.position.y - canvas.getHeight() / 2;
+
+		// Draw background
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		canvas.endCustom();
+
+		drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+		drawCharacterRift(cameraX, cameraY, maskLeader);
+		drawCharacterPlatform(maskLeader);
+
+		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
+		// Check if switching and update mask drawing
+		if(switching) {
+			maskWidth += maskWidth >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
+			maskHeight += maskHeight >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
+			if(maskWidth >= MAX_MASK_SIZE) {
+				maskWidth = MIN_MASK_DIMENSIONS.x;
+				maskHeight = MIN_MASK_DIMENSIONS.y;
+				switching = false;
+				maskLeader = follower;
+				//System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
+				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
+						backgroundLightTexture;
+			}
+			drawMask(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
+			drawCharacterRift(cameraX, cameraY, follower);
+			drawCharacterPlatform(follower);
+		} else {
+			/*if(maskWidth == MIN)
+			if(shrinking) {
+				drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+				drawCharacterRift(cameraX, cameraY, maskLeader);
+				drawCharacterPlatform(maskLeader);
+			}*/
+
+			// Draw lead platform
+			canvas.begin();
+			for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
+
+			// Draw follower platforms if holding hands
+			canvas.begin();
+			if(holdingHands) {
+				for(Obstacle obj : lead.equals(somni) ? darkObjects : lightObjects) {
+					obj.draw(canvas);
+				}
+			}
+			canvas.end();
+			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
+			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
+		}
+		// Draw shared platforms
 		canvas.begin();
-		float x = camera.position.x - canvas.getWidth() / 2;
-		float y = camera.position.y - canvas.getHeight() / 2;
-		canvas.draw(backgroundTexture, Color.WHITE, x, y, canvas.getWidth() ,canvas.getHeight());
+		for(Obstacle obj : sharedObjects) {
+			// Ignore characters which we draw separately
+			if (!(obj instanceof CharacterModel)) {
+				obj.draw(canvas);
+			}
+		}
+		canvas.end();
+
+		// Draw current model
+		canvas.begin();
+		if(holdingHands) {
+			combined.draw(canvas);
+		} else {
+			follower.draw(canvas);
+			lead.draw(canvas);
+		}
+		canvas.end();
+
+		// Draw sliders if active
+		canvas.begin();
 		if (slidersActive()) {
 			if (tes == 0) {
 				createSliders();
@@ -1223,53 +1340,8 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 		canvas.end();
 
-
-		if(avatar == somni){
-			canvas.begin();
-			for(Obstacle obj : sharedObjects) {
-				obj.draw(canvas);
-			}
-			canvas.end();
-			canvas.begin();
-			for(Obstacle obj : lightObjects) {
-				obj.draw(canvas);
-			}
-			canvas.end();
-		}else if (avatar == phobia){
-			canvas.begin();
-			for(Obstacle obj : sharedObjects) {
-				obj.draw(canvas);
-			}
-			canvas.end();
-			canvas.begin();
-			for(Obstacle obj : darkObjects) {
-				obj.draw(canvas);
-			}
-			canvas.end();
-		}else{
-			canvas.begin();
-			for(Obstacle obj : sharedObjects) {
-				obj.draw(canvas);
-			}
-			canvas.end();
-			canvas.begin();
-			for(Obstacle obj : lightObjects) {
-				obj.draw(canvas);
-			}
-			canvas.end();
-			canvas.begin();
-			for(Obstacle obj : darkObjects) {
-				obj.draw(canvas);
-			}
-			canvas.end();
-		}
-
+		// Draw debug if active
 		if (isDebug()) {
-			/*canvas.beginDebug();
-			for(Obstacle obj : objects) {
-				obj.drawDebug(canvas);
-			}
-			canvas.endDebug();*/
 			canvas.beginDebug();
 			for(Obstacle obj : sharedObjects) {
 				obj.drawDebug(canvas);
@@ -1287,7 +1359,8 @@ public class PlatformController extends WorldController implements ContactListen
 			canvas.endDebug();
 
 		}
-		// Final message
+
+		// Draw final message when level ends
 		if (isComplete() && !isFailure()) {
 			displayFont.setColor(Color.YELLOW);
 			canvas.begin(); // DO NOT SCALE
@@ -1301,7 +1374,6 @@ public class PlatformController extends WorldController implements ContactListen
 			displayFont.getData().setScale(1f, 1f);
 
 			canvas.drawTextCameraCentered("FAILURE!", displayFont, camera.position.x, camera.position.y);
-//			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
 			canvas.end();
 		}
 	}

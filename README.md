@@ -1,4 +1,4 @@
-# Somniphobia Gameplay Prototype
+# Somniphobia Technical Prototype
 
 Welcome to Somniphobia! Control the characters using the following control scheme:
 
@@ -10,6 +10,8 @@ D: Switch between our two characters Somni and Phobia
 
 N: Go to the next level
 P: Go to the previous level
+
+S: Toggle Sliders to adjust physics values
 
 
 
