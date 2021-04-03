@@ -613,7 +613,6 @@ public class PlatformController extends WorldController implements ContactListen
 		MAX_MASK_SIZE = MIN_MASK_DIMENSIONS.x * 22.5f;
 		INCREMENT_AMOUNT = 50;
 
-
 		AssetDirectory internal = new AssetDirectory( "loading.json" );
 		internal.loadAssets();
 		internal.finishLoading();
@@ -814,16 +813,17 @@ public class PlatformController extends WorldController implements ContactListen
 		action = 0;
 
 
+
 //		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
 //
 //		//Set current avatar to Somni
 ////		avatar = somni;
 //		movementController.setAvatar(somni);
 
+
 		//Set current avatar to Phobia
 		avatar = phobia;
 		maskLeader = somni;
-
 
 		volume = constants.getFloat("volume", 1.0f);
 	}
@@ -865,15 +865,19 @@ public class PlatformController extends WorldController implements ContactListen
 
 		action = movementController.update();
 
+
 		lead = movementController.getLead();
 		somni = movementController.getSomni();
 		phobia = movementController.getPhobia();
 		avatar = movementController.getAvatar();
 
 
+
+
 		if (movementController.getSwitchedCharacters()) {
 			backgroundTexture = backgroundTexture == backgroundLightTexture ?
 					backgroundDarkTexture : backgroundLightTexture;
+
 		}
 
 		if(holdingHands){
@@ -907,6 +911,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		camera.update();
 	}
+
 
 
 	/**
