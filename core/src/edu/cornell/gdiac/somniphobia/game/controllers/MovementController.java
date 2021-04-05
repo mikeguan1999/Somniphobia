@@ -131,6 +131,7 @@ public class MovementController implements ContactListener {
         holdingHands = b;
     }
 
+
     /**
      * Returns whether characters were switched
      * @return whether characters were switched

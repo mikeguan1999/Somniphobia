@@ -870,7 +870,7 @@ public class PlatformController extends WorldController implements ContactListen
 		somni = movementController.getSomni();
 		phobia = movementController.getPhobia();
 		avatar = movementController.getAvatar();
-
+		holdingHands = movementController.isHoldingHands();
 
 
 
