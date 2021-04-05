@@ -534,8 +534,7 @@ public class CharacterModel extends CapsuleObstacle {
 		animeframe += ANIMATION_SPEED;
 		if (animeframe >= numAnimFrames) {
 
-
-			animeframe -= numAnimFrames;
+			animeframe = 0;
 
 		}
 
