@@ -94,7 +94,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Radius of the object (used for collisions) */
 	private float radius;
 	/** How fast we change frames (one frame per 10 calls to update) */
-	private static final float ANIMATION_SPEED = 0.1f;
+	private float ANIMATION_SPEED = 0.1f;
 	/** The number of animation frames in our filmstrip */
 	private int numAnimFrames = 2;
 	/** Texture for animated objects */
@@ -452,6 +452,29 @@ public class CharacterModel extends CapsuleObstacle {
 
 	/**
 	 * Allows for animated character motions. It sets the texture to prepare to draw.
+	 * You can add an ANIMATION_SPEED parameter
+	 *
+	 * This method overrides the setTexture method in SimpleObstacle
+	 */
+	public void setTexture(TextureRegion textureRegion, float ANIMATION_SPEED) {
+		this.ANIMATION_SPEED = ANIMATION_SPEED;
+		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		entirePixelWidth = texture.getWidth();
+		if (entirePixelWidth < framePixelWidth) {
+			entirePixelWidth = framePixelWidth;
+		}
+		numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
+		animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
+		if(animeframe > numAnimFrames) {
+			animeframe -= numAnimFrames;
+		}
+		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		radius = animator.getRegionHeight() / 2.0f;
+	}
+
+	/**
+	 * Allows for animated character motions. It sets the texture to prepare to draw.
+	 * Default method
 	 *
 	 * This method overrides the setTexture method in SimpleObstacle
 	 */
@@ -532,7 +555,7 @@ public class CharacterModel extends CapsuleObstacle {
 		animeframe += ANIMATION_SPEED;
 		if (animeframe >= numAnimFrames) {
 
-			animeframe -= numAnimFrames;
+			animeframe = 0;
 		}
 
 		// Apply cooldowns
