@@ -353,6 +353,9 @@ public class MovementController implements ContactListener {
      */
     private void beginHoldHands() {
 
+        somni.setMovement(0f);
+        phobia.setMovement(0f);
+
         somni.setActive(false);
         phobia.setActive(false);
         combined.setActive(true);
@@ -364,7 +367,6 @@ public class MovementController implements ContactListener {
         objects.remove(phobia);
         objects.add(combined);
         sharedObjects.add(combined);
-        combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
 
 
         CharacterModel follower = somni == avatar ? phobia : somni;
