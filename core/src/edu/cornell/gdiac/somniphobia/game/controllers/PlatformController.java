@@ -46,7 +46,7 @@ import java.awt.*;
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
  */
-public class PlatformController extends WorldController implements ContactListener {
+public class PlatformController extends WorldController {
 	private OrthographicCamera camera;
 
 	/** Texture asset for character avatar */
@@ -236,7 +236,7 @@ public class PlatformController extends WorldController implements ContactListen
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
-		world.setContactListener(this);
+		world.setContactListener(movementController);
 		lightSensorFixtures = new ObjectSet<Fixture>();
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
@@ -658,11 +658,12 @@ public class PlatformController extends WorldController implements ContactListen
 //		maskLeader = somni;
 
 		world = new World(gravity,false);
-		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
 		populateLevel(level);
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
+		world.setContactListener(movementController);
+
 		movementController.setAvatar(phobia);
 		movementController.setLead(phobia);
 //		movementController.setMaskLeader(somni);
@@ -912,125 +913,6 @@ public class PlatformController extends WorldController implements ContactListen
 		camera.update();
 	}
 
-
-
-	/**
-	 * Callback method for the start of a collision
-	 *
-	 * This method is called when we first get a collision between two objects.  We use
-	 * this method to test if it is the "right" kind of collision.  In particular, we
-	 * use it to test if we made it to the win door.
-	 *
-	 * @param contact The two bodies that collided
-	 */
-	public void beginContact(Contact contact) {
-		CharacterModel avatar = movementController.getAvatar();
-		Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
-
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-		try {
-			Obstacle bd1 = (Obstacle)body1.getUserData();
-			Obstacle bd2 = (Obstacle)body2.getUserData();
-			int tile1 = -1;
-			int tile2 = -1;
-
-			// See if we have collided with a wall
-			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
-					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
-					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-				avatar.endDashing();
-				avatar.setGravityScale(1);
-
-			}
-
-			// See if we have landed on the ground.
-			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
-					(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
-				somni.setGrounded(true);
-				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
-//				somni.canJump = true;
-
-			}
-			if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
-					(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
-				phobia.setGrounded(true);
-				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
-//				phobia.canJump = true;
-			}
-			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
-					(avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
-				avatar.setGrounded(true);
-				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
-//				combined.canJump = true;
-			}
-
-
-			// Check for win condition
-			if ((bd1 == combined   && bd2 == goalDoor) ||
-					(bd1 == goalDoor && bd2 == combined)) {
-				setComplete(true);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * Callback method for the start of a collision
-	 *
-	 * This method is called when two objects cease to touch.  The main use of this method
-	 * is to determine when the characer is NOT on the ground.  This is how we prevent
-	 * double jumping.
-	 */
-	public void endContact(Contact contact) {
-		CharacterModel avatar = movementController.getAvatar();
-
-		Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
-
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-		Object bd1 = body1.getUserData();
-		Object bd2 = body2.getUserData();
-
-		if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
-				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
-
-			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
-
-			if (lightSensorFixtures.size == 0) {
-				somni.setGrounded(false);
-			}
-
-		}
-		if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
-				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
-			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
-
-			if (darkSensorFixtures.size == 0) {
-				phobia.setGrounded(false);
-			}
-		}
-		if ((avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
-			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
-
-			if (combinedSensorFixtures.size == 0) {
-				avatar.setGrounded(false);
-			}
-		}
-	}
 
 	/**
 	 * Draws the necessary textures to mask properly.
