@@ -46,7 +46,7 @@ import java.awt.*;
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
  */
-public class PlatformController extends WorldController implements ContactListener {
+public class PlatformController extends WorldController {
 	private OrthographicCamera camera;
 
 	/** Texture asset for character avatar */
@@ -69,16 +69,16 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion somniDashUpTexture;
 	/** Texture asset for Somni's Falling*/
 	private TextureRegion somniFallTexture;
-	/** Texture asset for phobia*/
-	private TextureRegion phobiaTexture;
-	/** Texture asset for Phobia's Walk*/
-	private TextureRegion phobiaWalkTexture;
-	/** Texture asset for Phobia's Dash side*/
-	private TextureRegion phobiaDashSideTexture;
-	/** Texture asset for Phobia's Dash up*/
-	private TextureRegion phobiaDashUpTexture;
 	/** Texture asset for Phobia's Falling*/
 	private TextureRegion phobiaFallTexture;
+	/** Texture asset for phobia*/
+	private TextureRegion phobiaTexture;
+	/** Texture asset for Somni's Walk*/
+	private TextureRegion phobiaWalkTexture;
+	/** Texture asset for Somni's Dash side*/
+	private TextureRegion phobiaDashSideTexture;
+	/** Texture asset for Somni's Dash up*/
+	private TextureRegion phobiaDashUpTexture;
 	/** Texture asset for Somni*/
 	private TextureRegion somniPhobiaTexture;
 	/** Texture asset for Somni's Walk*/
@@ -132,18 +132,17 @@ public class PlatformController extends WorldController implements ContactListen
 	/** The default sound volume */
 	private float volume;
 
+	private MovementController movementController;
+
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
 	/** Reference to the active character avatar */
-	private CharacterModel avatar;
 
 	/** Reference to Somni DudeModel*/
 	private CharacterModel somni;
 	/** Reference to Phobia DudeModel*/
 	private CharacterModel phobia;
-	/** Reference to leading DudeModel*/
-	private CharacterModel lead;
 	/** Reference to combined DudeModel*/
 	private CharacterModel combined;
 	/** Reference to the goalDoor (for collision detection) */
@@ -175,7 +174,6 @@ public class PlatformController extends WorldController implements ContactListen
 	private float widthUpperBound, heightUpperBound;
 	private float LERP = 2f;
 
-	private float HAND_HOLDING_DISTANCE = 2f;
 
 	/** Masking stuff */
 	/** Dimensions for the mask when at its smallest */
@@ -238,7 +236,7 @@ public class PlatformController extends WorldController implements ContactListen
 		setDebug(false);
 		setComplete(false);
 		setFailure(false);
-		world.setContactListener(this);
+		world.setContactListener(movementController);
 		lightSensorFixtures = new ObjectSet<Fixture>();
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
@@ -255,7 +253,7 @@ public class PlatformController extends WorldController implements ContactListen
 	public void createSliders() {
 		sliders = new Slider[7];
 		labels = new Label[7];
-
+		CharacterModel avatar = movementController.getAvatar();
 
 
 		Stage stage = new Stage(new ScreenViewport(camera));
@@ -281,6 +279,7 @@ public class PlatformController extends WorldController implements ContactListen
 		labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
 		//Dash Velocity
+
 		current = avatar.getDashVelocity();
 		max = current * 1.5f;
 		min = current * 0.5f;
@@ -393,7 +392,7 @@ public class PlatformController extends WorldController implements ContactListen
 		labels[3] = test4;
 
 		//Hand Holding Distance
-		current = HAND_HOLDING_DISTANCE;
+		current = movementController.getHAND_HOLDING_DISTANCE();
 		max = current * 1.5f;
 		min = current * 0.5f;
 
@@ -409,7 +408,7 @@ public class PlatformController extends WorldController implements ContactListen
 				Slider s = (Slider) actor;
 				float f = s.getValue();
 				System.out.println("Hand Holding Distance : " + f);
-				HAND_HOLDING_DISTANCE = f;
+				movementController.setHAND_HOLDING_DISTANCE(f);
 				test5.setText("Hand Holding Distance : " + f);
 			}
 		});
@@ -578,6 +577,7 @@ public class PlatformController extends WorldController implements ContactListen
 		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:Phobia_Stand_Jump",Texture.class));
 		phobiaFallTexture = new TextureRegion(directory.getEntry("platform:Phobia_Falling", Texture.class));
 
+
 		// Combined models
 		somniPhobiaTexture  = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 		somniPhobiaWalkTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_walk",Texture.class));
@@ -653,15 +653,22 @@ public class PlatformController extends WorldController implements ContactListen
 
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
-		avatar = phobia;
-		lead = phobia;
-		maskLeader = somni;
+//		avatar = phobia;
+//		lead = phobia;
+//		maskLeader = somni;
 
 		world = new World(gravity,false);
-		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
 		populateLevel(level);
+		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
+		world.setContactListener(movementController);
+
+		movementController.setAvatar(phobia);
+		movementController.setLead(phobia);
+//		movementController.setMaskLeader(somni);
+		maskLeader = somni;
+
 	}
 
 	/**
@@ -805,9 +812,18 @@ public class PlatformController extends WorldController implements ContactListen
 
 		action = 0;
 
+
+
+//		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
+//
+//		//Set current avatar to Somni
+////		avatar = somni;
+//		movementController.setAvatar(somni);
+
+
 		//Set current avatar to Phobia
-		avatar = phobia;
-		maskLeader = somni;
+//		avatar = phobia;
+//		maskLeader = somni;
 
 		volume = constants.getFloat("volume", 1.0f);
 	}
@@ -847,111 +863,44 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void update(float dt) {
 
-
-		InputController inputController = InputController.getInstance();
-		avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
-		avatar.setJumping(inputController.didJump());
-
-		if(inputController.didDash()) {
-			if (holdingHands) {
-				// Check for propel
-				somni.setVX(0f);
-				phobia.setVX(0f);
-
-				endHoldHands();
-
-				avatar.dashOrPropel(true, inputController.getHorizontal(), inputController.getVertical());
-
-			} else {
-				avatar.dashOrPropel(false, inputController.getHorizontal(), inputController.getVertical());
-			}
-		}
-
-		somni.applyForce();
-		phobia.applyForce();
-		combined.applyForce();
-		//handleworldview();
-	    if (avatar.isJumping()) {
-	    	//jumpId = playSound( jumpSound, jumpId, volume );
-	    } else if (avatar.isDashing()) {
-	    	// some dash sound
-		}
+		action = movementController.update();
 
 
-		if (somni.isDashing()) {
-			somni.setGravityScale(0f);
-		} else {
-			somni.setGravityScale(1);
-		}
+		CharacterModel lead = movementController.getLead();
+//		somni = movementController.getSomni();
+//		phobia = movementController.getPhobia();
+		CharacterModel avatar = movementController.getAvatar();
+		holdingHands = movementController.isHoldingHands();
 
-		if (phobia.isDashing()) {
-			phobia.setGravityScale(0f);
-		} else {
-			phobia.setGravityScale(1);
-		}
 
-	    // Check if switched
-		if(inputController.didSwitch()) {
-			//Switch active character
-			if (!holdingHands) {
-				avatar.setMovement(0f);
-				avatar = avatar == somni ? phobia : somni;
-			}else{
-				lead = lead == somni ? phobia :somni;
-			}
 
-			// Check if switching pressed early
-			if(switching) {
-				shrinking = true;
-			}
+		if (movementController.getSwitchedCharacters()) {
+//			backgroundTexture = backgroundTexture == backgroundLightTexture ?
+//					backgroundDarkTexture : backgroundLightTexture;
 			switching = !switching;
-			//System.out.println(maskLeader.equals(somni) ? "Somni" : "Phobia");
-		}
-		if(avatar !=combined) {
-			lead = avatar;
-		}
-		if(avatar.isGrounded() && !avatar.isJumping()){
 
-			if (avatar.getMovement() == 0f){
-				action = 0; // Idle
-			}else{
-				action = 1; // Walk
-			}
-		}else{
-			action = 4; // Jump
-		}
-		if (avatar.isDashing() && !avatar.isDashingUp()) {
-			action = 2; // Side dash
-		}
-		if (avatar.isFalling() && !holdingHands) { //! CHANGE CODE HERE WHEN ADD ASSET 4 TO HANDHOLDING!
-			action = 4; // Falling
 		}
 
-
-
-		//Check if hand holding
-		if(inputController.didHoldHands()) {
-			handleHoldingHands();
-		}
 		if(holdingHands){
-			if(lead == somni){
-				combined.setTexture(somniphobiasTexture[action]);
-			}else{
-				combined.setTexture(phobiasomnisTexture[action]);
-			}
-		}
-		else{
-			if(lead == somni){
-				avatar.setTexture(somnisTexture[action]);
-			}else{
-				avatar.setTexture(phobiasTexture[action]);
-			}
-		}
+            if(lead == somni){
+                combined.setTexture(somniphobiasTexture[action]);
+            }else{
+                combined.setTexture(phobiasomnisTexture[action]);
+            }
+        }
+        else{
+            if(lead == somni){
+                avatar.setTexture(somnisTexture[action]);
+            }else{
+                avatar.setTexture(phobiasTexture[action]);
+            }
+        }
+
 
 		// Set camera position bounded by the canvas size
 		camera = canvas.getCamera();
 
-	    float newX = avatar.getX() * canvas.PPM;
+		float newX = avatar.getX() * canvas.PPM;
 		newX = Math.min(newX, widthUpperBound);
 		newX = Math.max(canvas.getWidth() / 2, newX );
 		camera.position.x += (newX - camera.position.x) * LERP * dt;
@@ -964,226 +913,6 @@ public class PlatformController extends WorldController implements ContactListen
 		camera.update();
 	}
 
-	/**
-	 * Allow Somni and Phobia to hold hands if within range
-	 */
-	private void handleHoldingHands() {
-		if (holdingHands) {
-			endHoldHands();
-		}
-		else if (distance(somni.getX(), somni.getY(), phobia.getX(), phobia.getY()) < HAND_HOLDING_DISTANCE) {
-			beginHoldHands();
-		}
-	}
-
-	/**
-	 * Stops holding hands
-	 */
-	private void endHoldHands() {
-		somni.setActive(true);
-		phobia.setActive(true);
-		combined.setActive(false);
-
-		objects.add(somni);
-		objects.add(phobia);
-		sharedObjects.add(somni);
-		sharedObjects.add(phobia);
-		sharedObjects.remove(combined);
-		objects.remove(combined);
-
-		float avatarX = avatar.getX();
-		float avatarY = avatar.getY();
-		float avatarVX = avatar.getVX();
-		float avatarVY = avatar.getVY();
-
-		avatar = lead;
-		avatar.setPosition(avatarX, avatarY);
-//		avatar.setVX(avatarVX);
-//		avatar.setVY(avatarVY);
-		float dampeningFactor = -0.25f;
-		if(lead == phobia){
-			phobia.setCanDash(true);
-			somni.setPosition(avatarX, avatarY);
-//			somni.setVX(avatarVX * dampeningFactor);
-			somni.setVX(0);
-			somni.setVY(0);
-			System.out.println(somni.getVX());
-
-		}else {
-			somni.setCanDash(true);
-			phobia.setPosition(avatarX, avatarY);
-//			phobia.setVX(avatarVX * dampeningFactor);
-			phobia.setVX(0);
-			phobia.setVY(0);
-			System.out.println(phobia.getVX());
-		}
-		somni.setFacingRight(combined.isFacingRight());
-		phobia.setFacingRight(combined.isFacingRight());
-		holdingHands = false;
-	}
-
-	/**
-	 * Somni and Phobia hold hands
-	 */
-	private void beginHoldHands() {
-//		Vector2 anchor1 = new Vector2();
-//		Vector2 anchor2 = new Vector2(.1f,0);
-//
-//		RevoluteJointDef jointDef = new RevoluteJointDef();
-		somni.setMovement(0f);
-		phobia.setMovement(0f);
-
-		somni.setActive(false);
-		phobia.setActive(false);
-		combined.setActive(true);
-
-		lead = avatar;
-		sharedObjects.remove(somni);
-		sharedObjects.remove(phobia);
-		objects.remove(somni);
-		objects.remove(phobia);
-		objects.add(combined);
-		sharedObjects.add(combined);
-//		combined.setLinearVelocity(somni.getLinearVelocity().add(phobia.getLinearVelocity()));
-
-
-		CharacterModel follower = somni == avatar ? phobia : somni;
-		float avatarX = follower.getX();
-		float avatarY = follower.getY();
-
-		avatar = combined;
-		avatar.setPosition(avatarX, avatarY);
-
-		holdingHands = true;
-	}
-
-	/**
-	 * Finds the Euclidean distance between two coordinates
-	 * @param x1 x value of first coord
-	 * @param y1 y value of first coord
-	 * @param x2 x value of second coord
-	 * @param y2 y value of second coord
-	 * @return The distance between two coordinates
-	 */
-	private float distance(float x1, float y1, float x2, float y2) {
-		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-	}
-
-	/**
-	 * Callback method for the start of a collision
-	 *
-	 * This method is called when we first get a collision between two objects.  We use
-	 * this method to test if it is the "right" kind of collision.  In particular, we
-	 * use it to test if we made it to the win door.
-	 *
-	 * @param contact The two bodies that collided
-	 */
-	public void beginContact(Contact contact) {
-		Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
-
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-		try {
-			Obstacle bd1 = (Obstacle)body1.getUserData();
-			Obstacle bd2 = (Obstacle)body2.getUserData();
-			int tile1 = -1;
-			int tile2 = -1;
-
-			// See if we have collided with a wall
-			if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
-					avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
-					avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-				avatar.endDashing();
-				avatar.setGravityScale(1);
-
-			}
-
-			// See if we have landed on the ground.
-			if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
-				(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
-				somni.setGrounded(true);
-				lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
-//				somni.canJump = true;
-
-			}
-			if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
-					(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
-				phobia.setGrounded(true);
-				darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
-//				phobia.canJump = true;
-			}
-			if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
-					(avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
-				avatar.setGrounded(true);
-				combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
-//				combined.canJump = true;
-			}
-
-
-			// Check for win condition
-			if ((bd1 == combined   && bd2 == goalDoor) ||
-					(bd1 == goalDoor && bd2 == combined)) {
-				setComplete(true);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * Callback method for the start of a collision
-	 *
-	 * This method is called when two objects cease to touch.  The main use of this method
-	 * is to determine when the characer is NOT on the ground.  This is how we prevent
-	 * double jumping.
-	 */
-	public void endContact(Contact contact) {
-
-		Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
-
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-		Object bd1 = body1.getUserData();
-		Object bd2 = body2.getUserData();
-
-		if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
-			(somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
-
-			lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
-
-			if (lightSensorFixtures.size == 0) {
-				somni.setGrounded(false);
-			}
-
-		}
-		if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
-				(phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
-			darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
-
-			if (darkSensorFixtures.size == 0) {
-				phobia.setGrounded(false);
-			}
-		}
-		if ((avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
-			combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
-
-			if (combinedSensorFixtures.size == 0) {
-				avatar.setGrounded(false);
-			}
-		}
-	}
 
 	/**
 	 * Draws the necessary textures to mask properly.
@@ -1244,6 +973,10 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void draw(float dt) {
 
+		CharacterModel lead = movementController.getLead();
+		CharacterModel avatar = movementController.getAvatar();
+//		CharacterModel maskLeader = movementController.getMaskLeader();
+//		CharacterModel maskLeader = movementController.getMaskLeader();
 		canvas.setCamera(camera);
 		canvas.clear();
 
@@ -1268,7 +1001,9 @@ public class PlatformController extends WorldController implements ContactListen
 				maskWidth = MIN_MASK_DIMENSIONS.x;
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
+
 				maskLeader = follower;
+//				movementController.setMaskLeader(follower);
 				//System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
