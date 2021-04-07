@@ -25,6 +25,7 @@ public class MovementController implements ContactListener {
     private CharacterModel lead;
     /** Reference to combined DudeModel*/
     private CharacterModel combined;
+
     /** Reference to the goalDoor (for collision detection) */
     private BoxObstacle goalDoor;
 
@@ -82,6 +83,11 @@ public class MovementController implements ContactListener {
     public CharacterModel getLead() {
         return lead;
     }
+
+    public void setLead(CharacterModel lead) {
+        this.lead = lead;
+    }
+
 
     public CharacterModel getSomni() {
         return somni;

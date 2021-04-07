@@ -143,14 +143,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private CharacterModel somni;
 	/** Reference to Phobia DudeModel*/
 	private CharacterModel phobia;
-	/** Reference to leading DudeModel*/
-	private CharacterModel lead;
 	/** Reference to combined DudeModel*/
 	private CharacterModel combined;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
-	/** Reference to Current DudeModel*/
-	private CharacterModel avatar;
 
 	/** shared objects */
 	protected PooledList<Obstacle> sharedObjects  = new PooledList<Obstacle>();
@@ -658,8 +654,8 @@ public class PlatformController extends WorldController implements ContactListen
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
 //		avatar = phobia;
-		lead = phobia;
-		maskLeader = somni;
+//		lead = phobia;
+//		maskLeader = somni;
 
 		world = new World(gravity,false);
 		world.setContactListener(this);
@@ -668,6 +664,9 @@ public class PlatformController extends WorldController implements ContactListen
 		populateLevel(level);
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
 		movementController.setAvatar(phobia);
+		movementController.setLead(phobia);
+//		movementController.setMaskLeader(somni);
+		maskLeader = somni;
 
 	}
 
@@ -822,8 +821,8 @@ public class PlatformController extends WorldController implements ContactListen
 
 
 		//Set current avatar to Phobia
-		avatar = phobia;
-		maskLeader = somni;
+//		avatar = phobia;
+//		maskLeader = somni;
 
 		volume = constants.getFloat("volume", 1.0f);
 	}
@@ -866,17 +865,18 @@ public class PlatformController extends WorldController implements ContactListen
 		action = movementController.update();
 
 
-		lead = movementController.getLead();
-		somni = movementController.getSomni();
-		phobia = movementController.getPhobia();
-		avatar = movementController.getAvatar();
+		CharacterModel lead = movementController.getLead();
+//		somni = movementController.getSomni();
+//		phobia = movementController.getPhobia();
+		CharacterModel avatar = movementController.getAvatar();
 		holdingHands = movementController.isHoldingHands();
 
 
 
 		if (movementController.getSwitchedCharacters()) {
-			backgroundTexture = backgroundTexture == backgroundLightTexture ?
-					backgroundDarkTexture : backgroundLightTexture;
+//			backgroundTexture = backgroundTexture == backgroundLightTexture ?
+//					backgroundDarkTexture : backgroundLightTexture;
+			switching = !switching;
 
 		}
 
@@ -1091,7 +1091,10 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void draw(float dt) {
 
+		CharacterModel lead = movementController.getLead();
 		CharacterModel avatar = movementController.getAvatar();
+//		CharacterModel maskLeader = movementController.getMaskLeader();
+//		CharacterModel maskLeader = movementController.getMaskLeader();
 		canvas.setCamera(camera);
 		canvas.clear();
 
@@ -1116,7 +1119,9 @@ public class PlatformController extends WorldController implements ContactListen
 				maskWidth = MIN_MASK_DIMENSIONS.x;
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
+
 				maskLeader = follower;
+//				movementController.setMaskLeader(follower);
 				//System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
