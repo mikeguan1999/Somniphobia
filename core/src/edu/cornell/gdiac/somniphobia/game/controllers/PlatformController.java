@@ -662,7 +662,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
-//		avatar = phobia;
+		avatar = phobia;
 		lead = phobia;
 		maskLeader = somni;
 
@@ -870,22 +870,38 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void update(float dt) {
 
-		action = movementController.update();
+		movementController.setLead(lead);
+		movementController.setSomni(somni);
+		movementController.setPhobia(phobia);
+		movementController.setAvatar(avatar);
+		movementController.setCombined(combined);
+		movementController.setHoldingHands(holdingHands);
+		movementController.setSwitchedCharacters(switching);
 
+		action = movementController.update();
 
 		lead = movementController.getLead();
 		somni = movementController.getSomni();
 		phobia = movementController.getPhobia();
 		avatar = movementController.getAvatar();
+		combined = movementController.getCombined();
 		holdingHands = movementController.isHoldingHands();
+		switching = movementController.getSwitchedCharacters();
 
 
 
 		if (movementController.getSwitchedCharacters()) {
-			backgroundTexture = backgroundTexture == backgroundLightTexture ?
-					backgroundDarkTexture : backgroundLightTexture;
+//			backgroundTexture = backgroundTexture == backgroundLightTexture ?
+//					backgroundDarkTexture : backgroundLightTexture;
+			// Check if switching pressed early
+			if(switching) {
+				shrinking = true;
+			}
+			switching = !switching;
+			//System.out.println(maskLeader.equals(somni) ? "Somni" : "Phobia");
 
 		}
+
 
 		if(holdingHands){
 

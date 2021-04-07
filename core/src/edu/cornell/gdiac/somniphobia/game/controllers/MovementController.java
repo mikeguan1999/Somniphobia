@@ -83,6 +83,10 @@ public class MovementController implements ContactListener {
         return lead;
     }
 
+    public void setLead(CharacterModel lead) {
+        this.lead = lead;
+    }
+
     public CharacterModel getSomni() {
         return somni;
     }
@@ -97,6 +101,14 @@ public class MovementController implements ContactListener {
 
     public void setPhobia(CharacterModel phobia) {
         this.phobia = phobia;
+    }
+
+    public CharacterModel getCombined() {
+        return combined;
+    }
+
+    public void setCombined(CharacterModel combined) {
+        this.combined = combined;
     }
 
     /**
@@ -212,10 +224,7 @@ public class MovementController implements ContactListener {
             }else{
                 lead = lead == somni ? phobia :somni;
             }
-            setSwitchedCharacters(true);
-        }
-        else {
-            setSwitchedCharacters(false);
+
         }
         if(avatar !=combined) {
             lead = avatar;
@@ -223,15 +232,7 @@ public class MovementController implements ContactListener {
 
 
         int action = 0;
-//        if(avatar.isGrounded() && !avatar.isJumping()){
-//            if (avatar.getMovement() == 0f){
-//                action = 0;
-//            }else{
-//                action = 1;
-//            }
-//        }else{
-//            action = 2;
-//        }
+
         if(avatar.isGrounded() && !avatar.isJumping()){
 
             if (avatar.getMovement() == 0f){
@@ -255,20 +256,7 @@ public class MovementController implements ContactListener {
         }
 
         return action;
-//        if(holdingHands){
-//            if(lead == somni){
-//                combined.setTexture(somniphobiasTexture[action]);
-//            }else{
-//                combined.setTexture(phobiasomnisTexture[action]);
-//            }
-//        }
-//        else{
-//            if(lead == somni){
-//                avatar.setTexture(somnisTexture[action]);
-//            }else{
-//                avatar.setTexture(phobiasTexture[action]);
-//            }
-//        }
+
     }
 
 
