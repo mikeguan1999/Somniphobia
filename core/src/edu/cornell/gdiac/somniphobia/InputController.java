@@ -73,7 +73,10 @@ public class InputController {
 
 	private boolean prevPressed;
 	private boolean prevPrevious;
-	
+
+	/** Whether the teritiary action button was pressed. */
+	private boolean tertiaryPressed;
+
 	/** How much did we move horizontally? */
 	private float horizontal;
 	/** How much did we move vertically? */
@@ -273,6 +276,22 @@ public class InputController {
 				System.out.println("Somni/Phobia switched");
 			}
 		}
+
+		tertiaryPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+
 	}
+
+	/**
+	 * Returns true if the tertiary action button was pressed.
+	 *
+	 * This is a sustained button. It will returns true as long as the player
+	 * holds it down.
+	 *
+	 * @return true if the secondary action button was pressed.
+	 */
+	public boolean didTertiary() {
+		return tertiaryPressed;
+	}
+
 
 }
