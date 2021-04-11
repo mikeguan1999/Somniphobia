@@ -1,18 +1,25 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.somniphobia.GameCanvas;
 import edu.cornell.gdiac.somniphobia.WorldController;
 import edu.cornell.gdiac.util.PooledList;
+
+
 
 
 public class LevelCreator extends WorldController {
@@ -22,6 +29,9 @@ public class LevelCreator extends WorldController {
     protected static final float DEFAULT_HEIGHT = 18.0f;
     /** The default value of gravity (going down) */
     protected static final float DEFAULT_GRAVITY = 0f;
+
+    private TextureRegion backgroundTexture;
+
 
 
     class Platform {
@@ -59,53 +69,59 @@ public class LevelCreator extends WorldController {
         setDebug(false);
         setComplete(false);
         setFailure(false);
+
+//        world.setContactListener();
+//        initialize();
+    }
+
+    public void initialize() {
+        createSidebar();
     }
 
     public void createSidebar() {
 //        Stage stage = new Stage(new ScreenViewport(camera));
 //		Table table= new Table();
-        Batch b = canvas.getBatch();
+//        Batch b = canvas.getBatch();
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(displayFont, Color.BLACK);
+//        Stage stage = new Stage(canvas.getViewPort());
+
 
         float current = 0;
         float max = 0;
         float min = 0;
 
-        Slider.SliderStyle style =
-                new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
+//        Slider.SliderStyle style =
+//                new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
         BitmapFont font = displayFont;
         font.getData().setScale(.3f, .3f);
         labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
-        //Dash Velocity
 
-        Slider s = new Slider(min, max, 0.1f, false, style);
-        s.setValue(current);
-        s.setPosition(10, 500);
-        stage.addActor(s);
-
-        final Label test1 = new Label("Dash Velocity: " + avatar.getDashVelocity(), labelStyle);
+        final Label test1 = new Label("Dash Velocity: ", labelStyle);
         test1.setPosition(10, 532);
-        s.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                Slider s = (Slider) actor;
-                float f = s.getValue();
-                System.out.println("Dash Velocity : " + f);
-                somni.setDashVelocity(f);
-                phobia.setDashVelocity(f);
-                combined.setDashVelocity(f);
-                test1.setText("Dash Velocity: " + f);
-            }
-        });
-//        sliders[0] = s;
-//        labels[0] = test1;
+//        l.draw(b, 1.0f);
+    }
+
+    public void draw(float dt) {
+        canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+//        canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+        canvas.draw(backgroundTexture, 0, 0);
+
+        canvas.endCustom();
     }
 
     @Override
     public void reset() {
+        Vector2 gravity = new Vector2(world.getGravity() );
+        objects.clear();
+        addQueue.clear();
+        world.dispose();
 
+
+        world = new World(gravity,false);
+        setComplete(false);
+        setFailure(false);
     }
 
     @Override
@@ -118,6 +134,11 @@ public class LevelCreator extends WorldController {
         this.scale.x = canvas.getWidth()/bounds.getWidth();
         this.scale.y = canvas.getHeight()/bounds.getHeight();
     }
+
+    public void gatherAssets(AssetDirectory directory) {
+        backgroundTexture = new TextureRegion(directory.getEntry("platform:background_light", Texture.class));
+    }
+
 
 
     // TODO: Implement

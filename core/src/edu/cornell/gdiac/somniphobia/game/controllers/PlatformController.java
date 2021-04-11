@@ -980,6 +980,7 @@ public class PlatformController extends WorldController {
 		canvas.setCamera(camera);
 		canvas.clear();
 
+
 		float cameraX = camera.position.x - canvas.getWidth() / 2;
 		float cameraY = camera.position.y - canvas.getHeight() / 2;
 

@@ -69,7 +69,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		// Initialize the Platformer Controller
 		// TODO
 		controllers = new WorldController[5];
-		controllers[0] = new PlatformController(0);
+//		controllers[0] = new PlatformController(0);
+		controllers[0] = new LevelCreator();
 		controllers[1] = new PlatformController(1);
 		controllers[2] = new PlatformController(2);
 		controllers[3] = new PlatformController(3);
@@ -92,9 +93,12 @@ public class GDXRoot extends Game implements ScreenListener {
 		loading.setScreenListener(this);
 		setScreen(loading);
 
-		levelCreator.setScreenListener(this);
-		setScreen(levelCreator);
-		levelCreator.setCanvas(canvas);
+//		levelCreator.setScreenListener(this);
+//		setScreen(levelCreator);
+//		levelCreator.setCanvas(canvas);
+//	    loading.getAssets();
+//		levelCreator.gatherAssets(directory);
+//		levelCreator.initialize();
 	}
 
 	/** 
