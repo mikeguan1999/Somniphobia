@@ -134,7 +134,7 @@ public class GameCanvas {
 	 */
 	private OrthographicCamera camera;
 
-	private FitViewport gameport;
+	private FitViewport viewport;
 
 	public final float PPM = 32;
 
@@ -212,6 +212,15 @@ public class GameCanvas {
 	 */
 	public Batch getBatch() {
 		return spriteBatch;
+	}
+
+	/**
+	 * Returns the viewport
+	 *
+	 * @return the viewport
+	 */
+	public FitViewport getViewPort() {
+		return viewport;
 	}
 
 	/**
