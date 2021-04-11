@@ -14,6 +14,7 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
@@ -37,6 +38,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private LoadingMode loading;
 	/** The World Controller */
 	private WorldController[] controllers;
+
+	private LevelCreator levelCreator;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 
@@ -72,6 +75,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		controllers[3] = new PlatformController(3);
 		controllers[4] = new PlatformController(4);
 
+		levelCreator = new LevelCreator();
+
 		// Constructs a new OrthographicCamera, using the given viewport width and height
 		// Height is multiplied by aspect ratio.
 
@@ -86,6 +91,10 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		loading.setScreenListener(this);
 		setScreen(loading);
+
+		levelCreator.setScreenListener(this);
+		setScreen(levelCreator);
+		levelCreator.setCanvas(canvas);
 	}
 
 	/** 
