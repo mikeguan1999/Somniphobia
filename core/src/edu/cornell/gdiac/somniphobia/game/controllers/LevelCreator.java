@@ -119,6 +119,7 @@ public class LevelCreator extends WorldController {
         this.scale.y = canvas.getHeight()/bounds.getHeight();
     }
 
+
     // TODO: Implement
 
 }
