@@ -11,7 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.somniphobia.GameCanvas;
+import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
+import edu.cornell.gdiac.somniphobia.obstacle.BoxObstacle;
+import edu.cornell.gdiac.somniphobia.obstacle.Obstacle;
+import edu.cornell.gdiac.somniphobia.obstacle.ObstacleSelector;
 import edu.cornell.gdiac.util.PooledList;
 
 
@@ -22,14 +26,17 @@ public class LevelCreator extends WorldController {
     protected static final float DEFAULT_HEIGHT = 18.0f;
     /** The default value of gravity (going down) */
     protected static final float DEFAULT_GRAVITY = 0f;
+    /** Mouse selector to move the platforms */
+    private ObstacleSelector selector;
 
 
-    class Platform {
+    class Platform extends BoxObstacle {
         int posX;
         int posY;
         int width;
         int height;
         public Platform(int posX, int posY, int width, int height) {
+            super(posX,posY,width,height);
             this.posX = posX;
             this.posY = posY;
             this.width = width;
@@ -40,17 +47,18 @@ public class LevelCreator extends WorldController {
     class Level {
         int width;
         int height;
-        PooledList<Platform> platformList;
-        public Level(PooledList<Platform> platformList) {
+        PooledList<Obstacle> platformList;
+        public Level(PooledList<Obstacle> platformList) {
             this.platformList = platformList;
         }
         // TODO: Add platform
-        public void addPlatform() {
+        public void addPlatform(int posX, int posY, int width, int height) {
+            platformList.add(new Platform(posX, posY, width, height));
 
         }
         // TODO: Delete platform
-        public void deletePlatform() {
-
+        public void deletePlatform(Obstacle o) {
+            platformList.remove(o);
         }
     }
 
@@ -59,6 +67,8 @@ public class LevelCreator extends WorldController {
         setDebug(false);
         setComplete(false);
         setFailure(false);
+
+        selector= new ObstacleSelector(world);
     }
 
     public void createSidebar() {
@@ -110,7 +120,15 @@ public class LevelCreator extends WorldController {
 
     @Override
     public void update(float dt) {
-
+        // Move an object if touched
+        InputController input = InputController.getInstance();
+        if (input.didTertiary() && !selector.isSelected()) {
+            selector.select(input.getCrossHair().x,input.getCrossHair().y);
+        } else if (!input.didTertiary() && selector.isSelected()) {
+            selector.deselect();
+        } else {
+            selector.moveTo(input.getCrossHair().x,input.getCrossHair().y);
+        }
     }
 
     public void setCanvas(GameCanvas canvas) {

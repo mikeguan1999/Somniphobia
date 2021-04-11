@@ -76,6 +76,10 @@ public class InputController {
 
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
+	/** The crosshair position (for raddoll) */
+	private Vector2 crosshair = new Vector2();
+	/** The crosshair cache (for using as a return value) */
+	private Vector2 crosscache = new Vector2();
 
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -208,6 +212,21 @@ public class InputController {
 
 
 	/**
+	 * Returns the current position of the crosshairs on the screen.
+	 *
+	 * This value does not return the actual reference to the crosshairs position.
+	 * That way this method can be called multiple times without any fair that
+	 * the position has been corrupted.  However, it does return the same object
+	 * each time.  So if you modify the object, the object will be reset in a
+	 * subsequent call to this getter.
+	 *
+	 * @return the current position of the crosshairs on the screen.
+	 */
+	public Vector2 getCrossHair() {
+		return crosscache.set(crosshair);
+	}
+
+	/**
 	 * Reads the input for the player and converts the result into game logic.
 	 */
 	public void readInput(Rectangle bounds, Vector2 scale) {
@@ -224,13 +243,13 @@ public class InputController {
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
 
-		readKeyboard();
+		readKeyboard(bounds,scale);
 	}
 
 	/**
 	 * Reads input from the keyboard.
 	 */
-	private void readKeyboard() {
+	private void readKeyboard(Rectangle bounds, Vector2 scale) {
 		// Give priority to gamepad results
 		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
@@ -278,7 +297,9 @@ public class InputController {
 		}
 
 		tertiaryPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
-
+		crosshair.set(Gdx.input.getX(), Gdx.input.getY());
+		crosshair.scl(1/scale.x,-1/scale.y);
+		crosshair.y += bounds.height;
 	}
 
 	/**
