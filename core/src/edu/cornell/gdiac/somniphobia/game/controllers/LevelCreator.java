@@ -31,6 +31,9 @@ public class LevelCreator extends WorldController {
     protected static final float DEFAULT_GRAVITY = 0f;
 
     private TextureRegion backgroundTexture;
+    private boolean initialized;
+
+    Label[] labels;
 
 
 
@@ -71,14 +74,16 @@ public class LevelCreator extends WorldController {
         setFailure(false);
 
 //        world.setContactListener();
-//        initialize();
+
     }
 
     public void initialize() {
+//        System.out.println("initialized\n\n");
         createSidebar();
     }
 
     public void createSidebar() {
+        labels = new Label[1];
 //        Stage stage = new Stage(new ScreenViewport(camera));
 //		Table table= new Table();
 //        Batch b = canvas.getBatch();
@@ -94,21 +99,28 @@ public class LevelCreator extends WorldController {
 //        Slider.SliderStyle style =
 //                new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
         BitmapFont font = displayFont;
+        System.out.println(font);
         font.getData().setScale(.3f, .3f);
         labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
 
-        final Label test1 = new Label("Dash Velocity: ", labelStyle);
+        final Label test1 = new Label("Menu Interface ", labelStyle);
         test1.setPosition(10, 532);
+        labels[0] = test1;
 //        l.draw(b, 1.0f);
     }
 
     public void draw(float dt) {
-        canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+        canvas.begin();
 //        canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
         canvas.draw(backgroundTexture, 0, 0);
 
-        canvas.endCustom();
+        canvas.end();
+
+        canvas.begin();
+        labels[0].draw(canvas.getBatch(), 1.0f);
+        canvas.end();
+
     }
 
     @Override
@@ -122,6 +134,7 @@ public class LevelCreator extends WorldController {
         world = new World(gravity,false);
         setComplete(false);
         setFailure(false);
+        initialize();
     }
 
     @Override
@@ -137,6 +150,7 @@ public class LevelCreator extends WorldController {
 
     public void gatherAssets(AssetDirectory directory) {
         backgroundTexture = new TextureRegion(directory.getEntry("platform:background_light", Texture.class));
+        super.gatherAssets(directory);
     }
 
 
