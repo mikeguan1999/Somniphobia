@@ -53,6 +53,7 @@
     "level_editor:buttonUp": "level_editor/red_button.png",
     "level_editor:buttonDown": "level_editor/red_button_down.png",
     "level_editor:text_background": "level_editor/text_background.png",
+    "level_editor:select_background": "level_editor/select_background.png",
 
 
     "platform:SomniPhobia_stand": "platform/SomniPhobiaStand.png",

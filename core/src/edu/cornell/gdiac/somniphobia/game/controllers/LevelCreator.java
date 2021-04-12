@@ -9,9 +9,12 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -37,6 +40,11 @@ public class LevelCreator extends WorldController {
     protected static final float DEFAULT_HEIGHT = 18.0f;
     /** The default value of gravity (going down) */
     protected static final float DEFAULT_GRAVITY = 0f;
+
+    protected static final int DEFAULT_WORLD_WIDTH = 100;
+    protected static final int DEFAULT_WORLD_HEIGHT = 100;
+
+
     /** Mouse selector to move the platforms */
     private ObstacleSelector selector;
 
@@ -50,13 +58,15 @@ public class LevelCreator extends WorldController {
     private Texture buttonUpTexture;
     private Texture buttonDownTexture;
     private Texture textBackground;
+    private Texture selectBackground;
 
 
     private Texture sliderBarTexture;
     private Texture sliderKnobTexture;
     private Table menuTable;
 
-    private Slider s;
+
+    private Level level;
 
 
     class Platform extends BoxObstacle {
@@ -76,18 +86,37 @@ public class LevelCreator extends WorldController {
     class Level {
         int width;
         int height;
+        LevelCreator levelCreator;
         PooledList<Obstacle> platformList;
-        public Level(PooledList<Obstacle> platformList) {
+        public Level(int width, int height, PooledList<Obstacle> platformList, LevelCreator levelCreator) {
+
             this.platformList = platformList;
+            this.levelCreator = levelCreator;
         }
         // TODO: Add platform
         public void addPlatform(int posX, int posY, int width, int height) {
             platformList.add(new Platform(posX, posY, width, height));
+            float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
+//            float width = bounds[2]-bounds[0];
+//            float height = bounds[5]-bounds[1];
+//            boxstacle = new BoxObstacle(x + width / 2, y + height / 2, width, height);
+            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height);
+            //obj.setBodyType(BodyDef.BodyType.DynamicBody);
+            obj.deactivatePhysics(this.levelCreator.world);
+            obj.setDrawScale(scale);
+            TextureRegion newXTexture = new TextureRegion(platTexture);
+            newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+            obj.setTexture(newXTexture);
+            addObject(obj);
 
         }
         // TODO: Delete platform
         public void deletePlatform(Obstacle o) {
             platformList.remove(o);
+        }
+
+        public PooledList<Obstacle> getPlatformList() {
+            return platformList;
         }
     }
 
@@ -97,6 +126,8 @@ public class LevelCreator extends WorldController {
         setComplete(false);
         setFailure(false);
 
+
+        level = new Level(DEFAULT_WORLD_WIDTH, DEFAULT_WORLD_HEIGHT, new PooledList<Obstacle>(), this);
 
 
 
@@ -113,17 +144,18 @@ public class LevelCreator extends WorldController {
         selector.setTexture(crosshairTexture);
         selector.setDrawScale(scale);
 
-        float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
-        float width = bounds[2]-bounds[0];
-        float height = bounds[5]-bounds[1];
-        Platform obj = new Platform(bounds[0] + width / 2, bounds[1] + height / 2,width,height);
-        //obj.setBodyType(BodyDef.BodyType.DynamicBody);
-
-        obj.setDrawScale(scale);
-        TextureRegion newXTexture = new TextureRegion(platTexture);
-        newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
-        obj.setTexture(newXTexture);
-        addObject(obj);
+//        float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
+//        float width = bounds[2]-bounds[0];
+//        float height = bounds[5]-bounds[1];
+//
+//        Platform obj = new Platform(bounds[0] + width / 2, bounds[1] + height / 2,width,height);
+//        //obj.setBodyType(BodyDef.BodyType.DynamicBody);
+//
+//        obj.setDrawScale(scale);
+//        TextureRegion newXTexture = new TextureRegion(platTexture);
+//        newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+//        obj.setTexture(newXTexture);
+//        addObject(obj);
     }
 
     public void createSidebar() {
@@ -132,8 +164,6 @@ public class LevelCreator extends WorldController {
         batch = canvas.getBatch();
 
         Label.LabelStyle labelStyle;
-
-
 
 
 //        Slider.SliderStyle style =
@@ -152,10 +182,21 @@ public class LevelCreator extends WorldController {
 
         ImageTextButton button1 = new ImageTextButton("Remove Object", buttonStyle);
 
-        button1.addListener(new ChangeListener() {
+        button1.addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                System.out.println("button press!");
+            public void clicked(InputEvent event, float x, float y) {
+
+                float width = 10;
+                float height = 1;
+
+//                Platform obj = new Platform(width, height);
+//                //obj.setBodyType(BodyDef.BodyType.DynamicBody);
+//
+//                obj.setDrawScale(scale);
+//                TextureRegion newXTexture = new TextureRegion(platTexture);
+//                newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+//                obj.setTexture(newXTexture);
+//                addObject(obj);
             }
         });
 
@@ -165,62 +206,95 @@ public class LevelCreator extends WorldController {
         style.fontColor = Color.BLACK;
         style.background = new TextureRegionDrawable(textBackground);
         TextField dimensionX = new TextField(null, style);
-        dimensionX.setText("x dimension");
+        dimensionX.setText("50");
         dimensionX.setMaxLength(3);
 
         TextField dimensionY = new TextField(null, style);
-        dimensionY.setText("y dimension");
+        dimensionY.setText("50");
         dimensionY.setMaxLength(3);
 
-        ImageTextButton button2 = new ImageTextButton("Save", buttonStyle);
-        button1.addListener(new ChangeListener() {
+        ImageTextButton buttonSelect = new ImageTextButton("Add Object", buttonStyle);
+        buttonSelect.addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void clicked(InputEvent event, float x, float y) {
+                level.addPlatform(10, 10, 1, 7);
+            }
+        });
+
+        ImageTextButton button2 = new ImageTextButton("Save", buttonStyle);
+        button2.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 System.out.println("button press!");
             }
         });
 
         ImageTextButton button3 = new ImageTextButton("Play", buttonStyle);
-        button1.addListener(new ChangeListener() {
+        button3.addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void clicked(InputEvent event, float x, float y) {
                 System.out.println("button press!");
             }
         });
 
         ImageTextButton button4 = new ImageTextButton("Load Dream", buttonStyle);
-        button1.addListener(new ChangeListener() {
+        button4.addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void clicked(InputEvent event, float x, float y) {
                 System.out.println("button press!");
             }
         });
 
         ImageTextButton button5 = new ImageTextButton("Save Dream", buttonStyle);
-        button1.addListener(new ChangeListener() {
+        button5.addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void clicked(InputEvent event, float x, float y) {
                 System.out.println("button press!");
             }
         });
 
 
-        SelectBox<Widget> lightTile = new SelectBox<Widget>();
+        ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle(new TextureRegionDrawable(selectBackground),
+                new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture),
+                new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
+
+        List.ListStyle listStyle = new List.ListStyle(font, Color.BLACK, Color.RED, new TextureRegionDrawable(selectBackground));
+        SelectBox.SelectBoxStyle selectBoxStyle = new SelectBox.SelectBoxStyle(font, Color.BLACK, null, scrollPaneStyle, listStyle);
+        final SelectBox<String> tileSelect = new SelectBox<String>(selectBoxStyle);
+        tileSelect.setItems("light", "dark", "all");
+        tileSelect.addListener( new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String newValue = tileSelect.getSelected();
+//                valueChanged(newValue);
+                System.out.println("hi");
+//                refresh();
+            }
+        });
+
+
 
         menuTable.add(label1).colspan(3).center();
         menuTable.row();
-        menuTable.add(button1).colspan(3).center().height(80);
+
+        menuTable.add(button1).colspan(3).center();
         menuTable.row();
         menuTable.add(dimensionX).width(60);
         menuTable.add(dimensionY).width(60);
         menuTable.row();
-        menuTable.add(button2).height(60);
+        menuTable.add(buttonSelect).colspan(3).center();
+        menuTable.row();
+        menuTable.add(button2);
         menuTable.add(button3);
         menuTable.row();
         menuTable.add(button4).colspan(3).center();
         menuTable.row();
         menuTable.add(button5).colspan(3).center();
         menuTable.row();
+        menuTable.add(tileSelect);
+
+//        menuTable.setHeight(200);
+
 
 
         stage.addActor(menuTable);
@@ -239,7 +313,9 @@ public class LevelCreator extends WorldController {
 
         canvas.begin();
 //        labels[0].draw(canvas.getBatch(), 1.0f);
+//        canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
         menuTable.draw(batch, 1.0f);
+//        canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
 //        s.draw(batch, 1.0f);
         canvas.end();
 
@@ -317,9 +393,11 @@ public class LevelCreator extends WorldController {
         buttonUpTexture = directory.getEntry( "level_editor:buttonUp", Texture.class);
         buttonDownTexture = directory.getEntry( "level_editor:buttonDown", Texture.class);
         textBackground = directory.getEntry( "level_editor:text_background", Texture.class);
+        selectBackground = directory.getEntry("level_editor:select_background", Texture.class);
 
         sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
         sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
+
 
         super.gatherAssets(directory);
     }
