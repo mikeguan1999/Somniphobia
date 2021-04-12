@@ -74,6 +74,9 @@ public class InputController {
 	private boolean prevPressed;
 	private boolean prevPrevious;
 
+	private boolean deletePrevious;
+	private boolean deletePressed;
+
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
 	/** The crosshair position (for raddoll) */
@@ -85,7 +88,17 @@ public class InputController {
 	private float horizontal;
 	/** How much did we move vertically? */
 	private float vertical;
-	
+
+	/**
+	 * Returns true if the player wants to go to the previous level.
+	 *
+	 * @return true if the player wants to go to the previous level.
+	 */
+	public boolean didDelete() {
+		return deletePressed && !deletePrevious;
+	}
+
+
 	/**
 	 * Returns the amount of sideways movement. 
 	 *
@@ -242,6 +255,7 @@ public class InputController {
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
+		deletePrevious = deletePressed;
 
 		readKeyboard(bounds,scale);
 	}
@@ -261,7 +275,7 @@ public class InputController {
 		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
-
+		deletePressed = (Gdx.input.isKeyPressed(Input.Keys.J));
 		// Directional controls
 
 

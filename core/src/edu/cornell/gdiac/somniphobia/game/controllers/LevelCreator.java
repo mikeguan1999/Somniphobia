@@ -187,7 +187,12 @@ public class LevelCreator extends WorldController {
             if(selector.select(input.getCrossHair().x,input.getCrossHair().y)){
                 moving = true;
             }
-        } else if (!input.didTertiary() && selector.isSelected()) {
+        } else if (selector.isSelected() && input.didDelete()) {
+            Obstacle o = selector.getObstacle();
+            selector.deselect();
+            objects.remove(o);
+        }
+        else if (!input.didTertiary() && selector.isSelected()) {
             moving = false;
             selector.deselect();
         } else {
