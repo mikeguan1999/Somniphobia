@@ -104,7 +104,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Pixel width of the current texture */
 	private double entirePixelWidth;
 	/** Pixel width of the current frame in the texture */
-	private double framePixelWidth = 32;
+	private double framePixelWidth = 33;
 
 	/** Getters and setters*/
 	public float getDashEndVelocity() { return dashEndVelocity; }
