@@ -137,8 +137,8 @@ public class PlatformController extends WorldController {
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
-	/** Reference to the active character avatar */
-
+	/** Level constants for initialization */
+	private JsonValue levelAssets;
 	/** Reference to Somni DudeModel*/
 	private CharacterModel somni;
 	/** Reference to Phobia DudeModel*/
@@ -556,6 +556,7 @@ public class PlatformController extends WorldController {
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherAssets(AssetDirectory directory) {
+		// TODO: Michael
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 
@@ -620,7 +621,8 @@ public class PlatformController extends WorldController {
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
 
-		constants = directory.getEntry( "platform:constants", JsonValue.class );
+		constants = directory.getEntry( "constants", JsonValue.class );
+		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
 		super.gatherAssets(directory);
 	}
 
@@ -660,7 +662,7 @@ public class PlatformController extends WorldController {
 		world = new World(gravity,false);
 		setComplete(false);
 		setFailure(false);
-		populateLevel(level);
+		populateLevel();
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
 		world.setContactListener(movementController);
 
@@ -674,41 +676,33 @@ public class PlatformController extends WorldController {
 	/**
 	 * Lays out the game geography.
 	 */
-	private void populateLevel(int level) {
-
-		// Add level goal
-		float dwidth  = goalTile.getRegionWidth()/scale.x;
-		float dheight = goalTile.getRegionHeight()/scale.y;
+	private void populateLevel() {
 
 		//create filters
 		Filter lightplatf = new Filter();
 		lightplatf.categoryBits = CATEGORY_LPLAT;
 		lightplatf.maskBits = MASK_LPLAT;
+
 		Filter darkplatf = new Filter();
 		darkplatf.categoryBits = CATEGORY_DPLAT;
 		darkplatf.maskBits = MASK_DPLAT;
-		Filter somnif = new Filter();
-		somnif.categoryBits = CATEGORY_SOMNI;
-		somnif.maskBits = MASK_SOMNI;
-		Filter phobiaf = new Filter();
-		phobiaf.categoryBits = CATEGORY_PHOBIA;
-		phobiaf.maskBits = MASK_PHOBIA;
-		Filter combinedf = new Filter();
-		combinedf.categoryBits = CATEGORY_COMBINED;
-		combinedf.maskBits = MASK_COMBINED;
+
 		Filter allf = new Filter();
 		allf.categoryBits = CATEGORY_ALLPLAT;
 		allf.maskBits = MASK_ALLPLAT;
 
 
-		//set goal constants
-		JsonValue goal = constants.get("goal");
-		JsonValue goalpos = goal.get("pos" + level);
-		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
+		// Setup Goal
+		JsonValue goalVal = levelAssets.get("goal");
+		float gX = goalVal.get("pos").getFloat(0);
+		float gY = goalVal.get("pos").getFloat(1);
+		float gWidth  = goalTile.getRegionWidth()/scale.x;
+		float gHeight = goalTile.getRegionHeight()/scale.y;
+		goalDoor = new BoxObstacle(gX, gY, gWidth, gHeight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
-		goalDoor.setDensity(goal.getFloat("density", 0));
-		goalDoor.setFriction(goal.getFloat("friction", 0));
-		goalDoor.setRestitution(goal.getFloat("restitution", 0));
+		goalDoor.setDensity(constants.get("goal").getFloat("density", 0));
+		goalDoor.setFriction(constants.get("goal").getFloat("friction", 0));
+		goalDoor.setRestitution(constants.get("goal").getFloat("restitution", 0));
 		goalDoor.setSensor(true);
 		goalDoor.setDrawScale(scale);
 		goalDoor.setTexture(goalTile);
@@ -716,9 +710,9 @@ public class PlatformController extends WorldController {
 		addObject(goalDoor);
 		addObjectTo(goalDoor, sharedtag);
 
-		//set default vals
+		// Get default values
 		JsonValue defaults = constants.get("defaults");
-
+		JsonValue objs = levelAssets.get("objects");
 
 		String lightPlat = "light"+level;
 		JsonValue lightPlatJson = constants.get("light"+level);
@@ -735,72 +729,110 @@ public class PlatformController extends WorldController {
 		int[] xtag = {lighttag, darktag, sharedtag};
 
 
-		//set platform constants for light, dark, and combined
-		for(int i=0; i<=2; i++)
+		// Setup platforms
+		for(int i=0; i < objs.size; i++)
 		{
-			if (xPlatJson[i] != null) {
-				for (int jj = 0; jj < xPlatJson[i].size; jj++) {
-					BoxObstacle obj;
-					float[] bounds = xPlatJson[i].get(jj).asFloatArray();
-					float width = bounds[2]-bounds[0];
-					float height = bounds[5]-bounds[1];
-					obj = new BoxObstacle(bounds[0] + width / 2, bounds[1] + height / 2, width, height);
-					obj.setBodyType(BodyDef.BodyType.StaticBody);
-					obj.setDensity(defaults.getFloat( "density", 0.0f ));
-					obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-					obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-					obj.setDrawScale(scale);
-					TextureRegion newXTexture = new TextureRegion(xTexture[i]);
-					newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
-					obj.setTexture(newXTexture);
-					obj.setName(xPlat[i]+jj);
-					obj.setFilterData(xPlatf[i]);
-					addObject(obj);
-					addObjectTo(obj, xtag[i]);
-				}
-			}}
+			JsonValue obj = objs.get(i);
+
+			// Determine platform type
+			String platformType = obj.get("type").asString();
+			int selector = -1;
+			switch (platformType) {
+				case "light": selector = 0; break;
+				case "dark": selector = 1; break;
+				case "all": selector = 2; break;
+				default: selector = -1; break;
+			}
+
+			// Apply platform properties
+			String[] properties = obj.get("properties").asStringArray();
+			for(String property: properties) {
+				// TODO: Harming & crumbling platforms
+			}
+
+			// Apply platform behaviors
+			String[] behaviors = obj.get("behaviors").asStringArray();
+			for(String behavior: behaviors) {
+				// TODO: Wandering & chasing platforms
+			}
+
+			// Setup platforms
+			JsonValue platformArgs = obj.get("positions");
+			for (int j = 0; j < platformArgs.size; j++) {
+				BoxObstacle boxstacle;
+				float[] bounds = platformArgs.get(j).asFloatArray();
+				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
+				boxstacle = new BoxObstacle(x + width / 2, y + height / 2, width, height);
+				boxstacle.setBodyType(BodyDef.BodyType.StaticBody);
+				boxstacle.setDensity(defaults.getFloat( "density", 0.0f ));
+				boxstacle.setFriction(defaults.getFloat( "friction", 0.0f ));
+				boxstacle.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+				boxstacle.setDrawScale(scale);
+				TextureRegion newXTexture = new TextureRegion(xTexture[i]);
+				newXTexture.setRegion(x, y, x + width, y + height);
+				boxstacle.setTexture(newXTexture);
+				boxstacle.setName(xPlat[selector]+j);
+				boxstacle.setFilterData(xPlatf[selector]);
+				addObject(boxstacle);
+				addObjectTo(boxstacle, xtag[selector]);
+			}
+		}
 
 		// This world is heavier
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
 		// Set level bounds
-		widthUpperBound = constants.get("bounds").getInt("width"+level);
-		heightUpperBound = constants.get("bounds").getInt("height"+level);
+		widthUpperBound = levelAssets.get("dimensions").getInt(0);
+		heightUpperBound = levelAssets.get("dimensions").getInt(1);
 
-		// Create Somni
-		dwidth  = somniTexture.getRegionWidth()/scale.x;
-		dheight = somniTexture.getRegionHeight()/scale.y;
-		somni = new CharacterModel(constants.get("somni"), dwidth, dheight, somnif, CharacterModel.LIGHT, ""+level);
+		// Setup Somni
+		Filter somnif = new Filter();
+		somnif.categoryBits = CATEGORY_SOMNI;
+		somnif.maskBits = MASK_SOMNI;
+
+		JsonValue somniVal = levelAssets.get("somni");
+		float sX = somniVal.get("pos").getFloat(0);
+		float sY = somniVal.get("pos").getFloat(1);
+		float sWidth  = somniTexture.getRegionWidth()/scale.x;
+		float sHeight = somniTexture.getRegionHeight()/scale.y;
+		somni = new CharacterModel(constants.get("somni"), sX, sY, sWidth, sHeight, somnif, CharacterModel.LIGHT);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniTexture);
 		somni.setFilterData(somnif);
-		somni.setBullet(true);
+		somni.setActive(true);
 		addObject(somni);
 		addObjectTo(somni, sharedtag);
-		somni.setActive(true);
 
 
-		// Create Phobia
-		dwidth  = phobiaTexture.getRegionWidth()/scale.x;
-		dheight = phobiaTexture.getRegionHeight()/scale.y;
-		phobia = new CharacterModel(constants.get("phobia"), dwidth, dheight, phobiaf, CharacterModel.DARK, ""+level);
+		// Setup Phobia
+		Filter phobiaf = new Filter();
+		phobiaf.categoryBits = CATEGORY_PHOBIA;
+		phobiaf.maskBits = MASK_PHOBIA;
+
+		JsonValue phobiaVal = levelAssets.get("phobia");
+		float pX = phobiaVal.get("pos").getFloat(0);
+		float pY = phobiaVal.get("pos").getFloat(1);
+		float pWidth  = phobiaTexture.getRegionWidth()/scale.x;
+		float pHeight = phobiaTexture.getRegionHeight()/scale.y;
+		phobia = new CharacterModel(constants.get("phobia"), pX, pY, pWidth, pHeight, phobiaf, CharacterModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaTexture);
 		phobia.setFilterData(phobiaf);
-		phobia.setBullet(true);
 		addObject(phobia);
 		addObjectTo(phobia, sharedtag);
 		phobia.setActive(true);
 
+		// Setup Combined
+		Filter combinedf = new Filter();
+		combinedf.categoryBits = CATEGORY_COMBINED;
+		combinedf.maskBits = MASK_COMBINED;
 
-		//Create Combined
-		dwidth  = somniPhobiaTexture.getRegionWidth()/scale.x;
-		dheight = somniPhobiaTexture.getRegionHeight()/scale.y;
-		combined = new CharacterModel(constants.get("combined"), dwidth, dheight, combinedf, CharacterModel.DARK, "");
+		float cWidth  = combinedTexture.getRegionWidth()/scale.x;
+		float cHeight = combinedTexture.getRegionHeight()/scale.y;
+		combined = new CharacterModel(constants.get("combined"), 0, 0, cWidth, cHeight, combinedf, CharacterModel.DARK);
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
-		combined.setBullet(true);
 		addObject(combined);
 		addObjectTo(combined, sharedtag);
 		combined.setActive(true);
@@ -977,7 +1009,6 @@ public class PlatformController extends WorldController {
 		CharacterModel avatar = movementController.getAvatar();
 //		CharacterModel maskLeader = movementController.getMaskLeader();
 //		CharacterModel maskLeader = movementController.getMaskLeader();
-		canvas.setCamera(camera);
 		canvas.clear();
 
 
