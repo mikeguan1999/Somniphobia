@@ -239,7 +239,6 @@ public class MovementController implements ContactListener {
 //            action = 2;
 //        }
         if(avatar.isGrounded() && !avatar.isJumping()){
-
             if (avatar.getMovement() == 0f){
                 action = 0; // Idle
             }else{

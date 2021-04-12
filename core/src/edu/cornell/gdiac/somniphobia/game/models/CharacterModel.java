@@ -94,7 +94,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Radius of the object (used for collisions) */
 	private float radius;
 	/** How fast we change frames (one frame per 10 calls to update) */
-	private static final float ANIMATION_SPEED = 0.1f;
+	private float animationSpeed = 0.1f;
 	/** The number of animation frames in our filmstrip */
 	private int numAnimFrames = 2;
 	/** Texture for animated objects */
@@ -472,6 +472,30 @@ public class CharacterModel extends CapsuleObstacle {
 		radius = animator.getRegionHeight() / 2.0f;
 	}
 
+	/**
+	 * Allows for animated character motions. It sets the texture to prepare to draw.
+	 *
+	 * This method overrides the setTexture method above to set animation speed and pixel width
+	 */
+	public void setTexture(TextureRegion textureRegion, float animationSpeed, double framePixelWidth) {
+		this.animationSpeed = animationSpeed;
+		this.framePixelWidth = framePixelWidth;
+		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		entirePixelWidth = texture.getWidth();
+		if (entirePixelWidth < framePixelWidth) {
+			entirePixelWidth = framePixelWidth;
+		}
+
+		numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
+		animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
+		if(animeframe > numAnimFrames) {
+			animeframe -= numAnimFrames;
+		}
+
+		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		radius = animator.getRegionHeight() / 2.0f;
+	}
+
 
 	/**
 	 * Applies the force to the body of this dude
@@ -531,11 +555,9 @@ public class CharacterModel extends CapsuleObstacle {
 	public void update(float dt) {
 
 		// Increase animation frame
-		animeframe += ANIMATION_SPEED;
+		animeframe += animationSpeed;
 		if (animeframe >= numAnimFrames) {
-
 			animeframe = 0;
-
 		}
 
 		// Apply cooldowns
