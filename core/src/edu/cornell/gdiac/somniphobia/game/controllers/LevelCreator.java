@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -18,10 +19,13 @@ import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.somniphobia.GameCanvas;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
+import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
+import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.somniphobia.obstacle.BoxObstacle;
 import edu.cornell.gdiac.somniphobia.obstacle.Obstacle;
 import edu.cornell.gdiac.somniphobia.obstacle.ObstacleSelector;
 import edu.cornell.gdiac.util.PooledList;
+import java.lang.Math;
 
 
 
@@ -37,18 +41,21 @@ public class LevelCreator extends WorldController {
     private ObstacleSelector selector;
 
     private TextureRegion backgroundTexture;
+    private TextureRegion platTexture;
+    private TextureRegion crosshairTexture;
     private boolean initialized;
+    private boolean moving = false;
 
     Label[] labels;
 
 
 
     class Platform extends BoxObstacle {
-        int posX;
-        int posY;
-        int width;
-        int height;
-        public Platform(int posX, int posY, int width, int height) {
+        float posX;
+        float posY;
+        float width;
+        float height;
+        public Platform(float posX, float posY, float width, float height) {
             super(posX,posY,width,height);
             this.posX = posX;
             this.posY = posY;
@@ -82,7 +89,7 @@ public class LevelCreator extends WorldController {
         setFailure(false);
 
 
-        selector= new ObstacleSelector(world);
+
 
 //        world.setContactListener();
 
@@ -91,7 +98,22 @@ public class LevelCreator extends WorldController {
     public void initialize() {
 //        System.out.println("initialized\n\n");
         createSidebar();
+        selector= new ObstacleSelector(world,1 ,1);
 
+        selector.setTexture(crosshairTexture);
+        selector.setDrawScale(scale);
+
+        float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
+        float width = bounds[2]-bounds[0];
+        float height = bounds[5]-bounds[1];
+        Platform obj = new Platform(bounds[0] + width / 2, bounds[1] + height / 2,width,height);
+        //obj.setBodyType(BodyDef.BodyType.DynamicBody);
+
+        obj.setDrawScale(scale);
+        TextureRegion newXTexture = new TextureRegion(platTexture);
+        newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+        obj.setTexture(newXTexture);
+        addObject(obj);
     }
 
     public void createSidebar() {
@@ -126,13 +148,21 @@ public class LevelCreator extends WorldController {
         canvas.begin();
 //        canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
         canvas.draw(backgroundTexture, 0, 0);
-
+        selector.draw(canvas);
         canvas.end();
 
         canvas.begin();
         labels[0].draw(canvas.getBatch(), 1.0f);
         canvas.end();
 
+        canvas.begin();
+        for(Obstacle obj : objects) {
+            // Ignore characters which we draw separately
+            if (!(obj instanceof CharacterModel)) {
+                obj.draw(canvas);
+            }
+        }
+        canvas.end();
     }
 
     @Override
@@ -154,11 +184,30 @@ public class LevelCreator extends WorldController {
         // Move an object if touched
         InputController input = InputController.getInstance();
         if (input.didTertiary() && !selector.isSelected()) {
-            selector.select(input.getCrossHair().x,input.getCrossHair().y);
+            if(selector.select(input.getCrossHair().x,input.getCrossHair().y)){
+                moving = true;
+            }
         } else if (!input.didTertiary() && selector.isSelected()) {
+            moving = false;
             selector.deselect();
         } else {
             selector.moveTo(input.getCrossHair().x,input.getCrossHair().y);
+        }
+        for(Obstacle obj : objects) {
+            // Ignore characters which we draw separately
+            if (!(obj instanceof CharacterModel)) {
+                if(moving){
+                    System.out.println(obj.getPosition());
+                }
+                else{
+                    Vector2 pos = obj.getPosition();
+                    int x = Math.round(pos.x);
+                    int y = Math.round(pos.y);
+                    obj.setPosition((float) x, (float) y);
+                    obj.setVX(0);
+                    obj.setVY(0);
+                }
+            }
         }
     }
 
@@ -170,6 +219,9 @@ public class LevelCreator extends WorldController {
 
     public void gatherAssets(AssetDirectory directory) {
         backgroundTexture = new TextureRegion(directory.getEntry("platform:background_light", Texture.class));
+        platTexture = new TextureRegion(directory.getEntry("shared:light", Texture.class));
+        crosshairTexture = new TextureRegion(directory.getEntry("platform:bullet", Texture.class));
+
         super.gatherAssets(directory);
     }
 
