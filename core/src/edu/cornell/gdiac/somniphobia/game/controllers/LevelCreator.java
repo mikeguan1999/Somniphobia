@@ -1,5 +1,6 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -9,11 +10,9 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.somniphobia.GameCanvas;
@@ -40,14 +39,23 @@ public class LevelCreator extends WorldController {
     /** Mouse selector to move the platforms */
     private ObstacleSelector selector;
 
+    private Batch batch;
+
     private TextureRegion backgroundTexture;
     private TextureRegion platTexture;
     private TextureRegion crosshairTexture;
     private boolean initialized;
     private boolean moving = false;
+    private Texture buttonUpTexture;
+    private Texture buttonDownTexture;
+    private Texture textBackground;
 
-    Label[] labels;
 
+    private Texture sliderBarTexture;
+    private Texture sliderKnobTexture;
+    private Table menuTable;
+
+    private Slider s;
 
 
     class Platform extends BoxObstacle {
@@ -97,6 +105,7 @@ public class LevelCreator extends WorldController {
 
     public void initialize() {
 //        System.out.println("initialized\n\n");
+
         createSidebar();
         selector= new ObstacleSelector(world,1 ,1);
 
@@ -117,30 +126,51 @@ public class LevelCreator extends WorldController {
     }
 
     public void createSidebar() {
-        labels = new Label[1];
-//        Stage stage = new Stage(new ScreenViewport(camera));
-//		Table table= new Table();
-//        Batch b = canvas.getBatch();
+        Stage stage = new Stage(new ScreenViewport(canvas.getCamera()));
+        menuTable = new Table();
+        batch = canvas.getBatch();
 
-        Label.LabelStyle labelStyle = new Label.LabelStyle(displayFont, Color.BLACK);
-//        Stage stage = new Stage(canvas.getViewPort());
+        Label.LabelStyle labelStyle;
 
 
-        float current = 0;
-        float max = 0;
-        float min = 0;
+
 
 //        Slider.SliderStyle style =
 //                new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
         BitmapFont font = displayFont;
+        font.setColor(Color.BLACK);
         System.out.println(font);
         font.getData().setScale(.3f, .3f);
         labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
 
-        final Label test1 = new Label("Menu Interface ", labelStyle);
-        test1.setPosition(10, 532);
-        labels[0] = test1;
+        Label label1 = new Label("Level Editor", labelStyle);
+
+        ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture), new TextureRegionDrawable(buttonDownTexture), null, font);
+        buttonStyle.fontColor = Color.BLACK;
+        ImageTextButton button = new ImageTextButton("Remove Object", buttonStyle);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("button press!");
+            }
+        });
+
+        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
+        style.font = font;
+        style.fontColor = Color.BLACK;
+        style.background = new TextureRegionDrawable(textBackground);
+        TextField dimensionX = new TextField(null, style);
+        dimensionX.setText("hello");
+        dimensionX.
+
+        menuTable.add(label1).row();
+        menuTable.add(button).row();
+        menuTable.add(dimensionX).row();
+        stage.addActor(menuTable);
+        menuTable.setPosition(canvas.getWidth() - 150, canvas.getHeight() - menuTable.getHeight() - 100);
+        Gdx.input.setInputProcessor(stage);
+
 //        l.draw(b, 1.0f);
     }
 
@@ -152,7 +182,9 @@ public class LevelCreator extends WorldController {
         canvas.end();
 
         canvas.begin();
-        labels[0].draw(canvas.getBatch(), 1.0f);
+//        labels[0].draw(canvas.getBatch(), 1.0f);
+        menuTable.draw(batch, 1.0f);
+//        s.draw(batch, 1.0f);
         canvas.end();
 
         canvas.begin();
@@ -226,6 +258,12 @@ public class LevelCreator extends WorldController {
         backgroundTexture = new TextureRegion(directory.getEntry("platform:background_light", Texture.class));
         platTexture = new TextureRegion(directory.getEntry("shared:light", Texture.class));
         crosshairTexture = new TextureRegion(directory.getEntry("platform:bullet", Texture.class));
+        buttonUpTexture = directory.getEntry( "level_editor:buttonUp", Texture.class);
+        buttonDownTexture = directory.getEntry( "level_editor:buttonDown", Texture.class);
+        textBackground = directory.getEntry( "level_editor:text_background", Texture.class);
+
+        sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
+        sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
 
         super.gatherAssets(directory);
     }
