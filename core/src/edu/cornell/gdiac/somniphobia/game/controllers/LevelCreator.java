@@ -149,27 +149,82 @@ public class LevelCreator extends WorldController {
 
         ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture), new TextureRegionDrawable(buttonDownTexture), null, font);
         buttonStyle.fontColor = Color.BLACK;
-        ImageTextButton button = new ImageTextButton("Remove Object", buttonStyle);
-        button.addListener(new ChangeListener() {
+
+        ImageTextButton button1 = new ImageTextButton("Remove Object", buttonStyle);
+
+        button1.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 System.out.println("button press!");
             }
         });
 
+
         TextField.TextFieldStyle style = new TextField.TextFieldStyle();
         style.font = font;
         style.fontColor = Color.BLACK;
         style.background = new TextureRegionDrawable(textBackground);
         TextField dimensionX = new TextField(null, style);
-        dimensionX.setText("hello");
-//        dimensionX.
+        dimensionX.setText("x dimension");
+        dimensionX.setMaxLength(3);
 
-        menuTable.add(label1).row();
-        menuTable.add(button).row();
-        menuTable.add(dimensionX).row();
+        TextField dimensionY = new TextField(null, style);
+        dimensionY.setText("y dimension");
+        dimensionY.setMaxLength(3);
+
+        ImageTextButton button2 = new ImageTextButton("Save", buttonStyle);
+        button1.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("button press!");
+            }
+        });
+
+        ImageTextButton button3 = new ImageTextButton("Play", buttonStyle);
+        button1.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("button press!");
+            }
+        });
+
+        ImageTextButton button4 = new ImageTextButton("Load Dream", buttonStyle);
+        button1.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("button press!");
+            }
+        });
+
+        ImageTextButton button5 = new ImageTextButton("Save Dream", buttonStyle);
+        button1.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("button press!");
+            }
+        });
+
+
+        SelectBox<Widget> lightTile = new SelectBox<Widget>();
+
+        menuTable.add(label1).colspan(3).center();
+        menuTable.row();
+        menuTable.add(button1).colspan(3).center().height(80);
+        menuTable.row();
+        menuTable.add(dimensionX).width(60);
+        menuTable.add(dimensionY).width(60);
+        menuTable.row();
+        menuTable.add(button2).height(60);
+        menuTable.add(button3);
+        menuTable.row();
+        menuTable.add(button4).colspan(3).center();
+        menuTable.row();
+        menuTable.add(button5).colspan(3).center();
+        menuTable.row();
+
+
         stage.addActor(menuTable);
-        menuTable.setPosition(canvas.getWidth() - 150, canvas.getHeight() - menuTable.getHeight() - 100);
+        menuTable.setPosition(canvas.getWidth() - 200, canvas.getHeight()/2);
         Gdx.input.setInputProcessor(stage);
 
 //        l.draw(b, 1.0f);
