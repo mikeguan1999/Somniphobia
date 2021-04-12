@@ -114,6 +114,18 @@ public class LevelCreator extends WorldController {
         newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
         obj.setTexture(newXTexture);
         addObject(obj);
+
+        float[] bound = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
+        width = bound[2]-bound[0];
+        height = bound[5]-bound[1];
+        obj = new Platform(bound[0] + width / 2, bound[1] + height / 2,width,height);
+        //obj.setBodyType(BodyDef.BodyType.DynamicBody);
+
+        obj.setDrawScale(scale);
+        newXTexture = new TextureRegion(platTexture);
+        newXTexture.setRegion(bound[0], bound[1], bound[4], bound[5]);
+        obj.setTexture(newXTexture);
+        addObject(obj);
     }
 
     public void createSidebar() {
@@ -190,6 +202,7 @@ public class LevelCreator extends WorldController {
         } else if (selector.isSelected() && input.didDelete()) {
             Obstacle o = selector.getObstacle();
             selector.deselect();
+            moving = false;
             objects.remove(o);
         }
         else if (!input.didTertiary() && selector.isSelected()) {
@@ -201,19 +214,22 @@ public class LevelCreator extends WorldController {
         for(Obstacle obj : objects) {
             // Ignore characters which we draw separately
             if (!(obj instanceof CharacterModel)) {
-                if(moving){
-                    System.out.println(obj.getPosition());
-                }
-                else{
+                if (!(selector.isSelected() && obj == selector.getObstacle())){
                     Vector2 pos = obj.getPosition();
                     int x = Math.round(pos.x);
                     int y = Math.round(pos.y);
                     obj.setPosition((float) x, (float) y);
                     obj.setVX(0);
                     obj.setVY(0);
+                    obj.setLinearVelocity(new Vector2(0,0));
+                    obj.setMass(1000f);
+                }
+                else {
+                    obj.resetMass();
                 }
             }
         }
+
     }
 
     public void setCanvas(GameCanvas canvas) {
