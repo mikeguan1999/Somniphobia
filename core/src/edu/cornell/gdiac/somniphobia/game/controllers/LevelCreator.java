@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.somniphobia.GameCanvas;
 import edu.cornell.gdiac.somniphobia.InputController;
@@ -162,7 +163,7 @@ public class LevelCreator extends WorldController {
         style.background = new TextureRegionDrawable(textBackground);
         TextField dimensionX = new TextField(null, style);
         dimensionX.setText("hello");
-        dimensionX.
+//        dimensionX.
 
         menuTable.add(label1).row();
         menuTable.add(button).row();
@@ -271,5 +272,6 @@ public class LevelCreator extends WorldController {
 
 
     // TODO: Implement
+
 
 }
