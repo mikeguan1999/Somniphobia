@@ -565,13 +565,13 @@ public class PlatformController extends WorldController {
 		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
 
 		// Base models
-		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
+		somniTexture  = new TextureRegion(directory.getEntry("platform:Somni_Idle",Texture.class));
 		somniWalkTexture = new TextureRegion(directory.getEntry("platform:somni_walk",Texture.class));
 		somniDashSideTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
 		somniDashUpTexture = new TextureRegion(directory.getEntry("platform:Somni_Jump_Dash",Texture.class));
 		somniFallTexture = new TextureRegion(directory.getEntry("platform:Somni_Falling", Texture.class));
 
-		phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand",Texture.class));
+		phobiaTexture = new TextureRegion(directory.getEntry("platform:Phobia_Idle",Texture.class));
 		phobiaWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_walk",Texture.class));
 		phobiaDashSideTexture = new TextureRegion(directory.getEntry("platform:Phobia_Jump_Dash",Texture.class));
 		phobiaDashUpTexture = new TextureRegion(directory.getEntry("platform:Phobia_Stand_Jump",Texture.class));
