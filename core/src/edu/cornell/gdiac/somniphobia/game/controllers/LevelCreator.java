@@ -53,7 +53,10 @@ public class LevelCreator extends WorldController {
     TextureRegion[] backgrounds;
 
     private TextureRegion backgroundTexture;
-    private TextureRegion platTexture;
+    private TextureRegion lightTexture;
+    private TextureRegion darkTexture;
+    private TextureRegion allTexture;
+    private TextureRegion [] platTexture;
     private TextureRegion crosshairTexture;
     private Texture buttonUpTexture;
     private Texture buttonDownTexture;
@@ -94,12 +97,14 @@ public class LevelCreator extends WorldController {
         float posY;
         float width;
         float height;
-        public Platform(float posX, float posY, float width, float height) {
+        int tag;
+        public Platform(float posX, float posY, float width, float height, int tag) {
             super(posX,posY,width,height);
             this.posX = posX;
             this.posY = posY;
             this.width = width;
             this.height = height;
+            this.tag = tag;
         }
     }
 
@@ -114,15 +119,15 @@ public class LevelCreator extends WorldController {
             this.levelCreator = levelCreator;
         }
         // TODO: Add platform
-        public void addPlatform(float posX, float posY, float width, float height) {
+        public void addPlatform(float posX, float posY, float width, float height, int tag) {
 
 
-            platformList.add(new Platform(posX, posY, width, height));
+            platformList.add(new Platform(posX, posY, width, height,tag));
             float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
-            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height);
+            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
             obj.setDrawScale(scale);
-            TextureRegion newXTexture = new TextureRegion(platTexture);
+            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
             newXTexture.setRegion(posX, posY, posX + width, posY + height);
             obj.setTexture(newXTexture);
             addObject(obj);
@@ -258,13 +263,31 @@ public class LevelCreator extends WorldController {
 
 
 
-        ImageTextButton buttonSelect = new ImageTextButton("Add Object", buttonStyle);
-        buttonSelect.addListener(new ClickListener() {
+        ImageTextButton buttonSelectLight = new ImageTextButton("Add Object", buttonStyle);
+        buttonSelectLight.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
-                level.addPlatform(10, 10, width, height);
+                level.addPlatform(10, 10, width, height, 0);
+            }
+        });
+        ImageTextButton buttonSelectDark = new ImageTextButton("Add Object", buttonStyle);
+        buttonSelectDark.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                float width = Float.parseFloat(platformWidth.getText());
+                float height = Float.parseFloat(platformHeight.getText());
+                level.addPlatform(10, 10, width, height, 1);
+            }
+        });
+        ImageTextButton buttonSelectAll = new ImageTextButton("Add Object", buttonStyle);
+        buttonSelectAll.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                float width = Float.parseFloat(platformWidth.getText());
+                float height = Float.parseFloat(platformHeight.getText());
+                level.addPlatform(10, 10, width, height, 2);
             }
         });
 
@@ -318,8 +341,6 @@ public class LevelCreator extends WorldController {
         platformParamTable.add(labelHeight);
         platformParamTable.add(platformHeight).width(60);
         platformParamTable.row();
-        platformParamTable.add(buttonSelect).colspan(3).center().pad(0, 0, 20, 0);;
-        platformParamTable.row();
 
         //Add all the widgets to the menu table
         menuTable.add(label1).colspan(3).center();
@@ -331,6 +352,8 @@ public class LevelCreator extends WorldController {
         menuTable.row();
 
         if (lightPlatformSelected) {
+            platformParamTable.add(buttonSelectLight).colspan(3).center().pad(0, 0, 20, 0);;
+            platformParamTable.row();
             menuTable.add(platformParamTable).colspan(3).center();
             menuTable.row();
         }
@@ -339,6 +362,8 @@ public class LevelCreator extends WorldController {
         menuTable.row();
 
         if (darkPlatformSelected) {
+            platformParamTable.add(buttonSelectDark).colspan(3).center().pad(0, 0, 20, 0);;
+            platformParamTable.row();
             menuTable.add(platformParamTable).colspan(3).center();
             menuTable.row();
         }
@@ -347,6 +372,8 @@ public class LevelCreator extends WorldController {
         menuTable.row();
 
         if (allPlatformSelected) {
+            platformParamTable.add(buttonSelectAll).colspan(3).center().pad(0, 0, 20, 0);;
+            platformParamTable.row();
             menuTable.add(platformParamTable).colspan(3).center();
             menuTable.row();
         }
@@ -485,7 +512,9 @@ public class LevelCreator extends WorldController {
 
     public void gatherAssets(AssetDirectory directory) {
         backgroundTexture = new TextureRegion(directory.getEntry("platform:background_light", Texture.class));
-        platTexture = new TextureRegion(directory.getEntry("shared:light", Texture.class));
+        lightTexture = new TextureRegion(directory.getEntry("shared:light", Texture.class));
+        darkTexture = new TextureRegion(directory.getEntry("shared:dark", Texture.class));
+        allTexture = new TextureRegion(directory.getEntry("shared:all", Texture.class));
         crosshairTexture = new TextureRegion(directory.getEntry("platform:bullet", Texture.class));
         buttonUpTexture = directory.getEntry( "level_editor:buttonUp", Texture.class);
         buttonDownTexture = directory.getEntry( "level_editor:buttonDown", Texture.class);
@@ -493,6 +522,8 @@ public class LevelCreator extends WorldController {
         selectBackground = directory.getEntry("level_editor:select_background", Texture.class);
         dropdownTexture = directory.getEntry("level_editor:dropdown", Texture.class);
 
+        TextureRegion[] temp = {lightTexture,darkTexture,allTexture};
+        platTexture = temp;
 
         sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
         sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
