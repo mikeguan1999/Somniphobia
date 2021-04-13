@@ -2,6 +2,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -39,8 +40,8 @@ public class LevelCreator extends WorldController {
     /** The default value of gravity (going down) */
     protected static final float DEFAULT_GRAVITY = 0f;
 
-    protected static final int DEFAULT_WORLD_WIDTH = 100;
-    protected static final int DEFAULT_WORLD_HEIGHT = 100;
+    protected static final int DEFAULT_WORLD_WIDTH = 1400;
+    protected static final int DEFAULT_WORLD_HEIGHT = 800;
 
     protected static final float[] SOMNI_DEFAULT_POS = new float[]{5.0f, 5.0f};
     protected static final float[] PHOBIA_DEFAULT_POS = new float[]{7.0f, 5.0f};
@@ -76,11 +77,8 @@ public class LevelCreator extends WorldController {
     private Texture dropdownTexture;
 
     private boolean platformSelected;
-//    private boolean lightPlatformSelected;
-//    private boolean darkPlatformSelected;
-//    private boolean allPlatformSelected;
-    private boolean characterSelected;
-    private boolean doorSelected;
+//    private boolean characterSelected;
+//    private boolean doorSelected;
 
 
     private Table menuTable;
@@ -113,6 +111,12 @@ public class LevelCreator extends WorldController {
     private TextField platformWidth;
     private TextField platformHeight;
 
+
+    private TextField loadPath;
+
+    private Vector2 wasdPosition;
+
+
     class Platform extends BoxObstacle {
         int tag;
         float[] position;
@@ -127,7 +131,6 @@ public class LevelCreator extends WorldController {
             this.behaviors = behaviors;
         }
     }
-
     public void addPlatform(int tag, float posX, float posY, float width, float height,
                             ArrayList<String> properties, ArrayList<String> behaviors) {
         Platform obj = new Platform(tag, posX, posY, width, height, properties, behaviors);
@@ -156,14 +159,18 @@ public class LevelCreator extends WorldController {
         setDebug(false);
         setComplete(false);
         setFailure(false);
+
+        wasdPosition = new Vector2(0, 0);
+
+
     }
 
     public void hideDropdowns() {
         platformSelected = false;
 //        darkPlatformSelected = false;
 //        allPlatformSelected = false;
-        characterSelected = false;
-        doorSelected = false;
+//        characterSelected = false;
+//        doorSelected = false;
     }
 
 
@@ -213,7 +220,9 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                deletePlatform(selectedObstacle);
+                if (selectedObstacle != null) {
+                    deletePlatform(selectedObstacle);
+                }
             }
         });
 
@@ -273,16 +282,16 @@ public class LevelCreator extends WorldController {
         Label labelHeight = new Label("Height: ", labelStyle);
 
 
-        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
-        style.font = font;
-        style.fontColor = Color.BLACK;
-        style.background = new TextureRegionDrawable(textBackground);
-        platformWidth = new TextField(null, style);
+        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
+        textFieldStyle.font = font;
+        textFieldStyle.fontColor = Color.BLACK;
+        textFieldStyle.background = new TextureRegionDrawable(textBackground);
+        platformWidth = new TextField(null, textFieldStyle);
         platformWidth.setText("2");
         platformWidth.setMaxLength(4);
 
 
-        platformHeight = new TextField(null, style);
+        platformHeight = new TextField(null, textFieldStyle);
         platformHeight.setText("2");
         platformHeight.setMaxLength(4);
 
@@ -318,19 +327,30 @@ public class LevelCreator extends WorldController {
             }
         });
 
+
+
+
         ImageTextButton button4 = new ImageTextButton("Load Dream", buttonStyle);
         button4.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("button press!");
+                String path = loadPath.getText();
+                //TODO: load json from path
             }
         });
+
+        loadPath = new TextField("path", textFieldStyle);
 
         ImageTextButton button5 = new ImageTextButton("Reset Dream", buttonStyle);
         button5.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("button press!");
+                for (Obstacle obstacle : objects) {
+                    obstacle.deactivatePhysics(world);
+                }
+                objects.clear();
+                initialize();
             }
         });
 
@@ -395,6 +415,8 @@ public class LevelCreator extends WorldController {
 
         menuTable.add(button2).pad(0, 0, 20, 0);;
         menuTable.add(button3).pad(0, 0, 20, 0);;
+        menuTable.row();
+        menuTable.add(loadPath).colspan(3).center();
         menuTable.row();
         menuTable.add(button4).colspan(3).center();
         menuTable.row();
@@ -506,7 +528,27 @@ public class LevelCreator extends WorldController {
                 //System.out.println(obj.getPosition());
             }
         }
+//        float newX = wasdPosition.x * canvas.PPM;
+//        newX = Math.min(newX, widthUpperBound);
+//        newX = Math.max(canvas.getWidth() / 2, newX );
+//        camera.position.x += (newX - camera.position.x) * LERP * dt;
+//
+//        float newY = wasdPosition.y * canvas.PPM;
+//        newY = Math.min(newY, heightUpperBound);
+//        newY = Math.max(canvas.getHeight() / 2, newY );
+//        camera.position.y += (newY - camera.position.y) * LERP * dt;
 
+        Camera camera = canvas.getCamera();
+
+
+        camera.position.x = Math.min(Math.max(canvas.getWidth() / 2, camera.position.x + InputController.getInstance().getCameraHorizontal() * 6), DEFAULT_WORLD_WIDTH);
+        camera.position.y = Math.min(Math.max(canvas.getHeight() / 2, camera.position.y + InputController.getInstance().getCameraVertical() * 6), DEFAULT_WORLD_HEIGHT);
+        menuTable.setPosition(camera.position.x + canvas.getWidth() / 3, camera.position.y);
+        selector.moveTo((camera.position.x- canvas.getWidth()/2) / canvas.PPM + input.getCrossHair().x ,
+                (camera.position.y- canvas.getHeight()/2) / canvas.PPM + input.getCrossHair().y  );
+//        selector.
+
+        camera.update();
     }
 
     public void setCanvas(GameCanvas canvas) {
