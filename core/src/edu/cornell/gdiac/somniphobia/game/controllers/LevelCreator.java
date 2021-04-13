@@ -145,6 +145,8 @@ public class LevelCreator extends WorldController {
         }
         public void addSomni(float posX, float posY){
             int tag = 3;
+            float height = 2;
+            float width = 1;
             platformList.add(new Platform(posX,posY,1,2,tag));
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
@@ -156,6 +158,8 @@ public class LevelCreator extends WorldController {
         }
         public void addPhobia(float posX, float posY){
             int tag = 4;
+            float height = 2;
+            float width = 1;
             platformList.add(new Platform(posX,posY,1,2,tag));
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
