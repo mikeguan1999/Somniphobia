@@ -138,6 +138,7 @@ public class LevelCreator extends WorldController {
         // TODO: Delete platform
         public void deletePlatform(Obstacle o) {
             platformList.remove(o);
+            o.deactivatePhysics(world);
 
             objects.remove(o);
         }
