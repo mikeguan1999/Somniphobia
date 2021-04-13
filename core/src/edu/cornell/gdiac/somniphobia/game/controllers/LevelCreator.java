@@ -147,7 +147,7 @@ public class LevelCreator extends WorldController {
 
         createSidebar();
         selector= new ObstacleSelector(world,1 ,1);
-
+        this.setDebug(true);
         selector.setTexture(crosshairTexture);
         selector.setDrawScale(scale);
 
@@ -162,7 +162,7 @@ public class LevelCreator extends WorldController {
         TextureRegion newXTexture = new TextureRegion(platTexture);
         newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
         obj.setTexture(newXTexture);
-        addObject(obj);
+        //addObject(obj);
 
 
 //        float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
@@ -393,17 +393,33 @@ public class LevelCreator extends WorldController {
             if (!(obj instanceof CharacterModel)) {
                 if (!(selector.isSelected() && obj == selector.getObstacle())){
                     Vector2 pos = obj.getPosition();
-                    int x = Math.round(pos.x);
-                    int y = Math.round(pos.y);
-                    obj.setPosition((float) x, (float) y);
+                    float x;
+                    float y;
+                    if(obj instanceof BoxObstacle &&  ((BoxObstacle) obj).getWidth()%2 == 0 && (pos.x) % 1.0f != 0f){
+                        x = (float) (Math.round(pos.x*1d)/1d);
+                    }else if(obj instanceof BoxObstacle && ((BoxObstacle) obj).getWidth()%2 != 0 && pos.x % 1.0f != 0.5f){
+                        x = (float)(Math.round((pos.x+.5f)*1d)/1d)-.5f;
+                    }else{
+                        x = pos.x;
+                    }
+                    if(obj instanceof BoxObstacle &&  ((BoxObstacle) obj).getHeight()%2 != 0 && (pos.y) % 1.0f != 0f){
+                        y = (float) (Math.round((pos.y+.5f)*1d)/1d)-.5f;
+                    }else if(obj instanceof BoxObstacle && ((BoxObstacle) obj).getHeight()%2 == 0 && pos.y % 1.0f != 0.5f){
+                        y = (float)(Math.round(pos.y*1d)/1d) ;
+                    }else{
+                        y = pos.y;
+                    }
+                    obj.setPosition(x, y);
                     obj.setVX(0);
                     obj.setVY(0);
-                    obj.setLinearVelocity(new Vector2(0,0));
-                    obj.setMass(1000f);
+                    obj.setLinearVelocity(new Vector2(0, 0));
+                    obj.setMass(10000000f);
+                    System.out.println(obj.getPosition());
                 }
                 else {
                     obj.resetMass();
                 }
+                //System.out.println(obj.getPosition());
             }
         }
 
