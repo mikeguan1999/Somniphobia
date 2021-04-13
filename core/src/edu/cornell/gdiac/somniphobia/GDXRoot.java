@@ -18,6 +18,7 @@ import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import edu.cornell.gdiac.somniphobia.Menu;
 
 /**
  * Root class for a LibGDX.  
@@ -39,6 +40,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private WorldController[] controllers;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
+	private Menu menu;
+	private Boolean level1;
 
 	private OrthographicCamera cam;
 
@@ -60,8 +63,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas  = new GameCanvas();
 
 		loading = new LoadingMode("assets.json",canvas,1);
-
-		// menu = new MenuController();
+		menu = new Menu(canvas);
 
 		// Initialize the Platformer Controller
 		// TODO
@@ -101,6 +103,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			controllers[ii].dispose();
 		}
 
+		menu.dispose();
 		canvas.dispose();
 		canvas = null;
 
@@ -120,6 +123,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * before a call to create().
 	 *
 	 * @param width  The new width in pixels
+	 * @param height The new height in pixels
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
@@ -145,13 +149,18 @@ public class GDXRoot extends Game implements ScreenListener {
 				controllers[ii].setCanvas(canvas);
 			}
 
-			controllers[current].reset();
-			setScreen(controllers[current]);
+			menu.setScreenListener(this);
+//			menu.setCanvas(canvas);
+			setScreen(menu);
 
 			
 			loading.dispose();
 			loading = null;
-		} else if (exitCode == WorldController.EXIT_NEXT) {
+		} else if (screen==menu){
+			current = exitCode;
+			controllers[exitCode].reset();
+			setScreen(controllers[exitCode]);
+		}else if (exitCode == WorldController.EXIT_NEXT) {
 			current = (current + 1 ) % controllers.length;
 			controllers[current].reset();
 			setScreen(controllers[current]);

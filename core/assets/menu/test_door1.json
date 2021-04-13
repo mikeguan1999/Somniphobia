@@ -1,0 +1,9 @@
+{
+	com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
+		default: {
+			up: forest door,
+			down: 1,
+			over: 1
+		}
+	}
+}
