@@ -58,6 +58,7 @@ public class LevelCreator extends WorldController {
     private TextureRegion allTexture;
     private TextureRegion somniTexture;
     private TextureRegion phobiaTexture;
+    private TextureRegion goalTexture;
     private TextureRegion [] platTexture;
     private TextureRegion crosshairTexture;
     private Texture buttonUpTexture;
@@ -85,7 +86,7 @@ public class LevelCreator extends WorldController {
     private final int allTag = 2;
     private final int somniTag = 3;
     private final int phobiaTag = 4;
-
+    private final int goalTag = 5;
 
 
     private boolean moving = false;
@@ -166,6 +167,19 @@ public class LevelCreator extends WorldController {
         }
         public void addPhobia(float posX, float posY){
             int tag = phobiaTag;
+            float height = 4;
+            float width = 2;
+            platformList.add(new Platform(posX,posY,width,height,tag));
+            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
+            obj.deactivatePhysics(this.levelCreator.world);
+            obj.setDrawScale(scale);
+            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
+            newXTexture.setRegion(posX, posY, posX + width, posY + height);
+            obj.setTexture(newXTexture);
+            addObject(obj);
+        }
+        public void addGoal(float posX, float posY){
+            int tag = goalTag;
             float height = 2;
             float width = 1;
             platformList.add(new Platform(posX,posY,width,height,tag));
@@ -565,8 +579,9 @@ public class LevelCreator extends WorldController {
 
         somniTexture = new TextureRegion(directory.getEntry("platform:somni_stand", Texture.class));
         phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand", Texture.class));
+        goalTexture = new TextureRegion(directory.getEntry("shared:goal", Texture.class));
 
-        TextureRegion[] temp = {lightTexture,darkTexture,allTexture, somniTexture, phobiaTexture};
+        TextureRegion[] temp = {lightTexture,darkTexture,allTexture, somniTexture, phobiaTexture, goalTexture};
         platTexture = temp;
 
         sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
