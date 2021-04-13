@@ -512,8 +512,10 @@ public class LevelCreator extends WorldController {
                     for(Platform platform: platformList) {
                         if(platform.equals(obj)) {
                             // Map center origin to bottom left
-                            platform.position[0] = x;
-                            platform.position[1] = y;
+                            platform.position[0] = x - platform.position[2] / 2;
+                            platform.position[1] = y - platform.position[3] / 2;
+                            System.out.println(x);
+                            System.out.println(y);
                         }
                     }
                     obj.setVX(0);

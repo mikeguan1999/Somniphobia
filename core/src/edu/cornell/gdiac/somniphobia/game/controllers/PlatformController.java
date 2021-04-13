@@ -707,10 +707,10 @@ public class PlatformController extends WorldController {
 
 		// Setup Goal
 		JsonValue goalVal = levelAssets.get("goal");
-		float gX = goalVal.get("pos").getFloat(0);
-		float gY = goalVal.get("pos").getFloat(1);
 		float gWidth  = goalTile.getRegionWidth()/scale.x;
 		float gHeight = goalTile.getRegionHeight()/scale.y;
+		float gX = goalVal.get("pos").getFloat(0) + gWidth / 2;
+		float gY = goalVal.get("pos").getFloat(1) + gHeight / 2;
 		goalDoor = new BoxObstacle(gX, gY, gWidth, gHeight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
 		goalDoor.setDensity(constants.get("goal").getFloat("density", 0));
@@ -793,10 +793,10 @@ public class PlatformController extends WorldController {
 		somnif.maskBits = MASK_SOMNI;
 
 		JsonValue somniVal = levelAssets.get("somni");
-		float sX = somniVal.get("pos").getFloat(0);
-		float sY = somniVal.get("pos").getFloat(1);
 		float sWidth  = somniTexture.getRegionWidth()/scale.x;
 		float sHeight = somniTexture.getRegionHeight()/scale.y;
+		float sX = somniVal.get("pos").getFloat(0) + sWidth / 2;
+		float sY = somniVal.get("pos").getFloat(1) + sHeight / 2;
 		somni = new CharacterModel(constants.get("somni"), sX, sY, sWidth, sHeight, somnif, CharacterModel.LIGHT);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniIdleTexture);
@@ -812,10 +812,10 @@ public class PlatformController extends WorldController {
 		phobiaf.maskBits = MASK_PHOBIA;
 
 		JsonValue phobiaVal = levelAssets.get("phobia");
-		float pX = phobiaVal.get("pos").getFloat(0);
-		float pY = phobiaVal.get("pos").getFloat(1);
 		float pWidth  = phobiaTexture.getRegionWidth()/scale.x;
 		float pHeight = phobiaTexture.getRegionHeight()/scale.y;
+		float pX = phobiaVal.get("pos").getFloat(0) + pWidth / 2;
+		float pY = phobiaVal.get("pos").getFloat(1) + pHeight / 2;
 		phobia = new CharacterModel(constants.get("phobia"), pX, pY, pWidth, pHeight, phobiaf, CharacterModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaIdleTexture);
