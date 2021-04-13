@@ -162,10 +162,6 @@ public class PlatformController extends WorldController {
 	/** shared objects */
 	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
 
-	private int sharedtag = 0;
-	private int lighttag = 1;
-	private int darktag = 2;
-
 	private boolean lightclear = false;
 	private boolean darkclear = false;
 	private boolean sharedclear = false;
@@ -725,7 +721,7 @@ public class PlatformController extends WorldController {
 		goalDoor.setTexture(goalTile);
 		goalDoor.setName("goal");
 		addObject(goalDoor);
-		addObjectTo(goalDoor, sharedtag);
+		addObjectTo(goalDoor, LevelCreator.allTag);
 
 		// Get default values
 		JsonValue defaults = constants.get("defaults");
@@ -734,7 +730,6 @@ public class PlatformController extends WorldController {
 		//group platform constants together for access in following for-loop
 		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
 		Filter[] xPlatf = {lightplatf, darkplatf, allf};
-		int[] xtag = {lighttag, darktag, sharedtag};
 
 
 		// Setup platforms
@@ -746,9 +741,9 @@ public class PlatformController extends WorldController {
 			String platformType = obj.get("type").asString();
 			int selector = -1;
 			switch (platformType) {
-				case "light": selector = 0; break;
-				case "dark": selector = 1; break;
-				case "all": selector = 2; break;
+				case "light": selector = LevelCreator.lightTag; break;
+				case "dark": selector = LevelCreator.darkTag; break;
+				case "all": selector = LevelCreator.allTag; break;
 				default: selector = -1; break;
 			}
 
@@ -776,12 +771,12 @@ public class PlatformController extends WorldController {
 				boxstacle.setFriction(defaults.getFloat( "friction", 0.0f ));
 				boxstacle.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 				boxstacle.setDrawScale(scale);
-				TextureRegion newXTexture = new TextureRegion(xTexture[i]);
+				TextureRegion newXTexture = new TextureRegion(xTexture[selector]);
 				newXTexture.setRegion(x, y, x + width, y + height);
 				boxstacle.setTexture(newXTexture);
 				boxstacle.setFilterData(xPlatf[selector]);
 				addObject(boxstacle);
-				addObjectTo(boxstacle, xtag[selector]);
+				addObjectTo(boxstacle, selector);
 			}
 		}
 
@@ -808,7 +803,7 @@ public class PlatformController extends WorldController {
 		somni.setFilterData(somnif);
 		somni.setActive(true);
 		addObject(somni);
-		addObjectTo(somni, sharedtag);
+		addObjectTo(somni, LevelCreator.allTag);
 
 
 		// Setup Phobia
@@ -826,7 +821,7 @@ public class PlatformController extends WorldController {
 		phobia.setTexture(phobiaIdleTexture);
 		phobia.setFilterData(phobiaf);
 		addObject(phobia);
-		addObjectTo(phobia, sharedtag);
+		addObjectTo(phobia, LevelCreator.allTag);
 		phobia.setActive(true);
 
 		// Setup Combined
@@ -846,7 +841,7 @@ public class PlatformController extends WorldController {
 		combined.setTexture(somniPhobiaTexture);
 		combined.setFilterData(combinedf);
 		addObject(combined);
-		addObjectTo(combined, sharedtag);
+		addObjectTo(combined, LevelCreator.allTag);
 		combined.setActive(true);
 
 		//Remove combined
@@ -1212,16 +1207,16 @@ public class PlatformController extends WorldController {
 	 * @param obj obstacle to add
 	 * @param l index
 	 */
-	private void addObjectTo(Obstacle obj, int l){
+	private void addObjectTo(Obstacle obj, int l) {
 		assert inBounds(obj) : "Object is not in bounds";
-		if( l == sharedtag){
+		if (l == LevelCreator.allTag) {
 			sharedObjects.add(obj);
 			//obj.activatePhysics(world);
 		}
-		else if( l == lighttag){
+		else if (l == LevelCreator.lightTag) {
 			lightObjects.add(obj);
 			//obj.activatePhysics(world);
-		}else{
+		}else if (l == LevelCreator.darkTag) {
 			darkObjects.add(obj);
 			//obj.activatePhysics(world);
 		}
