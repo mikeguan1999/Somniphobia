@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -23,7 +20,6 @@ import edu.cornell.gdiac.somniphobia.GameCanvas;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
-import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.somniphobia.obstacle.BoxObstacle;
 import edu.cornell.gdiac.somniphobia.obstacle.Obstacle;
 import edu.cornell.gdiac.somniphobia.obstacle.ObstacleSelector;
@@ -50,22 +46,33 @@ public class LevelCreator extends WorldController {
 
     private Batch batch;
 
+    /** TextureRegion variables */
     private TextureRegion backgroundTexture;
     private TextureRegion platTexture;
     private TextureRegion crosshairTexture;
-    private boolean initialized;
-    private boolean moving = false;
     private Texture buttonUpTexture;
     private Texture buttonDownTexture;
     private Texture textBackground;
     private Texture selectBackground;
-
-
     private Texture sliderBarTexture;
     private Texture sliderKnobTexture;
     private Table menuTable;
 
 
+    private boolean moving = false;
+
+    /** Cache for selected obstacle */
+    private Obstacle selectedObstacle;
+    /** Cache for obstacle x position */
+    private int obstacleX;
+    /** Cache for obstacle y position */
+    private int obstacleY;
+
+    private TextField platformWidth;
+    private TextField platformHeight;
+
+
+    /** Current level we are modifying*/
     private Level level;
 
 
@@ -94,18 +101,16 @@ public class LevelCreator extends WorldController {
             this.levelCreator = levelCreator;
         }
         // TODO: Add platform
-        public void addPlatform(int posX, int posY, int width, int height) {
+        public void addPlatform(float posX, float posY, float width, float height) {
+
+
             platformList.add(new Platform(posX, posY, width, height));
             float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
-//            float width = bounds[2]-bounds[0];
-//            float height = bounds[5]-bounds[1];
-//            boxstacle = new BoxObstacle(x + width / 2, y + height / 2, width, height);
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height);
-            //obj.setBodyType(BodyDef.BodyType.DynamicBody);
             obj.deactivatePhysics(this.levelCreator.world);
             obj.setDrawScale(scale);
             TextureRegion newXTexture = new TextureRegion(platTexture);
-            newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
+            newXTexture.setRegion(posX, posY, posX + width, posY + height);
             obj.setTexture(newXTexture);
             addObject(obj);
 
@@ -113,6 +118,8 @@ public class LevelCreator extends WorldController {
         // TODO: Delete platform
         public void deletePlatform(Obstacle o) {
             platformList.remove(o);
+
+            objects.remove(o);
         }
 
         public PooledList<Obstacle> getPlatformList() {
@@ -200,38 +207,39 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                float width = 10;
-                float height = 1;
-
-//                Platform obj = new Platform(width, height);
-//                //obj.setBodyType(BodyDef.BodyType.DynamicBody);
-//
-//                obj.setDrawScale(scale);
-//                TextureRegion newXTexture = new TextureRegion(platTexture);
-//                newXTexture.setRegion(bounds[0], bounds[1], bounds[4], bounds[5]);
-//                obj.setTexture(newXTexture);
-//                addObject(obj);
+                level.deletePlatform(selectedObstacle);
             }
         });
+
+
+        Label labelWidth = new Label("Width: ", labelStyle);
+        Label labelHeight = new Label("Height: ", labelStyle);
 
 
         TextField.TextFieldStyle style = new TextField.TextFieldStyle();
         style.font = font;
         style.fontColor = Color.BLACK;
         style.background = new TextureRegionDrawable(textBackground);
-        TextField dimensionX = new TextField(null, style);
-        dimensionX.setText("50");
-        dimensionX.setMaxLength(3);
+        platformWidth = new TextField(null, style);
+        platformWidth.setText("2");
+        platformWidth.setMaxLength(4);
 
-        TextField dimensionY = new TextField(null, style);
-        dimensionY.setText("50");
-        dimensionY.setMaxLength(3);
+
+        platformHeight = new TextField(null, style);
+        platformHeight.setText("2");
+        platformHeight.setMaxLength(4);
+
+
+
+
 
         ImageTextButton buttonSelect = new ImageTextButton("Add Object", buttonStyle);
         buttonSelect.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                level.addPlatform(10, 10, 1, 7);
+                float width = Float.parseFloat(platformWidth.getText());
+                float height = Float.parseFloat(platformHeight.getText());
+                level.addPlatform(10, 10, width, height);
             }
         });
 
@@ -293,8 +301,10 @@ public class LevelCreator extends WorldController {
 
         menuTable.add(button1).colspan(3).center();
         menuTable.row();
-        menuTable.add(dimensionX).width(60);
-        menuTable.add(dimensionY).width(60);
+        menuTable.add(labelWidth);
+        menuTable.add(platformWidth).width(60);
+        menuTable.add(labelHeight);
+        menuTable.add(platformHeight).width(60);
         menuTable.row();
         menuTable.add(buttonSelect).colspan(3).center();
         menuTable.row();
@@ -328,7 +338,7 @@ public class LevelCreator extends WorldController {
         canvas.begin();
 //        labels[0].draw(canvas.getBatch(), 1.0f);
 //        canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
-        menuTable.draw(batch, 1.0f);
+        menuTable.draw(batch, 0.8f);
 //        canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
 //        s.draw(batch, 1.0f);
         canvas.end();
@@ -364,6 +374,7 @@ public class LevelCreator extends WorldController {
         if (input.didTertiary() && !selector.isSelected()) {
             if(selector.select(input.getCrossHair().x,input.getCrossHair().y)){
                 moving = true;
+                selectedObstacle = selector.getObstacle();
             }
         } else if (selector.isSelected() && input.didDelete()) {
             Obstacle o = selector.getObstacle();
