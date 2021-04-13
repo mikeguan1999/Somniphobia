@@ -9,11 +9,14 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -75,6 +78,7 @@ public class LevelCreator extends WorldController {
     private Texture sliderBarTexture;
     private Texture sliderKnobTexture;
     private Texture dropdownTexture;
+    private Texture cursorTexture;
 
     private boolean platformSelected;
 //    private boolean characterSelected;
@@ -196,7 +200,7 @@ public class LevelCreator extends WorldController {
     }
 
     public void createSidebar() {
-        Stage stage = new Stage(new ScreenViewport(canvas.getCamera()));
+        final Stage stage = new Stage(new ScreenViewport(canvas.getCamera()));
         menuTable = new Table();
         batch = canvas.getBatch();
 
@@ -213,6 +217,8 @@ public class LevelCreator extends WorldController {
 
         ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture), new TextureRegionDrawable(buttonDownTexture), null, font);
         buttonStyle.fontColor = Color.BLACK;
+
+
 
         ImageTextButton button1 = new ImageTextButton("Remove Object", buttonStyle);
 
@@ -278,14 +284,11 @@ public class LevelCreator extends WorldController {
         });
         
 
-        Label labelWidth = new Label("Width: ", labelStyle);
-        Label labelHeight = new Label("Height: ", labelStyle);
+        Label labelDimension = new Label("Dimensions: ", labelStyle);
 
 
-        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
-        textFieldStyle.font = font;
-        textFieldStyle.fontColor = Color.BLACK;
-        textFieldStyle.background = new TextureRegionDrawable(textBackground);
+        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle(font, Color.BLACK, new TextureRegionDrawable(cursorTexture),
+                new TextureRegionDrawable(textBackground), new TextureRegionDrawable(textBackground));
         platformWidth = new TextField(null, textFieldStyle);
         platformWidth.setText("2");
         platformWidth.setMaxLength(4);
@@ -299,8 +302,8 @@ public class LevelCreator extends WorldController {
         addPlatform.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                float posX = 1.0f;
-                float posY = 1.0f;
+                float posX = canvas.getWidth()/2;
+                float posY = canvas.getHeight()/2;
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
                 float[] platformDimensions = new float[]{width, height};
@@ -335,6 +338,10 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String path = loadPath.getText();
+
+                JsonReader json = new JsonReader();
+
+                JsonValue value = json.parse("levels/" + path);
                 //TODO: load json from path
             }
         });
@@ -372,10 +379,9 @@ public class LevelCreator extends WorldController {
         platformParamTable.add(darkPlatformSelect).pad(0,5,0,5);
         platformParamTable.add(allPlatformSelect).pad(0,5,0,5);
         platformParamTable.row();
-        platformParamTable.add(labelWidth);
-        platformParamTable.add(platformWidth).width(60);
+        platformParamTable.add(labelDimension).colspan(3).center();
         platformParamTable.row();
-        platformParamTable.add(labelHeight);
+        platformParamTable.add(platformWidth).width(60);
         platformParamTable.add(platformHeight).width(60);
         platformParamTable.row();
 
@@ -413,6 +419,14 @@ public class LevelCreator extends WorldController {
         stage.addActor(menuTable);
         menuTable.setPosition(canvas.getWidth() - 200, canvas.getHeight()/2);
         Gdx.input.setInputProcessor(stage);
+
+        //Turn off keyboard focus
+        stage.getRoot().addCaptureListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if (!(event.getTarget() instanceof TextField)) stage.setKeyboardFocus(null);
+                return false;
+            }
+        });
     }
 
     public void draw(float dt) {
@@ -422,9 +436,7 @@ public class LevelCreator extends WorldController {
         selector.draw(canvas);
         canvas.end();
 
-        canvas.begin();
-        menuTable.draw(batch, 0.8f);
-        canvas.end();
+
 
         canvas.begin();
         for(Obstacle obj : objects) {
@@ -436,6 +448,10 @@ public class LevelCreator extends WorldController {
                 obj.draw(canvas);
             }
         }
+        canvas.end();
+
+        canvas.begin();
+        menuTable.draw(batch, 0.75f);
         canvas.end();
     }
 
@@ -540,6 +556,7 @@ public class LevelCreator extends WorldController {
         textBackground = directory.getEntry( "level_editor:text_background", Texture.class);
         selectBackground = directory.getEntry("level_editor:select_background", Texture.class);
         dropdownTexture = directory.getEntry("level_editor:dropdown", Texture.class);
+        cursorTexture = directory.getEntry("level_editor:cursor", Texture.class);
 
 
         somniTexture = new TextureRegion(directory.getEntry("platform:somni_stand", Texture.class));
