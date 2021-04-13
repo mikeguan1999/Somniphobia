@@ -56,6 +56,8 @@ public class LevelCreator extends WorldController {
     private TextureRegion lightTexture;
     private TextureRegion darkTexture;
     private TextureRegion allTexture;
+    private TextureRegion somniTexture;
+    private TextureRegion phobiaTexture;
     private TextureRegion [] platTexture;
     private TextureRegion crosshairTexture;
     private Texture buttonUpTexture;
@@ -71,6 +73,7 @@ public class LevelCreator extends WorldController {
     private boolean allPlatformSelected;
     private boolean characterSelected;
     private boolean doorSelected;
+
 
     private Table menuTable;
 
@@ -123,8 +126,6 @@ public class LevelCreator extends WorldController {
         // TODO: Add platform
         public void addPlatform(float posX, float posY, float width, float height, int tag) {
 
-
-
             platformList.add(new Platform(posX, posY, width, height,tag));
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
@@ -141,7 +142,28 @@ public class LevelCreator extends WorldController {
 
             objects.remove(o);
         }
-
+        public void addSomni(float posX, float posY){
+            int tag = 3;
+            platformList.add(new Platform(posX,posY,1,2,tag));
+            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
+            obj.deactivatePhysics(this.levelCreator.world);
+            obj.setDrawScale(scale);
+            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
+            newXTexture.setRegion(posX, posY, posX + width, posY + height);
+            obj.setTexture(newXTexture);
+            addObject(obj);
+        }
+        public void addPhobia(float posX, float posY){
+            int tag = 4;
+            platformList.add(new Platform(posX,posY,1,2,tag));
+            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
+            obj.deactivatePhysics(this.levelCreator.world);
+            obj.setDrawScale(scale);
+            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
+            newXTexture.setRegion(posX, posY, posX + width, posY + height);
+            obj.setTexture(newXTexture);
+            addObject(obj);
+        }
         public PooledList<Obstacle> getPlatformList() {
             return platformList;
         }
@@ -527,7 +549,11 @@ public class LevelCreator extends WorldController {
         selectBackground = directory.getEntry("level_editor:select_background", Texture.class);
         dropdownTexture = directory.getEntry("level_editor:dropdown", Texture.class);
 
-        TextureRegion[] temp = {lightTexture,darkTexture,allTexture};
+
+        somniTexture = new TextureRegion(directory.getEntry("platform:somni_stand", Texture.class));
+        phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand", Texture.class));
+
+        TextureRegion[] temp = {lightTexture,darkTexture,allTexture, somniTexture, phobiaTexture};
         platTexture = temp;
 
         sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
