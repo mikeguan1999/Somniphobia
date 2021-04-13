@@ -414,7 +414,6 @@ public class LevelCreator extends WorldController {
                     obj.setVY(0);
                     obj.setLinearVelocity(new Vector2(0, 0));
                     obj.setMass(10000000f);
-                    System.out.println(obj.getPosition());
                 }
                 else {
                     obj.resetMass();
