@@ -230,6 +230,11 @@ public class PlatformController extends WorldController {
 
 	public int tes = 0;
 
+	// WASD Camera Variables
+
+	private Vector2 wasdPosition = new Vector2(0, 0);
+	private int cameraDelay = 0;
+
 
 
 	/**
@@ -908,21 +913,47 @@ public class PlatformController extends WorldController {
             }
         }
 
-
 		// Set camera position bounded by the canvas size
 		camera = canvas.getCamera();
 
-		float newX = avatar.getX() * canvas.PPM;
-		newX = Math.min(newX, widthUpperBound);
-		newX = Math.max(canvas.getWidth() / 2, newX );
-		camera.position.x += (newX - camera.position.x) * LERP * dt;
+		if (InputController.getInstance().didWASDPressed() || cameraDelay > 0) {
+			if (cameraDelay <= 0) {
+				cameraDelay += 10;
+			}
+			else {
+				cameraDelay -= 1;
+			}
+			wasdPosition.x += InputController.getInstance().getCameraHorizontal();
+			System.out.println(InputController.getInstance().getCameraHorizontal());
+			wasdPosition.y += InputController.getInstance().getCameraVertical();
 
-		float newY = avatar.getY() * canvas.PPM;
-		newY = Math.min(newY, heightUpperBound);
-		newY = Math.max(canvas.getHeight() / 2, newY );
-		camera.position.y += (newY - camera.position.y) * LERP * dt;
+			float newX = wasdPosition.x * canvas.PPM;
+			newX = Math.min(newX, widthUpperBound);
+			newX = Math.max(canvas.getWidth() / 2, newX );
+			camera.position.x += (newX - camera.position.x) * LERP * dt;
 
+			float newY = wasdPosition.y * canvas.PPM;
+			newY = Math.min(newY, heightUpperBound);
+			newY = Math.max(canvas.getHeight() / 2, newY );
+			camera.position.y += (newY - camera.position.y) * LERP * dt;
+		}
+		else {
+			wasdPosition.x = avatar.getX();
+			wasdPosition.y = avatar.getY();
+
+			float newX = avatar.getX() * canvas.PPM;
+			newX = Math.min(newX, widthUpperBound);
+			newX = Math.max(canvas.getWidth() / 2, newX );
+			camera.position.x += (newX - camera.position.x) * LERP * dt;
+
+			float newY = avatar.getY() * canvas.PPM;
+			newY = Math.min(newY, heightUpperBound);
+			newY = Math.max(canvas.getHeight() / 2, newY );
+			camera.position.y += (newY - camera.position.y) * LERP * dt;
+		}
 		camera.update();
+
+
 	}
 
 
