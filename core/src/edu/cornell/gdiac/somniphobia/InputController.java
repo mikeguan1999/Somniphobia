@@ -304,11 +304,11 @@ public class InputController {
 		// Give priority to gamepad results
 		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
-		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.Q);
-		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.Z);
-		dashPressed = Gdx.input.isKeyPressed(Input.Keys.X);
-		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);
-		switchPressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
+		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
+		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.UP);
+		dashPressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
+		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.E);
+		switchPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
 		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
