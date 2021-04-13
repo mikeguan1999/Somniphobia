@@ -71,6 +71,8 @@ public class LevelCreator extends WorldController {
 
     private Table menuTable;
 
+    private int currBackground;
+
 
     private boolean moving = false;
 
@@ -168,6 +170,7 @@ public class LevelCreator extends WorldController {
         this.setDebug(true);
         selector.setTexture(crosshairTexture);
         selector.setDrawScale(scale);
+        currBackground = 0;
 
     }
 
@@ -305,6 +308,8 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("switch background!");
+                currBackground++;
+                currBackground %= backgrounds.length;
             }
         });
 
@@ -380,7 +385,7 @@ public class LevelCreator extends WorldController {
     public void draw(float dt) {
         canvas.begin();
 //        canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
-        canvas.draw(backgroundTexture, 0, 0);
+        canvas.draw(backgrounds[currBackground], 0, 0);
         selector.draw(canvas);
         canvas.end();
 
@@ -496,11 +501,9 @@ public class LevelCreator extends WorldController {
         sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
         sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
 
-        backgrounds = new TextureRegion[]{
+        backgrounds = new TextureRegion[] {
                 new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
-                new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
-                new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
-                new TextureRegion(directory.getEntry("platform:background_light", Texture.class))
+                new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
         };
 
 
