@@ -123,7 +123,6 @@ public class LevelCreator extends WorldController {
 
 
             platformList.add(new Platform(posX, posY, width, height,tag));
-            float[] bounds = {7.0f, 3.0f, 13.0f, 3.0f, 13.0f, 2.0f, 7.0f, 2.0f };
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
             obj.setDrawScale(scale);
