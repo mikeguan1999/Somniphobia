@@ -50,6 +50,8 @@ public class LevelCreator extends WorldController {
     private Batch batch;
 
     /** TextureRegion variables */
+    TextureRegion[] backgrounds;
+
     private TextureRegion backgroundTexture;
     private TextureRegion platTexture;
     private TextureRegion crosshairTexture;
@@ -290,7 +292,7 @@ public class LevelCreator extends WorldController {
             }
         });
 
-        ImageTextButton button5 = new ImageTextButton("Save Dream", buttonStyle);
+        ImageTextButton button5 = new ImageTextButton("Reset Dream", buttonStyle);
         button5.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -299,6 +301,13 @@ public class LevelCreator extends WorldController {
         });
 
 
+        ImageTextButton switchBackgroundButton = new ImageTextButton("Switch Background", buttonStyle);
+        switchBackgroundButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("switch background!");
+            }
+        });
 
 
         Table platformParamTable = new Table();
@@ -309,7 +318,7 @@ public class LevelCreator extends WorldController {
         platformParamTable.add(labelHeight);
         platformParamTable.add(platformHeight).width(60);
         platformParamTable.row();
-        platformParamTable.add(buttonSelect).colspan(3).center();
+        platformParamTable.add(buttonSelect).colspan(3).center().pad(0, 0, 20, 0);;
         platformParamTable.row();
 
         //Add all the widgets to the menu table
@@ -344,13 +353,15 @@ public class LevelCreator extends WorldController {
 
         menuTable.pad(10);
 
-        menuTable.add(button2);
-        menuTable.add(button3);
+        menuTable.add(button2).pad(0, 0, 20, 0);;
+        menuTable.add(button3).pad(0, 0, 20, 0);;
         menuTable.row();
         menuTable.add(button4).colspan(3).center();
         menuTable.row();
         menuTable.add(button5).colspan(3).center();
         menuTable.row();
+
+        menuTable.add(switchBackgroundButton).colspan(3).center();
 
 
 //        menuTable.add(platformParamTable);
@@ -485,6 +496,13 @@ public class LevelCreator extends WorldController {
 
         sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
         sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
+
+        backgrounds = new TextureRegion[]{
+                new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light", Texture.class))
+        };
 
 
 
