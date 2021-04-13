@@ -160,35 +160,29 @@ public class LevelCreator extends WorldController {
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
             obj.setDrawScale(scale);
-            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
-            newXTexture.setRegion(posX, posY, posX + width, posY + height);
-            obj.setTexture(newXTexture);
+            obj.setTexture(platTexture[tag]);
             addObject(obj);
         }
         public void addPhobia(float posX, float posY){
             int tag = phobiaTag;
-            float height = 4;
-            float width = 2;
-            platformList.add(new Platform(posX,posY,width,height,tag));
-            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
-            obj.deactivatePhysics(this.levelCreator.world);
-            obj.setDrawScale(scale);
-            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
-            newXTexture.setRegion(posX, posY, posX + width, posY + height);
-            obj.setTexture(newXTexture);
-            addObject(obj);
-        }
-        public void addGoal(float posX, float posY){
-            int tag = goalTag;
             float height = 2;
             float width = 1;
             platformList.add(new Platform(posX,posY,width,height,tag));
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
             obj.setDrawScale(scale);
-            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
-            newXTexture.setRegion(posX, posY, posX + width, posY + height);
-            obj.setTexture(newXTexture);
+            obj.setTexture(platTexture[tag]);
+            addObject(obj);
+        }
+        public void addGoal(float posX, float posY){
+            int tag = goalTag;
+            float height = 4;
+            float width = 2;
+            platformList.add(new Platform(posX,posY,width,height,tag));
+            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
+            obj.deactivatePhysics(this.levelCreator.world);
+            obj.setDrawScale(scale);
+            obj.setTexture(platTexture[tag]);
             addObject(obj);
         }
         public PooledList<Obstacle> getPlatformList() {
@@ -226,6 +220,9 @@ public class LevelCreator extends WorldController {
         selector.setTexture(crosshairTexture);
         selector.setDrawScale(scale);
         currBackground = 0;
+        level.addSomni(5,5);
+        level.addPhobia(7,5);
+        level.addGoal(9,5);
 
     }
 
@@ -548,6 +545,7 @@ public class LevelCreator extends WorldController {
                     obj.setVY(0);
                     obj.setLinearVelocity(new Vector2(0, 0));
                     obj.setMass(10000000f);
+                    //System.out.println(obj.getPosition());
                 }
                 else {
                     obj.resetMass();
