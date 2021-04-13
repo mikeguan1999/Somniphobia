@@ -63,6 +63,12 @@ public class InputController {
 	private boolean debugPressed;
 	private boolean debugPrevious;
 
+	/** Whether the camera WASD keys were pressed. */
+	private boolean wPressed;
+	private boolean aPressed;
+	private boolean sPressed;
+	private boolean dPressed;
+
 	/** Whether the slider toggle was pressed. */
 	private boolean sliderToggled;
 	private boolean sliderToggledPrevious;
@@ -73,9 +79,6 @@ public class InputController {
 
 	private boolean prevPressed;
 	private boolean prevPrevious;
-
-	private boolean deletePrevious;
-	private boolean deletePressed;
 
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
@@ -89,16 +92,13 @@ public class InputController {
 	/** How much did we move vertically? */
 	private float vertical;
 
-	/**
-	 * Returns true if the player wants to go to the previous level.
-	 *
-	 * @return true if the player wants to go to the previous level.
-	 */
-	public boolean didDelete() {
-		return deletePressed && !deletePrevious;
-	}
 
 
+	/** How much did we move the camera horizontally? */
+	private float cameraHorizontal;
+	/** How much did we move the camera vertically? */
+	private float cameraVertical;
+	
 	/**
 	 * Returns the amount of sideways movement. 
 	 *
@@ -118,6 +118,26 @@ public class InputController {
 	 * @return the amount of vertical movement. 
 	 */
 	public float getVertical() { return vertical; }
+
+	/**
+	 * Returns the amount of sideways camera movement.
+	 *
+	 * -1 = left, 1 = right, 0 = still
+	 *
+	 * @return the amount of sideways camera movement.
+	 */
+	public float getCameraHorizontal() {
+		return cameraHorizontal;
+	}
+
+	/**
+	 * Returns the amount of vertical camera movement.
+	 *
+	 * -1 = down, 1 = up, 0 = still
+	 *
+	 * @return the amount of vertical camera movement.
+	 */
+	public float getCameraVertical() { return cameraVertical; }
 
 	/**
 	 * Returns true if the player wants to go to the next level.
@@ -223,6 +243,49 @@ public class InputController {
 		return exitPressed && !exitPrevious;
 	}
 
+	/**
+	 * Returns true if the W button was pressed.
+	 *
+	 * @return true if the W button was pressed.
+	 */
+	public boolean didCameraUp() {
+		return wPressed;
+	}
+
+	/**
+	 * Returns true if the A button was pressed.
+	 *
+	 * @return true if the A button was pressed.
+	 */
+	public boolean didCameraLeft() {
+		return aPressed;
+	}
+
+	/**
+	 * Returns true if the S button was pressed.
+	 *
+	 * @return true if the S button was pressed.
+	 */
+	public boolean didCameraDown() {
+		return sPressed;
+	}
+
+	/**
+	 * Returns true if the D button was pressed.
+	 *
+	 * @return true if the D button was pressed.
+	 */
+	public boolean didCameraRight() { return dPressed; }
+
+	/**
+	 * Returns true if any of WASD are pressed
+	 *
+	 * @return true if any of WASD are pressed
+	 */
+	public boolean didWASDPressed() {
+		return wPressed || aPressed || sPressed || dPressed;
+	}
+
 
 	/**
 	 * Returns the current position of the crosshairs on the screen.
@@ -255,7 +318,6 @@ public class InputController {
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
-		deletePrevious = deletePressed;
 
 		readKeyboard(bounds,scale);
 	}
@@ -267,15 +329,20 @@ public class InputController {
 		// Give priority to gamepad results
 		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
-		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.S);
-		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.Z);
-		dashPressed = Gdx.input.isKeyPressed(Input.Keys.X);
-		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);
-		switchPressed = Gdx.input.isKeyPressed(Input.Keys.D);
+		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
+		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.UP);
+		dashPressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
+		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.E);
+		switchPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
 		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
-		deletePressed = (Gdx.input.isKeyPressed(Input.Keys.J));
+
+		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
+		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));
+		sPressed = (Gdx.input.isKeyPressed(Input.Keys.S));
+		dPressed = (Gdx.input.isKeyPressed(Input.Keys.D));
+
 		// Directional controls
 
 
@@ -295,6 +362,24 @@ public class InputController {
 		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
 			vertical -= 1.0f;
 		}
+
+		cameraHorizontal = 0.0f;
+		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+			cameraHorizontal += 1.0f;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+			cameraHorizontal -= 1.0f;
+		}
+
+		cameraVertical = 0.0f;
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+			cameraVertical += 1.0f;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+			cameraVertical -= 1.0f;
+		}
+
+
 
 		// Print testing for unimplemented features
 		boolean DEBUG = false;

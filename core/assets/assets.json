@@ -63,6 +63,7 @@
     "platform:bullet": "platform/bullet.png",
 
     "platform:somni_stand": "platform/SomniStand.png",
+    "platform:Somni_Idle": "platform/Somni_Idle.png",
     "platform:somni_walk": "platform/SomniWalk.png",
     "platform:somni_dash_side": "platform/SomniSide.png",
     "platform:somni_dash_up": "platform/SomniUp.png",
@@ -72,6 +73,7 @@
     "platform:Somni_Falling": "platform/Somni_Falling.png",
 
     "platform:phobia_stand": "platform/PhobiaStand.png",
+    "platform:Phobia_Idle": "platform/Phobia_Idle.png",
     "platform:phobia_walk": "platform/PhobiaWalk.png",
     "platform:phobia_dash_side": "platform/PhobiaSide.png",
     "platform:phobia_dash_up": "platform/PhobiaUp.png",

@@ -523,13 +523,7 @@ public class LevelCreator extends WorldController {
                 moving = true;
                 selectedObstacle = selector.getObstacle();
             }
-        } else if (selector.isSelected() && input.didDelete()) {
-            Obstacle o = selector.getObstacle();
-            selector.deselect();
-            moving = false;
-            objects.remove(o);
-        }
-        else if (!input.didTertiary() && selector.isSelected()) {
+        } else if (!input.didTertiary() && selector.isSelected()) {
             moving = false;
             selector.deselect();
         } else {
