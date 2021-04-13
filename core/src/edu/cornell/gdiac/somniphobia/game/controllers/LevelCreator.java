@@ -1,18 +1,19 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import edu.cornell.gdiac.assets.AssetDirectory;
@@ -25,11 +26,9 @@ import edu.cornell.gdiac.somniphobia.obstacle.Obstacle;
 import edu.cornell.gdiac.somniphobia.obstacle.ObstacleSelector;
 import edu.cornell.gdiac.somniphobia.obstacle.SimpleObstacle;
 import edu.cornell.gdiac.util.PooledList;
-import org.w3c.dom.Text;
 
 import java.lang.Math;
-
-
+import java.util.ArrayList;
 
 
 public class LevelCreator extends WorldController {
@@ -43,15 +42,22 @@ public class LevelCreator extends WorldController {
     protected static final int DEFAULT_WORLD_WIDTH = 100;
     protected static final int DEFAULT_WORLD_HEIGHT = 100;
 
+    protected static final float[] SOMNI_DEFAULT_POS = new float[]{5.0f, 5.0f};
+    protected static final float[] PHOBIA_DEFAULT_POS = new float[]{7.0f, 5.0f};
+    protected static final float[] GOAL_DEFAULT_POS = new float[]{9.0f, 5.0f};
+    protected static final float[] CHARACTER_DIMENSIONS = new float[]{1.0f, 2.0f};
+    protected static final float[] GOAL_DIMENSIONS = new float[]{2.0f, 4.0f};
+
 
     /** Mouse selector to move the platforms */
     private ObstacleSelector selector;
+    /** List to hold all platforms */
+    private PooledList<Platform> platformList = new PooledList<Platform>();
 
     private Batch batch;
 
     /** TextureRegion variables */
     TextureRegion[] backgrounds;
-
     private TextureRegion backgroundTexture;
     private TextureRegion lightTexture;
     private TextureRegion darkTexture;
@@ -83,13 +89,13 @@ public class LevelCreator extends WorldController {
     private ImageTextButton darkPlatformSelect;
     private ImageTextButton allPlatformSelect;
 
-    /** constants */
-    private final int lightTag = 0;
-    private final int darkTag = 1;
-    private final int allTag = 2;
-    private final int somniTag = 3;
-    private final int phobiaTag = 4;
-    private final int goalTag = 5;
+    /** Tag constants */
+    protected final static int lightTag = 0;
+    protected final static int darkTag = 1;
+    protected final static int allTag = 2;
+    protected final static int somniTag = 3;
+    protected final static int phobiaTag = 4;
+    protected final static int goalTag = 5;
 
     private int currBackground;
     private int currPlatformSelection;
@@ -107,93 +113,42 @@ public class LevelCreator extends WorldController {
     private TextField platformWidth;
     private TextField platformHeight;
 
-
-    /** Current level we are modifying*/
-    private Level level;
-
-
     class Platform extends BoxObstacle {
-        float posX;
-        float posY;
-        float width;
-        float height;
         int tag;
-        public Platform(float posX, float posY, float width, float height, int tag) {
-            super(posX,posY,width,height);
-            this.posX = posX;
-            this.posY = posY;
-            this.width = width;
-            this.height = height;
+        float[] position;
+        ArrayList<String> properties = new ArrayList<String>();
+        ArrayList<String> behaviors = new ArrayList<String>();
+        public Platform(int tag, float posX, float posY, float width, float height, ArrayList<String> properties,
+                        ArrayList<String> behaviors) {
+            super(posX + width / 2, posY + height / 2, width, height);
+            this.position = new float[]{posX, posY, width, height};
             this.tag = tag;
+            this.properties = properties;
+            this.behaviors = behaviors;
         }
     }
 
-    class Level {
-        int width;
-        int height;
-        LevelCreator levelCreator;
-        PooledList<Obstacle> platformList;
-        public Level(int width, int height, PooledList<Obstacle> platformList, LevelCreator levelCreator) {
-
-            this.platformList = platformList;
-            this.levelCreator = levelCreator;
-        }
-        // TODO: Add platform
-        public void addPlatform(float posX, float posY, float width, float height, int tag) {
-
-            platformList.add(new Platform(posX, posY, width, height,tag));
-            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
-            obj.deactivatePhysics(this.levelCreator.world);
-            obj.setDrawScale(scale);
-            TextureRegion newXTexture = new TextureRegion(platTexture[tag]);
+    public void addPlatform(int tag, float posX, float posY, float width, float height,
+                            ArrayList<String> properties, ArrayList<String> behaviors) {
+        Platform obj = new Platform(tag, posX, posY, width, height, properties, behaviors);
+        platformList.add(obj);
+        obj.deactivatePhysics(world);
+        obj.setDrawScale(scale);
+        TextureRegion newXTexture;
+        if(tag < somniTag) {
+            newXTexture = new TextureRegion(platTexture[tag]);
             newXTexture.setRegion(posX, posY, posX + width, posY + height);
-            obj.setTexture(newXTexture);
-            addObject(obj);
+        } else {
+            newXTexture = platTexture[tag];
+        }
+        obj.setTexture(newXTexture);
+        addObject(obj);
+    }
 
-        }
-        // TODO: Delete platform
-        public void deletePlatform(Obstacle o) {
-            platformList.remove(o);
-            o.deactivatePhysics(world);
-
-            objects.remove(o);
-        }
-        public void addSomni(float posX, float posY){
-            int tag = somniTag;
-            float height = 2;
-            float width = 1;
-            platformList.add(new Platform(posX,posY,width,height,tag));
-            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
-            obj.deactivatePhysics(this.levelCreator.world);
-            obj.setDrawScale(scale);
-            obj.setTexture(platTexture[tag]);
-            addObject(obj);
-        }
-        public void addPhobia(float posX, float posY){
-            int tag = phobiaTag;
-            float height = 2;
-            float width = 1;
-            platformList.add(new Platform(posX,posY,width,height,tag));
-            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
-            obj.deactivatePhysics(this.levelCreator.world);
-            obj.setDrawScale(scale);
-            obj.setTexture(platTexture[tag]);
-            addObject(obj);
-        }
-        public void addGoal(float posX, float posY){
-            int tag = goalTag;
-            float height = 4;
-            float width = 2;
-            platformList.add(new Platform(posX,posY,width,height,tag));
-            Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
-            obj.deactivatePhysics(this.levelCreator.world);
-            obj.setDrawScale(scale);
-            obj.setTexture(platTexture[tag]);
-            addObject(obj);
-        }
-        public PooledList<Obstacle> getPlatformList() {
-            return platformList;
-        }
+    public void deletePlatform(Obstacle o) {
+        platformList.remove(o);
+        o.deactivatePhysics(world);
+        objects.remove(o);
     }
 
     public LevelCreator() {
@@ -201,12 +156,6 @@ public class LevelCreator extends WorldController {
         setDebug(false);
         setComplete(false);
         setFailure(false);
-
-
-        level = new Level(DEFAULT_WORLD_WIDTH, DEFAULT_WORLD_HEIGHT, new PooledList<Obstacle>(), this);
-
-
-
     }
 
     public void hideDropdowns() {
@@ -226,9 +175,15 @@ public class LevelCreator extends WorldController {
         selector.setTexture(crosshairTexture);
         selector.setDrawScale(scale);
         currBackground = 0;
-        level.addSomni(5,5);
-        level.addPhobia(7,5);
-        level.addGoal(9,5);
+        // Add Somni
+        addPlatform(somniTag, SOMNI_DEFAULT_POS[0], SOMNI_DEFAULT_POS[1], CHARACTER_DIMENSIONS[0],
+                CHARACTER_DIMENSIONS[1], null, null);
+        // Add Phobia
+        addPlatform(phobiaTag, PHOBIA_DEFAULT_POS[0], PHOBIA_DEFAULT_POS[1], CHARACTER_DIMENSIONS[0],
+                CHARACTER_DIMENSIONS[1], null, null);
+        // Add Goal
+        addPlatform(goalTag, GOAL_DEFAULT_POS[0], GOAL_DEFAULT_POS[1], GOAL_DIMENSIONS[0],
+                GOAL_DIMENSIONS[1], null, null);
         currPlatformSelection = 0;
 
     }
@@ -258,7 +213,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                level.deletePlatform(selectedObstacle);
+                deletePlatform(selectedObstacle);
             }
         });
 
@@ -289,7 +244,7 @@ public class LevelCreator extends WorldController {
                 darkPlatformSelect.setChecked(false);
                 allPlatformSelect.setChecked(false);
                 lightPlatformSelect.setChecked(true);
-                currPlatformSelection = 0;
+                currPlatformSelection = lightTag;
             }
         });
 
@@ -299,7 +254,7 @@ public class LevelCreator extends WorldController {
                 darkPlatformSelect.setChecked(true);
                 allPlatformSelect.setChecked(false);
                 lightPlatformSelect.setChecked(false);
-                currPlatformSelection = 1;
+                currPlatformSelection = darkTag;
             }
         });
 
@@ -309,7 +264,7 @@ public class LevelCreator extends WorldController {
                 darkPlatformSelect.setChecked(false);
                 allPlatformSelect.setChecked(true);
                 lightPlatformSelect.setChecked(false);
-                currPlatformSelection = 2;
+                currPlatformSelection = allTag;
             }
         });
         
@@ -331,38 +286,19 @@ public class LevelCreator extends WorldController {
         platformHeight.setText("2");
         platformHeight.setMaxLength(4);
 
-
-//
-//<<<<<<< Updated upstream
-//        ImageTextButton buttonSelectLight = new ImageTextButton("Add Object", buttonStyle);
-//        buttonSelectLight.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                float width = Float.parseFloat(platformWidth.getText());
-//                float height = Float.parseFloat(platformHeight.getText());
-//                level.addPlatform(10, 10, width, height, lightTag);
-//            }
-//        });
-//        ImageTextButton buttonSelectDark = new ImageTextButton("Add Object", buttonStyle);
-//        buttonSelectDark.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                float width = Float.parseFloat(platformWidth.getText());
-//                float height = Float.parseFloat(platformHeight.getText());
-//                level.addPlatform(10, 10, width, height, darkTag);
-//            }
-//        });
-//        ImageTextButton buttonSelectAll = new ImageTextButton("Add Object", buttonStyle);
-//        buttonSelectAll.addListener(new ClickListener() {
-//=======
         ImageTextButton addPlatform = new ImageTextButton("Add Object", buttonStyle);
         addPlatform.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                float posX = 1.0f;
+                float posY = 1.0f;
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
+                float[] platformDimensions = new float[]{width, height};
+                ArrayList<String> properties = new ArrayList<>();
+                ArrayList<String> behaviors = new ArrayList<>();
 
-                level.addPlatform(1, 1, width, height, currPlatformSelection);
+                addPlatform(currPlatformSelection, posX, posY, width, height, behaviors, properties);
             }
         });
         
@@ -370,7 +306,7 @@ public class LevelCreator extends WorldController {
         button2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("button press!");
+                LevelSerializer.serialize(DEFAULT_WORLD_WIDTH, DEFAULT_WORLD_HEIGHT, platformList);
             }
         });
 
@@ -551,6 +487,13 @@ public class LevelCreator extends WorldController {
                         y = pos.y;
                     }
                     obj.setPosition(x, y);
+                    for(Platform platform: platformList) {
+                        if(platform.equals(obj)) {
+                            // Map center origin to bottom left
+                            platform.position[0] = x - platform.position[2] / 2;
+                            platform.position[1] = y - platform.position[3] / 2;
+                        }
+                    }
                     obj.setVX(0);
                     obj.setVY(0);
                     obj.setLinearVelocity(new Vector2(0, 0));
@@ -605,9 +548,139 @@ public class LevelCreator extends WorldController {
         super.gatherAssets(directory);
     }
 
+    public static class LevelSerializer {
 
+        private static String[] getTypeAndAssetName(int tag) {
+            String type = "", assetName = "";
+            switch(tag) {
+                case lightTag:
+                    type = "light";
+                    assetName = "shared:light";
+                    break;
+                case darkTag:
+                    type = "dark";
+                    assetName = "shared:dark";
+                    break;
+                case allTag:
+                    type = "all";
+                    assetName = "shared:all";
+                    break;
+            }
+            return new String[]{type, assetName};
+        }
 
-    // TODO: Implement
+        private static class Level {
+            int[] dimensions;
+            Somni somni;
+            Phobia phobia;
+            Goal goal;
+            ArrayList<LevelObject> objects = new ArrayList<LevelObject>();
 
+            private Level(int width, int height, PooledList<Platform> platforms) {
+                this.dimensions = new int[]{width, height};
+                for (Platform platform : platforms) {
+                    if (platform.tag < somniTag) {
+                        // Check to see if the platform belongs to a LevelObject group
+                        String[] typeAndAssetName = getTypeAndAssetName(platform.tag);
+                        String type = typeAndAssetName[0], assetName = typeAndAssetName[1];
+                        boolean unique = true;
+                        for (LevelObject object : objects) {
+                            if (object.hasInCommon(type, assetName, platform.properties, platform.behaviors)) {
+                                // If so, add it to that group
+                                object.positions.add(platform.position);
+                                unique = false;
+                            }
+                        }
 
+                        if (unique) {
+                            // If not, create a new LevelObject group for it
+                            ArrayList<float[]> positions = new ArrayList<float[]>();
+                            positions.add(platform.position);
+                            LevelObject levelObject = new LevelObject(type, assetName, positions, platform.properties,
+                                    platform.behaviors);
+                            objects.add(levelObject);
+                        }
+
+                    } else {
+                        // Set our special platforms
+                        switch (platform.tag) {
+                            case somniTag:
+                                somni = new Somni(platform.position[0], platform.position[1]);
+                                break;
+                            case phobiaTag:
+                                phobia = new Phobia(platform.position[0], platform.position[1]);
+                                break;
+                            case goalTag:
+                                goal = new Goal(platform.position[0], platform.position[1]);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static class Somni {
+            float[] pos = new float[2];
+
+            private Somni(float x, float y) {
+                this.pos[0] = x;
+                this.pos[1] = y;
+            }
+        }
+
+        private static class Phobia {
+            float[] pos = new float[2];
+
+            private Phobia(float x, float y) {
+                this.pos[0] = x;
+                this.pos[1] = y;
+            }
+        }
+
+        private static class Goal {
+            float[] pos = new float[2];
+
+            private Goal(float x, float y) {
+                this.pos[0] = x;
+                this.pos[1] = y;
+            }
+        }
+
+        private static class LevelObject {
+            String type;
+            String assetName;
+            ArrayList<float[]> positions;
+            ArrayList<String> properties;
+            ArrayList<String> behaviors;
+
+            private LevelObject(String type, String assetName, ArrayList<float[]> positions,
+                                ArrayList<String> properties, ArrayList<String> behaviors) {
+                this.type = type;
+                this.assetName = assetName;
+                this.positions = positions;
+                this.properties = properties;
+                this.behaviors = behaviors;
+            }
+
+            private Boolean hasInCommon(String type, String assetName, ArrayList<String> properties,
+                                ArrayList<String> behaviors) {
+                return this.type.equals(type) &&
+                        this.assetName.equals(assetName) &&
+                        this.properties.equals(properties) &&
+                        this.behaviors.equals(behaviors);
+            }
+        }
+
+        public static void serialize(int levelWidth, int levelHeight, PooledList<Platform> platforms) {
+            Level level = new Level(levelWidth, levelHeight, platforms);
+            Json json = new Json();
+            json.setOutputType(JsonWriter.OutputType.json);
+            FileHandle file = Gdx.files.local("levels/level5.json");
+            file.writeString(json.prettyPrint(level), false);
+        }
+
+        public void deserialize(int levelNumber) {
+
+        }
+    }
 }

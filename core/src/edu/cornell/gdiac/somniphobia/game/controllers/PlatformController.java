@@ -559,6 +559,9 @@ public class PlatformController extends WorldController {
 	}
 
 
+	public void setLevelAssets(int level) {
+		//levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+	}
 	/**
 	 * Gather the assets for this controller.
 	 *
@@ -650,7 +653,6 @@ public class PlatformController extends WorldController {
 	 */
 	public void reset() {
 		Vector2 gravity = new Vector2(world.getGravity() );
-
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
 		}
@@ -670,22 +672,20 @@ public class PlatformController extends WorldController {
 		addQueue.clear();
 		world.dispose();
 
-		holdingHands = false;
-		backgroundTexture = backgroundLightTexture;
-//		avatar = phobia;
-//		lead = phobia;
-//		maskLeader = somni;
-
 		world = new World(gravity,false);
 		setComplete(false);
 		setFailure(false);
 		populateLevel();
+
+		holdingHands = false;
+		backgroundTexture = backgroundLightTexture;
+
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
 		world.setContactListener(movementController);
 
 		movementController.setAvatar(phobia);
 		movementController.setLead(phobia);
-//		movementController.setMaskLeader(somni);
+
 		maskLeader = somni;
 
 	}
@@ -731,17 +731,8 @@ public class PlatformController extends WorldController {
 		JsonValue defaults = constants.get("defaults");
 		JsonValue objs = levelAssets.get("objects");
 
-		String lightPlat = "light"+level;
-		JsonValue lightPlatJson = constants.get("light"+level);
-		String darkPlat = "dark"+level;
-		JsonValue darkPlatJson = constants.get("dark"+level);
-		String grayPlat = "gray"+level;
-		JsonValue grayPlatJson = constants.get("gray"+level);
-
 		//group platform constants together for access in following for-loop
-		JsonValue[] xPlatJson = {lightPlatJson, darkPlatJson, grayPlatJson};
 		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
-		String[] xPlat = {lightPlat, darkPlat, grayPlat};
 		Filter[] xPlatf = {lightplatf, darkplatf, allf};
 		int[] xtag = {lighttag, darktag, sharedtag};
 
@@ -788,7 +779,6 @@ public class PlatformController extends WorldController {
 				TextureRegion newXTexture = new TextureRegion(xTexture[i]);
 				newXTexture.setRegion(x, y, x + width, y + height);
 				boxstacle.setTexture(newXTexture);
-				boxstacle.setName(xPlat[selector]+j);
 				boxstacle.setFilterData(xPlatf[selector]);
 				addObject(boxstacle);
 				addObjectTo(boxstacle, xtag[selector]);
