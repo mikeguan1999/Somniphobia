@@ -394,22 +394,7 @@ public class LevelCreator extends WorldController {
             menuTable.add(platformParamTable).colspan(3).center();
             menuTable.row();
         }
-        
 
-//        if (darkPlatformSelected) {
-//            platformParamTable.add(buttonSelectDark).colspan(3).center().pad(0, 0, 20, 0);;
-//            platformParamTable.row();
-//            menuTable.add(platformParamTable).colspan(3).center();
-//            menuTable.row();
-//        }
-//        
-//
-//        if (allPlatformSelected) {
-//            platformParamTable.add(buttonSelectAll).colspan(3).center().pad(0, 0, 20, 0);;
-//            platformParamTable.row();
-//            menuTable.add(platformParamTable).colspan(3).center();
-//            menuTable.row();
-//        }
 
         menuTable.pad(10);
 
@@ -438,11 +423,7 @@ public class LevelCreator extends WorldController {
         canvas.end();
 
         canvas.begin();
-//        labels[0].draw(canvas.getBatch(), 1.0f);
-//        canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
         menuTable.draw(batch, 0.8f);
-//        canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
-//        s.draw(batch, 1.0f);
         canvas.end();
 
         canvas.begin();
@@ -520,24 +501,12 @@ public class LevelCreator extends WorldController {
                     obj.setVY(0);
                     obj.setLinearVelocity(new Vector2(0, 0));
                     obj.setMass(10000000f);
-                    //System.out.println(obj.getPosition());
                 }
                 else {
                     obj.resetMass();
                 }
-                //System.out.println(obj.getPosition());
             }
         }
-//        float newX = wasdPosition.x * canvas.PPM;
-//        newX = Math.min(newX, widthUpperBound);
-//        newX = Math.max(canvas.getWidth() / 2, newX );
-//        camera.position.x += (newX - camera.position.x) * LERP * dt;
-//
-//        float newY = wasdPosition.y * canvas.PPM;
-//        newY = Math.min(newY, heightUpperBound);
-//        newY = Math.max(canvas.getHeight() / 2, newY );
-//        camera.position.y += (newY - camera.position.y) * LERP * dt;
-
         Camera camera = canvas.getCamera();
 
 
@@ -546,7 +515,6 @@ public class LevelCreator extends WorldController {
         menuTable.setPosition(camera.position.x + canvas.getWidth() / 3, camera.position.y);
         selector.moveTo((camera.position.x- canvas.getWidth()/2) / canvas.PPM + input.getCrossHair().x ,
                 (camera.position.y- canvas.getHeight()/2) / canvas.PPM + input.getCrossHair().y  );
-//        selector.
 
         camera.update();
     }
