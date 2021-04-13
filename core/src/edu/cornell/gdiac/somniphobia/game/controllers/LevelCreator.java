@@ -456,9 +456,12 @@ public class LevelCreator extends WorldController {
     @Override
     public void update(float dt) {
         // Move an object if touched
+        Camera camera = canvas.getCamera();
+
         InputController input = InputController.getInstance();
         if (input.didTertiary() && !selector.isSelected()) {
-            if(selector.select(input.getCrossHair().x,input.getCrossHair().y)){
+            if(selector.select((camera.position.x- canvas.getWidth()/2) / canvas.PPM + input.getCrossHair().x ,
+            (camera.position.y- canvas.getHeight()/2) / canvas.PPM + input.getCrossHair().y  )){
                 moving = true;
                 selectedObstacle = selector.getObstacle();
             }
@@ -466,7 +469,7 @@ public class LevelCreator extends WorldController {
             moving = false;
             selector.deselect();
         } else {
-            selector.moveTo(input.getCrossHair().x,input.getCrossHair().y);
+//            selector.moveTo(input.getCrossHair().x,input.getCrossHair().y);
         }
         for(Obstacle obj : objects) {
             // Ignore characters which we draw separately
@@ -509,7 +512,6 @@ public class LevelCreator extends WorldController {
                 }
             }
         }
-        Camera camera = canvas.getCamera();
 
 
         camera.position.x = Math.min(Math.max(canvas.getWidth() / 2, camera.position.x + InputController.getInstance().getCameraHorizontal() * 6), DEFAULT_WORLD_WIDTH);
