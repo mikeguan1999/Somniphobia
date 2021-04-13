@@ -69,16 +69,19 @@ public class LevelCreator extends WorldController {
     private Texture sliderKnobTexture;
     private Texture dropdownTexture;
 
-    private boolean lightPlatformSelected;
-    private boolean darkPlatformSelected;
-    private boolean allPlatformSelected;
+    private boolean platformSelected;
+//    private boolean lightPlatformSelected;
+//    private boolean darkPlatformSelected;
+//    private boolean allPlatformSelected;
     private boolean characterSelected;
     private boolean doorSelected;
 
 
     private Table menuTable;
 
-    private int currBackground;
+    private ImageTextButton lightPlatformSelect;
+    private ImageTextButton darkPlatformSelect;
+    private ImageTextButton allPlatformSelect;
 
     /** constants */
     private final int lightTag = 0;
@@ -87,6 +90,9 @@ public class LevelCreator extends WorldController {
     private final int somniTag = 3;
     private final int phobiaTag = 4;
     private final int goalTag = 5;
+
+    private int currBackground;
+    private int currPlatformSelection;
 
 
     private boolean moving = false;
@@ -204,9 +210,9 @@ public class LevelCreator extends WorldController {
     }
 
     public void hideDropdowns() {
-        lightPlatformSelected = false;
-        darkPlatformSelected = false;
-        allPlatformSelected = false;
+        platformSelected = false;
+//        darkPlatformSelected = false;
+//        allPlatformSelected = false;
         characterSelected = false;
         doorSelected = false;
     }
@@ -223,6 +229,7 @@ public class LevelCreator extends WorldController {
         level.addSomni(5,5);
         level.addPhobia(7,5);
         level.addGoal(9,5);
+        currPlatformSelection = 0;
 
     }
 
@@ -260,38 +267,52 @@ public class LevelCreator extends WorldController {
                 new TextureRegionDrawable(dropdownTexture), new TextureRegionDrawable(dropdownTexture), font);
         dropDownStyle.fontColor = Color.BLACK;
 
-        final ImageTextButton lightPlatformDropdown = new ImageTextButton("Light Platform", dropDownStyle);
-        lightPlatformDropdown.addListener(new ClickListener() {
+        final ImageTextButton platformDropdown = new ImageTextButton("Platform", dropDownStyle);
+        platformDropdown.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("l platform clicked");
-                lightPlatformSelected = !lightPlatformSelected;
-                createSidebar();
-            }
-        });
-
-        final ImageTextButton darkPlatformDropdown = new ImageTextButton("Dark Platform", dropDownStyle);
-        darkPlatformDropdown.addListener(new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("l platform clicked");
-                if (!darkPlatformSelected) {
+                if(!platformSelected) {
                     hideDropdowns();
                 }
-                darkPlatformSelected = !darkPlatformSelected;
+                platformSelected = !platformSelected;
                 createSidebar();
             }
         });
 
-        final ImageTextButton allPlatformDropdown = new ImageTextButton("All Platform", dropDownStyle);
-        allPlatformDropdown.addListener(new ClickListener() {
+
+        ImageTextButton.ImageTextButtonStyle selectButtonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture),
+                new TextureRegionDrawable(buttonDownTexture), new TextureRegionDrawable(buttonDownTexture), font);
+
+
+        lightPlatformSelect = new ImageTextButton("Light", selectButtonStyle);
+        lightPlatformSelect.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                if (!allPlatformSelected) {
-                    hideDropdowns();
-                }
-                allPlatformSelected = !allPlatformSelected;
-                createSidebar();
+                darkPlatformSelect.setChecked(false);
+                allPlatformSelect.setChecked(false);
+                lightPlatformSelect.setChecked(true);
+                currPlatformSelection = 0;
             }
         });
 
+        darkPlatformSelect = new ImageTextButton("Dark", selectButtonStyle);
+        darkPlatformSelect.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                darkPlatformSelect.setChecked(true);
+                allPlatformSelect.setChecked(false);
+                lightPlatformSelect.setChecked(false);
+                currPlatformSelection = 1;
+            }
+        });
+
+        allPlatformSelect = new ImageTextButton("All", selectButtonStyle);
+        allPlatformSelect.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                darkPlatformSelect.setChecked(false);
+                allPlatformSelect.setChecked(true);
+                lightPlatformSelect.setChecked(false);
+                currPlatformSelection = 2;
+            }
+        });
+        
 
         Label labelWidth = new Label("Width: ", labelStyle);
         Label labelHeight = new Label("Height: ", labelStyle);
@@ -311,35 +332,40 @@ public class LevelCreator extends WorldController {
         platformHeight.setMaxLength(4);
 
 
+//
+//<<<<<<< Updated upstream
+//        ImageTextButton buttonSelectLight = new ImageTextButton("Add Object", buttonStyle);
+//        buttonSelectLight.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                float width = Float.parseFloat(platformWidth.getText());
+//                float height = Float.parseFloat(platformHeight.getText());
+//                level.addPlatform(10, 10, width, height, lightTag);
+//            }
+//        });
+//        ImageTextButton buttonSelectDark = new ImageTextButton("Add Object", buttonStyle);
+//        buttonSelectDark.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                float width = Float.parseFloat(platformWidth.getText());
+//                float height = Float.parseFloat(platformHeight.getText());
+//                level.addPlatform(10, 10, width, height, darkTag);
+//            }
+//        });
+//        ImageTextButton buttonSelectAll = new ImageTextButton("Add Object", buttonStyle);
+//        buttonSelectAll.addListener(new ClickListener() {
+//=======
+        ImageTextButton addPlatform = new ImageTextButton("Add Object", buttonStyle);
+        addPlatform.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                float width = Float.parseFloat(platformWidth.getText());
+                float height = Float.parseFloat(platformHeight.getText());
 
-        ImageTextButton buttonSelectLight = new ImageTextButton("Add Object", buttonStyle);
-        buttonSelectLight.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                float width = Float.parseFloat(platformWidth.getText());
-                float height = Float.parseFloat(platformHeight.getText());
-                level.addPlatform(10, 10, width, height, lightTag);
+                level.addPlatform(1, 1, width, height, currPlatformSelection);
             }
         });
-        ImageTextButton buttonSelectDark = new ImageTextButton("Add Object", buttonStyle);
-        buttonSelectDark.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                float width = Float.parseFloat(platformWidth.getText());
-                float height = Float.parseFloat(platformHeight.getText());
-                level.addPlatform(10, 10, width, height, darkTag);
-            }
-        });
-        ImageTextButton buttonSelectAll = new ImageTextButton("Add Object", buttonStyle);
-        buttonSelectAll.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                float width = Float.parseFloat(platformWidth.getText());
-                float height = Float.parseFloat(platformHeight.getText());
-                level.addPlatform(10, 10, width, height, allTag);
-            }
-        });
-
+        
         ImageTextButton button2 = new ImageTextButton("Save", buttonStyle);
         button2.addListener(new ClickListener() {
             @Override
@@ -386,6 +412,10 @@ public class LevelCreator extends WorldController {
 
         Table platformParamTable = new Table();
 
+        platformParamTable.add(lightPlatformSelect).pad(0,5,0,5);
+        platformParamTable.add(darkPlatformSelect).pad(0,5,0,5);
+        platformParamTable.add(allPlatformSelect).pad(0,5,0,5);
+        platformParamTable.row();
         platformParamTable.add(labelWidth);
         platformParamTable.add(platformWidth).width(60);
         platformParamTable.row();
@@ -399,35 +429,31 @@ public class LevelCreator extends WorldController {
 
         menuTable.add(button1).colspan(3).center();
         menuTable.row();
-        menuTable.add(lightPlatformDropdown).width(300).height(50).colspan(3).center().pad(0, 0, 20, 0);
+        menuTable.add(platformDropdown).width(300).height(50).colspan(3).center().pad(0, 0, 20, 0);
         menuTable.row();
 
-        if (lightPlatformSelected) {
-            platformParamTable.add(buttonSelectLight).colspan(3).center().pad(0, 0, 20, 0);;
+        if (platformSelected) {
+            platformParamTable.add(addPlatform).colspan(3).center().pad(0, 0, 20, 0);;
             platformParamTable.row();
             menuTable.add(platformParamTable).colspan(3).center();
             menuTable.row();
         }
+        
 
-        menuTable.add(darkPlatformDropdown).width(300).height(50).colspan(3).center().pad(0, 0, 20, 0);
-        menuTable.row();
-
-        if (darkPlatformSelected) {
-            platformParamTable.add(buttonSelectDark).colspan(3).center().pad(0, 0, 20, 0);;
-            platformParamTable.row();
-            menuTable.add(platformParamTable).colspan(3).center();
-            menuTable.row();
-        }
-
-        menuTable.add(allPlatformDropdown).width(300).height(50).colspan(3).center().pad(0, 0, 20, 0);
-        menuTable.row();
-
-        if (allPlatformSelected) {
-            platformParamTable.add(buttonSelectAll).colspan(3).center().pad(0, 0, 20, 0);;
-            platformParamTable.row();
-            menuTable.add(platformParamTable).colspan(3).center();
-            menuTable.row();
-        }
+//        if (darkPlatformSelected) {
+//            platformParamTable.add(buttonSelectDark).colspan(3).center().pad(0, 0, 20, 0);;
+//            platformParamTable.row();
+//            menuTable.add(platformParamTable).colspan(3).center();
+//            menuTable.row();
+//        }
+//        
+//
+//        if (allPlatformSelected) {
+//            platformParamTable.add(buttonSelectAll).colspan(3).center().pad(0, 0, 20, 0);;
+//            platformParamTable.row();
+//            menuTable.add(platformParamTable).colspan(3).center();
+//            menuTable.row();
+//        }
 
         menuTable.pad(10);
 
@@ -440,16 +466,6 @@ public class LevelCreator extends WorldController {
         menuTable.row();
 
         menuTable.add(switchBackgroundButton).colspan(3).center();
-
-
-//        menuTable.add(platformParamTable);
-
-
-//        menuTable.add(tileSelect);
-
-
-
-
 
         stage.addActor(menuTable);
         menuTable.setPosition(canvas.getWidth() - 200, canvas.getHeight()/2);
