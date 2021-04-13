@@ -79,6 +79,14 @@ public class LevelCreator extends WorldController {
 
     private int currBackground;
 
+    /** constants */
+    private final int lightTag = 0;
+    private final int darkTag = 1;
+    private final int allTag = 2;
+    private final int somniTag = 3;
+    private final int phobiaTag = 4;
+
+
 
     private boolean moving = false;
 
@@ -144,10 +152,10 @@ public class LevelCreator extends WorldController {
             objects.remove(o);
         }
         public void addSomni(float posX, float posY){
-            int tag = 3;
+            int tag = somniTag;
             float height = 2;
             float width = 1;
-            platformList.add(new Platform(posX,posY,1,2,tag));
+            platformList.add(new Platform(posX,posY,width,height,tag));
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
             obj.setDrawScale(scale);
@@ -157,10 +165,10 @@ public class LevelCreator extends WorldController {
             addObject(obj);
         }
         public void addPhobia(float posX, float posY){
-            int tag = 4;
+            int tag = phobiaTag;
             float height = 2;
             float width = 1;
-            platformList.add(new Platform(posX,posY,1,2,tag));
+            platformList.add(new Platform(posX,posY,width,height,tag));
             Platform obj = new Platform(posX + width / 2, posY + height / 2, width,height, tag);
             obj.deactivatePhysics(this.levelCreator.world);
             obj.setDrawScale(scale);
@@ -299,7 +307,7 @@ public class LevelCreator extends WorldController {
             public void clicked(InputEvent event, float x, float y) {
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
-                level.addPlatform(10, 10, width, height, 0);
+                level.addPlatform(10, 10, width, height, lightTag);
             }
         });
         ImageTextButton buttonSelectDark = new ImageTextButton("Add Object", buttonStyle);
@@ -308,7 +316,7 @@ public class LevelCreator extends WorldController {
             public void clicked(InputEvent event, float x, float y) {
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
-                level.addPlatform(10, 10, width, height, 1);
+                level.addPlatform(10, 10, width, height, darkTag);
             }
         });
         ImageTextButton buttonSelectAll = new ImageTextButton("Add Object", buttonStyle);
@@ -317,7 +325,7 @@ public class LevelCreator extends WorldController {
             public void clicked(InputEvent event, float x, float y) {
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
-                level.addPlatform(10, 10, width, height, 2);
+                level.addPlatform(10, 10, width, height, allTag);
             }
         });
 
