@@ -1,0 +1,13 @@
+{
+"dimensions": [ 100, 100 ],
+"somni": {
+	"pos": [ 5, 5 ]
+},
+"phobia": {
+	"pos": [ 7, 5 ]
+},
+"goal": {
+	"pos": [ 9, 5 ]
+},
+"objects": []
+}

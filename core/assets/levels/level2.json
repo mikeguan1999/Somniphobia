@@ -1,0 +1,45 @@
+{
+  "dimensions": [1000,1000],
+  "somni": {
+    "pos": [3.5, 5.5]
+  },
+  "phobia": {
+    "pos": [2.5, 5.5]
+  },
+  "goal": {
+    "pos": [25.0, 12.0]
+  },
+  "objects": [
+    {
+      "type": "light",
+      "assetName": "platform:light",
+      "positions": [
+        [7.0, 2.0, 6.0, 1.0],
+        [19.0, 2.0, 1.0, 7.0],
+      ],
+      "properties": [],
+      "behaviors": []
+    },
+    {
+      "type": "dark",
+      "assetName": "platform:dark",
+      "positions": [
+        [21.0, 3.0, 10.0, 1.0],
+        [29.0, 6.0, 2.0, 1.0]
+      ],
+      "properties": [],
+      "behaviors": []
+    },
+    {
+      "type": "all",
+      "assetName": "platform:all",
+      "positions": [
+        [1.0, 2.0, 4.0, 1.0],
+        [15.0, 2.0, 4.0, 1.0],
+        [19.0, 9.0, 8.0, 1.0]
+      ],
+      "properties": [],
+      "behaviors": []
+    }
+  ]
+}

@@ -153,11 +153,9 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
 	 */
-	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type, String level) {
+	public CharacterModel(JsonValue data, float x, float y, float width, float height, Filter f, boolean type) {
 		// The shrink factors fit the image to a tighter hitbox
-		super(	data.get("pos"+level).getFloat(0),
-				data.get("pos"+level).getFloat(1),
-				width*data.get("shrink").getFloat( 0 ),
+		super(	x, y, width*data.get("shrink").getFloat( 0 ),
 				height*data.get("shrink").getFloat( 1 ));
 		setDensity(data.getFloat("density", 0));
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
@@ -168,12 +166,11 @@ public class CharacterModel extends CapsuleObstacle {
 		dashDirection = new Vector2(0,0);
 		forceCache = new Vector2();
 
-		maxspeed = data.getFloat("maxspeed", 0);
+		maxspeed = data.getFloat("max_speed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
-		dashDamping = 5f;
-//		jumpForce = data.getFloat( "jump_force", 0 );
-		jumpForce = 8f;
+		dashDamping = data.getFloat("dash_damping", 0);
+		jumpForce = data.getFloat( "jump_force", 0 );
 		jumpLimit = data.getInt( "jump_cool", 0 );
 		sensorName = type == LIGHT ? "SomniSensor" : "PhobiaSensor";
 		this.data = data;
