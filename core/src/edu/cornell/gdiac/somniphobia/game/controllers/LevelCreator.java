@@ -52,6 +52,8 @@ public class LevelCreator extends WorldController {
     protected static final float[] CHARACTER_DIMENSIONS = new float[]{1.0f, 2.0f};
     protected static final float[] GOAL_DIMENSIONS = new float[]{2.0f, 4.0f};
 
+    private int worldWidth;
+    private int worldHeight;
 
     /** Mouse selector to move the platforms */
     private ObstacleSelector selector;
@@ -114,11 +116,12 @@ public class LevelCreator extends WorldController {
 
     private TextField platformWidth;
     private TextField platformHeight;
+    private TextField worldWidthText;
+    private TextField worldHeightText;
+
 
 
     private TextField loadPath;
-
-    private Vector2 wasdPosition;
 
 
     class Platform extends BoxObstacle {
@@ -164,8 +167,8 @@ public class LevelCreator extends WorldController {
         setComplete(false);
         setFailure(false);
 
-        wasdPosition = new Vector2(0, 0);
-
+        this.worldWidth = DEFAULT_WORLD_WIDTH;
+        this.worldHeight = DEFAULT_WORLD_HEIGHT;
 
     }
 
@@ -208,21 +211,53 @@ public class LevelCreator extends WorldController {
 
         BitmapFont font = displayFont;
         font.setColor(Color.BLACK);
-        System.out.println(font);
         font.getData().setScale(.3f, .3f);
         labelStyle = new Label.LabelStyle(font, Color.BLACK);
-
-
         Label label1 = new Label("Level Editor", labelStyle);
 
+        // Widget Styles
         ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture), new TextureRegionDrawable(buttonDownTexture), null, font);
         buttonStyle.fontColor = Color.BLACK;
 
+        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle(font, Color.BLACK, new TextureRegionDrawable(cursorTexture),
+                new TextureRegionDrawable(textBackground), new TextureRegionDrawable(textBackground));
+
+        ImageTextButton.ImageTextButtonStyle dropDownStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(dropdownTexture),
+                new TextureRegionDrawable(dropdownTexture), new TextureRegionDrawable(dropdownTexture), font);
+        dropDownStyle.fontColor = Color.BLACK;
+
+        ImageTextButton.ImageTextButtonStyle selectButtonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture),
+                new TextureRegionDrawable(buttonDownTexture), new TextureRegionDrawable(buttonDownTexture), font);
 
 
-        ImageTextButton button1 = new ImageTextButton("Remove Object", buttonStyle);
+        // World Dimensions
+        Label labelWorldDimension = new Label("World Dimensions: ", labelStyle);
 
-        button1.addListener(new ClickListener() {
+        worldWidthText = new TextField(null, textFieldStyle);
+        worldWidthText.setText(String.valueOf(DEFAULT_WORLD_WIDTH));
+        worldWidthText.setMaxLength(4);
+
+        worldHeightText = new TextField(null, textFieldStyle);
+        worldHeightText.setText(String.valueOf(DEFAULT_WORLD_HEIGHT));
+        worldHeightText.setMaxLength(4);
+
+
+        // Remove Object
+        ImageTextButton setWorldDimension = new ImageTextButton("Set Dimensions", buttonStyle);
+
+        setWorldDimension.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                worldWidth = Integer.parseInt(worldWidthText.getText());
+                worldHeight = Integer.parseInt(worldHeightText.getText());
+            }
+        });
+
+
+        // Remove Object
+        ImageTextButton removeObjectButton = new ImageTextButton("Remove Object", buttonStyle);
+
+        removeObjectButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
@@ -233,9 +268,6 @@ public class LevelCreator extends WorldController {
         });
 
 
-        ImageTextButton.ImageTextButtonStyle dropDownStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(dropdownTexture),
-                new TextureRegionDrawable(dropdownTexture), new TextureRegionDrawable(dropdownTexture), font);
-        dropDownStyle.fontColor = Color.BLACK;
 
         final ImageTextButton platformDropdown = new ImageTextButton("Platform", dropDownStyle);
         platformDropdown.addListener(new ClickListener() {
@@ -249,8 +281,8 @@ public class LevelCreator extends WorldController {
         });
 
 
-        ImageTextButton.ImageTextButtonStyle selectButtonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture),
-                new TextureRegionDrawable(buttonDownTexture), new TextureRegionDrawable(buttonDownTexture), font);
+
+
 
 
         lightPlatformSelect = new ImageTextButton("Light", selectButtonStyle);
@@ -287,8 +319,6 @@ public class LevelCreator extends WorldController {
         Label labelDimension = new Label("Dimensions: ", labelStyle);
 
 
-        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle(font, Color.BLACK, new TextureRegionDrawable(cursorTexture),
-                new TextureRegionDrawable(textBackground), new TextureRegionDrawable(textBackground));
         platformWidth = new TextField(null, textFieldStyle);
         platformWidth.setText("2");
         platformWidth.setMaxLength(4);
@@ -302,8 +332,8 @@ public class LevelCreator extends WorldController {
         addPlatform.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                float posX = canvas.getWidth()/2;
-                float posY = canvas.getHeight()/2;
+                float posX = canvas.getWidth()/canvas.PPM/2;
+                float posY = canvas.getHeight()/canvas.PPM/2;
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
                 float[] platformDimensions = new float[]{width, height};
@@ -318,7 +348,7 @@ public class LevelCreator extends WorldController {
         button2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                LevelSerializer.serialize(DEFAULT_WORLD_WIDTH, DEFAULT_WORLD_HEIGHT, platformList);
+                LevelSerializer.serialize(worldWidth, worldHeight, platformList);
             }
         });
 
@@ -389,7 +419,15 @@ public class LevelCreator extends WorldController {
         menuTable.add(label1).colspan(3).center();
         menuTable.row();
 
-        menuTable.add(button1).colspan(3).center();
+        menuTable.add(labelWorldDimension).colspan(3).center();
+        menuTable.row();
+        menuTable.add(worldWidthText).width(60);
+        menuTable.add(worldHeightText).width(60);
+        menuTable.row();
+        menuTable.add(setWorldDimension).colspan(3).center().pad(0,0,10,0);
+        menuTable.row();
+
+        menuTable.add(removeObjectButton).colspan(3).center();
         menuTable.row();
         menuTable.add(platformDropdown).width(300).height(50).colspan(3).center().pad(0, 0, 20, 0);
         menuTable.row();
@@ -508,14 +546,15 @@ public class LevelCreator extends WorldController {
                     }else{
                         y = pos.y;
                     }
+
                     obj.setPosition(x, y);
                     for(Platform platform: platformList) {
                         if(platform.equals(obj)) {
                             // Map center origin to bottom left
                             platform.position[0] = x - platform.position[2] / 2;
                             platform.position[1] = y - platform.position[3] / 2;
-                            System.out.println(x);
-                            System.out.println(y);
+                            platform.position[0] = Math.max(0 ,platform.position[0]);
+                            platform.position[1] = Math.max(0, platform.position[1]);
                         }
                     }
                     obj.setVX(0);
@@ -706,7 +745,7 @@ public class LevelCreator extends WorldController {
             Level level = new Level(levelWidth, levelHeight, platforms);
             Json json = new Json();
             json.setOutputType(JsonWriter.OutputType.json);
-            FileHandle file = Gdx.files.local("levels/level5.json");
+            FileHandle file = Gdx.files.local("drafts/drafts.json");
             file.writeString(json.prettyPrint(level), false);
         }
 
