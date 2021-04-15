@@ -80,6 +80,7 @@ public class LevelCreator extends WorldController {
     private Texture sliderBarTexture;
     private Texture sliderKnobTexture;
     private Texture dropdownTexture;
+    private Texture dropdownDownTexture;
     private Texture cursorTexture;
 
     private boolean platformSelected;
@@ -232,7 +233,7 @@ public class LevelCreator extends WorldController {
                 new TextureRegionDrawable(textBackground), new TextureRegionDrawable(textBackground));
 
         ImageTextButton.ImageTextButtonStyle dropDownStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(dropdownTexture),
-                new TextureRegionDrawable(dropdownTexture), new TextureRegionDrawable(dropdownTexture), font);
+                new TextureRegionDrawable(dropdownTexture), new TextureRegionDrawable(dropdownDownTexture), font);
         dropDownStyle.fontColor = Color.BLACK;
 
         final ImageTextButton.ImageTextButtonStyle selectButtonStyle = new ImageTextButton.ImageTextButtonStyle(new TextureRegionDrawable(buttonUpTexture),
@@ -288,6 +289,8 @@ public class LevelCreator extends WorldController {
                 createSidebar();
             }
         });
+
+        platformDropdown.setChecked(platformSelected);
 
 
         lightPlatformSelect = new ImageTextButton("Light", selectButtonStyle);
@@ -649,6 +652,7 @@ public class LevelCreator extends WorldController {
         textBackground = directory.getEntry( "level_editor:text_background", Texture.class);
         selectBackground = directory.getEntry("level_editor:select_background", Texture.class);
         dropdownTexture = directory.getEntry("level_editor:dropdown", Texture.class);
+        dropdownDownTexture = directory.getEntry("level_editor:dropdown_down", Texture.class);
         cursorTexture = directory.getEntry("level_editor:cursor", Texture.class);
 
 
