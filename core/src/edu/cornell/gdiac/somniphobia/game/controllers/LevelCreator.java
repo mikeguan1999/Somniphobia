@@ -83,6 +83,7 @@ public class LevelCreator extends WorldController {
     private Texture cursorTexture;
 
     private boolean platformSelected;
+    private boolean editSelected;
 //    private boolean characterSelected;
 //    private boolean doorSelected;
 
@@ -92,6 +93,11 @@ public class LevelCreator extends WorldController {
     private ImageTextButton lightPlatformSelect;
     private ImageTextButton darkPlatformSelect;
     private ImageTextButton allPlatformSelect;
+
+    private ImageTextButton widthInc;
+    private ImageTextButton widthDec;
+    private ImageTextButton heightInc;
+    private ImageTextButton heightDec;
 
     /** Tag constants */
     protected final static int lightTag = 0;
@@ -122,6 +128,7 @@ public class LevelCreator extends WorldController {
 
 
     private TextField loadPath;
+
 
 
     class Platform extends BoxObstacle {
@@ -174,6 +181,7 @@ public class LevelCreator extends WorldController {
 
     public void hideDropdowns() {
         platformSelected = false;
+        editSelected = false;
 //        darkPlatformSelected = false;
 //        allPlatformSelected = false;
 //        characterSelected = false;
@@ -279,10 +287,6 @@ public class LevelCreator extends WorldController {
                 createSidebar();
             }
         });
-
-
-
-
 
 
         lightPlatformSelect = new ImageTextButton("Light", selectButtonStyle);
@@ -434,7 +438,7 @@ public class LevelCreator extends WorldController {
         menuTable.row();
 
         if (platformSelected) {
-            platformParamTable.add(addPlatform).colspan(3).center().pad(0, 0, 20, 0);;
+            platformParamTable.add(addPlatform).colspan(3).center().pad(0, 0, 20, 0);
             platformParamTable.row();
             menuTable.add(platformParamTable).colspan(3).center();
             menuTable.row();
@@ -501,7 +505,6 @@ public class LevelCreator extends WorldController {
         addQueue.clear();
         world.dispose();
 
-
         world = new World(gravity,false);
         setComplete(false);
         setFailure(false);
@@ -512,7 +515,7 @@ public class LevelCreator extends WorldController {
     public void update(float dt) {
         // Move an object if touched
         Camera camera = canvas.getCamera();
-
+        displayFont.getData().setScale(.3f);
         InputController input = InputController.getInstance();
         if (input.didTertiary() && !selector.isSelected()) {
             if(selector.select((camera.position.x- canvas.getWidth()/2) / canvas.PPM + input.getCrossHair().x ,
@@ -612,6 +615,12 @@ public class LevelCreator extends WorldController {
         backgrounds = new TextureRegion[] {
                 new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light_gear", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_dark_gear", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light_dreams", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_dark_dreams", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light_house", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
         };
 
 
