@@ -348,7 +348,8 @@ public class LevelCreator extends WorldController {
         button2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                LevelSerializer.serialize(worldWidth, worldHeight, platformList);
+                String fileName = loadPath.getText();
+                LevelSerializer.serialize(fileName, worldWidth, worldHeight, platformList);
             }
         });
 
@@ -741,11 +742,11 @@ public class LevelCreator extends WorldController {
             }
         }
 
-        public static void serialize(int levelWidth, int levelHeight, PooledList<Platform> platforms) {
+        public static void serialize(String fileName, int levelWidth, int levelHeight, PooledList<Platform> platforms) {
             Level level = new Level(levelWidth, levelHeight, platforms);
             Json json = new Json();
             json.setOutputType(JsonWriter.OutputType.json);
-            FileHandle file = Gdx.files.local("drafts/drafts.json");
+            FileHandle file = Gdx.files.local(String.format("drafts/%s.json", fileName));
             file.writeString(json.prettyPrint(level), false);
         }
 
