@@ -635,6 +635,9 @@ public class PlatformController extends WorldController {
 		movementController.setLead(somni);
 
 		maskLeader = phobia;
+		switching = false;
+		maskWidth = MIN_MASK_DIMENSIONS.x;
+		maskHeight = MIN_MASK_DIMENSIONS.y;
 
 	}
 
