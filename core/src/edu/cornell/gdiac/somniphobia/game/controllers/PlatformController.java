@@ -882,9 +882,11 @@ public class PlatformController extends WorldController {
         }
         else{
             if(lead == somni){
-                avatar.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+                somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+                phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
             }else{
-                avatar.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+                phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+				somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
             }
         }
 

@@ -179,7 +179,6 @@ public class MovementController implements ContactListener {
         InputController inputController = InputController.getInstance();
         avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
         avatar.setJumping(inputController.didJump());
-        System.out.println(avatar.isGrounded());
 
         if(inputController.didDash()) {
             handleDash(inputController.getHorizontal(), inputController.getVertical());
@@ -410,8 +409,6 @@ public class MovementController implements ContactListener {
                     avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
                     avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
                 avatar.endDashing();
-                avatar.setGravityScale(1);
-
             }
 
             // See if we have landed on the ground.
