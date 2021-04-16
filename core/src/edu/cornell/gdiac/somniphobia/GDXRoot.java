@@ -43,7 +43,15 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 
+	/** Current level the player is on*/
+	private int level = 1;
+
 	private OrthographicCamera cam;
+
+	private final int LEVEL_CONTROLLER_INDEX = 0;
+	private final int LEVEL_CREATOR_INDEX = 1;
+
+	private final int MAX_LEVELS = 4;
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -68,13 +76,9 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		// Initialize the Platformer Controller
 		// TODO
-		controllers = new WorldController[5];
-//		controllers[0] = new PlatformController(0);
-		controllers[0] = new LevelCreator();
-		controllers[1] = new PlatformController(1);
-		controllers[2] = new PlatformController(2);
-		controllers[3] = new PlatformController(3);
-		controllers[4] = new PlatformController(4);
+		controllers = new WorldController[2];
+		controllers[LEVEL_CONTROLLER_INDEX] = new PlatformController();
+		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
 
 		levelCreator = new LevelCreator();
 
@@ -139,7 +143,15 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas.resize();
 		super.resize(width,height);
 	}
-	
+
+	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
+	 *  otherwise, prepares for level `num`. */
+	public void prepareLevelJson(WorldController wc, int num, boolean increment) {
+		PlatformController pc = (PlatformController) wc;
+		pc.setLevel(increment ? pc.getLevel() + num : num);
+		pc.gatherLevelJson(directory);
+	}
+
 	/**
 	 * The given screen has made a request to exit its player mode.
 	 *
@@ -154,6 +166,9 @@ public class GDXRoot extends Game implements ScreenListener {
 
 				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
+				if(ii == LEVEL_CONTROLLER_INDEX) {
+					prepareLevelJson(controllers[ii], 1, false);
+				}
 				controllers[ii].setScreenListener(this);
 				controllers[ii].setCanvas(canvas);
 			}
@@ -165,19 +180,24 @@ public class GDXRoot extends Game implements ScreenListener {
 			loading.dispose();
 			loading = null;
 		} else if (exitCode == WorldController.EXIT_NEXT) {
-			current = (current + 1 ) % controllers.length;
-			controllers[current].reset();
-			setScreen(controllers[current]);
+			if(current == LEVEL_CONTROLLER_INDEX) {
+				prepareLevelJson(controllers[current], 1, true);
+				controllers[current].reset();
+			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
-
-			current = (current+controllers.length-1) % controllers.length;
-
+			if(current == LEVEL_CONTROLLER_INDEX) {
+				prepareLevelJson(controllers[current], -1, true);
+				controllers[current].reset();
+			}
+		} else if (exitCode == WorldController.EXIT_SWITCH) {
+			current = (current + 1 ) % controllers.length;
 			controllers[current].reset();
 			setScreen(controllers[current]);
 		} else if (exitCode == WorldController.EXIT_QUIT) {
 			// We quit the main application
 			Gdx.app.exit();
 		}
+		System.out.println(level);
 	}
 
 }
