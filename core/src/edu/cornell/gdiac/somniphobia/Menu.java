@@ -66,7 +66,7 @@ public class Menu implements Screen {
 	/** Whether this is the initial(first) iteration */
 	private boolean first=true;
 	/** The value of initial Y position of the button group */
-	private float initialButtonY;
+	private float initialButtonY=203;
 	/** Reference of the stage of this screen */
 	private Stage stage;
 	/** Reference of the table of this screen */
@@ -207,12 +207,17 @@ public class Menu implements Screen {
 		table.add(cloudLineImage).colspan(numLevels+2).height(CLOUDLINE_HEIGHT).width(CLOUDLINE_WIDTH);
 		cloudlineActor = (Actor) cloudLineImage;
 
+		stage.addActor(table);
+		table.validate();
 		for (int j=startIndex; j<startIndex+numLevels; j++){
 			Actor buttonActor = (Actor) buttons[j];
 			positionsX[j%numLevels] = buttonActor.getX();
 		}
 
-		stage.addActor(table);
+		cloudlineActor.setY(CLOUDLINE_YPOSITION);
+		leftButton.setX(50);
+		rightButton.setX(canvas.getWidth()-100);
+
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
@@ -280,6 +285,7 @@ public class Menu implements Screen {
 				Actor actor = (Actor) buttons[i];
 				actor.setX(positionsX[i%numLevels]);
 				actor.setY(initialButtonY);
+				System.out.println(initialButtonY);
 			}
 		}
 	}
@@ -321,9 +327,9 @@ public class Menu implements Screen {
 					buttons[i].setVisible(false);
 				}
 			}
-			cloudlineActor.setY(CLOUDLINE_YPOSITION);
-			leftButton.setX(50);
-			rightButton.setX(canvas.getWidth()-100);
+//			cloudlineActor.setY(CLOUDLINE_YPOSITION);
+//			leftButton.setX(50);
+//			rightButton.setX(canvas.getWidth()-100);
 
 			if (first) {
 				for (int j = startIndex; j < startIndex+numLevels; j++) {
