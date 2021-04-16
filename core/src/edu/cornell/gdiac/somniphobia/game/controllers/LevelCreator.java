@@ -53,6 +53,8 @@ public class LevelCreator extends WorldController {
     private int worldWidth;
     private int worldHeight;
 
+    private final float CAMERA_SPEED = 6.0f;
+
     /** Mouse selector to move the platforms */
     private ObstacleSelector selector;
     /** List to hold all platforms */
@@ -107,7 +109,7 @@ public class LevelCreator extends WorldController {
     protected final static int goalTag = 5;
 
     private int currBackground;
-    private int currPlatformSelection;
+    private int selectedPlatformTag; // needs to be removed since we have reference to selectedObstacle
 
 
     private boolean moving = false;
@@ -220,7 +222,7 @@ public class LevelCreator extends WorldController {
         } else {
             loading = false;
         }
-        currPlatformSelection = 0;
+        selectedPlatformTag = 0;
 
     }
 
@@ -286,7 +288,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                if (selectedObstacle != null) {
+                if (selectedObstacle != null && ((Platform) selectedObstacle).tag < somniTag) {
                     deletePlatform(selectedObstacle);
                 }
             }
@@ -350,8 +352,6 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Camera camera = canvas.getCamera();
-//                float posX = camera.position.x + canvas.getWidth()/canvas.PPM/2;
-//                float posY = camera.position.y + canvas.getHeight()/canvas.PPM/2;
                 float posX = (int) (camera.position.x/canvas.PPM);
                 float posY = (int) (camera.position.y/canvas.PPM);
                 float width = Float.parseFloat(platformWidth.getText());
@@ -360,7 +360,9 @@ public class LevelCreator extends WorldController {
                 ArrayList<String> properties = new ArrayList<>();
                 ArrayList<String> behaviors = new ArrayList<>();
 
-                createPlatform(currPlatformSelection, posX, posY, width, height, behaviors, properties);
+                if(selectedPlatformTag < somniTag) {
+                    createPlatform(selectedPlatformTag, posX, posY, width, height, behaviors, properties);
+                }
             }
         });
 
@@ -376,7 +378,7 @@ public class LevelCreator extends WorldController {
                     float posY = currPlatform.getY() - currPlatform.getHeight() / 2;
                     float width = Float.parseFloat(platformWidth.getText());
                     float height = Float.parseFloat(platformHeight.getText());
-                    int tag = currPlatformSelection;
+                    int tag = selectedPlatformTag;
                     ArrayList<String> properties = currPlatform.properties;
                     ArrayList<String> behaviors = currPlatform.behaviors;
 
@@ -522,7 +524,7 @@ public class LevelCreator extends WorldController {
             lightPlatformSelect.setChecked(tag == lightTag);
             darkPlatformSelect.setChecked(tag == darkTag);
             allPlatformSelect.setChecked(tag == allTag);
-            currPlatformSelection = tag;
+            selectedPlatformTag = tag;
         }
 
     }
@@ -542,13 +544,19 @@ public class LevelCreator extends WorldController {
     }
 
     public void draw(float dt) {
+
+        // Draw background at camera position
+        Camera camera = canvas.getCamera();
+        float cameraX = camera.position.x - canvas.getWidth() / 2;
+        float cameraY = camera.position.y - canvas.getHeight() / 2;
         canvas.begin();
-//        canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
-        canvas.draw(backgrounds[currBackground], 0, 0);
-        selector.draw(canvas);
+        canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
         canvas.end();
 
-
+        // Draw the selector
+        canvas.begin();
+        selector.draw(canvas);
+        canvas.end();
 
         canvas.begin();
         for(Obstacle obj : objects) {
@@ -645,8 +653,12 @@ public class LevelCreator extends WorldController {
         }
 
 
-        camera.position.x = Math.min(Math.max(canvas.getWidth() / 2, camera.position.x + InputController.getInstance().getCameraHorizontal() * 6), DEFAULT_WORLD_WIDTH);
-        camera.position.y = Math.min(Math.max(canvas.getHeight() / 2, camera.position.y + InputController.getInstance().getCameraVertical() * 6), DEFAULT_WORLD_HEIGHT);
+        float newX = Math.max(canvas.getWidth() / 2, camera.position.x +
+                InputController.getInstance().getCameraHorizontal() * CAMERA_SPEED);
+        camera.position.x = Math.min(newX, DEFAULT_WORLD_WIDTH > worldWidth ? DEFAULT_WORLD_WIDTH : worldWidth);
+        float newY = Math.max(canvas.getHeight() / 2, camera.position.y +
+                InputController.getInstance().getCameraVertical() * CAMERA_SPEED);
+        camera.position.y = Math.min(newY, DEFAULT_WORLD_HEIGHT > worldHeight ? DEFAULT_WORLD_HEIGHT : worldHeight);
         menuTable.setPosition(camera.position.x + canvas.getWidth() / 3, camera.position.y);
         selector.moveTo((camera.position.x- canvas.getWidth()/2) / canvas.PPM + input.getCrossHair().x ,
                 (camera.position.y- canvas.getHeight()/2) / canvas.PPM + input.getCrossHair().y  );
