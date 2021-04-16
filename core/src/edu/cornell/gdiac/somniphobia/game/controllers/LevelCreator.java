@@ -127,6 +127,7 @@ public class LevelCreator extends WorldController {
     private TextField worldHeightText;
 
 
+    Stage stage;
 
     private TextField loadPath;
 
@@ -192,6 +193,7 @@ public class LevelCreator extends WorldController {
 
 
     public void initialize() {
+        stage = new Stage(new ScreenViewport(canvas.getCamera()));
         hideDropdowns();
         createSidebar();
         selector= new ObstacleSelector(world,1 ,1);
@@ -210,10 +212,10 @@ public class LevelCreator extends WorldController {
                 GOAL_DIMENSIONS[1], null, null);
         currPlatformSelection = 0;
 
+
     }
 
     public void createSidebar() {
-        final Stage stage = new Stage(new ScreenViewport(canvas.getCamera()));
         menuTable = new Table();
         batch = canvas.getBatch();
 
@@ -243,13 +245,17 @@ public class LevelCreator extends WorldController {
         // World Dimensions
         Label labelWorldDimension = new Label("World Dimensions: ", labelStyle);
 
+        TextField.TextFieldFilter numberFilter = new TextField.TextFieldFilter.DigitsOnlyFilter();
+
         worldWidthText = new TextField(null, textFieldStyle);
         worldWidthText.setText(String.valueOf(DEFAULT_WORLD_WIDTH));
         worldWidthText.setMaxLength(4);
+        worldWidthText.setTextFieldFilter(numberFilter);
 
         worldHeightText = new TextField(null, textFieldStyle);
         worldHeightText.setText(String.valueOf(DEFAULT_WORLD_HEIGHT));
         worldHeightText.setMaxLength(4);
+        worldHeightText.setTextFieldFilter(numberFilter);
 
 
         // Remove Object
@@ -322,18 +328,23 @@ public class LevelCreator extends WorldController {
         platformWidth = new TextField(null, textFieldStyle);
         platformWidth.setText("2");
         platformWidth.setMaxLength(4);
+        platformWidth.setTextFieldFilter(numberFilter);
 
 
         platformHeight = new TextField(null, textFieldStyle);
         platformHeight.setText("2");
         platformHeight.setMaxLength(4);
+        platformHeight.setTextFieldFilter(numberFilter);
 
         ImageTextButton addPlatform = new ImageTextButton("Add", buttonStyle);
         addPlatform.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                float posX = canvas.getWidth()/canvas.PPM/2;
-                float posY = canvas.getHeight()/canvas.PPM/2;
+                Camera camera = canvas.getCamera();
+//                float posX = camera.position.x + canvas.getWidth()/canvas.PPM/2;
+//                float posY = camera.position.y + canvas.getHeight()/canvas.PPM/2;
+                float posX = (int) (camera.position.x/canvas.PPM);
+                float posY = (int) (camera.position.y/canvas.PPM);
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
                 float[] platformDimensions = new float[]{width, height};
@@ -425,7 +436,6 @@ public class LevelCreator extends WorldController {
         switchBackgroundButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("switch background!");
                 currBackground++;
                 currBackground %= backgrounds.length;
             }
