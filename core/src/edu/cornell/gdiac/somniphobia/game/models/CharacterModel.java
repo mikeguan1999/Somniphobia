@@ -201,8 +201,8 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param value left/right movement of this character.
 	 */
 	public void setMovement(float value) {
-		System.out.println(value);
 		movement = value;
+		System.out.println(String.format("Movement received: %f",value));
 		// Change facing if appropriate
 		if (movement < 0) {
 			faceRight = false;
@@ -287,11 +287,9 @@ public class CharacterModel extends CapsuleObstacle {
 		if (dir_X == 0 && dir_Y == 0) {
 			// Default dash in direction player faces
 			dashDirection.set(isFacingRight() ? 1 : -1, 0);
-//			System.out.println(dashDirection);
 
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
-//			System.out.println(dashDirection);
 		}
 		dashStartPos.set(getPosition());
 		isDashing = canDash;
@@ -501,33 +499,23 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 
 		// Velocity too high on ground, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed() && !isDashing() && isGrounded) {
+		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded) {
 			setVX(Math.signum(getVX()) * getMaxSpeed());
-		}
-//		else if (Math.abs(getVX()) >= getMaxSpeed() * 1.5f && !isDashing()) {
-//			setVX(Math.signum(getVX()) * getMaxSpeed() * 1.4f);
-//		}
-		else if (!isDashing()){
+		} else if (!isDashing()) {
 			forceCache.set(getMovement() * .3f,getVY());
-
-//			body.applyForce(forceCache,getPosition(),true);
 			body.setLinearVelocity(forceCache);
 		}
 
 		// Jump!
 		if (isJumping()) {
 			forceCache.set(0, jumpForce * 1.5f);
-//			body.applyLinearImpulse(forceCache,getPosition(),true);
 			body.setLinearVelocity(forceCache);
 		}
 
 		// Dash!
 		if (isDashing() && !dashed) {
-//			System.out.println("Dash in direction: (" + dashDirection.x + "," + dashDirection.y);
 			forceCache.set(dashDirection.scl(dashVelocity));
 			body.setLinearVelocity(forceCache);
-
-//			body.applyLinearImpulse(forceCache, getPosition(), true);
 			dashed = true;
 		}
 	}

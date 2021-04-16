@@ -350,20 +350,18 @@ public class InputController {
 	private void readKeyboard(Rectangle bounds, Vector2 scale) {
 		// Give priority to gamepad results
 
-		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
-		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
-		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
-		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.UP);
-		dashPressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
-		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.E);
-		switchPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
-		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
+		resetPressed			= Gdx.input.isKeyPressed(Input.Keys.R);
+		debugPressed  			= Gdx.input.isKeyPressed(Input.Keys.G);
+		sliderToggled  			= Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
+		jumpPressed  			= Gdx.input.isKeyPressed(Input.Keys.UP);
+		dashPressed 			= Gdx.input.isKeyPressed(Input.Keys.SPACE);
+		handHoldingPressed 		= Gdx.input.isKeyPressed(Input.Keys.E);
+		switchPressed 			= Gdx.input.isKeyPressed(Input.Keys.Q);
+		exitPressed   			= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
-		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
-		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
-		walkPressed = (Gdx.input.isKeyPressed(Input.Keys.LEFT)) ||
-				(Gdx.input.isKeyPressed(Input.Keys.RIGHT));
-
+		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
+		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
+		walkPressed 			= Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT);
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
 		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));
@@ -371,9 +369,6 @@ public class InputController {
 		dPressed = (Gdx.input.isKeyPressed(Input.Keys.D));
 
 		// Directional controls
-
-
-
 		horizontal = 0.0f;
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 			horizontal += 1.0f;
@@ -391,35 +386,19 @@ public class InputController {
 		}
 
 		cameraHorizontal = 0.0f;
-		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+		if (dPressed) {
 			cameraHorizontal += 1.0f;
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+		if (aPressed) {
 			cameraHorizontal -= 1.0f;
 		}
 
 		cameraVertical = 0.0f;
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+		if (wPressed) {
 			cameraVertical += 1.0f;
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+		if (sPressed) {
 			cameraVertical -= 1.0f;
-		}
-
-
-
-		// Print testing for unimplemented features
-		boolean DEBUG = false;
-		if (DEBUG) {
-			if(dashPressed) {
-				System.out.println("Somni/Phobia dashes");
-			}
-			if(handHoldingPressed) {
-				System.out.println("Somni & Phobia hold hands");
-			}
-			if(switchPressed) {
-				System.out.println("Somni/Phobia switched");
-			}
 		}
 
 		tertiaryPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);

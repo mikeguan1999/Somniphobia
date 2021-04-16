@@ -799,9 +799,6 @@ public class PlatformController extends WorldController {
 		float cWidth  = combinedTexture.getRegionWidth()/scale.x;
 		float cHeight = combinedTexture.getRegionHeight()/scale.y;
 
-		System.out.println("cwidth: " + cWidth);
-		System.out.println("cheight: " + cHeight);
-
 		combined = new CharacterModel(constants.get("combined"), 0, 0, cWidth, cHeight, combinedf, CharacterModel.DARK);
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);

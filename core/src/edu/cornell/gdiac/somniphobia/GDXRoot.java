@@ -197,7 +197,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			// We quit the main application
 			Gdx.app.exit();
 		}
-		System.out.println(level);
 	}
 
 }
