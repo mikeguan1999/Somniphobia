@@ -124,7 +124,6 @@ public class LevelCreator extends WorldController {
     private TextField worldWidthText;
     private TextField worldHeightText;
 
-
     Stage stage;
 
     private TextField loadPath;
@@ -397,7 +396,7 @@ public class LevelCreator extends WorldController {
         saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                String fileName = loadPath.getText();
+                String fileName = String.format("drafts/%s.json", loadPath.getText());
                 LevelSerializer.serialize(fileName, worldWidth, worldHeight, platformList);
             }
         });
@@ -406,7 +405,7 @@ public class LevelCreator extends WorldController {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("button press!");
+                LevelSerializer.serialize("levels/level0.json", worldWidth, worldHeight, platformList);
             }
         });
 
@@ -417,7 +416,7 @@ public class LevelCreator extends WorldController {
         button4.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                String fileName = loadPath.getText();
+                String fileName = String.format("levels/%s.json", loadPath.getText());
                 PooledList<Platform> platforms = LevelSerializer.deserialize(fileName);
                 if(platforms != null) {
                     loading = true;
@@ -880,12 +879,12 @@ public class LevelCreator extends WorldController {
             Level level = new Level(levelWidth, levelHeight, platforms);
             Json json = new Json();
             json.setOutputType(JsonWriter.OutputType.json);
-            FileHandle file = Gdx.files.local(String.format("drafts/%s.json", fileName));
+            FileHandle file = Gdx.files.local(fileName);
             file.writeString(json.prettyPrint(level), false);
         }
 
         public static PooledList<Platform> deserialize(String fileName) {
-            FileHandle file = Gdx.files.internal(String.format("levels/%s.json", fileName));
+            FileHandle file = Gdx.files.internal(fileName);
             String text;
             try {
                 text = file.readString();

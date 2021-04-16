@@ -20,12 +20,9 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.assets.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.graphics.g2d.freetype.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.util.*;
@@ -57,6 +54,8 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_NEXT = 1;
 	/** Exit code for jumping back to previous level */
 	public static final int EXIT_PREV = 2;
+	/** Exit code for jumping between play and edit mode */
+	public static final int EXIT_SWITCH = 3;
     /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
@@ -391,6 +390,10 @@ public abstract class WorldController implements Screen {
 		} else if (input.didRetreat()) {
 			pause();
 			listener.exitScreen(this, EXIT_PREV);
+			return false;
+		} else if (input.didSwitchToCreatorMode()) {
+			pause();
+			listener.exitScreen(this, EXIT_SWITCH);
 			return false;
 		} else if (countdown > 0) {
 			countdown--;
