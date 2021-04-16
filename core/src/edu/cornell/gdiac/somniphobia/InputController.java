@@ -16,9 +16,6 @@ package edu.cornell.gdiac.somniphobia;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.*;
 
-import com.badlogic.gdx.utils.Array;
-import edu.cornell.gdiac.util.*;
-
 /**
  * Class for reading player input. 
  *
@@ -41,9 +38,15 @@ public class InputController {
 	}
 	
 	// Fields to manage buttons
-	/** Whether the button to advanced worlds was pressed. */
+	/** Whether the button to go to the next level was pressed. */
 	private boolean nextPressed;
 	private boolean nextPrevious;
+	/** Whether the button to go to the previous level was pressed. */
+	private boolean prevPressed;
+	private boolean prevPrevious;
+	/** Whether the button to switch to the creator was pressed. */
+	private boolean switchToCreatorPressed;
+	private boolean switchToCreatorPrevious;
 	/** Whether the reset button was pressed. */
 	private boolean resetPressed;
 	private boolean resetPrevious;
@@ -78,9 +81,6 @@ public class InputController {
 	/** Whether the exit button was pressed. */
 	private boolean exitPressed;
 	private boolean exitPrevious;
-
-	private boolean prevPressed;
-	private boolean prevPrevious;
 
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
@@ -246,6 +246,15 @@ public class InputController {
 	}
 
 	/**
+	 * Returns true if the button to enter the creator was pressed.
+	 *
+	 * @return true if the creator mode button was pressed.
+	 */
+	public boolean didSwitchToCreatorMode() {
+		return switchToCreatorPressed && !switchToCreatorPrevious;
+	}
+
+	/**
 	 * Returns true if the W button was pressed.
 	 *
 	 * @return true if the W button was pressed.
@@ -320,16 +329,17 @@ public class InputController {
 	public void readInput(Rectangle bounds, Vector2 scale) {
 		// Copy state from last animation frame
 		// Helps us ignore buttons that are held down
-		jumpPrevious  = jumpPressed;
-		dashPrevious = dashPressed;
-		handHoldingPrevious = handHoldingPressed;
-		switchPrevious = switchPressed;
-		resetPrevious  = resetPressed;
-		debugPrevious  = debugPressed;
-		sliderToggledPrevious = sliderToggled;
-		exitPrevious = exitPressed;
-		nextPrevious = nextPressed;
-		prevPrevious = prevPressed;
+		jumpPrevious  			= jumpPressed;
+		dashPrevious 			= dashPressed;
+		handHoldingPrevious 	= handHoldingPressed;
+		switchPrevious 			= switchPressed;
+		resetPrevious  			= resetPressed;
+		debugPrevious  			= debugPressed;
+		sliderToggledPrevious 	= sliderToggled;
+		exitPrevious 			= exitPressed;
+		switchToCreatorPrevious = switchToCreatorPressed;
+		nextPrevious 			= nextPressed;
+		prevPrevious 			= prevPressed;
 
 		readKeyboard(bounds,scale);
 	}
@@ -339,18 +349,21 @@ public class InputController {
 	 */
 	private void readKeyboard(Rectangle bounds, Vector2 scale) {
 		// Give priority to gamepad results
+
 		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
-		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
+		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
 		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.UP);
 		dashPressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
 		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.E);
 		switchPressed = Gdx.input.isKeyPressed(Input.Keys.Q);
 		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
+		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
 		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
 		walkPressed = (Gdx.input.isKeyPressed(Input.Keys.LEFT)) ||
 				(Gdx.input.isKeyPressed(Input.Keys.RIGHT));
+
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
 		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));

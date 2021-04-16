@@ -127,18 +127,6 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setDashVelocity(float f){
 		dashVelocity = f;
 	}
-//	public float getDashDistance(){
-//		return dashDistance;
-//	}
-//	public void setDashDistance(float f){
-//		dashDistance = f;
-//	}
-	public float getCharacterFriction(){
-		return getFriction();
-	}
-	public void setCharacterFriction(float f){
-		setFriction(f);
-	}
 	public void setCharacterForce(float f){
 		force = f;
 	}
@@ -213,6 +201,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param value left/right movement of this character.
 	 */
 	public void setMovement(float value) {
+		System.out.println(value);
 		movement = value;
 		// Change facing if appropriate
 		if (movement < 0) {
@@ -318,6 +307,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 * Ends the dashing and sets velocity to 0 if we haven't done so
 	 */
 	public void endDashing() {
+//		this.setGravityScale(1);
 		if (isDashing) {
 			isDashing = false;
 			setVY(0f);

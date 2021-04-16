@@ -141,6 +141,9 @@ public class PlatformController extends WorldController {
 
 	private MovementController movementController;
 
+	/** The current level being played */
+	private int level;
+
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
@@ -169,9 +172,6 @@ public class PlatformController extends WorldController {
 
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
-
-	/** Level */
-	private int level;
 
 	/** Camera stuff */
 	private float widthUpperBound, heightUpperBound;
@@ -224,7 +224,7 @@ public class PlatformController extends WorldController {
 
 	public Widget sliderMenu;
 
-	public int tes = 0;
+	public int tes = 0; // <-- enoch please don't do this
 
 	// WASD Camera Variables
 
@@ -238,7 +238,7 @@ public class PlatformController extends WorldController {
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public PlatformController(int level) {
+	public PlatformController() {
 
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
 		setDebug(false);
@@ -249,7 +249,6 @@ public class PlatformController extends WorldController {
 		darkSensorFixtures = new ObjectSet<Fixture>();
 		combinedSensorFixtures = new ObjectSet<Fixture>();
 		holdingHands = false;
-		this.level = level;
 		widthUpperBound = 0;
 		heightUpperBound = 0;
 	}
@@ -265,7 +264,6 @@ public class PlatformController extends WorldController {
 
 
 		Stage stage = new Stage(new ScreenViewport(camera));
-//		Table table= new Table();
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
 			@Override
@@ -286,7 +284,7 @@ public class PlatformController extends WorldController {
 		font.getData().setScale(.3f, .3f);
 		labelStyle = new Label.LabelStyle(font, Color.BLACK);
 
-		//Dash Velocity
+		// Dash Velocity
 
 		current = avatar.getDashVelocity();
 		max = current * 1.5f;
@@ -314,7 +312,7 @@ public class PlatformController extends WorldController {
 		sliders[0] = s;
 		labels[0] = test1;
 
-		//Dash Dampening
+		// Dash Dampening
 		current = avatar.getDashDamping();
 		max = current * 2.5f;
 		min = current * 0.5f;
@@ -342,7 +340,7 @@ public class PlatformController extends WorldController {
 		sliders[1] = s2;
 		labels[1] = test2;
 
-		//Dash Dampening
+		// Gravity
 		current = world.getGravity().y;
 
 
@@ -368,11 +366,9 @@ public class PlatformController extends WorldController {
 		});
 		stage.addActor(s3);
 		sliders[2] = s3;
-
-
 		labels[2] = test3;
 
-		//Jump Force
+		// Jump Force
 		current = avatar.getJumpForce();
 		max = current * 1.5f;
 		min = current * 0.5f;
@@ -399,7 +395,7 @@ public class PlatformController extends WorldController {
 		sliders[3] = s4;
 		labels[3] = test4;
 
-		//Hand Holding Distance
+		// Hand Holding Distance
 		current = movementController.getHAND_HOLDING_DISTANCE();
 		max = current * 1.5f;
 		min = current * 0.5f;
@@ -424,7 +420,7 @@ public class PlatformController extends WorldController {
 		sliders[4] = s5;
 		labels[4] = test5;
 
-		//Dash End Velocity
+		// Dash End Velocity
 		current = avatar.getDashEndVelocity();
 		max = current * 4f;
 		min = current * 0.5f;
@@ -449,10 +445,9 @@ public class PlatformController extends WorldController {
 		});
 		stage.addActor(s6);
 		sliders[5] = s6;
-
 		labels[5] = test6;
 
-		//Character Force
+		// Character Force
 		current = avatar.getForce();
 		max = current * 1.5f;
 		min = current * 0.5f;
@@ -477,16 +472,13 @@ public class PlatformController extends WorldController {
 		});
 		stage.addActor(s7);
 		sliders[6] = s7;
-
-
 		labels[6] = test7;
 
 		Gdx.input.setInputProcessor(stage);
 
-
 		s.draw(b, 1.0f);
-
 	}
+
 	public void drawSliders(){
 		Batch b = canvas.getBatch();
 		for (int i = 0; i < sliders.length; i++) {
@@ -500,64 +492,6 @@ public class PlatformController extends WorldController {
 		}
 	}
 
-	public void applySliders(){
-		// 0 Dash Velocity, 1 Dash Distance, 2 Dash Dampening, 3 Jump Force,
-		// 4 Hand Holding Distance, 5 Character Friction, 6 Character force
-		Slider s = sliders[0];
-		float f = s.getValue();
-		System.out.println("Dash Velocity : " + f);
-		somni.setDashVelocity(f);
-		phobia.setDashVelocity(f);
-		combined.setDashVelocity(f);
-
-		s = sliders[1];
-		f = s.getValue();
-		System.out.println("Dash Dampening : " + f);
-		somni.setDashDamping(f);
-		phobia.setDashDamping(f);
-		combined.setDashDamping(f);
-
-//		s = sliders[2];
-//		f = s.getValue();
-//		System.out.println("Dash Dampening : " + f);
-//		somni.setDashDistance(f);
-//		phobia.setDashDistance(f);
-//		combined.setDashDistance(f);
-//
-//		s = sliders[3];
-//		f = s.getValue();
-//		System.out.println("Jump Force : " + f);
-//		somni.setDashDistance(f);
-//		phobia.setDashDistance(f);
-//		combined.setDashDistance(f);
-//
-//		s = sliders[4];
-//		f = s.getValue();
-//		System.out.println("Hand Holding Distance : " + f);
-//		somni.setDashDistance(f);
-//		phobia.setDashDistance(f);
-//		combined.setDashDistance(f);
-//
-//		s = sliders[5];
-//		f = s.getValue();
-//		System.out.println("Character Friction : " + f);
-//		somni.setDashDistance(f);
-//		phobia.setDashDistance(f);
-//		combined.setDashDistance(f);
-//
-//		s = sliders[6];
-//		f = s.getValue();
-//		System.out.println("Character Force : " + f);
-//		somni.setDashDistance(f);
-//		phobia.setDashDistance(f);
-//		combined.setDashDistance(f);
-
-	}
-
-
-	public void setLevelAssets(int level) {
-		//levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
-	}
 	/**
 	 * Gather the assets for this controller.
 	 *
@@ -626,10 +560,6 @@ public class PlatformController extends WorldController {
 		MAX_MASK_SIZE = MIN_MASK_DIMENSIONS.x * 22.5f;
 		INCREMENT_AMOUNT = 50;
 
-		AssetDirectory internal = new AssetDirectory( "loading.json" );
-		internal.loadAssets();
-		internal.finishLoading();
-
 		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
 		sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
 
@@ -638,10 +568,32 @@ public class PlatformController extends WorldController {
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
 
 		constants = directory.getEntry( "constants", JsonValue.class );
-		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
 		super.gatherAssets(directory);
 	}
 
+	/**
+	 * Gather the level JSON for this controller.
+	 *
+	 * This method extracts the asset variables from the given asset directory. It
+	 * should only be called after the asset directory is completed.
+	 *
+	 * @param directory	Reference to global asset manager.
+	 */
+	public void gatherLevelJson(AssetDirectory directory) {
+		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+	}
+
+	/** Returns the current level */
+	public int getLevel() {
+		return level;
+	}
+
+	/** Sets the current level */
+	public void setLevel(int level) {
+		int newLevel = Math.min(level, 12); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
+		newLevel = Math.max(0, newLevel);
+		this.level = newLevel;
+	}
 	/**
 	 * Resets the status of the game so that we can play again.
 	 *
@@ -673,32 +625,33 @@ public class PlatformController extends WorldController {
 		setFailure(false);
 		populateLevel();
 
+		Camera camera = canvas.getCamera();
+		Vector2 leadPos = somni.getPosition();
+		float newX = leadPos.x * canvas.PPM;
+		newX = Math.min(newX, widthUpperBound);
+		newX = Math.max(canvas.getWidth() / 2, newX );
+		camera.position.x = newX;
+
+		float newY = leadPos.y * canvas.PPM;
+		newY = Math.min(newY, heightUpperBound);
+		newY = Math.max(canvas.getHeight() / 2, newY );
+		camera.position.y = newY;
+
+		camera.update();
+
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
 
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
 		world.setContactListener(movementController);
 
-		movementController.setAvatar(phobia);
-		movementController.setLead(phobia);
+		movementController.setAvatar(somni);
+		movementController.setLead(somni);
 
-		maskLeader = somni;
-
-//		// Updates position of camera to be the position of  the current avatar
-
-		CharacterModel tempAvatar = movementController.getAvatar();
-
-		float newX = tempAvatar.getX() * canvas.PPM;
-		newX = Math.min(newX, widthUpperBound);
-		newX = Math.max(canvas.getWidth() / 2, newX );
-
-		float newY = tempAvatar.getY() * canvas.PPM;
-		newY = Math.min(newY, heightUpperBound);
-		newY = Math.max(canvas.getHeight() / 2, newY );
-
-		canvas.getCamera().position.set(newX, newY, 0);
-		camera = canvas.getCamera();
-		camera.update();
+		maskLeader = phobia;
+		switching = false;
+		maskWidth = MIN_MASK_DIMENSIONS.x;
+		maskHeight = MIN_MASK_DIMENSIONS.y;
 	}
 
 	/**
@@ -923,9 +876,11 @@ public class PlatformController extends WorldController {
         }
         else{
             if(lead == somni){
-                avatar.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+                somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+                phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
             }else{
-                avatar.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+                phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+				somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
             }
         }
 
@@ -1012,7 +967,7 @@ public class PlatformController extends WorldController {
 	 */
 	public void drawCharacterRift(float cameraX, float cameraY, CharacterModel character) {
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
-		TextureRegion background = character.equals(somni) ? backgroundDarkTexture : backgroundLightTexture;
+		TextureRegion background = character.equals(somni) ? backgroundLightTexture : backgroundDarkTexture;
 		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 	}
@@ -1040,7 +995,6 @@ public class PlatformController extends WorldController {
 	public void draw(float dt) {
 
 		CharacterModel lead = movementController.getLead();
-		CharacterModel avatar = movementController.getAvatar();
 //		CharacterModel maskLeader = movementController.getMaskLeader();
 //		CharacterModel maskLeader = movementController.getMaskLeader();
 		canvas.clear();
