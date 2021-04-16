@@ -590,7 +590,7 @@ public class PlatformController extends WorldController {
 
 	/** Sets the current level */
 	public void setLevel(int level) {
-		int newLevel = Math.min(level, 6); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
+		int newLevel = Math.min(level, 12); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
 		newLevel = Math.max(0, newLevel);
 		this.level = newLevel;
 	}
@@ -624,6 +624,20 @@ public class PlatformController extends WorldController {
 		setComplete(false);
 		setFailure(false);
 		populateLevel();
+
+		Camera camera = canvas.getCamera();
+		Vector2 leadPos = somni.getPosition();
+		float newX = leadPos.x * canvas.PPM;
+		newX = Math.min(newX, widthUpperBound);
+		newX = Math.max(canvas.getWidth() / 2, newX );
+		camera.position.x = newX;
+
+		float newY = leadPos.y * canvas.PPM;
+		newY = Math.min(newY, heightUpperBound);
+		newY = Math.max(canvas.getHeight() / 2, newY );
+		camera.position.y = newY;
+
+		camera.update();
 
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
@@ -901,7 +915,6 @@ public class PlatformController extends WorldController {
 				cameraDelay -= 1;
 			}
 			wasdPosition.x += InputController.getInstance().getCameraHorizontal();
-			System.out.println(InputController.getInstance().getCameraHorizontal());
 			wasdPosition.y += InputController.getInstance().getCameraVertical();
 
 			float newX = wasdPosition.x * canvas.PPM;
