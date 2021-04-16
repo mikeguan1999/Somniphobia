@@ -590,7 +590,7 @@ public class PlatformController extends WorldController {
 
 	/** Sets the current level */
 	public void setLevel(int level) {
-		int newLevel = Math.min(level, 8); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
+		int newLevel = Math.min(level, 12); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
 		newLevel = Math.max(0, newLevel);
 		this.level = newLevel;
 	}
