@@ -68,14 +68,13 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		// Initialize the Platformer Controller
 		// TODO
-		controllers = new WorldController[6];
+		controllers = new WorldController[5];
 //		controllers[0] = new PlatformController(0);
 		controllers[0] = new LevelCreator();
 		controllers[1] = new PlatformController(1);
 		controllers[2] = new PlatformController(2);
 		controllers[3] = new PlatformController(3);
 		controllers[4] = new PlatformController(4);
-		controllers[5] = new PlatformController(5);
 
 		levelCreator = new LevelCreator();
 
