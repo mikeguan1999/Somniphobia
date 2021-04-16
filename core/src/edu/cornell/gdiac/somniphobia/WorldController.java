@@ -57,7 +57,9 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_NEXT = 1;
 	/** Exit code for jumping back to previous level */
 	public static final int EXIT_PREV = 2;
-    /** How many frames after winning/losing do we continue? */
+	/** Exit code for jumping back to level selection menu */
+	public static final int EXIT_MENU = 3;
+	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
 	/** The amount of time for a physics engine step. */
@@ -204,7 +206,7 @@ public abstract class WorldController implements Screen {
 	public GameCanvas getCanvas() {
 		return canvas;
 	}
-	
+
 	/**
 	 * Sets the canvas associated with this controller
 	 *
@@ -383,6 +385,10 @@ public abstract class WorldController implements Screen {
 		if (input.didExit()) {
 			pause();
 			listener.exitScreen(this, EXIT_QUIT);
+			return false;
+		} else if (input.didReturnMenu()){
+			pause();
+			listener.exitScreen(this, EXIT_MENU);
 			return false;
 		} else if (input.didAdvance()) {
 			pause();

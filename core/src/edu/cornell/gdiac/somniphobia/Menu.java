@@ -35,6 +35,7 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+import org.lwjgl.Sys;
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
@@ -73,12 +74,12 @@ public class Menu implements Screen {
 //	private Skin skin;
 	/** The buttons in one row */
 	private Button[] buttons;
-	/** Whether each individual button is clicked */
-	private boolean[] buttonsClicked = new boolean[4];
 	/** The global variable for access inside an inner class during an iteration */
 	private int i;
 	/** Number of levels we have in one row */
 	private int numLevels=4;
+	/** Whether each individual button is clicked */
+	private boolean[] buttonsClicked = new boolean[numLevels];
 	/** The initial X positions of the buttons */
 	private Float[] positionsX;
 	/** Reference to the actor of cloudline */
@@ -98,13 +99,25 @@ public class Menu implements Screen {
 	private final float CLOUDLINE_YPOSITION = 100;
 	private final float CLOUD_OFFSETX = 50;
 	private final float CLOUD_OFFSETY = 10;
+	private boolean toRight = false;
+	private boolean toLeft = false;
+	private Button leftButton;
+	private Button rightButton;
+	private int LEFT_EXIT_CODE = -1;
+	private int RIGHT_EXIT_CODE = -2;
+	private boolean leftExist;
+	private boolean rightExist;
 
+	private TextureRegionDrawable[] upImages = new TextureRegionDrawable[numLevels];
+	private TextureRegionDrawable[] overImages = new TextureRegionDrawable[numLevels];
 
-	public Menu(GameCanvas canvas) {
+	public Menu(GameCanvas canvas, boolean left, boolean right) {
 		stage = new Stage();
 		table = new Table();
 		table.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("menu\\background_blue.png"))));
 		table.setFillParent(true);
+		leftExist = left;
+		rightExist = right;
 
 //		Testing with default style buttons
 //		skin = new Skin(Gdx.files.internal("uiskin.json"));
@@ -117,28 +130,48 @@ public class Menu implements Screen {
 
 		TextureRegionDrawable titleDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\Dream Selection.png")));
 		Image titleImage = new Image(titleDrawable);
-		table.add(titleImage).colspan(numLevels).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
+		table.add(titleImage).colspan(numLevels+2).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
 		table.row();
 
-		Button imgButton1 = createImageButton("menu\\forest door.png", "menu\\level1cloud.png");
-		Button imgButton2 = createImageButton("menu\\door2.png", "menu\\level2cloud.png");
-		Button imgButton3 = createImageButton("menu\\door3.png", "menu\\level3cloud.png");
-		Button imgButton4 = createImageButton("menu\\door4.png", "menu\\level4cloud.png");
+//		Adding images with stack to put them on top of each other
+//		TextureRegionDrawable forestDoorDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\forest door.png")));
+//		forestImage = new Button(forestDoorDrawable);
+//		TextureRegionDrawable numberDrawable1 = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\level1cloud.png")));
+//		forestImageButton= new Button(numberDrawable1);
+//		color  = forestImageButton.getColor();
+//		imgButton1 = new Button(forestDoorDrawable);
+//
+//		Stack stack = new Stack();
+//		stack.add(forestImage);
+//		stack.add(forestImageButton);
+//
+//		table.add(stack).width(DOOR_WIDTH).height(DOOR_HEIGHT);
+
 
 		buttons = new Button[numLevels];
-		buttons[0] = imgButton1;
-		buttons[1] = imgButton2;
-		buttons[2] = imgButton3;
-		buttons[3] = imgButton4;
-
 		for (i=0; i<numLevels; i++) {
+			buttons[i] = createImageButton("menu\\door"+(i+1)+".png");
 			buttons[i].addListener(new ClickListener() {
 				int saved_i = i;
 				public void clicked(InputEvent event, float x, float y) {
 					buttonsClicked[saved_i] = true;
 				}
 			});
+			upImages[i] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(i+1)+".png")));
+			overImages[i] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\level"+(i+1)+"cloud.png")));
 		}
+
+		leftButton = createImageButton("menu\\left_arrow.png");
+		rightButton = createImageButton("menu\\right_arrow.png");
+		table.add(leftButton).size(50,50);
+
+		leftButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				toLeft = true;
+			}
+		});
+
+//		System.out.println(canvas.getWidth());
 
 		positionsX = new Float[numLevels];
 		for (int i=0; i<numLevels; i++) {
@@ -153,11 +186,18 @@ public class Menu implements Screen {
 			}
 		}
 
+		rightButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				toRight = true;
+			}
+		});
+
+		table.add(rightButton).size(50,50);
 
 		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloudline_smaller.png")));
 		Image cloudLineImage = new Image(drawable);
 		table.row();
-		table.add(cloudLineImage).colspan(numLevels).height(CLOUDLINE_HEIGHT).width(CLOUDLINE_WIDTH);
+		table.add(cloudLineImage).colspan(numLevels+2).height(CLOUDLINE_HEIGHT).width(CLOUDLINE_WIDTH);
 		cloudlineActor = (Actor) cloudLineImage;
 
 		for (int j=0; j<numLevels; j++){
@@ -173,22 +213,29 @@ public class Menu implements Screen {
 	}
 
 	/**
-	 * Creating an image button that appears as an image with upFilepath
-	 * and appears as an image with overFilepath when being hovered over.
+	 * Creating an image button that appears as an image with upFilepath.
 	 */
-	private Button createImageButton(String upFilepath, String overFilepath){
+	private Button createImageButton(String upFilepath){
 		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
-		TextureRegionDrawable numberDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(overFilepath)));
-		Button imgButton= new Button(buttonDrawable, numberDrawable);
-		imgButton.getStyle().over = numberDrawable;
+		Button imgButton= new Button(buttonDrawable);
 		return imgButton;
 	}
 
+	public int getLEFT_EXIT_CODE(){
+		return LEFT_EXIT_CODE;
+	}
+
+	public int getRIGHT_EXIT_CODE(){
+		return RIGHT_EXIT_CODE;
+	}
 	/**
 	 * Called when this screen should release all resources.
 	 */
 	public void dispose() {
 	}
+//	public Boolean Over(){
+//		return forestImageButton.isOver() && !prevHovered;
+//	}
 
 	/**
 	 * Update the status of this player mode.
@@ -200,20 +247,32 @@ public class Menu implements Screen {
 	 * @param delta Number of seconds since last animation frame
 	 */
 	private void update(float delta) {
+//		isHovered = Over();
+//		prevHovered = isHovered;
+//		if (Over()){
+//			forestImage.setColor(0,0,0,0);
+//			forestImageButton.setColor(color);
+//			forestImageButton.setVisible(true);
+//		}
+//		else{
+//			forestImage.setVisible(true);
+//			forestImageButton.setVisible(false);
+//		}
 		for (i=0; i<numLevels; i++) {
 			boolean checked = false;
 			if (buttons[i].isOver()){
+				buttons[i].getStyle().up = overImages[i];
 				buttons[i].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
 				Actor actor = (Actor) buttons[i];
 				actor.setX(positionsX[i]-CLOUD_OFFSETX);
 				actor.setY(initialButtonY-CLOUD_OFFSETY);
 			}
 			else{
+				buttons[i].getStyle().up = upImages[i];
 				buttons[i].setSize(DOOR_WIDTH, DOOR_HEIGHT);
 				Actor actor = (Actor) buttons[i];
 				actor.setX(positionsX[i]);
 				actor.setY(initialButtonY);
-
 			}
 		}
 	}
@@ -244,7 +303,16 @@ public class Menu implements Screen {
 			update(delta);
 			stage.act(delta);
 			stage.draw();
+			if (!leftExist){
+				leftButton.setVisible(false);
+			}
+			if (!rightExist){
+				rightButton.setVisible(false);
+			}
 			cloudlineActor.setY(CLOUDLINE_YPOSITION);
+			leftButton.setX(50);
+			rightButton.setX(canvas.getWidth()-100);
+
 			if (first) {
 				for (int j = 0; j < numLevels; j++) {
 					Actor actor = (Actor) buttons[j];
@@ -257,8 +325,17 @@ public class Menu implements Screen {
 		}
 		for (int i=0; i<4; i++){
 			if (buttonsClicked[i]==true){
+				buttonsClicked = new boolean[numLevels];
 				listener.exitScreen(this, i);
 			}
+		}
+		if (toRight){
+			toRight = false;
+			listener.exitScreen(this, RIGHT_EXIT_CODE);
+		}
+		if (toLeft){
+			toLeft = false;
+			listener.exitScreen(this, LEFT_EXIT_CODE);
 		}
 	}
 
@@ -327,6 +404,14 @@ public class Menu implements Screen {
 	public void setScreenListener(ScreenListener listener) {
 		this.listener = listener;
 	}
+
+	/**
+	 * Resets the status of the game so that we can play again.
+	 *
+	 * This method disposes of the world and creates a new one.
+	 */
+//	public void reset();
+
 
 }
 

@@ -73,6 +73,10 @@ public class InputController {
 
 	private boolean prevPressed;
 	private boolean prevPrevious;
+
+	/** Whether the return menu button was pressed. */
+	private boolean returnMenuPressed;
+	private boolean returnMenuPrevious;
 	
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -203,6 +207,14 @@ public class InputController {
 		return exitPressed && !exitPrevious;
 	}
 
+	/**
+	 * Returns true if the return menu button was pressed.
+	 *
+	 * @return true if the return menu button was pressed.
+	 */
+	public boolean didReturnMenu(){ return returnMenuPressed && !returnMenuPrevious; }
+
+
 
 	/**
 	 * Reads the input for the player and converts the result into game logic.
@@ -220,6 +232,7 @@ public class InputController {
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
+		returnMenuPrevious = returnMenuPressed;
 
 		readKeyboard();
 	}
@@ -239,6 +252,7 @@ public class InputController {
 		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
+		returnMenuPressed = (Gdx.input.isKeyPressed(Input.Keys.H));
 
 		// Directional controls
 
