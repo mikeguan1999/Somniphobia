@@ -76,30 +76,39 @@ public class GDXRoot extends Game implements ScreenListener {
 		menuPages = new Menu[numPages];
 		for (int i=0; i<menuPages.length; i++){
 			if (i==0){
-				Menu menu = new Menu(canvas, false, true);
+				Menu menu = new Menu(canvas, false, true, i*numLevelsPerPage, totalNumLevels);
 				menuPages[i] = menu;
 			}
 			else if (i== menuPages.length-1){
-				Menu menu = new Menu(canvas, true, false);
+				Menu menu = new Menu(canvas, true, false, i*numLevelsPerPage, totalNumLevels);
 				menuPages[i] = menu;
 			}
 			else {
-				Menu menu = new Menu(canvas, true, true);
+				Menu menu = new Menu(canvas, true, true, i*numLevelsPerPage, totalNumLevels);
 				menuPages[i] = menu;
 			}
 		}
+//		0123
+//				4567
+//						891011
 
 		currentMenuIndex = 0;
 		currentMenu = menuPages[currentMenuIndex];
 
 		// Initialize the Platformer Controller
 		// TODO
-		controllers = new WorldController[5];
+		controllers = new WorldController[10];
 		controllers[0] = new PlatformController(0);
 		controllers[1] = new PlatformController(1);
 		controllers[2] = new PlatformController(2);
 		controllers[3] = new PlatformController(3);
-		controllers[4] = new PlatformController(4);
+		controllers[4] = new PlatformController(0);
+		controllers[5] = new PlatformController(0);
+		controllers[6] = new PlatformController(0);
+		controllers[7] = new PlatformController(0);
+		controllers[8] = new PlatformController(0);
+		controllers[9] = new PlatformController(0);
+
 
 		// Constructs a new OrthographicCamera, using the given viewport width and height
 		// Height is multiplied by aspect ratio.

@@ -107,18 +107,24 @@ public class Menu implements Screen {
 	private int RIGHT_EXIT_CODE = -2;
 	private boolean leftExist;
 	private boolean rightExist;
+	private int startIndex;
+	private int totalNumLevels;
+	private int totalActualLevels;
 
 	private TextureRegionDrawable[] upImages = new TextureRegionDrawable[numLevels];
 	private TextureRegionDrawable[] overImages = new TextureRegionDrawable[numLevels];
 
-	public Menu(GameCanvas canvas, boolean left, boolean right) {
+	public Menu(GameCanvas canvas, boolean left, boolean right, int index, int totalLevels) {
 		stage = new Stage();
 		table = new Table();
 		table.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("menu\\background_blue.png"))));
 		table.setFillParent(true);
 		leftExist = left;
 		rightExist = right;
-
+		startIndex = index;
+		totalActualLevels = totalLevels;
+		totalNumLevels = (int) Math.ceil((double)totalActualLevels/(double)numLevels) * numLevels;
+		System.out.println(totalNumLevels);
 //		Testing with default style buttons
 //		skin = new Skin(Gdx.files.internal("uiskin.json"));
 //		TextButton.TextButtonStyle buttonStyle = skin.get("bigButton", TextButton.TextButtonStyle.class);
@@ -148,17 +154,18 @@ public class Menu implements Screen {
 //		table.add(stack).width(DOOR_WIDTH).height(DOOR_HEIGHT);
 
 
-		buttons = new Button[numLevels];
-		for (i=0; i<numLevels; i++) {
-			buttons[i] = createImageButton("menu\\door"+(i+1)+".png");
+		buttons = new Button[totalNumLevels];
+		System.out.println(totalNumLevels);
+		for (i=0; i<totalNumLevels; i++) {
+			buttons[i] = createImageButton("menu\\door"+(i%numLevels+1)+".png");
 			buttons[i].addListener(new ClickListener() {
 				int saved_i = i;
 				public void clicked(InputEvent event, float x, float y) {
-					buttonsClicked[saved_i] = true;
+					buttonsClicked[saved_i%numLevels] = true;
 				}
 			});
-			upImages[i] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(i+1)+".png")));
-			overImages[i] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\level"+(i+1)+"cloud.png")));
+			upImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(i%numLevels+1)+".png")));
+			overImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\level"+(i%numLevels+1)+"cloud.png")));
 		}
 
 		leftButton = createImageButton("menu\\left_arrow.png");
@@ -174,11 +181,11 @@ public class Menu implements Screen {
 //		System.out.println(canvas.getWidth());
 
 		positionsX = new Float[numLevels];
-		for (int i=0; i<numLevels; i++) {
-			if (i==0){
+		for (int i=startIndex; i<startIndex+numLevels; i++) {
+			if (i%numLevels==0){
 				table.add(buttons[i]).padLeft(SIDE_PADDING).padTop(TOP_PADDING).size(DOOR_WIDTH, DOOR_HEIGHT).expandX();
 			}
-			else if (i==3){
+			else if (i%numLevels==3){
 				table.add(buttons[i]).padRight(SIDE_PADDING).padTop(TOP_PADDING).size(DOOR_WIDTH, DOOR_HEIGHT).expandX();
 			}
 			else {
@@ -200,9 +207,9 @@ public class Menu implements Screen {
 		table.add(cloudLineImage).colspan(numLevels+2).height(CLOUDLINE_HEIGHT).width(CLOUDLINE_WIDTH);
 		cloudlineActor = (Actor) cloudLineImage;
 
-		for (int j=0; j<numLevels; j++){
+		for (int j=startIndex; j<startIndex+numLevels; j++){
 			Actor buttonActor = (Actor) buttons[j];
-			positionsX[j] = buttonActor.getX();
+			positionsX[j%numLevels] = buttonActor.getX();
 		}
 
 		stage.addActor(table);
@@ -258,20 +265,20 @@ public class Menu implements Screen {
 //			forestImage.setVisible(true);
 //			forestImageButton.setVisible(false);
 //		}
-		for (i=0; i<numLevels; i++) {
+		for (i=startIndex; i<startIndex+numLevels; i++) {
 			boolean checked = false;
 			if (buttons[i].isOver()){
-				buttons[i].getStyle().up = overImages[i];
+				buttons[i].getStyle().up = overImages[i%numLevels];
 				buttons[i].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
 				Actor actor = (Actor) buttons[i];
-				actor.setX(positionsX[i]-CLOUD_OFFSETX);
+				actor.setX(positionsX[i%numLevels]-CLOUD_OFFSETX);
 				actor.setY(initialButtonY-CLOUD_OFFSETY);
 			}
 			else{
-				buttons[i].getStyle().up = upImages[i];
+				buttons[i].getStyle().up = upImages[i%numLevels];
 				buttons[i].setSize(DOOR_WIDTH, DOOR_HEIGHT);
 				Actor actor = (Actor) buttons[i];
-				actor.setX(positionsX[i]);
+				actor.setX(positionsX[i%numLevels]);
 				actor.setY(initialButtonY);
 			}
 		}
@@ -309,22 +316,27 @@ public class Menu implements Screen {
 			if (!rightExist){
 				rightButton.setVisible(false);
 			}
+			for (int i=startIndex; i<startIndex+numLevels; i++){
+				if (i>=totalActualLevels){
+					buttons[i].setVisible(false);
+				}
+			}
 			cloudlineActor.setY(CLOUDLINE_YPOSITION);
 			leftButton.setX(50);
 			rightButton.setX(canvas.getWidth()-100);
 
 			if (first) {
-				for (int j = 0; j < numLevels; j++) {
+				for (int j = startIndex; j < startIndex+numLevels; j++) {
 					Actor actor = (Actor) buttons[j];
-					positionsX[j] = actor.getX();
+					positionsX[j%numLevels] = actor.getX();
 					initialButtonY = actor.getY();
 				}
 				first = false;
 			}
 
 		}
-		for (int i=0; i<4; i++){
-			if (buttonsClicked[i]==true){
+		for (int i=startIndex; i<startIndex+numLevels; i++){
+			if (buttonsClicked[i%numLevels]==true){
 				buttonsClicked = new boolean[numLevels];
 				listener.exitScreen(this, i);
 			}
