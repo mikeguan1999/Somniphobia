@@ -62,6 +62,8 @@ public class InputController {
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
 	private boolean debugPrevious;
+	/** Whether the left or right keys were pressed. */
+	private boolean walkPressed;
 
 	/** Whether the camera WASD keys were pressed. */
 	private boolean wPressed;
@@ -286,6 +288,16 @@ public class InputController {
 		return wPressed || aPressed || sPressed || dPressed;
 	}
 
+	/**
+	 * Returns true if no character action keys are pressed
+	 *
+	 * @return true if no character action keys are pressed
+	 */
+	public boolean didAction() {
+		return walkPressed || jumpPressed || dashPressed || switchPressed
+				|| handHoldingPressed;
+	}
+
 
 	/**
 	 * Returns the current position of the crosshairs on the screen.
@@ -337,6 +349,8 @@ public class InputController {
 		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
+		walkPressed = (Gdx.input.isKeyPressed(Input.Keys.LEFT)) ||
+				(Gdx.input.isKeyPressed(Input.Keys.RIGHT));
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
 		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));

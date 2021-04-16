@@ -684,6 +684,21 @@ public class PlatformController extends WorldController {
 
 		maskLeader = somni;
 
+//		// Updates position of camera to be the position of  the current avatar
+
+		CharacterModel tempAvatar = movementController.getAvatar();
+
+		float newX = tempAvatar.getX() * canvas.PPM;
+		newX = Math.min(newX, widthUpperBound);
+		newX = Math.max(canvas.getWidth() / 2, newX );
+
+		float newY = tempAvatar.getY() * canvas.PPM;
+		newY = Math.min(newY, heightUpperBound);
+		newY = Math.max(canvas.getHeight() / 2, newY );
+
+		canvas.getCamera().position.set(newX, newY, 0);
+		camera = canvas.getCamera();
+		camera.update();
 	}
 
 	/**
@@ -703,7 +718,6 @@ public class PlatformController extends WorldController {
 		Filter allf = new Filter();
 		allf.categoryBits = CATEGORY_ALLPLAT;
 		allf.maskBits = MASK_ALLPLAT;
-
 
 		// Setup Goal
 		JsonValue goalVal = levelAssets.get("goal");
@@ -835,7 +849,6 @@ public class PlatformController extends WorldController {
 		System.out.println("cwidth: " + cWidth);
 		System.out.println("cheight: " + cHeight);
 
-
 		combined = new CharacterModel(constants.get("combined"), 0, 0, cWidth, cHeight, combinedf, CharacterModel.DARK);
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
@@ -850,19 +863,6 @@ public class PlatformController extends WorldController {
 		combined.setActive(false);
 
 		action = 0;
-
-
-
-//		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
-//
-//		//Set current avatar to Somni
-////		avatar = somni;
-//		movementController.setAvatar(somni);
-
-
-		//Set current avatar to Phobia
-//		avatar = phobia;
-//		maskLeader = somni;
 
 		volume = constants.getFloat("volume", 1.0f);
 	}
@@ -904,20 +904,14 @@ public class PlatformController extends WorldController {
 
 		action = movementController.update();
 
-
 		CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
 //		phobia = movementController.getPhobia();
 		CharacterModel avatar = movementController.getAvatar();
 		holdingHands = movementController.isHoldingHands();
 
-
-
 		if (movementController.getSwitchedCharacters()) {
-//			backgroundTexture = backgroundTexture == backgroundLightTexture ?
-//					backgroundDarkTexture : backgroundLightTexture;
 			switching = !switching;
-
 		}
 
 		if(holdingHands){
@@ -938,26 +932,33 @@ public class PlatformController extends WorldController {
 		// Set camera position bounded by the canvas size
 		camera = canvas.getCamera();
 
-		if (InputController.getInstance().didWASDPressed() || cameraDelay > 0) {
-			if (cameraDelay <= 0) {
-				cameraDelay += 10;
-			}
-			else {
-				cameraDelay -= 1;
-			}
+		if ((InputController.getInstance().didWASDPressed() )
+				&& !InputController.getInstance().didAction()) {
+
 			wasdPosition.x += InputController.getInstance().getCameraHorizontal();
-			System.out.println(InputController.getInstance().getCameraHorizontal());
 			wasdPosition.y += InputController.getInstance().getCameraVertical();
 
 			float newX = wasdPosition.x * canvas.PPM;
 			newX = Math.min(newX, widthUpperBound);
 			newX = Math.max(canvas.getWidth() / 2, newX );
-			camera.position.x += (newX - camera.position.x) * LERP * dt;
+
+			// Only update the position if less than half screen width away from avatar
+			float aimX = (newX - camera.position.x) * LERP * dt;
+			float xDiff = newX - avatar.getX()*canvas.PPM;
+			if (Math.abs(xDiff) < Gdx.graphics.getWidth()/2) {
+				camera.position.x += aimX;
+			}
 
 			float newY = wasdPosition.y * canvas.PPM;
 			newY = Math.min(newY, heightUpperBound);
 			newY = Math.max(canvas.getHeight() / 2, newY );
-			camera.position.y += (newY - camera.position.y) * LERP * dt;
+
+			// Only update the position if less than half screen width away from avatar
+			float aimY = (newY - camera.position.y) * LERP * dt;
+			float yDiff = newY - avatar.getY()*canvas.PPM;
+			if (Math.abs(yDiff) < Gdx.graphics.getHeight()/2) {
+				camera.position.y += aimY;
+			}
 		}
 		else {
 			wasdPosition.x = avatar.getX();

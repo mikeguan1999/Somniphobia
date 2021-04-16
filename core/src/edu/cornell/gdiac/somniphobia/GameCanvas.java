@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import edu.cornell.gdiac.somniphobia.game.controllers.MovementController;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 
@@ -176,6 +177,7 @@ public class GameCanvas {
 
 		// Set the projection matrix (for proper scaling)
 		camera = new OrthographicCamera(getWidth(), getHeight());
+
 		camera.translate(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
 		camera.update();
 		spriteBatch.setProjectionMatrix(camera.combined);
