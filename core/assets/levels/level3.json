@@ -1,45 +1,45 @@
 {
-  "dimensions": [1000,1000],
-  "somni": {
-    "pos": [9.0, 13.0]
-  },
-  "phobia": {
-    "pos": [9.0, 16.0]
-  },
-  "goal": {
-    "pos": [30.25, 4.0]
-  },
-  "objects": [
-    {
-      "type": "light",
-      "assetName": "platform:light",
-      "positions": [
-        [8.0, 2.0, 4.0, 1.0],
-        [8.0, 11.0, 24.0, 1.0],
-        [21.0, 9.0, 1.0, 2.0]
-      ],
-      "properties": [],
-      "behaviors": []
-    },
-    {
-      "type": "dark",
-      "assetName": "platform:dark",
-      "positions": [
-        [17.0, 8.0, 11.0, 1.0],
-        [2.0, 14.0, 30.0, 1.0],
-        [32.0, 15.0, 1.0, 10.0]
-      ],
-      "properties": [],
-      "behaviors": []
-    },
-    {
-      "type": "all",
-      "assetName": "platform:all",
-      "positions": [
-        [28.0, 1.0, 4.0, 1.0]
-      ],
-      "properties": [],
-      "behaviors": []
-    }
-  ]
+"dimensions": [ 1400, 800 ],
+"somni": {
+	"pos": [ 9, 12 ]
+},
+"phobia": {
+	"pos": [ 9, 15 ]
+},
+"goal": {
+	"pos": [ 29, 2 ]
+},
+"objects": [
+	{
+		"type": "light",
+		"assetName": "shared:light",
+		"positions": [
+			[ 8, 2, 4, 1 ],
+			[ 8, 11, 13, 1 ],
+			[ 21, 9, 1, 5 ]
+		],
+		"properties": [],
+		"behaviors": []
+	},
+	{
+		"type": "dark",
+		"assetName": "shared:dark",
+		"positions": [
+			[ 17, 8, 11, 1 ],
+			[ 2, 14, 19, 1 ]
+		],
+		"properties": [],
+		"behaviors": []
+	},
+	{
+		"type": "all",
+		"assetName": "shared:all",
+		"positions": [
+			[ 28, 1, 4, 1 ],
+			[ 21, 14, 1, 20 ]
+		],
+		"properties": [],
+		"behaviors": []
+	}
+]
 }

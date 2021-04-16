@@ -679,10 +679,10 @@ public class PlatformController extends WorldController {
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
 		world.setContactListener(movementController);
 
-		movementController.setAvatar(phobia);
-		movementController.setLead(phobia);
+		movementController.setAvatar(somni);
+		movementController.setLead(somni);
 
-		maskLeader = somni;
+		maskLeader = phobia;
 
 	}
 
@@ -914,8 +914,6 @@ public class PlatformController extends WorldController {
 
 
 		if (movementController.getSwitchedCharacters()) {
-//			backgroundTexture = backgroundTexture == backgroundLightTexture ?
-//					backgroundDarkTexture : backgroundLightTexture;
 			switching = !switching;
 
 		}
@@ -1011,7 +1009,7 @@ public class PlatformController extends WorldController {
 	 */
 	public void drawCharacterRift(float cameraX, float cameraY, CharacterModel character) {
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
-		TextureRegion background = character.equals(somni) ? backgroundDarkTexture : backgroundLightTexture;
+		TextureRegion background = character.equals(somni) ? backgroundLightTexture : backgroundDarkTexture;
 		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 	}
@@ -1039,7 +1037,6 @@ public class PlatformController extends WorldController {
 	public void draw(float dt) {
 
 		CharacterModel lead = movementController.getLead();
-		CharacterModel avatar = movementController.getAvatar();
 //		CharacterModel maskLeader = movementController.getMaskLeader();
 //		CharacterModel maskLeader = movementController.getMaskLeader();
 		canvas.clear();
