@@ -236,6 +236,14 @@ public class Menu implements Screen {
 		if (!leftExist){
 			leftButton.setVisible(false);
 		}
+		if (!rightExist){
+			rightButton.setVisible(false);
+		}
+		for (int i=startIndex; i<startIndex+numLevels; i++){
+			if (i>=totalActualLevels){
+				buttons[i].setVisible(false);
+			}
+		}
 
 		cloudlineActor.setY(CLOUDLINE_YPOSITION);
 		leftButton.setX(LEFT_BUTTON_POSITION);
@@ -263,6 +271,14 @@ public class Menu implements Screen {
 		btnStyle1.font = font;
 		ImageTextButton btn = new ImageTextButton(""+number, btnStyle1);
 		return btn;
+	}
+
+	public boolean getLeftExist(){
+		return leftExist;
+	}
+
+	public boolean getRightExist(){
+		return rightExist;
 	}
 
 	public int getLEFT_EXIT_CODE(){
@@ -350,17 +366,6 @@ public class Menu implements Screen {
 			update(delta);
 			stage.act(delta);
 			stage.draw();
-			if (!leftExist){
-				leftButton.setVisible(false);
-			}
-			if (!rightExist){
-				rightButton.setVisible(false);
-			}
-			for (int i=startIndex; i<startIndex+numLevels; i++){
-				if (i>=totalActualLevels){
-					buttons[i].setVisible(false);
-				}
-			}
 //			cloudlineActor.setY(CLOUDLINE_YPOSITION);
 //			leftButton.setX(50);
 //			rightButton.setX(canvas.getWidth()-100);

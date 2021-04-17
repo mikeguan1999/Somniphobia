@@ -214,7 +214,10 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(controllers[exitCode]);
 			}
 		} else if (exitCode == WorldController.EXIT_MENU) {
-//			menu.reset();
+//			resetting the menu
+			menuPages[currentMenuIndex] = new Menu(canvas, currentMenu.getLeftExist(), currentMenu.getRightExist(),
+					currentMenuIndex*numLevelsPerPage, totalNumLevels);
+			currentMenu = menuPages[currentMenuIndex];
 			currentMenu.setScreenListener(this);
 			setScreen(currentMenu);
 		} else if (exitCode == WorldController.EXIT_NEXT) {
