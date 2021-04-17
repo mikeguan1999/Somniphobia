@@ -137,10 +137,11 @@ public class Menu implements Screen {
 		totalNumLevels = (int) Math.ceil((double)totalActualLevels/(double)numLevels) * numLevels;
 
 //		Creating bmp font from ttf
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Minecraft.ttf"));
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = FONT_SIZE;
 		parameter.color = FONT_COLOR;
+		parameter.borderWidth = 2;
 		BitmapFont font = generator.generateFont(parameter);
 		generator.dispose();
 
