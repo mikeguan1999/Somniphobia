@@ -26,6 +26,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import edu.cornell.gdiac.util.*;
@@ -99,6 +100,16 @@ public class Menu implements Screen {
 	private final float CLOUDLINE_YPOSITION = 100;
 	private final float CLOUD_OFFSETX = 50;
 	private final float CLOUD_OFFSETY = 10;
+	private final int FONT_SIZE = 50;
+	/** Setting the font color to the rgb values of black & visible, ie a=1*/
+	private final Color FONT_COLOR = new Color(0,0,0,1);
+	/** Setting the font color to the rgb values of black & invisible, ie a=0*/
+	private final Color FONT_COLOR_TRANSPARENT = new Color(0,0,0,0);
+	/** Height and width of the left and right arrows*/
+	private final float ARROW_SIZE = 50;
+	private final float LEFT_BUTTON_POSITION = 50;
+	private final float RIGHT_BUTTON_POSITION = 100;
+
 	private boolean toRight = false;
 	private boolean toLeft = false;
 	private Button leftButton;
@@ -124,11 +135,19 @@ public class Menu implements Screen {
 		startIndex = index;
 		totalActualLevels = totalLevels;
 		totalNumLevels = (int) Math.ceil((double)totalActualLevels/(double)numLevels) * numLevels;
-		System.out.println(totalNumLevels);
-//		Testing with default style buttons
-//		skin = new Skin(Gdx.files.internal("uiskin.json"));
-//		TextButton.TextButtonStyle buttonStyle = skin.get("bigButton", TextButton.TextButtonStyle.class);
 
+//		Creating bmp font from ttf
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Minecraft.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = FONT_SIZE;
+		parameter.color = FONT_COLOR;
+		BitmapFont font = generator.generateFont(parameter);
+		generator.dispose();
+
+//		Testing with default style buttons
+//		Skin skin = new Skin(Gdx.files.internal("menu\\uiskin.json"));
+//		TextButton.TextButtonStyle buttonStyle = skin.get("bigButton", TextButton.TextButtonStyle.class);
+//
 //		TextButton button1 = new TextButton("Level 1", skin);
 //		TextButton button2 = new TextButton("Level 2", skin);
 //		TextButton button3 = new TextButton("Level 3", skin);
@@ -154,10 +173,10 @@ public class Menu implements Screen {
 //		table.add(stack).width(DOOR_WIDTH).height(DOOR_HEIGHT);
 
 
-		buttons = new Button[totalNumLevels];
-		System.out.println(totalNumLevels);
+		buttons = new ImageTextButton[totalNumLevels];
 		for (i=0; i<totalNumLevels; i++) {
-			buttons[i] = createImageButton("menu\\door"+(i%numLevels+1)+".png");
+//			buttons[i] = createImageButton("menu\\door"+(i%numLevels+1)+".png");
+			buttons[i] = createImageTextButton("menu\\door"+(i%numLevels+1)+".png", font, i+1);
 			buttons[i].addListener(new ClickListener() {
 				int saved_i = i;
 				public void clicked(InputEvent event, float x, float y) {
@@ -165,13 +184,13 @@ public class Menu implements Screen {
 				}
 			});
 			upImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(i%numLevels+1)+".png")));
-			overImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\level"+(i%numLevels+1)+"cloud.png")));
+			overImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloud"+(i%numLevels+1)+".png")));
 		}
 
 		leftButton = createImageButton("menu\\left_arrow.png");
 		rightButton = createImageButton("menu\\right_arrow.png");
-		table.add(leftButton).size(50,50);
 
+		table.add(leftButton).size(ARROW_SIZE, ARROW_SIZE);
 		leftButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				toLeft = true;
@@ -199,7 +218,7 @@ public class Menu implements Screen {
 			}
 		});
 
-		table.add(rightButton).size(50,50);
+		table.add(rightButton).size(ARROW_SIZE, ARROW_SIZE);
 
 		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloudline_smaller.png")));
 		Image cloudLineImage = new Image(drawable);
@@ -214,9 +233,13 @@ public class Menu implements Screen {
 			positionsX[j%numLevels] = buttonActor.getX();
 		}
 
+		if (!leftExist){
+			leftButton.setVisible(false);
+		}
+
 		cloudlineActor.setY(CLOUDLINE_YPOSITION);
-		leftButton.setX(50);
-		rightButton.setX(canvas.getWidth()-100);
+		leftButton.setX(LEFT_BUTTON_POSITION);
+		rightButton.setX(canvas.getWidth()-RIGHT_BUTTON_POSITION);
 
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
@@ -231,6 +254,15 @@ public class Menu implements Screen {
 		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
 		Button imgButton= new Button(buttonDrawable);
 		return imgButton;
+	}
+
+	private ImageTextButton createImageTextButton(String upFilepath, BitmapFont font, int number){
+		TextureRegionDrawable drawable1 = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
+		ImageTextButton.ImageTextButtonStyle btnStyle1 = new ImageTextButton.ImageTextButtonStyle();
+		btnStyle1.up = drawable1;
+		btnStyle1.font = font;
+		ImageTextButton btn = new ImageTextButton(""+number, btnStyle1);
+		return btn;
 	}
 
 	public int getLEFT_EXIT_CODE(){
@@ -271,8 +303,9 @@ public class Menu implements Screen {
 //			forestImageButton.setVisible(false);
 //		}
 		for (i=startIndex; i<startIndex+numLevels; i++) {
-			boolean checked = false;
 			if (buttons[i].isOver()){
+				ImageTextButton btn = (ImageTextButton) buttons[i];
+				btn.getStyle().fontColor = FONT_COLOR;
 				buttons[i].getStyle().up = overImages[i%numLevels];
 				buttons[i].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
 				Actor actor = (Actor) buttons[i];
@@ -280,12 +313,13 @@ public class Menu implements Screen {
 				actor.setY(initialButtonY-CLOUD_OFFSETY);
 			}
 			else{
+				ImageTextButton btn = (ImageTextButton) buttons[i];
+				btn.getStyle().fontColor = FONT_COLOR_TRANSPARENT;
 				buttons[i].getStyle().up = upImages[i%numLevels];
 				buttons[i].setSize(DOOR_WIDTH, DOOR_HEIGHT);
 				Actor actor = (Actor) buttons[i];
 				actor.setX(positionsX[i%numLevels]);
 				actor.setY(initialButtonY);
-				System.out.println(initialButtonY);
 			}
 		}
 	}

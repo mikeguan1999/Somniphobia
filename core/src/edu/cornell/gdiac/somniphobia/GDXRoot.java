@@ -19,6 +19,7 @@ import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import edu.cornell.gdiac.somniphobia.Menu;
+import org.lwjgl.Sys;
 
 /**
  * Root class for a LibGDX.  
