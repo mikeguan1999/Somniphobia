@@ -408,7 +408,7 @@ public class MovementController implements ContactListener {
             if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
                     avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
                     avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-                avatar.endDashing();
+//                avatar.endDashing();
             }
 
             // See if we have landed on the ground.
