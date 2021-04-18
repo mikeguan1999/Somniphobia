@@ -1,5 +1,4 @@
-# Somniphobia Technical Prototype
-
+# Somniphobia Alpha Release 
 Welcome to Somniphobia! Control the characters using the following control scheme:
 
 Left/Right arrow keys: Move left/right
@@ -13,7 +12,7 @@ WASD: Camera panning
 N: Go to the next level
 P: Go to the previous level
 
-S: Toggle Sliders to adjust physics values
+']': Toggle Sliders to adjust physics values
 
 Backslash '\': Toggle level editor
 
