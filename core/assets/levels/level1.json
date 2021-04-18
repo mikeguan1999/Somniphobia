@@ -1,0 +1,41 @@
+{
+"dimensions": [ 1400, 800 ],
+"somni": {
+	"pos": [ 7, 13 ]
+},
+"phobia": {
+	"pos": [ 32, 13 ]
+},
+"goal": {
+	"pos": [ 19, 5 ]
+},
+"objects": [
+	{
+		"type": "all",
+		"assetName": "shared:all",
+		"positions": [
+			[ 15, 4, 10, 1 ]
+		],
+		"properties": [],
+		"behaviors": []
+	},
+	{
+		"type": "light",
+		"assetName": "shared:light",
+		"positions": [
+			[ 6, 12, 10, 1 ]
+		],
+		"properties": [],
+		"behaviors": []
+	},
+	{
+		"type": "dark",
+		"assetName": "shared:dark",
+		"positions": [
+			[ 24, 12, 10, 1 ]
+		],
+		"properties": [],
+		"behaviors": []
+	}
+]
+}

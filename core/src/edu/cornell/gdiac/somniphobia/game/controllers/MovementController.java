@@ -239,7 +239,6 @@ public class MovementController implements ContactListener {
 //            action = 2;
 //        }
         if(avatar.isGrounded() && !avatar.isJumping()){
-
             if (avatar.getMovement() == 0f){
                 action = 0; // Idle
             }else{
@@ -410,34 +409,32 @@ public class MovementController implements ContactListener {
                     avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
                     avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
                 avatar.endDashing();
-                avatar.setGravityScale(1);
-
             }
 
             // See if we have landed on the ground.
             if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
                     (somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
                 somni.setGrounded(true);
-                lightSensorFixtures.add(somni == bd1 ? fix1 : fix2); // Could have more than one ground
+                lightSensorFixtures.add(somni == bd1 ? fix2 : fix1); // Could have more than one ground
 //				somni.canJump = true;
 
             }
             if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
                     (phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
                 phobia.setGrounded(true);
-                darkSensorFixtures.add(phobia == bd1 ? fix1 : fix2); // Could have more than one ground
+                darkSensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
 //				phobia.canJump = true;
             }
             if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
                     (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
                 avatar.setGrounded(true);
-                combinedSensorFixtures.add(avatar == bd1 ? fix1 : fix2); // Could have more than one ground
+                combinedSensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
 //				combined.canJump = true;
             }
 
 
             // Check for win condition
-            if ((bd1 == combined   && bd2 == goalDoor) ||
+            if ((bd1 == combined  && bd2 == goalDoor) ||
                     (bd1 == goalDoor && bd2 == combined)) {
                 worldController.setComplete(true);
             }
@@ -470,7 +467,7 @@ public class MovementController implements ContactListener {
         if ((somni.getSensorName().equals(fd2) && somni != bd1 && goalDoor != bd1) ||
                 (somni.getSensorName().equals(fd1) && somni != bd2 && goalDoor != bd2)) {
 
-            lightSensorFixtures.remove(somni == bd1 ? fix1 : fix2);
+            lightSensorFixtures.remove(somni == bd1 ? fix2 : fix1);
 
             if (lightSensorFixtures.size == 0) {
                 somni.setGrounded(false);
@@ -478,7 +475,7 @@ public class MovementController implements ContactListener {
         }
         if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
                 (phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
-            darkSensorFixtures.remove(phobia == bd1 ? fix1 : fix2);
+            darkSensorFixtures.remove(phobia == bd1 ? fix2 : fix1);
 
             if (darkSensorFixtures.size == 0) {
                 phobia.setGrounded(false);
@@ -486,10 +483,10 @@ public class MovementController implements ContactListener {
         }
         if ((avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
                 (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
-            combinedSensorFixtures.remove(avatar == bd1 ? fix1 : fix2);
+            combinedSensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
 
             if (combinedSensorFixtures.size == 0) {
-                avatar.setGrounded(false);
+                combined.setGrounded(false);
             }
         }
     }

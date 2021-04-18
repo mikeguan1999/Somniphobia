@@ -94,7 +94,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Radius of the object (used for collisions) */
 	private float radius;
 	/** How fast we change frames (one frame per 10 calls to update) */
-	private static final float ANIMATION_SPEED = 0.1f;
+	private float animationSpeed = 0.1f;
 	/** The number of animation frames in our filmstrip */
 	private int numAnimFrames = 2;
 	/** Texture for animated objects */
@@ -127,18 +127,6 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setDashVelocity(float f){
 		dashVelocity = f;
 	}
-//	public float getDashDistance(){
-//		return dashDistance;
-//	}
-//	public void setDashDistance(float f){
-//		dashDistance = f;
-//	}
-	public float getCharacterFriction(){
-		return getFriction();
-	}
-	public void setCharacterFriction(float f){
-		setFriction(f);
-	}
 	public void setCharacterForce(float f){
 		force = f;
 	}
@@ -153,11 +141,9 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
 	 */
-	public CharacterModel(JsonValue data, float width, float height, Filter f, boolean type, String level) {
+	public CharacterModel(JsonValue data, float x, float y, float width, float height, Filter f, boolean type) {
 		// The shrink factors fit the image to a tighter hitbox
-		super(	data.get("pos"+level).getFloat(0),
-				data.get("pos"+level).getFloat(1),
-				width*data.get("shrink").getFloat( 0 ),
+		super(	x, y, width*data.get("shrink").getFloat( 0 ),
 				height*data.get("shrink").getFloat( 1 ));
 		setDensity(data.getFloat("density", 0));
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
@@ -168,12 +154,11 @@ public class CharacterModel extends CapsuleObstacle {
 		dashDirection = new Vector2(0,0);
 		forceCache = new Vector2();
 
-		maxspeed = data.getFloat("maxspeed", 0);
+		maxspeed = data.getFloat("max_speed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
-		dashDamping = 5f;
-//		jumpForce = data.getFloat( "jump_force", 0 );
-		jumpForce = 8f;
+		dashDamping = data.getFloat("dash_damping", 0);
+		jumpForce = data.getFloat( "jump_force", 0 );
 		jumpLimit = data.getInt( "jump_cool", 0 );
 		sensorName = type == LIGHT ? "SomniSensor" : "PhobiaSensor";
 		this.data = data;
@@ -217,6 +202,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 */
 	public void setMovement(float value) {
 		movement = value;
+		System.out.println(String.format("Movement received: %f",value));
 		// Change facing if appropriate
 		if (movement < 0) {
 			faceRight = false;
@@ -301,11 +287,9 @@ public class CharacterModel extends CapsuleObstacle {
 		if (dir_X == 0 && dir_Y == 0) {
 			// Default dash in direction player faces
 			dashDirection.set(isFacingRight() ? 1 : -1, 0);
-//			System.out.println(dashDirection);
 
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
-//			System.out.println(dashDirection);
 		}
 		dashStartPos.set(getPosition());
 		isDashing = canDash;
@@ -321,6 +305,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 * Ends the dashing and sets velocity to 0 if we haven't done so
 	 */
 	public void endDashing() {
+//		this.setGravityScale(1);
 		if (isDashing) {
 			isDashing = false;
 			setVY(0f);
@@ -472,6 +457,30 @@ public class CharacterModel extends CapsuleObstacle {
 		radius = animator.getRegionHeight() / 2.0f;
 	}
 
+	/**
+	 * Allows for animated character motions. It sets the texture to prepare to draw.
+	 *
+	 * This method overrides the setTexture method above to set animation speed and pixel width
+	 */
+	public void setTexture(TextureRegion textureRegion, float animationSpeed, double framePixelWidth) {
+		this.animationSpeed = animationSpeed;
+		this.framePixelWidth = framePixelWidth;
+		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		entirePixelWidth = texture.getWidth();
+		if (entirePixelWidth < framePixelWidth) {
+			entirePixelWidth = framePixelWidth;
+		}
+
+		numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
+		animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
+		if(animeframe > numAnimFrames) {
+			animeframe -= numAnimFrames;
+		}
+
+		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		radius = animator.getRegionHeight() / 2.0f;
+	}
+
 
 	/**
 	 * Applies the force to the body of this dude
@@ -490,33 +499,23 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 
 		// Velocity too high on ground, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed() && !isDashing() && isGrounded) {
+		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded) {
 			setVX(Math.signum(getVX()) * getMaxSpeed());
-		}
-//		else if (Math.abs(getVX()) >= getMaxSpeed() * 1.5f && !isDashing()) {
-//			setVX(Math.signum(getVX()) * getMaxSpeed() * 1.4f);
-//		}
-		else if (!isDashing()){
+		} else if (!isDashing()) {
 			forceCache.set(getMovement() * .3f,getVY());
-
-//			body.applyForce(forceCache,getPosition(),true);
 			body.setLinearVelocity(forceCache);
 		}
 
 		// Jump!
 		if (isJumping()) {
 			forceCache.set(0, jumpForce * 1.5f);
-//			body.applyLinearImpulse(forceCache,getPosition(),true);
 			body.setLinearVelocity(forceCache);
 		}
 
 		// Dash!
 		if (isDashing() && !dashed) {
-//			System.out.println("Dash in direction: (" + dashDirection.x + "," + dashDirection.y);
 			forceCache.set(dashDirection.scl(dashVelocity));
 			body.setLinearVelocity(forceCache);
-
-//			body.applyLinearImpulse(forceCache, getPosition(), true);
 			dashed = true;
 		}
 	}
@@ -531,11 +530,9 @@ public class CharacterModel extends CapsuleObstacle {
 	public void update(float dt) {
 
 		// Increase animation frame
-		animeframe += ANIMATION_SPEED;
+		animeframe += animationSpeed;
 		if (animeframe >= numAnimFrames) {
-
 			animeframe = 0;
-
 		}
 
 		// Apply cooldowns

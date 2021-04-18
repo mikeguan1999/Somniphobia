@@ -50,12 +50,22 @@
     "shared:goalOLD": "platform/DoorOLD.png",
     "platform:sliderbar": "platform/sliderbar.png",
     "platform:sliderknob": "platform/sliderknob.png",
+    "level_editor:buttonUp": "level_editor/red_button.png",
+    "level_editor:buttonDown": "level_editor/red_button_down.png",
+    "level_editor:text_background": "level_editor/text_background.png",
+    "level_editor:select_background": "level_editor/select_background.png",
+    "level_editor:dropdown": "level_editor/dropdown.png",
+    "level_editor:dropdown_down": "level_editor/dropdown_down.png",
+    "level_editor:cursor": "level_editor/cursor.png",
+
+
     "platform:SomniPhobia_stand": "platform/SomniPhobiaStand.png",
     "platform:PhobiaSomni_stand": "platform/PhobiaSomniStand.png",
     "platform:barrier": "platform/barrier.png",
     "platform:bullet": "platform/bullet.png",
 
     "platform:somni_stand": "platform/SomniStand.png",
+    "platform:Somni_Idle": "platform/Somni_Idle.png",
     "platform:somni_walk": "platform/SomniWalk.png",
     "platform:somni_dash_side": "platform/SomniSide.png",
     "platform:somni_dash_up": "platform/SomniUp.png",
@@ -65,6 +75,7 @@
     "platform:Somni_Falling": "platform/Somni_Falling.png",
 
     "platform:phobia_stand": "platform/PhobiaStand.png",
+    "platform:Phobia_Idle": "platform/Phobia_Idle.png",
     "platform:phobia_walk": "platform/PhobiaWalk.png",
     "platform:phobia_dash_side": "platform/PhobiaSide.png",
     "platform:phobia_dash_up": "platform/PhobiaUp.png",
@@ -83,10 +94,29 @@
     "platform:phobia_somni_dash_side": "platform/PhobiaSomniSide.png",
     "platform:phobia_somni_dash_up": "platform/PhobiaSomniUp.png",
     "platform:background_light": "platform/BG_forest_light.png",
-    "platform:background_dark": "platform/BG_forest_dark.png"
+    "platform:background_dark": "platform/BG_forest_dark.png",
+    "platform:background_light_gear": "platform/BG_gear_light.png",
+    "platform:background_dark_gear": "platform/BG_gear_dark.png",
+    "platform:background_light_dreams": "platform/BG_dreams_light.png",
+    "platform:background_dark_dreams": "platform/BG_dreams_dark.png",
+    "platform:background_light_house": "platform/BG_house_light.png",
+    "platform:background_dark_house": "platform/BG_house_dark.png"
   },
     "jsons"  : {
-        "platform:constants": "platform/constants.json"
+        "constants": "constants.json",
+        "level0": "levels/level0.json",
+        "level1": "levels/level1.json",
+        "level2": "levels/level2.json",
+        "level3": "levels/level3.json",
+        "level4": "levels/level4.json",
+        "level5": "levels/level5.json",
+        "level6": "levels/level6.json",
+        "level7": "levels/level7.json",
+        "level8": "levels/level8.json",
+        "level9": "levels/level9.json",
+        "level10": "levels/level10.json",
+        "level11": "levels/level11.json",
+        "level12": "levels/level12.json"
     },
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",

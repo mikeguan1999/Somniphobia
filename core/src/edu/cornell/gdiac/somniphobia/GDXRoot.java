@@ -14,6 +14,7 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
@@ -39,10 +40,12 @@ public class GDXRoot extends Game implements ScreenListener {
 	private LoadingMode loading;
 	/** The World Controller */
 	private WorldController[] controllers;
+
+	private LevelCreator levelCreator;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	private int numLevelsPerPage = 4;
-	private int totalNumLevels = 10;
+	private int totalNumLevels = 12;
 	private int numPages;
 	private Menu[] menuPages;
 	private Menu currentMenu;
@@ -50,6 +53,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	private Boolean level1;
 
 	private OrthographicCamera cam;
+
+	private final int LEVEL_CONTROLLER_INDEX = 0;
+	private final int LEVEL_CREATOR_INDEX = 1;
+
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -98,18 +105,12 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		// Initialize the Platformer Controller
 		// TODO
-		controllers = new WorldController[10];
-		controllers[0] = new PlatformController(0);
-		controllers[1] = new PlatformController(1);
-		controllers[2] = new PlatformController(2);
-		controllers[3] = new PlatformController(3);
-		controllers[4] = new PlatformController(0);
-		controllers[5] = new PlatformController(0);
-		controllers[6] = new PlatformController(0);
-		controllers[7] = new PlatformController(0);
-		controllers[8] = new PlatformController(0);
-		controllers[9] = new PlatformController(0);
 
+		controllers = new WorldController[2];
+		controllers[LEVEL_CONTROLLER_INDEX] = new PlatformController();
+		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
+
+		levelCreator = new LevelCreator();
 
 		// Constructs a new OrthographicCamera, using the given viewport width and height
 		// Height is multiplied by aspect ratio.
@@ -124,6 +125,13 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		loading.setScreenListener(this);
 		setScreen(loading);
+
+//		levelCreator.setScreenListener(this);
+//		setScreen(levelCreator);
+//		levelCreator.setCanvas(canvas);
+//	    loading.getAssets();
+//		levelCreator.gatherAssets(directory);
+//		levelCreator.initialize();
 	}
 
 	public Menu getCurrentMenu(){
@@ -169,7 +177,15 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas.resize();
 		super.resize(width,height);
 	}
-	
+
+	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
+	 *  otherwise, prepares for level `num`. */
+	public void prepareLevelJson(WorldController wc, int num, boolean increment) {
+		PlatformController pc = (PlatformController) wc;
+		pc.setLevel(increment ? pc.getLevel() + num : num);
+		pc.gatherLevelJson(directory);
+	}
+
 	/**
 	 * The given screen has made a request to exit its player mode.
 	 *
@@ -183,6 +199,9 @@ public class GDXRoot extends Game implements ScreenListener {
 			for(int ii = 0; ii < controllers.length; ii++) {
 				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
+				if(ii == LEVEL_CONTROLLER_INDEX) {
+					prepareLevelJson(controllers[ii], 1, false);
+				}
 				controllers[ii].setScreenListener(this);
 				controllers [ii].setCanvas(canvas);
 			}
@@ -209,9 +228,9 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(currentMenu);
 			}
 			else {
-				current = exitCode;
-				controllers[exitCode].reset();
-				setScreen(controllers[exitCode]);
+				prepareLevelJson(controllers[current], exitCode+1, false);
+				controllers[current].reset();
+				setScreen(controllers[current]);
 			}
 		} else if (exitCode == WorldController.EXIT_MENU) {
 //			resetting the menu
@@ -221,11 +240,18 @@ public class GDXRoot extends Game implements ScreenListener {
 			currentMenu.setScreenListener(this);
 			setScreen(currentMenu);
 		} else if (exitCode == WorldController.EXIT_NEXT) {
-			current = (current + 1 ) % controllers.length;
-			controllers[current].reset();
-			setScreen(controllers[current]);
+			if(current == LEVEL_CONTROLLER_INDEX) {
+				prepareLevelJson(controllers[current], 1, true);
+				controllers[current].reset();
+			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
-			current = (current+controllers.length-1) % controllers.length;
+
+			if(current == LEVEL_CONTROLLER_INDEX) {
+				prepareLevelJson(controllers[current], -1, true);
+				controllers[current].reset();
+			}
+		} else if (exitCode == WorldController.EXIT_SWITCH) {
+			current = (current + 1 ) % controllers.length;
 			controllers[current].reset();
 			setScreen(controllers[current]);
 		} else if (exitCode == WorldController.EXIT_QUIT) {

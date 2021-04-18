@@ -16,9 +16,6 @@ package edu.cornell.gdiac.somniphobia;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.*;
 
-import com.badlogic.gdx.utils.Array;
-import edu.cornell.gdiac.util.*;
-
 /**
  * Class for reading player input. 
  *
@@ -41,9 +38,15 @@ public class InputController {
 	}
 	
 	// Fields to manage buttons
-	/** Whether the button to advanced worlds was pressed. */
+	/** Whether the button to go to the next level was pressed. */
 	private boolean nextPressed;
 	private boolean nextPrevious;
+	/** Whether the button to go to the previous level was pressed. */
+	private boolean prevPressed;
+	private boolean prevPrevious;
+	/** Whether the button to switch to the creator was pressed. */
+	private boolean switchToCreatorPressed;
+	private boolean switchToCreatorPrevious;
 	/** Whether the reset button was pressed. */
 	private boolean resetPressed;
 	private boolean resetPrevious;
@@ -62,6 +65,14 @@ public class InputController {
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
 	private boolean debugPrevious;
+	/** Whether the left or right keys were pressed. */
+	private boolean walkPressed;
+
+	/** Whether the camera WASD keys were pressed. */
+	private boolean wPressed;
+	private boolean aPressed;
+	private boolean sPressed;
+	private boolean dPressed;
 
 	/** Whether the slider toggle was pressed. */
 	private boolean sliderToggled;
@@ -71,17 +82,29 @@ public class InputController {
 	private boolean exitPressed;
 	private boolean exitPrevious;
 
-	private boolean prevPressed;
-	private boolean prevPrevious;
-
 	/** Whether the return menu button was pressed. */
 	private boolean returnMenuPressed;
 	private boolean returnMenuPrevious;
-	
+
+	/** Whether the teritiary action button was pressed. */
+	private boolean tertiaryPressed;
+	/** The crosshair position (for raddoll) */
+	private Vector2 crosshair = new Vector2();
+	/** The crosshair cache (for using as a return value) */
+	private Vector2 crosscache = new Vector2();
+
+
 	/** How much did we move horizontally? */
 	private float horizontal;
 	/** How much did we move vertically? */
 	private float vertical;
+
+
+
+	/** How much did we move the camera horizontally? */
+	private float cameraHorizontal;
+	/** How much did we move the camera vertically? */
+	private float cameraVertical;
 	
 	/**
 	 * Returns the amount of sideways movement. 
@@ -102,6 +125,26 @@ public class InputController {
 	 * @return the amount of vertical movement. 
 	 */
 	public float getVertical() { return vertical; }
+
+	/**
+	 * Returns the amount of sideways camera movement.
+	 *
+	 * -1 = left, 1 = right, 0 = still
+	 *
+	 * @return the amount of sideways camera movement.
+	 */
+	public float getCameraHorizontal() {
+		return cameraHorizontal;
+	}
+
+	/**
+	 * Returns the amount of vertical camera movement.
+	 *
+	 * -1 = down, 1 = up, 0 = still
+	 *
+	 * @return the amount of vertical camera movement.
+	 */
+	public float getCameraVertical() { return cameraVertical; }
 
 	/**
 	 * Returns true if the player wants to go to the next level.
@@ -215,6 +258,83 @@ public class InputController {
 	public boolean didReturnMenu(){ return returnMenuPressed && !returnMenuPrevious; }
 
 
+	/**
+	 * Returns true if the button to enter the creator was pressed.
+	 *
+	 * @return true if the creator mode button was pressed.
+	 */
+	public boolean didSwitchToCreatorMode() {
+		return switchToCreatorPressed && !switchToCreatorPrevious;
+	}
+
+	/**
+	 * Returns true if the W button was pressed.
+	 *
+	 * @return true if the W button was pressed.
+	 */
+	public boolean didCameraUp() {
+		return wPressed;
+	}
+
+	/**
+	 * Returns true if the A button was pressed.
+	 *
+	 * @return true if the A button was pressed.
+	 */
+	public boolean didCameraLeft() {
+		return aPressed;
+	}
+
+	/**
+	 * Returns true if the S button was pressed.
+	 *
+	 * @return true if the S button was pressed.
+	 */
+	public boolean didCameraDown() {
+		return sPressed;
+	}
+
+	/**
+	 * Returns true if the D button was pressed.
+	 *
+	 * @return true if the D button was pressed.
+	 */
+	public boolean didCameraRight() { return dPressed; }
+
+	/**
+	 * Returns true if any of WASD are pressed
+	 *
+	 * @return true if any of WASD are pressed
+	 */
+	public boolean didWASDPressed() {
+		return wPressed || aPressed || sPressed || dPressed;
+	}
+
+	/**
+	 * Returns true if no character action keys are pressed
+	 *
+	 * @return true if no character action keys are pressed
+	 */
+	public boolean didAction() {
+		return walkPressed || jumpPressed || dashPressed || switchPressed
+				|| handHoldingPressed;
+	}
+
+
+	/**
+	 * Returns the current position of the crosshairs on the screen.
+	 *
+	 * This value does not return the actual reference to the crosshairs position.
+	 * That way this method can be called multiple times without any fair that
+	 * the position has been corrupted.  However, it does return the same object
+	 * each time.  So if you modify the object, the object will be reset in a
+	 * subsequent call to this getter.
+	 *
+	 * @return the current position of the crosshairs on the screen.
+	 */
+	public Vector2 getCrossHair() {
+		return crosscache.set(crosshair);
+	}
 
 	/**
 	 * Reads the input for the player and converts the result into game logic.
@@ -222,42 +342,48 @@ public class InputController {
 	public void readInput(Rectangle bounds, Vector2 scale) {
 		// Copy state from last animation frame
 		// Helps us ignore buttons that are held down
-		jumpPrevious  = jumpPressed;
-		dashPrevious = dashPressed;
-		handHoldingPrevious = handHoldingPressed;
-		switchPrevious = switchPressed;
-		resetPrevious  = resetPressed;
-		debugPrevious  = debugPressed;
-		sliderToggledPrevious = sliderToggled;
-		exitPrevious = exitPressed;
-		nextPrevious = nextPressed;
-		prevPrevious = prevPressed;
-		returnMenuPrevious = returnMenuPressed;
 
-		readKeyboard();
+		jumpPrevious  			= jumpPressed;
+		dashPrevious 			= dashPressed;
+		handHoldingPrevious 	= handHoldingPressed;
+		switchPrevious 			= switchPressed;
+		resetPrevious  			= resetPressed;
+		debugPrevious  			= debugPressed;
+		sliderToggledPrevious 	= sliderToggled;
+		exitPrevious 			= exitPressed;
+		switchToCreatorPrevious = switchToCreatorPressed;
+		nextPrevious 			= nextPressed;
+		prevPrevious 			= prevPressed;
+		returnMenuPrevious		= returnMenuPressed;
+
+		readKeyboard(bounds,scale);
 	}
 
 	/**
 	 * Reads input from the keyboard.
 	 */
-	private void readKeyboard() {
+	private void readKeyboard(Rectangle bounds, Vector2 scale) {
 		// Give priority to gamepad results
-		resetPressed  = Gdx.input.isKeyPressed(Input.Keys.R);
-		debugPressed  = Gdx.input.isKeyPressed(Input.Keys.G);
-		sliderToggled  = Gdx.input.isKeyPressed(Input.Keys.S);
-		jumpPressed  = Gdx.input.isKeyPressed(Input.Keys.Z);
-		dashPressed = Gdx.input.isKeyPressed(Input.Keys.X);
-		handHoldingPressed = Gdx.input.isKeyPressed(Input.Keys.C);
-		switchPressed = Gdx.input.isKeyPressed(Input.Keys.D);
-		exitPressed   = Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
-		prevPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
-		nextPressed = (Gdx.input.isKeyPressed(Input.Keys.N));
-		returnMenuPressed = (Gdx.input.isKeyPressed(Input.Keys.H));
+		resetPressed			= Gdx.input.isKeyPressed(Input.Keys.R);
+		debugPressed  			= Gdx.input.isKeyPressed(Input.Keys.G);
+		sliderToggled  			= Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
+		jumpPressed  			= Gdx.input.isKeyPressed(Input.Keys.UP);
+		dashPressed 			= Gdx.input.isKeyPressed(Input.Keys.SPACE);
+		handHoldingPressed 		= Gdx.input.isKeyPressed(Input.Keys.E);
+		switchPressed 			= Gdx.input.isKeyPressed(Input.Keys.Q);
+		exitPressed   			= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
+		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
+		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
+		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
+		walkPressed 			= Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+		returnMenuPressed 		= (Gdx.input.isKeyPressed(Input.Keys.H));
+
+		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
+		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));
+		sPressed = (Gdx.input.isKeyPressed(Input.Keys.S));
+		dPressed = (Gdx.input.isKeyPressed(Input.Keys.D));
 
 		// Directional controls
-
-
-
 		horizontal = 0.0f;
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 			horizontal += 1.0f;
@@ -274,19 +400,39 @@ public class InputController {
 			vertical -= 1.0f;
 		}
 
-		// Print testing for unimplemented features
-		boolean DEBUG = false;
-		if (DEBUG) {
-			if(dashPressed) {
-				System.out.println("Somni/Phobia dashes");
-			}
-			if(handHoldingPressed) {
-				System.out.println("Somni & Phobia hold hands");
-			}
-			if(switchPressed) {
-				System.out.println("Somni/Phobia switched");
-			}
+		cameraHorizontal = 0.0f;
+		if (dPressed) {
+			cameraHorizontal += 1.0f;
 		}
+		if (aPressed) {
+			cameraHorizontal -= 1.0f;
+		}
+
+		cameraVertical = 0.0f;
+		if (wPressed) {
+			cameraVertical += 1.0f;
+		}
+		if (sPressed) {
+			cameraVertical -= 1.0f;
+		}
+
+		tertiaryPressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+		crosshair.set(Gdx.input.getX(), Gdx.input.getY());
+		crosshair.scl(1/scale.x,-1/scale.y);
+		crosshair.y += bounds.height;
 	}
+
+	/**
+	 * Returns true if the tertiary action button was pressed.
+	 *
+	 * This is a sustained button. It will returns true as long as the player
+	 * holds it down.
+	 *
+	 * @return true if the secondary action button was pressed.
+	 */
+	public boolean didTertiary() {
+		return tertiaryPressed;
+	}
+
 
 }
