@@ -1,0 +1,27 @@
+
+test_door1.png
+size: 2048,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1
+  rotate: false
+  xy: 1923, 1851
+  size: 68, 138
+  orig: 68, 138
+  offset: 0, 0
+  index: -1
+cloud1
+  rotate: false
+  xy: 1, 909
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: -1
+forest door
+  rotate: false
+  xy: 1, 580
+  size: 218, 327
+  orig: 218, 327
+  offset: 0, 0
+  index: -1

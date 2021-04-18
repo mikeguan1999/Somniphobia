@@ -82,12 +82,17 @@ public class InputController {
 	private boolean exitPressed;
 	private boolean exitPrevious;
 
+	/** Whether the return menu button was pressed. */
+	private boolean returnMenuPressed;
+	private boolean returnMenuPrevious;
+
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
 	/** The crosshair position (for raddoll) */
 	private Vector2 crosshair = new Vector2();
 	/** The crosshair cache (for using as a return value) */
 	private Vector2 crosscache = new Vector2();
+
 
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -246,6 +251,14 @@ public class InputController {
 	}
 
 	/**
+	 * Returns true if the return menu button was pressed.
+	 *
+	 * @return true if the return menu button was pressed.
+	 */
+	public boolean didReturnMenu(){ return returnMenuPressed && !returnMenuPrevious; }
+
+
+	/**
 	 * Returns true if the button to enter the creator was pressed.
 	 *
 	 * @return true if the creator mode button was pressed.
@@ -329,6 +342,7 @@ public class InputController {
 	public void readInput(Rectangle bounds, Vector2 scale) {
 		// Copy state from last animation frame
 		// Helps us ignore buttons that are held down
+
 		jumpPrevious  			= jumpPressed;
 		dashPrevious 			= dashPressed;
 		handHoldingPrevious 	= handHoldingPressed;
@@ -340,6 +354,7 @@ public class InputController {
 		switchToCreatorPrevious = switchToCreatorPressed;
 		nextPrevious 			= nextPressed;
 		prevPrevious 			= prevPressed;
+		returnMenuPrevious		= returnMenuPressed;
 
 		readKeyboard(bounds,scale);
 	}
@@ -349,7 +364,6 @@ public class InputController {
 	 */
 	private void readKeyboard(Rectangle bounds, Vector2 scale) {
 		// Give priority to gamepad results
-
 		resetPressed			= Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  			= Gdx.input.isKeyPressed(Input.Keys.G);
 		sliderToggled  			= Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
@@ -362,6 +376,7 @@ public class InputController {
 		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
 		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
 		walkPressed 			= Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+		returnMenuPressed 		= (Gdx.input.isKeyPressed(Input.Keys.H));
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
 		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));

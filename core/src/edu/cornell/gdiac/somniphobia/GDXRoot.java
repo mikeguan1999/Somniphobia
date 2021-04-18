@@ -19,6 +19,8 @@ import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import edu.cornell.gdiac.somniphobia.Menu;
+import org.lwjgl.Sys;
 
 /**
  * Root class for a LibGDX.  
@@ -42,16 +44,19 @@ public class GDXRoot extends Game implements ScreenListener {
 	private LevelCreator levelCreator;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
-
-	/** Current level the player is on*/
-	private int level = 1;
+	private int numLevelsPerPage = 4;
+	private int totalNumLevels = 12;
+	private int numPages;
+	private Menu[] menuPages;
+	private Menu currentMenu;
+	private int currentMenuIndex;
+	private Boolean level1;
 
 	private OrthographicCamera cam;
 
 	private final int LEVEL_CONTROLLER_INDEX = 0;
 	private final int LEVEL_CREATOR_INDEX = 1;
 
-	private final int MAX_LEVELS = 4;
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -68,14 +73,39 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * the asynchronous loader for all other assets.
 	 */
 	public void create() {
-		canvas  = new GameCanvas();
+		numPages = totalNumLevels/numLevelsPerPage;
+		if (totalNumLevels%numLevelsPerPage != 0){
+			numPages += 1;
+		}
 
+		canvas  = new GameCanvas();
 		loading = new LoadingMode("assets.json",canvas,1);
 
-		// menu = new MenuController();
+		menuPages = new Menu[numPages];
+		for (int i=0; i<menuPages.length; i++){
+			if (i==0){
+				Menu menu = new Menu(canvas, false, true, i*numLevelsPerPage, totalNumLevels);
+				menuPages[i] = menu;
+			}
+			else if (i== menuPages.length-1){
+				Menu menu = new Menu(canvas, true, false, i*numLevelsPerPage, totalNumLevels);
+				menuPages[i] = menu;
+			}
+			else {
+				Menu menu = new Menu(canvas, true, true, i*numLevelsPerPage, totalNumLevels);
+				menuPages[i] = menu;
+			}
+		}
+//		0123
+//				4567
+//						891011
+
+		currentMenuIndex = 0;
+		currentMenu = menuPages[currentMenuIndex];
 
 		// Initialize the Platformer Controller
 		// TODO
+
 		controllers = new WorldController[2];
 		controllers[LEVEL_CONTROLLER_INDEX] = new PlatformController();
 		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
@@ -93,7 +123,6 @@ public class GDXRoot extends Game implements ScreenListener {
 		cam.position.set(cam.viewportWidth / 2f, cam.viewportHeight / 2f, 0);
 		cam.update();
 
-
 		loading.setScreenListener(this);
 		setScreen(loading);
 
@@ -105,6 +134,9 @@ public class GDXRoot extends Game implements ScreenListener {
 //		levelCreator.initialize();
 	}
 
+	public Menu getCurrentMenu(){
+		return currentMenu;
+	}
 	/** 
 	 * Called when the Application is destroyed. 
 	 *
@@ -118,6 +150,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			controllers[ii].dispose();
 		}
 
+		currentMenu.dispose();
 		canvas.dispose();
 		canvas = null;
 
@@ -137,6 +170,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * before a call to create().
 	 *
 	 * @param width  The new width in pixels
+	 * @param height The new height in pixels
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
@@ -163,28 +197,55 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void exitScreen(Screen screen, int exitCode) {
 		if (screen == loading) {
 			for(int ii = 0; ii < controllers.length; ii++) {
-
 				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
 				if(ii == LEVEL_CONTROLLER_INDEX) {
 					prepareLevelJson(controllers[ii], 1, false);
 				}
 				controllers[ii].setScreenListener(this);
-				controllers[ii].setCanvas(canvas);
+				controllers [ii].setCanvas(canvas);
+			}
+			for(int ii = 0; ii < menuPages.length; ii++) {
+				menuPages[ii].setScreenListener(this);
+				setScreen(menuPages[ii]);
 			}
 
-			controllers[current].reset();
-			setScreen(controllers[current]);
 
-			
+			currentMenu.setScreenListener(this);
+//			menu.setCanvas(canvas);
+			setScreen(currentMenu);
 			loading.dispose();
 			loading = null;
+		} else if (screen==currentMenu){
+			if (exitCode<0){
+				if (exitCode==currentMenu.getLEFT_EXIT_CODE()){
+					currentMenuIndex -= 1;
+				}
+				else if (exitCode==currentMenu.getRIGHT_EXIT_CODE()) {
+					currentMenuIndex += 1;
+				}
+				currentMenu = menuPages[currentMenuIndex];
+				setScreen(currentMenu);
+			}
+			else {
+				prepareLevelJson(controllers[current], exitCode+1, false);
+				controllers[current].reset();
+				setScreen(controllers[current]);
+			}
+		} else if (exitCode == WorldController.EXIT_MENU) {
+//			resetting the menu
+			menuPages[currentMenuIndex] = new Menu(canvas, currentMenu.getLeftExist(), currentMenu.getRightExist(),
+					currentMenuIndex*numLevelsPerPage, totalNumLevels);
+			currentMenu = menuPages[currentMenuIndex];
+			currentMenu.setScreenListener(this);
+			setScreen(currentMenu);
 		} else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(controllers[current], 1, true);
 				controllers[current].reset();
 			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
+
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(controllers[current], -1, true);
 				controllers[current].reset();
