@@ -177,6 +177,7 @@ public class PlatformController extends WorldController {
 	/** Camera stuff */
 	private float widthUpperBound, heightUpperBound;
 	private float LERP = 2f;
+	private Vector2 panMovement = new Vector2(0,0);
 
 
 	/** Masking stuff */
@@ -229,7 +230,7 @@ public class PlatformController extends WorldController {
 
 	// WASD Camera Variables
 
-	private Vector2 wasdPosition = new Vector2(0, 0);
+	private Vector2 cameraCenter;
 	private int cameraDelay = 0;
 
 
@@ -889,48 +890,50 @@ public class PlatformController extends WorldController {
 		// Set camera position bounded by the canvas size
 		camera = canvas.getCamera();
 
-		if ((InputController.getInstance().didWASDPressed() )
-				&& !InputController.getInstance().didAction()) {
-
-			wasdPosition.x += InputController.getInstance().getCameraHorizontal();
-			wasdPosition.y += InputController.getInstance().getCameraVertical();
-
-			float newX = wasdPosition.x * canvas.PPM;
-			newX = Math.min(newX, widthUpperBound);
-			newX = Math.max(canvas.getWidth() / 2, newX );
-
-			// Only update the position if less than half screen width away from avatar
-			float aimX = (newX - camera.position.x) * LERP * dt;
-			float xDiff = newX - avatar.getX()*canvas.PPM;
-			if (Math.abs(xDiff) < Gdx.graphics.getWidth()/2) {
-				camera.position.x += aimX;
-			}
-
-			float newY = wasdPosition.y * canvas.PPM;
-			newY = Math.min(newY, heightUpperBound);
-			newY = Math.max(canvas.getHeight() / 2, newY );
-
-			// Only update the position if less than half screen width away from avatar
-			float aimY = (newY - camera.position.y) * LERP * dt;
-			float yDiff = newY - avatar.getY()*canvas.PPM;
-			if (Math.abs(yDiff) < Gdx.graphics.getHeight()/2) {
-				camera.position.y += aimY;
-			}
+        if(cameraCenter == null) {
+        	cameraCenter = new Vector2(avatar.getX(), avatar.getY());
+			cameraCenter.x = avatar.getX();
+			cameraCenter.y = avatar.getY();
 		}
-		else {
-			wasdPosition.x = avatar.getX();
-			wasdPosition.y = avatar.getY();
 
-			float newX = avatar.getX() * canvas.PPM;
-			newX = Math.min(newX, widthUpperBound);
-			newX = Math.max(canvas.getWidth() / 2, newX );
-			camera.position.x += (newX - camera.position.x) * LERP * dt;
+        float PAN_DISTANCE = 100f;
+        float CAMERA_SPEED = 5f;
 
-			float newY = avatar.getY() * canvas.PPM;
-			newY = Math.min(newY, heightUpperBound);
-			newY = Math.max(canvas.getHeight() / 2, newY );
-			camera.position.y += (newY - camera.position.y) * LERP * dt;
+		float newX = avatar.getX() * canvas.PPM;
+		float camX = InputController.getInstance().getCameraHorizontal();
+		if(camX != 0) {
+			panMovement.x = camX * CAMERA_SPEED * canvas.PPM;
+		} else {
+			panMovement.x = 0;
 		}
+
+		float camY = InputController.getInstance().getCameraVertical();
+		if(camY != 0) {
+			panMovement.y = camY * CAMERA_SPEED * canvas.PPM;
+		} else {
+			panMovement.y = 0;
+		}
+
+		float newY = avatar.getY() * canvas.PPM;
+		//float displacementFactor = camera.frustum.sphereInFrustumWithoutNearFar(newX, newY, 0, PAN_RADIUS) ?
+	//			1 : 0;
+
+		newX = Math.min(newX, widthUpperBound);
+		newX = Math.max(canvas.getWidth() / 2, newX );
+		float displacementX = newX - camera.position.x;
+		//panMovement.x +=  camX * CAMERA_SPEED * canvas.PPM;
+		//float lerpDisplacementX = (displacementX + panMovement.x) * displacementFactor;
+		float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ? displacementX + panMovement.x : displacementX;
+		camera.position.x += lerpDisplacementX * LERP * dt;
+
+		newY = Math.min(newY, heightUpperBound);
+		newY = Math.max(canvas.getHeight() / 2, newY );
+		float displacementY = newY - camera.position.y;
+		//panMovement.y += camY * CAMERA_SPEED * canvas.PPM;
+		//float lerpDisplacementY = (displacementY + panMovement.y) * displacementFactor;
+		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ? displacementY + panMovement.y : displacementY;
+		camera.position.y += lerpDisplacementY * LERP * dt;
+
 		camera.update();
 
 

@@ -267,59 +267,6 @@ public class InputController {
 		return switchToCreatorPressed && !switchToCreatorPrevious;
 	}
 
-	/**
-	 * Returns true if the W button was pressed.
-	 *
-	 * @return true if the W button was pressed.
-	 */
-	public boolean didCameraUp() {
-		return wPressed;
-	}
-
-	/**
-	 * Returns true if the A button was pressed.
-	 *
-	 * @return true if the A button was pressed.
-	 */
-	public boolean didCameraLeft() {
-		return aPressed;
-	}
-
-	/**
-	 * Returns true if the S button was pressed.
-	 *
-	 * @return true if the S button was pressed.
-	 */
-	public boolean didCameraDown() {
-		return sPressed;
-	}
-
-	/**
-	 * Returns true if the D button was pressed.
-	 *
-	 * @return true if the D button was pressed.
-	 */
-	public boolean didCameraRight() { return dPressed; }
-
-	/**
-	 * Returns true if any of WASD are pressed
-	 *
-	 * @return true if any of WASD are pressed
-	 */
-	public boolean didWASDPressed() {
-		return wPressed || aPressed || sPressed || dPressed;
-	}
-
-	/**
-	 * Returns true if no character action keys are pressed
-	 *
-	 * @return true if no character action keys are pressed
-	 */
-	public boolean didAction() {
-		return walkPressed || jumpPressed || dashPressed || switchPressed
-				|| handHoldingPressed;
-	}
-
 
 	/**
 	 * Returns the current position of the crosshairs on the screen.

@@ -202,7 +202,6 @@ public class CharacterModel extends CapsuleObstacle {
 	 */
 	public void setMovement(float value) {
 		movement = value;
-		System.out.println(String.format("Movement received: %f",value));
 		// Change facing if appropriate
 		if (movement < 0) {
 			faceRight = false;
