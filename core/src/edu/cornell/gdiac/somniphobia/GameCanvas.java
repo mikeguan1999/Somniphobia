@@ -79,10 +79,13 @@ public class GameCanvas {
 		 */
 		NO_PREMULT,
 		/**
-		 * (DST) Alpha blending on, assuming the colors have no pre-multipled alpha?
+		 * Blend mode for masking
 		 */
-		NO_PREMULT_DST,
-		TEST,
+		MASK,
+		/**
+		 * Blend mode for masking platforms properly
+		 */
+		MASK_PLATFORM,
 		/**
 		 * Color values are added together, causing a white-out effect
 		 */
@@ -395,8 +398,12 @@ public class GameCanvas {
 			case NO_PREMULT:
 				spriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 				break;
-			case NO_PREMULT_DST:
+			case MASK:
 				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA);
+				break;
+			case MASK_PLATFORM:
+				//spriteBatch.setBlendFunction(GL20.GL_);
+				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA - GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA - GL20.GL_ONE_MINUS_SRC_ALPHA);
 				break;
 			case ALPHA_BLEND:
 				spriteBatch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -406,9 +413,6 @@ public class GameCanvas {
 				break;
 			case OPAQUE:
 				spriteBatch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
-				break;
-			case TEST:
-				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE);
 				break;
 		}
 		blend = state;
@@ -481,6 +485,7 @@ public class GameCanvas {
 	public void endCustom() {
 		setBlendState(BlendState.NO_PREMULT);
 		setChannelState(ChannelState.ALL);
+		Gdx.gl20.glBlendEquation(GL20.GL_FUNC_ADD);
 		end();
 	}
 
