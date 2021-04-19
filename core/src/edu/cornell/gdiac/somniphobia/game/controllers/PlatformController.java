@@ -897,7 +897,7 @@ public class PlatformController extends WorldController {
 		}
 
         float PAN_DISTANCE = 100f;
-        float CAMERA_SPEED = 5f;
+        float CAMERA_SPEED = 10f;
 
 		float newX = avatar.getX() * canvas.PPM;
 		float camX = InputController.getInstance().getCameraHorizontal();
