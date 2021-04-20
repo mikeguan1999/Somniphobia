@@ -83,10 +83,6 @@ public class GameCanvas {
 		 */
 		MASK,
 		/**
-		 * Blend mode for masking platforms properly
-		 */
-		MASK_PLATFORM,
-		/**
 		 * Color values are added together, causing a white-out effect
 		 */
 		ADDITIVE,
@@ -400,10 +396,6 @@ public class GameCanvas {
 				break;
 			case MASK:
 				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA);
-				break;
-			case MASK_PLATFORM:
-				//spriteBatch.setBlendFunction(GL20.GL_);
-				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA - GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA - GL20.GL_ONE_MINUS_SRC_ALPHA);
 				break;
 			case ALPHA_BLEND:
 				spriteBatch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);

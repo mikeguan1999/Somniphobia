@@ -120,6 +120,9 @@ public class PlatformController extends WorldController {
 	private TextureRegion circle_mask;
 	private Texture alpha_background;
 	private FrameBuffer fbo;
+	private TextureRegion fboTextureRegion = new TextureRegion();
+	//private SpriteCache spriteCache = new SpriteCache();
+	//private int spriteCacheID;
 
 
 	/** Texture asset int for action*/
@@ -509,9 +512,9 @@ public class PlatformController extends WorldController {
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 
 		// Tiles
-		lightTexture = new TextureRegion(directory.getEntry( "shared:cloud_light", Texture.class ));
-		darkTexture = new TextureRegion(directory.getEntry( "shared:cloud_dark", Texture.class ));
-		allTexture = new TextureRegion(directory.getEntry( "shared:cloud_all", Texture.class ));
+		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
+		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
@@ -979,28 +982,25 @@ public class PlatformController extends WorldController {
 	 */
 	public void drawCharacterPlatform(CharacterModel character) {
 		PooledList<Obstacle> objects = character.equals(somni) ? lightObjects : darkObjects;
-		canvas.beginCustom(GameCanvas.BlendState.MASK_PLATFORM, GameCanvas.ChannelState.ALL);
+		//TextureRegion objTextureRegion = character.equals(somni) ? lightTexture : darkTexture;
+		//float objOriginX = objTextureRegion.getRegionWidth()/2.0f, objOriginY = objTextureRegion.getRegionHeight()/2.0f;
+		//canvas.beginCustom(GameCanvas.BlendState.MASK_PLATFORM, GameCanvas.ChannelState.ALL);
+		//fbo.begin();
+		//canvas.clear();
 		for(Obstacle obj : objects) {
-			//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-			/*canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
-			fbo.begin();
-			fbo.bind();
+			//float objX = obj.getX(), objY = obj.getY(), objSX = obj.getDrawScale().x, objSY = obj.getDrawScale().y;
+			canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 			obj.draw(canvas);
-			fbo.end();
 			canvas.endCustom();
-			canvas.beginCustom(GameCanvas.BlendState.MASK, GameCanvas.ChannelState.ALL);
-			Texture maskedTexture = fbo.getColorBufferTexture();
-			canvas.draw(maskedTexture, Color.WHITE, obj.getX() * canvas.PPM, obj.getY() * canvas.PPM, 500, 50);
-			canvas.endCustom();*/
-			//Gdx.gl.
-			obj.draw(canvas);
+			//fbo.end();
 		}
-		canvas.endCustom();
+		//fbo.end();
+
+		//canvas.endCustom();
 	}
 
 	/**
-	 * Returns a rectnagular texture that is `width` by `height`
+	 * Returns a rectangular texture that is `width` by `height`
 	 * */
 	public Texture createRectangularTexture(int width, int height) {
 		Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
@@ -1025,25 +1025,37 @@ public class PlatformController extends WorldController {
 		float cameraX = camera.position.x - canvas.getWidth() / 2;
 		float cameraY = camera.position.y - canvas.getHeight() / 2;
 
-		// Draw background
-		canvas.beginCustom(GameCanvas.BlendState.MASK, GameCanvas.ChannelState.ALL);
-		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
-		canvas.endCustom();
+		// Create the frame buffer if uninitialized
+		if(fbo == null) {
+			fbo = new FrameBuffer(Pixmap.Format.RGBA8888, canvas.getWidth(), canvas.getHeight(), false);
+		}
 
+		// Draw background
+		fbo.begin();
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
+		backgroundTexture.flip(false,true);
+		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundTexture.flip(false,true);
+		canvas.endCustom();
 
 		// Create alpha background if uninitialized
 		if(alpha_background == null) {
 			alpha_background = createRectangularTexture(canvas.getWidth(), canvas.getHeight());
 		}
 
-		// Create the frame buffer if uninitialized
-		if(fbo == null) {
-			fbo = new FrameBuffer(Pixmap.Format.RGBA8888, canvas.getWidth(), canvas.getHeight(), false);
-		}
-
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
 		drawCharacterRift(cameraX, cameraY, maskLeader);
 		drawCharacterPlatform(maskLeader);
+		fbo.end();
+
+		canvas.beginCustom(GameCanvas.BlendState.MASK, GameCanvas.ChannelState.ALL);
+		//canvas.draw(fbo.getColorBufferTexture(), Color.WHITE, objOriginX, objOriginY, objX * objSX,
+		//		objY * objSY, obj.getAngle(), 1, 1);
+		//fboTextureRegion.setTexture(fbo.getColorBufferTexture());
+		//fboTextureRegion.flip(false, false);
+		canvas.draw(fbo.getColorBufferTexture(), camera.position.x - canvas.getWidth() / 2, camera.position.y - canvas.getHeight() / 2);
+		//fboTextureRegion.flip(false, false);
+		canvas.endCustom();
 
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
 		// Check if switching and update mask drawing
