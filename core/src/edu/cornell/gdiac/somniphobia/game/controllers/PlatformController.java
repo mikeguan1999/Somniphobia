@@ -32,6 +32,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
+import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
@@ -202,23 +203,13 @@ public class PlatformController extends WorldController {
 
 	protected ObjectSet<Fixture> combinedSensorFixtures;
 	// Platform logic
-	/** This values so light only interacts with light and dark only interacts with dark*/
-	private final short CATEGORY_LPLAT = 0x0001;  //0000000000000001
-	private final short CATEGORY_DPLAT = 0x0002;  //0000000000000010
-	private final short CATEGORY_SOMNI = 0x0004;  //0000000000000100
-	private final short CATEGORY_PHOBIA = 0x0008;	   	  //0000000000001000
-	private final short CATEGORY_COMBINED = 0x0010; 	  //0000000000010000
-	private final short CATEGORY_ALLPLAT = 0x0020;
 
-	private final short MASK_LPLAT = CATEGORY_SOMNI | CATEGORY_COMBINED; //Collides with all
-
-	private final short MASK_DPLAT = CATEGORY_PHOBIA | CATEGORY_COMBINED;
-
-	private final short MASK_SOMNI = CATEGORY_LPLAT | CATEGORY_ALLPLAT;
-	private final short MASK_PHOBIA = CATEGORY_DPLAT | CATEGORY_ALLPLAT;
-	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
-	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
-
+	private int LIGHT_TAG = 0;
+	private int DARK_TAG = 0;
+	private int ALL_TAG = 0;
+	private int SOMNI_TAG = 0;
+	private int PHOBIA_TAG = 0;
+	private int COMBINED_TAG = 0;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -665,18 +656,6 @@ public class PlatformController extends WorldController {
 	 */
 	private void populateLevel() {
 
-		//create filters
-		Filter lightplatf = new Filter();
-		lightplatf.categoryBits = CATEGORY_LPLAT;
-		lightplatf.maskBits = MASK_LPLAT;
-
-		Filter darkplatf = new Filter();
-		darkplatf.categoryBits = CATEGORY_DPLAT;
-		darkplatf.maskBits = MASK_DPLAT;
-
-		Filter allf = new Filter();
-		allf.categoryBits = CATEGORY_ALLPLAT;
-		allf.maskBits = MASK_ALLPLAT;
 
 		// Setup Goal
 		JsonValue goalVal = levelAssets.get("goal");
@@ -702,7 +681,6 @@ public class PlatformController extends WorldController {
 
 		//group platform constants together for access in following for-loop
 		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
-		Filter[] xPlatf = {lightplatf, darkplatf, allf};
 
 
 		// Setup platforms
@@ -735,21 +713,16 @@ public class PlatformController extends WorldController {
 			// Setup platforms
 			JsonValue platformArgs = obj.get("positions");
 			for (int j = 0; j < platformArgs.size; j++) {
-				BoxObstacle boxstacle;
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
-				boxstacle = new BoxObstacle(x + width / 2, y + height / 2, width, height);
-				boxstacle.setBodyType(BodyDef.BodyType.StaticBody);
-				boxstacle.setDensity(defaults.getFloat( "density", 0.0f ));
-				boxstacle.setFriction(defaults.getFloat( "friction", 0.0f ));
-				boxstacle.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				boxstacle.setDrawScale(scale);
 				TextureRegion newXTexture = new TextureRegion(xTexture[selector]);
 				newXTexture.setRegion(x, y, x + width, y + height);
-				boxstacle.setTexture(newXTexture);
-				boxstacle.setFilterData(xPlatf[selector]);
-				addObject(boxstacle);
-				addObjectTo(boxstacle, selector);
+				PlatformModel platformModel  = new PlatformModel(bounds, selector, newXTexture, scale,
+						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
+						defaults.getFloat( "restitution", 0.0f ));
+				platformModel.setTag(selector);
+				addObject(platformModel);
+				addObjectTo(platformModel, selector);
 			}
 		}
 
@@ -761,54 +734,46 @@ public class PlatformController extends WorldController {
 		heightUpperBound = levelAssets.get("dimensions").getInt(1);
 
 		// Setup Somni
-		Filter somnif = new Filter();
-		somnif.categoryBits = CATEGORY_SOMNI;
-		somnif.maskBits = MASK_SOMNI;
 
 		JsonValue somniVal = levelAssets.get("somni");
 		float sWidth  = somniTexture.getRegionWidth()/scale.x;
 		float sHeight = somniTexture.getRegionHeight()/scale.y;
 		float sX = somniVal.get("pos").getFloat(0) + sWidth / 2;
 		float sY = somniVal.get("pos").getFloat(1) + sHeight / 2;
-		somni = new CharacterModel(constants.get("somni"), sX, sY, sWidth, sHeight, somnif, CharacterModel.LIGHT);
+		somni = new CharacterModel(constants.get("somni"), sX, sY, sWidth, sHeight, platController.somnif, CharacterModel.LIGHT);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniIdleTexture);
-		somni.setFilterData(somnif);
+		somni.setFilterData(platController.somnif);
 		somni.setActive(true);
 		addObject(somni);
 		addObjectTo(somni, LevelCreator.allTag);
 
 
 		// Setup Phobia
-		Filter phobiaf = new Filter();
-		phobiaf.categoryBits = CATEGORY_PHOBIA;
-		phobiaf.maskBits = MASK_PHOBIA;
 
 		JsonValue phobiaVal = levelAssets.get("phobia");
 		float pWidth  = phobiaTexture.getRegionWidth()/scale.x;
 		float pHeight = phobiaTexture.getRegionHeight()/scale.y;
 		float pX = phobiaVal.get("pos").getFloat(0) + pWidth / 2;
 		float pY = phobiaVal.get("pos").getFloat(1) + pHeight / 2;
-		phobia = new CharacterModel(constants.get("phobia"), pX, pY, pWidth, pHeight, phobiaf, CharacterModel.DARK);
+		phobia = new CharacterModel(constants.get("phobia"), pX, pY, pWidth, pHeight, platController.phobiaf, CharacterModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaIdleTexture);
-		phobia.setFilterData(phobiaf);
+		phobia.setFilterData(platController.phobiaf);
 		addObject(phobia);
 		addObjectTo(phobia, LevelCreator.allTag);
 		phobia.setActive(true);
 
 		// Setup Combined
-		Filter combinedf = new Filter();
-		combinedf.categoryBits = CATEGORY_COMBINED;
-		combinedf.maskBits = MASK_COMBINED;
 
 		float cWidth  = combinedTexture.getRegionWidth()/scale.x;
 		float cHeight = combinedTexture.getRegionHeight()/scale.y;
 
-		combined = new CharacterModel(constants.get("combined"), 0, 0, cWidth, cHeight, combinedf, CharacterModel.DARK);
+		combined = new CharacterModel(constants.get("combined"), 0, 0, cWidth, cHeight, platController.combinedf, CharacterModel.DARK);
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
-		combined.setFilterData(combinedf);
+		//combined.setTag();
+		combined.setFilterData(platController.combinedf);
 		addObject(combined);
 		addObjectTo(combined, LevelCreator.allTag);
 		combined.setActive(true);
@@ -821,6 +786,7 @@ public class PlatformController extends WorldController {
 		action = 0;
 
 		volume = constants.getFloat("volume", 1.0f);
+		platController.applyFilters(objects);
 	}
 
 	/**
