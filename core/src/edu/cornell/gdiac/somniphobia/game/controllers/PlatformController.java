@@ -191,8 +191,6 @@ public class PlatformController extends WorldController {
 	float maskWidth, maskHeight;
 	/** Whether or not the mask is in the process of switching*/
 	boolean switching;
-	/** Whether or not the mask is shrinking (switch occurred early on) */
-	boolean shrinking;
 	/** The character to perform the mask effect from */
 	CharacterModel maskLeader;
 
@@ -997,6 +995,15 @@ public class PlatformController extends WorldController {
 		fbo.end();
 	}
 
+	public void drawFrameBufferContents() {
+		canvas.beginCustom(GameCanvas.BlendState.MASK, GameCanvas.ChannelState.ALL);
+		Texture fbo_t = fbo.getColorBufferTexture();
+		float fbo_x = camera.position.x - canvas.getWidth() / 2;
+		float fbo_y = camera.position.y - canvas.getHeight() / 2 + fbo_t.getHeight();
+		canvas.draw(fbo_t, Color.WHITE, fbo_x, fbo_y, fbo_t.getWidth(), -fbo_t.getHeight());
+		canvas.endCustom();
+	}
+
 	/**
 	 * Returns a rectnagular texture that is `width` by `height`
 	 * */
@@ -1041,13 +1048,7 @@ public class PlatformController extends WorldController {
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
 		drawCharacterRift(cameraX, cameraY, maskLeader);
 		drawCharacterPlatform(maskLeader);
-
-		canvas.beginCustom(GameCanvas.BlendState.MASK, GameCanvas.ChannelState.ALL);
-		Texture fbo_t = fbo.getColorBufferTexture();
-		float fbo_x = camera.position.x - canvas.getWidth() / 2;
-		float fbo_y = camera.position.y - canvas.getHeight() / 2 + fbo_t.getHeight();
-		canvas.draw(fbo_t, Color.WHITE, fbo_x, fbo_y, fbo_t.getWidth(), -fbo_t.getHeight());
-		canvas.endCustom();
+		drawFrameBufferContents();
 
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
 		// Check if switching and update mask drawing
@@ -1066,11 +1067,14 @@ public class PlatformController extends WorldController {
 			drawMask(circle_mask, alpha_background, cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
 			drawCharacterRift(cameraX, cameraY, follower);
 			drawCharacterPlatform(follower);
+			drawFrameBufferContents();
 		} else {
+			// If shrinking, make sure the rift is still drawn (to carry over the effect)
 			if(!(maskWidth <= MIN_MASK_DIMENSIONS.x && maskWidth <= MIN_MASK_DIMENSIONS.y)) {
 				drawMask(circle_mask, alpha_background, cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, lead);
 				drawCharacterRift(cameraX, cameraY, lead);
 				drawCharacterPlatform(lead);
+				drawFrameBufferContents();
 			}
 
 			// Draw lead platform
@@ -1092,6 +1096,7 @@ public class PlatformController extends WorldController {
 			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
 			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
 		}
+
 		// Draw shared platforms
 		canvas.begin();
 		for(Obstacle obj : sharedObjects) {
