@@ -166,6 +166,8 @@ public class PlatformController extends WorldController {
 	protected PooledList<Obstacle> lightObjects  = new PooledList<Obstacle>();
 	/** shared objects */
 	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
+	/** moving objects */
+	protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
 
 	private boolean lightclear = false;
 	private boolean darkclear = false;
@@ -610,10 +612,14 @@ public class PlatformController extends WorldController {
 		for(Obstacle obj : lightObjects) {
 			obj.deactivatePhysics(world);
 		}
+//		for (Obstacle obj: movingObjects) {
+//			obj.deactivatePhysics(world);
+//		}
 		objects.clear();
 		sharedObjects.clear();
 		lightObjects.clear();
 		darkObjects.clear();
+		movingObjects.clear();
 		addQueue.clear();
 		world.dispose();
 
@@ -644,6 +650,8 @@ public class PlatformController extends WorldController {
 
 		movementController.setAvatar(somni);
 		movementController.setLead(somni);
+
+		platController.setMovingObjects(movingObjects);
 
 		maskLeader = phobia;
 		switching = false;
@@ -710,8 +718,36 @@ public class PlatformController extends WorldController {
 				// TODO: Wandering & chasing platforms
 			}
 
+
+
+
 			// Setup platforms
 			JsonValue platformArgs = obj.get("positions");
+
+			//TODO: Test
+			float[] bounds0 = new float[]{0, 0, 2, 2};
+			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
+			TextureRegion newXTexture0 = new TextureRegion(xTexture[selector]);
+			newXTexture0.setRegion(x0, y0, x0 + width0, y0 + height0);
+			PlatformModel platformModel0  = new PlatformModel(bounds0, selector, newXTexture0, scale,
+					defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
+					defaults.getFloat( "restitution", 0.0f ));
+			platformModel0.setTag(selector);
+			addObject(platformModel0);
+			addObjectTo(platformModel0, selector);
+			platformModel0.setBodyType(BodyDef.BodyType.KinematicBody);
+			PooledList<Vector2> paths = new PooledList<>();
+			paths.add(new Vector2(0,0));
+			paths.add(new Vector2(5,5));
+			platformModel0.setGravityScale(0);
+			platformModel0.setPaths(paths);
+//			System.out.println(paths);
+			platformModel0.setFriction(1f);
+
+			movingObjects.add(platformModel0);
+			//TODO: Test
+
+
 			for (int j = 0; j < platformArgs.size; j++) {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
@@ -723,6 +759,12 @@ public class PlatformController extends WorldController {
 				platformModel.setTag(selector);
 				addObject(platformModel);
 				addObjectTo(platformModel, selector);
+				//TODO: Moving platforms
+				boolean moving = false;
+				if (moving) {
+					platformModel.setBodyType(BodyDef.BodyType.DynamicBody);
+					movingObjects.add(platformModel);
+				}
 			}
 		}
 
@@ -825,6 +867,8 @@ public class PlatformController extends WorldController {
 	public void update(float dt) {
 
 		action = movementController.update();
+		platController.update(dt);
+
 
 		CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();

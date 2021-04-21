@@ -1,5 +1,6 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
 import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
@@ -33,6 +34,13 @@ public class PlatController {
     public Filter [] filters;
 
 
+
+    /** moving objects */
+    protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
+
+    /** Vector2 cache */
+    private Vector2 vector;
+    
     /**
      * Constructor for platform controller. Creates all the necessary filters.
      */
@@ -57,6 +65,7 @@ public class PlatController {
         allf.maskBits = MASK_ALLPLAT;
         Filter [] fs = {lightplatf, darkplatf, allf, somnif, phobiaf, combinedf};
         filters = fs;
+        vector = new Vector2();
     }
 
     /**
@@ -71,11 +80,44 @@ public class PlatController {
         }
     }
 
+    public void setMovingObjects(PooledList<Obstacle> movingObjects) {
+        this.movingObjects = movingObjects;
+    }
+
     /**
      * Updates platform states
      */
-    public void update(PooledList<Obstacle> objects){
+    public void update(float dt){
 
+        for (Obstacle obstacle : movingObjects) {
+            PlatformModel platform = (PlatformModel) obstacle;
+            Vector2 position = vector;
+            position.set(platform.getLeftX(), platform.getBottomY());
+            PooledList<Vector2> paths = platform.getPaths();
+//            System.out.println(paths);
+            Vector2 nextDestination = paths.getHead();
+            // If we are at the next path, change route
+            Vector2 nextPath = vector.set(paths.getHead());
+            nextPath.sub(position).nor();
+//            System.out.println(nextPath);
+            platform.setLinearVelocity(nextPath);
+            if (position.equals(nextDestination)) {
+                System.out.println("next destination!! \n\n\n");
+                System.out.println(paths);
+                paths.add(paths.poll());
+                System.out.println(paths);
+
+                //Direction towards next
+
+            }
+            System.out.println(nextPath);
+            platform.setActive(true);
+            platform.setAwake(true);
+//            platform.setX(platform.getX() + 1);
+//            platform.getBody().setLinearVelocity(10,10);
+            platform.update(dt);
+
+        }
     }
 
 

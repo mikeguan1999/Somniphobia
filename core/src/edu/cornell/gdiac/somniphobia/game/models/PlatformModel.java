@@ -10,35 +10,41 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
+import edu.cornell.gdiac.util.PooledList;
 
 public class PlatformModel extends BoxObstacle {
 
     /** Width of the platform*/
-    public float width;
+    private float width;
     /** Height of the platform*/
-    public float height;
+    private float height;
 
-    /** X position*/
-    public float xpos;
-    /** Y position*/
-    public float ypos;
+    /** X position based on lower left corner*/
+    private float leftX;
+    /** Y position based on lower left corner*/
+    private float bottomY;
 
     /** Filter*/
-    public Filter filter;
+    private Filter filter;
     /** Texture of the platform*/
-    public TextureRegion texture;
+    private TextureRegion texture;
 
-    public int type;
+    private int type;
 
     /** Density position*/
-    public float density;
+    private float density;
     /** Friction position*/
-    public float friction;
+    private float friction;
     /** restitution position*/
-    public float restitution;
+    private float restitution;
+
+    /** Path for a moving obstacle **/
+    private PooledList<Vector2> paths;
 
     /** scale*/
     public float scale;
+
+
 
 
 
@@ -55,6 +61,31 @@ public class PlatformModel extends BoxObstacle {
         this.setTexture(tr);
 
         this.setTag(t);
+    }
+
+    public float getLeftX() {
+        return getX() - getWidth() / 2;
+    }
+    public float getBottomY() {
+        return getY() - getHeight() / 2;
+    }
+
+
+    /**
+     * Sets the paths of this obstacle
+     * @param paths the paths
+     */
+    public void setPaths(PooledList<Vector2> paths) {
+        this.paths = paths;
+    }
+
+
+    /**
+     * Returns the paths
+     * @return the paths
+     */
+    public PooledList<Vector2> getPaths() {
+        return this.paths;
     }
 
     public boolean hurts(){
