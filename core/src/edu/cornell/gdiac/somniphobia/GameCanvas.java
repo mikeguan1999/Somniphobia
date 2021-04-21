@@ -83,6 +83,10 @@ public class GameCanvas {
 		 */
 		MASK,
 		/**
+		 * Blend mode for reverse-masking
+		 */
+		ANTI_MASK,
+		/**
 		 * Color values are added together, causing a white-out effect
 		 */
 		ADDITIVE,
@@ -396,6 +400,9 @@ public class GameCanvas {
 				break;
 			case MASK:
 				spriteBatch.setBlendFunction(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_DST_ALPHA);
+				break;
+			case ANTI_MASK:
+				spriteBatch.setBlendFunction(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_DST_ALPHA);
 				break;
 			case ALPHA_BLEND:
 				spriteBatch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
