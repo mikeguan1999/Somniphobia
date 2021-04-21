@@ -492,10 +492,10 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 
 		// Don't want to be moving. Damp out player motion
-		if (getMovement() == 0f && isGrounded && !isDashing) {
-			forceCache.set(-getDamping()*getVX(),0);
-			body.applyForce(forceCache,getPosition(),true);
-		}
+//		if (getMovement() == 0f && isGrounded && !isDashing) {
+//			forceCache.set(-getDamping()*getVX(),0);
+//			body.applyForce(forceCache,getPosition(),true);
+//		}
 
 		// Velocity too high on ground, clamp it
 		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded) {
