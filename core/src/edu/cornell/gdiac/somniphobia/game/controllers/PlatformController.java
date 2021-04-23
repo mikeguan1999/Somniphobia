@@ -1075,25 +1075,14 @@ public class PlatformController extends WorldController {
 
 		// Check if switching and update mask drawing
 		if(switching) {
-			// Apply fade effect for follower (fading away)
-
 			// Draw mask for the mask leader
 			drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands, maskLeader);
 
 			// Draw mask for the follower while switching
 			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, true, follower);
 
-			if(holdingHands) {
-				// Draw lead and follower platforms
-				canvas.begin();
-				for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
-					obj.draw(canvas);
-				}
-				for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
-					obj.draw(canvas);
-				}
-				canvas.end();
-			} else {
+			if(!holdingHands) {
+				// Apply fade effect for follower (fading away)
 				drawFadePlatforms(cameraX, cameraY, follower);
 			}
 
@@ -1123,41 +1112,36 @@ public class PlatformController extends WorldController {
 				// Apply fade away effect for the lead (fading in)
 				if(!holdingHands) {
 					drawFadePlatforms(cameraX, cameraY, lead);
-				} else {
-					// Draw lead and follower platforms
+				}
+			} else  {
+				// Draw lead platform
+				if(!holdingHands) {
 					canvas.begin();
 					for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
 						obj.draw(canvas);
 					}
-					for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
-						obj.draw(canvas);
-					}
 					canvas.end();
 				}
-			} else  {
-				// Draw lead platform
-				canvas.begin();
-				for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
-					obj.draw(canvas);
-				}
-				canvas.end();
 
 				// Draw mask leader's mask AFTER drawing lead platforms (platforms don't pop over mask)
-				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, true, maskLeader);
-
-				// Draw follower platforms if holding hands
-				canvas.begin();
-				if(holdingHands) {
-					for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
-						obj.draw(canvas);
-					}
-				}
-				canvas.end();
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands, maskLeader);
 			}
 
 			// Decrease mask size to minimum
 			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
 			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
+		}
+
+		// Draw light and dark platforms if holding hands
+		if(holdingHands) {
+			canvas.begin();
+			for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+				obj.draw(canvas);
+			}
+			for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
+				obj.draw(canvas);
+			}
+			canvas.end();
 		}
 
 		// Draw shared platforms
