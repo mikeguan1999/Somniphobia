@@ -510,9 +510,9 @@ public class PlatformController extends WorldController {
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 
 		// Tiles
-		lightTexture = new TextureRegion(directory.getEntry( "shared:cloud_light", Texture.class ));
-		darkTexture = new TextureRegion(directory.getEntry( "shared:cloud_dark", Texture.class ));
-		allTexture = new TextureRegion(directory.getEntry( "shared:cloud_all", Texture.class ));
+		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
+		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
@@ -865,7 +865,7 @@ public class PlatformController extends WorldController {
 		holdingHands = movementController.isHoldingHands();
 
 		if (movementController.getSwitchedCharacters()) {
-			switching = !switching && !holdingHands;
+			switching = !switching;
 		}
 
 		if(holdingHands){
@@ -1020,6 +1020,14 @@ public class PlatformController extends WorldController {
 		canvas.endCustom();
 	}
 
+	public void drawSpiritObjects(float cameraX, float cameraY, float maskWidth, float maskHeight,
+								  CharacterModel character) {
+		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, character);
+		drawCharacterRift(cameraX, cameraY, character);
+		drawCharacterPlatform(character, true);
+		drawFrameBufferContents(GameCanvas.BlendState.MASK);
+	}
+
 	/**
 	 * Returns a rectnagular texture that is `width` by `height`
 	 * */
@@ -1062,43 +1070,44 @@ public class PlatformController extends WorldController {
 		}
 
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
-		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
-		drawCharacterRift(cameraX, cameraY, maskLeader);
-		drawCharacterPlatform(maskLeader, true);
-		drawFrameBufferContents(GameCanvas.BlendState.MASK);
 
 		// Check if switching and update mask drawing
 		if(switching) {
 			// Apply fade effect for follower (fading away)
-			drawFadePlatforms(cameraX, cameraY, follower);
+			if(!holdingHands) {
+				drawFadePlatforms(cameraX, cameraY, follower);
+			}
 
+			// Draw mask for the mask leader
+			drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
 
+			// Draw mask for the follower while switching
+			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
+
+			// Increase mask size
 			maskWidth += maskWidth >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
 			maskHeight += maskHeight >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
 			if(maskWidth > MAX_MASK_SIZE) {
+				// Reset mask size once max has been reached
+				// TODO: Check boundary instead
 				maskWidth = MIN_MASK_DIMENSIONS.x;
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
-
 				maskLeader = follower;
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
 			}
-			drawMask(circle_mask, alpha_background, cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
-			drawCharacterRift(cameraX, cameraY, follower);
-			drawCharacterPlatform(follower, true);
-			drawFrameBufferContents(GameCanvas.BlendState.MASK);
 		} else {
 			// Check if shrinking
 			if(!(maskWidth <= MIN_MASK_DIMENSIONS.x && maskWidth <= MIN_MASK_DIMENSIONS.y)) {
+				// Make sure the rift is still drawn (to carry over the effect)
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+
+				// Draw mask for the lead while shrinking
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, lead);
+
 				// Apply fade away effect for the lead (fading in)
 				drawFadePlatforms(cameraX, cameraY, lead);
-
-				// Make sure the rift is still drawn (to carry over the effect)
-				drawMask(circle_mask, alpha_background, cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, lead);
-				drawCharacterRift(cameraX, cameraY, lead);
-				drawCharacterPlatform(lead, true);
-				drawFrameBufferContents(GameCanvas.BlendState.MASK);
 			} else  {
 				// Draw lead platform
 				canvas.begin();
@@ -1106,17 +1115,21 @@ public class PlatformController extends WorldController {
 					obj.draw(canvas);
 				}
 				canvas.end();
-			}
 
-			// Draw follower platforms if holding hands
-			canvas.begin();
-			if(holdingHands) {
-				for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
-					obj.draw(canvas);
+				// Draw mask leader's mask AFTER drawing lead platforms (platforms don't pop over mask)
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+
+				// Draw follower platforms if holding hands
+				canvas.begin();
+				if(holdingHands) {
+					for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
+						obj.draw(canvas);
+					}
 				}
+				canvas.end();
 			}
-			canvas.end();
 
+			// Decrease mask size to minimum
 			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
 			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
 		}
