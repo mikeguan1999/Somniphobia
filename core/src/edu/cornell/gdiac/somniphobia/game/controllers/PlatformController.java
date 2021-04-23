@@ -1021,10 +1021,12 @@ public class PlatformController extends WorldController {
 	}
 
 	public void drawSpiritObjects(float cameraX, float cameraY, float maskWidth, float maskHeight,
-								  CharacterModel character) {
+								  boolean drawPlatforms, CharacterModel character) {
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, character);
 		drawCharacterRift(cameraX, cameraY, character);
-		drawCharacterPlatform(character, true);
+		if(drawPlatforms) {
+			drawCharacterPlatform(character, true);
+		}
 		drawFrameBufferContents(GameCanvas.BlendState.MASK);
 	}
 
@@ -1074,15 +1076,26 @@ public class PlatformController extends WorldController {
 		// Check if switching and update mask drawing
 		if(switching) {
 			// Apply fade effect for follower (fading away)
-			if(!holdingHands) {
-				drawFadePlatforms(cameraX, cameraY, follower);
-			}
 
 			// Draw mask for the mask leader
-			drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+			drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands, maskLeader);
 
 			// Draw mask for the follower while switching
-			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
+			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, true, follower);
+
+			if(holdingHands) {
+				// Draw lead and follower platforms
+				canvas.begin();
+				for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+					obj.draw(canvas);
+				}
+				for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
+					obj.draw(canvas);
+				}
+				canvas.end();
+			} else {
+				drawFadePlatforms(cameraX, cameraY, follower);
+			}
 
 			// Increase mask size
 			maskWidth += maskWidth >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
@@ -1099,15 +1112,28 @@ public class PlatformController extends WorldController {
 			}
 		} else {
 			// Check if shrinking
-			if(!(maskWidth <= MIN_MASK_DIMENSIONS.x && maskWidth <= MIN_MASK_DIMENSIONS.y)) {
+			boolean shrinking = maskWidth > MIN_MASK_DIMENSIONS.x || maskHeight > MIN_MASK_DIMENSIONS.y;
+			if(shrinking) {
 				// Make sure the rift is still drawn (to carry over the effect)
-				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands, maskLeader);
 
 				// Draw mask for the lead while shrinking
-				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, lead);
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, !holdingHands, lead);
 
 				// Apply fade away effect for the lead (fading in)
-				drawFadePlatforms(cameraX, cameraY, lead);
+				if(!holdingHands) {
+					drawFadePlatforms(cameraX, cameraY, lead);
+				} else {
+					// Draw lead and follower platforms
+					canvas.begin();
+					for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+						obj.draw(canvas);
+					}
+					for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
+						obj.draw(canvas);
+					}
+					canvas.end();
+				}
 			} else  {
 				// Draw lead platform
 				canvas.begin();
@@ -1117,7 +1143,7 @@ public class PlatformController extends WorldController {
 				canvas.end();
 
 				// Draw mask leader's mask AFTER drawing lead platforms (platforms don't pop over mask)
-				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, true, maskLeader);
 
 				// Draw follower platforms if holding hands
 				canvas.begin();
