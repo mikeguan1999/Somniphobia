@@ -327,14 +327,12 @@ public class PlatformController extends WorldController {
 		resumeButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				resumeClicked = true;
-				System.out.println("OMG");
 			}
 		});
 
 		restartButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				restartClicked = true;
-				System.out.println("OMG");
 			}
 		});
 
@@ -416,33 +414,30 @@ public class PlatformController extends WorldController {
 		resumeButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				resumeClicked = true;
-				System.out.println("OMG");
 			}
 		});
 
 		restartButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				restartClicked = true;
-				System.out.println("OMG");
 			}
 		});
 
+		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
 		pauseMenuStage.addActor(pauseMenu);
+		pauseMenu.validate();
+		pauseMenu.setTransform(true);
+		pauseMenu.setScale(0.5f);
 
 
 //		s.draw(b, 1.0f);
 	}
 
-	public void drawModalWindow(){
-		Batch b = canvas.getBatch();
-
-		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
-		exitButton.draw(b, 1.0f);
-		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
-		resumeButton.draw(b, 1.0f);
-		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
-		restartButton.draw(b, 1.0f);
-
+	public void setPositionPauseMenu(){
+		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
+//		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
+//		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
+//		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
 	}
 
 	/**
@@ -1333,10 +1328,11 @@ public class PlatformController extends WorldController {
 				createModalWindow();
 				firstTimeRendered = false;
 			} else {
-				drawModalWindow();
-//			pauseMenuStage.draw();
-//			pauseMenuStage.act(dt);
+				pauseMenuStage.draw();
+				pauseMenuStage.act(dt);
+//				drawModalWindow();
 			}
+
 			Gdx.input.setInputProcessor(pauseMenuStage);
 		}
 		canvas.end();
