@@ -125,6 +125,10 @@ public class Menu implements Screen {
 	private TextureRegionDrawable[] upImages = new TextureRegionDrawable[numLevels];
 	private TextureRegionDrawable[] overImages = new TextureRegionDrawable[numLevels];
 
+	public Stage getStage(){
+		return stage;
+	}
+
 	public Menu(GameCanvas canvas, boolean left, boolean right, int index, int totalLevels) {
 		stage = new Stage();
 		table = new Table();
@@ -253,7 +257,6 @@ public class Menu implements Screen {
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
-
 	}
 
 	/**
@@ -442,7 +445,7 @@ public class Menu implements Screen {
 		table.setFillParent(true);
 		stage.addActor(table);
 
-		table.setDebug(true);
+//		table.setDebug(true);
 		active = true;
 	}
 

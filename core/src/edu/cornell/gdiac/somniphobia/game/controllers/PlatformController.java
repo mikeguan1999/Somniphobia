@@ -11,15 +11,21 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -31,10 +37,12 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
+import edu.cornell.gdiac.somniphobia.Menu;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
+import org.lwjgl.Sys;
 
 import java.awt.*;
 
@@ -219,6 +227,27 @@ public class PlatformController extends WorldController {
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+	/** pauseMenu variables*/
+	private final int FONT_SIZE = 50;
+	/** Setting the font color to the rgb values of black & visible, ie a=1*/
+	private final Color FONT_COLOR = new Color(0,0,0,1);
+	/** Setting the font color to the rgb values of black & invisible, ie a=0*/
+	private final Color FONT_COLOR_TRANSPARENT = new Color(0,0,0,0);
+
+	private Window pauseMenu1;
+	private Table pauseMenu;
+	private Boolean firstTimeRendered=true;
+	private Boolean firstTimeRenderedPauseButton = true;
+	private Button exitButton;
+	private Button resumeButton;
+	private Button restartButton;
+	private Button pauseButton;
+	private boolean exitClicked;
+	private boolean resumeClicked;
+	private boolean restartClicked;
+	private Stage pauseMenuStage;
+	private Stage pauseButtonStage;
+	private boolean gameScreenActive = true;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -259,6 +288,162 @@ public class PlatformController extends WorldController {
 //		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal()));
 //		Button imgButton= new Button(buttonDrawable);
 //	}
+
+	public void createModalWindow1(){
+		//		Creating bmp font from ttf
+//		OrthographicCamera camera1 = new OrthographicCamera(canvas.getWidth(), canvas.getHeight());
+//		CharacterModel avatar = movementController.getAvatar();
+//		camera1.position.x = avatar.getX();
+//		camera1.position.y = avatar.getY();
+		Stage stage1 = new Stage(new ScreenViewport(camera));
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = FONT_SIZE;
+		parameter.color = FONT_COLOR;
+		parameter.borderWidth = 2;
+		BitmapFont font = generator.generateFont(parameter);
+		generator.dispose();
+		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause_menu\\bluerectangle.png")));
+		Window.WindowStyle style = new Window.WindowStyle(font, FONT_COLOR_TRANSPARENT, drawable);
+		pauseMenu = new Window("", style);
+		pauseMenu.setWidth(canvas.getWidth()/2+100);
+		pauseMenu.setHeight(canvas.getHeight()/2+100);
+
+		exitButton = createImageButton("pause_menu\\exit.png");
+		resumeButton = createImageButton("pause_menu\\resume.png");
+		restartButton = createImageButton("pause_menu\\restart.png");
+
+		pauseMenu.add(exitButton).size(80,80);
+		pauseMenu.add(resumeButton).size(100,80).space(30).padTop(200);
+		pauseMenu.add(restartButton).size(100,80).space(30).padTop(200);
+
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
+
+
+		resumeButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				resumeClicked = true;
+				System.out.println("OMG");
+			}
+		});
+
+		restartButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				restartClicked = true;
+				System.out.println("OMG");
+			}
+		});
+
+		stage1.addActor(pauseMenu);
+		Gdx.input.setInputProcessor(stage1);
+
+
+	}
+
+	/**
+	 * Helper function for creating buttons on pause menu:
+	 * Creating an image button that appears as an image with upFilepath.
+	 */
+	private Button createImageButton(String upFilepath){
+		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
+		Button imgButton= new Button(buttonDrawable);
+		return imgButton;
+	}
+
+	public Boolean getExitClicked(){
+		return exitClicked;
+	}
+
+	public Boolean getResumeClicked(){
+		return resumeClicked;
+	}
+
+	public Boolean getRestartClicked(){
+		return restartClicked;
+	}
+
+
+	public void drawModalWindow1(){
+		Batch batch = canvas.getBatch();
+		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2, canvas.getHeight());
+		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
+		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
+		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
+		pauseMenu.draw(batch, 1);
+		exitButton.draw(batch, 1);
+		resumeButton.draw(batch, 1);
+		restartButton.draw(batch, 1);
+
+//		for (int i = 0; i < sliders.length; i++) {
+//			Slider s = sliders[i];
+//			s.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + camera.position.y - canvas.getHeight()/3f);
+//			Label l= labels[i];
+//			l.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + 32 +  + camera.position.y - canvas.getHeight()/3f);
+//
+//			l.draw(b, 1.0f);
+//			s.draw(b, 1.0f);
+//		}
+	}
+
+
+	/**
+	 * Creates sliders to adjust game constants.
+	 */
+	public void createModalWindow() {
+		pauseMenuStage = new Stage(new ScreenViewport(camera));
+		pauseMenu = new Table();
+		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		pauseMenu.setFillParent(true);
+		exitButton = createImageButton("pause_menu\\exit.png");
+		resumeButton = createImageButton("pause_menu\\resume.png");
+		restartButton = createImageButton("pause_menu\\restart.png");
+//		exitButton.setPosition(10,500);
+//		resumeButton.setPosition(200, 500);
+//		restartButton.setPosition(400, 500);
+		pauseMenu.add(exitButton);
+		pauseMenu.add(resumeButton);
+		pauseMenu.add(restartButton);
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
+
+		resumeButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				resumeClicked = true;
+				System.out.println("OMG");
+			}
+		});
+
+		restartButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				restartClicked = true;
+				System.out.println("OMG");
+			}
+		});
+
+		pauseMenuStage.addActor(pauseMenu);
+
+
+//		s.draw(b, 1.0f);
+	}
+
+	public void drawModalWindow(){
+		Batch b = canvas.getBatch();
+
+		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
+		exitButton.draw(b, 1.0f);
+		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
+		resumeButton.draw(b, 1.0f);
+		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
+		restartButton.draw(b, 1.0f);
+
+	}
 
 	/**
 	 * Creates sliders to adjust game constants.
@@ -482,7 +667,7 @@ public class PlatformController extends WorldController {
 
 		Gdx.input.setInputProcessor(stage);
 
-		s.draw(b, 1.0f);
+//		s.draw(b, 1.0f);
 	}
 
 	public void drawSliders(){
@@ -496,6 +681,28 @@ public class PlatformController extends WorldController {
 			l.draw(b, 1.0f);
 			s.draw(b, 1.0f);
 		}
+	}
+
+	public void createPauseButton(){
+		Table table = new Table();
+		gameScreenActive = true;
+		pauseButtonStage = new Stage(new ScreenViewport(camera));
+		pauseButton = createImageButton("pause_menu\\pause_button.png");
+		pauseButton.setPosition(camera.position.x+350, camera.position.y+150);
+		pauseButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				setPause(true);
+			}
+		});
+		pauseButton.setSize(100,80);
+		table.add(pauseButton);
+		pauseButtonStage.addActor(table);
+	}
+
+	public void drawPauseButton(){
+		Batch b = canvas.getBatch();
+		pauseButton.setPosition(camera.position.x+400, camera.position.y+200);
+		pauseButton.draw(b, 1);
 	}
 
 	/**
@@ -606,6 +813,7 @@ public class PlatformController extends WorldController {
 	 * This method disposes of the world and creates a new one.
 	 */
 	public void reset() {
+		gameScreenActive = true;
 		Vector2 gravity = new Vector2(world.getGravity() );
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
@@ -843,6 +1051,26 @@ public class PlatformController extends WorldController {
 			return false;
 		}
 
+		if (exitClicked){
+			pause();
+			ScreenListener listener = getListener();
+			gameScreenActive = false;
+			setPause(false);
+			listener.exitScreen(this, 3);
+			exitClicked = false;
+			return false;
+		}
+
+		if (resumeClicked){
+			setPause(false);
+			resumeClicked = false;
+		}
+
+		if (restartClicked){
+			reset();
+			restartClicked = false;
+		}
+
 		return true;
 	}
 
@@ -895,6 +1123,8 @@ public class PlatformController extends WorldController {
 			cameraCenter.x = avatar.getX();
 			cameraCenter.y = avatar.getY();
 		}
+
+
 
         float PAN_DISTANCE = 100f;
         float CAMERA_SPEED = 10f;
@@ -1091,10 +1321,37 @@ public class PlatformController extends WorldController {
 			} else {
 				displayFont.getData().setScale(.3f, .3f);
 				labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
-
-
 				drawSliders();
 			}
+		}
+		canvas.end();
+
+		// Draw pauseMenu
+		canvas.begin();
+		if (pauseMenuActive()) {
+			if (firstTimeRendered) {
+				createModalWindow();
+				firstTimeRendered = false;
+			} else {
+				drawModalWindow();
+//			pauseMenuStage.draw();
+//			pauseMenuStage.act(dt);
+			}
+			Gdx.input.setInputProcessor(pauseMenuStage);
+		}
+		canvas.end();
+
+		canvas.begin();
+		if (firstTimeRenderedPauseButton){
+			createPauseButton();
+			firstTimeRenderedPauseButton = false;
+		}
+		else{
+			drawPauseButton();
+		}
+
+		if (!pauseMenuActive() && gameScreenActive){
+			Gdx.input.setInputProcessor(pauseButtonStage);
 		}
 		canvas.end();
 

@@ -123,6 +123,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		cam.position.set(cam.viewportWidth / 2f, cam.viewportHeight / 2f, 0);
 		cam.update();
 
+		Gdx.input.setInputProcessor(loading);
 		loading.setScreenListener(this);
 		setScreen(loading);
 
@@ -239,6 +240,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			currentMenu = menuPages[currentMenuIndex];
 			currentMenu.setScreenListener(this);
 			setScreen(currentMenu);
+			System.out.println(Gdx.input.getInputProcessor().equals(currentMenu.getStage()));
 		} else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(controllers[current], 1, true);
