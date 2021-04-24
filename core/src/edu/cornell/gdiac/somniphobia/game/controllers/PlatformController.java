@@ -399,12 +399,10 @@ public class PlatformController extends WorldController {
 		exitButton = createImageButton("pause_menu\\exit.png");
 		resumeButton = createImageButton("pause_menu\\resume.png");
 		restartButton = createImageButton("pause_menu\\restart.png");
-//		exitButton.setPosition(10,500);
-//		resumeButton.setPosition(200, 500);
-//		restartButton.setPosition(400, 500);
-		pauseMenu.add(exitButton);
-		pauseMenu.add(resumeButton);
-		pauseMenu.add(restartButton);
+
+		pauseMenu.add(exitButton).space(50);
+		pauseMenu.add(resumeButton).space(50);
+		pauseMenu.add(restartButton).space(50);
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				exitClicked = true;
@@ -423,18 +421,18 @@ public class PlatformController extends WorldController {
 			}
 		});
 
-		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
+		pauseMenu.setPosition(camera.position.x, camera.position.y);
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
 		pauseMenu.setScale(0.5f);
 
-
-//		s.draw(b, 1.0f);
 	}
 
 	public void setPositionPauseMenu(){
-		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
+		float positionX = Math.max(canvas.getWidth()/2, camera.position.x);
+		System.out.println(camera.position.x);
+		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
 //		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
 //		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
 //		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
@@ -1328,6 +1326,7 @@ public class PlatformController extends WorldController {
 				createModalWindow();
 				firstTimeRendered = false;
 			} else {
+				setPositionPauseMenu();
 				pauseMenuStage.draw();
 				pauseMenuStage.act(dt);
 //				drawModalWindow();
