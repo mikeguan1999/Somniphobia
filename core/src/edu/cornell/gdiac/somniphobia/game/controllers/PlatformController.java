@@ -288,60 +288,6 @@ public class PlatformController extends WorldController {
 //		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal()));
 //		Button imgButton= new Button(buttonDrawable);
 //	}
-
-	public void createModalWindow1(){
-		//		Creating bmp font from ttf
-//		OrthographicCamera camera1 = new OrthographicCamera(canvas.getWidth(), canvas.getHeight());
-//		CharacterModel avatar = movementController.getAvatar();
-//		camera1.position.x = avatar.getX();
-//		camera1.position.y = avatar.getY();
-		Stage stage1 = new Stage(new ScreenViewport(camera));
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));
-		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = FONT_SIZE;
-		parameter.color = FONT_COLOR;
-		parameter.borderWidth = 2;
-		BitmapFont font = generator.generateFont(parameter);
-		generator.dispose();
-		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause_menu\\bluerectangle.png")));
-		Window.WindowStyle style = new Window.WindowStyle(font, FONT_COLOR_TRANSPARENT, drawable);
-		pauseMenu = new Window("", style);
-		pauseMenu.setWidth(canvas.getWidth()/2+100);
-		pauseMenu.setHeight(canvas.getHeight()/2+100);
-
-		exitButton = createImageButton("pause_menu\\exit.png");
-		resumeButton = createImageButton("pause_menu\\resume.png");
-		restartButton = createImageButton("pause_menu\\restart.png");
-
-		pauseMenu.add(exitButton).size(80,80);
-		pauseMenu.add(resumeButton).size(100,80).space(30).padTop(200);
-		pauseMenu.add(restartButton).size(100,80).space(30).padTop(200);
-
-		exitButton.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				exitClicked = true;
-			}
-		});
-
-
-		resumeButton.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				resumeClicked = true;
-			}
-		});
-
-		restartButton.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				restartClicked = true;
-			}
-		});
-
-		stage1.addActor(pauseMenu);
-		Gdx.input.setInputProcessor(stage1);
-
-
-	}
-
 	/**
 	 * Helper function for creating buttons on pause menu:
 	 * Creating an image button that appears as an image with upFilepath.
@@ -350,6 +296,11 @@ public class PlatformController extends WorldController {
 		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
 		Button imgButton= new Button(buttonDrawable);
 		return imgButton;
+	}
+
+	private TextureRegionDrawable createDrawable(String filePath){
+		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
+		return drawable;
 	}
 
 	public Boolean getExitClicked(){
@@ -365,27 +316,18 @@ public class PlatformController extends WorldController {
 	}
 
 
-	public void drawModalWindow1(){
-		Batch batch = canvas.getBatch();
-		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2, canvas.getHeight());
-		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
-		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
-		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
-		pauseMenu.draw(batch, 1);
-		exitButton.draw(batch, 1);
-		resumeButton.draw(batch, 1);
-		restartButton.draw(batch, 1);
+//	public void drawModalWindow1(){
+//		Batch batch = canvas.getBatch();
+//		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2, canvas.getHeight());
+//		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
+//		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
+//		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
+//		pauseMenu.draw(batch, 1);
+//		exitButton.draw(batch, 1);
+//		resumeButton.draw(batch, 1);
+//		restartButton.draw(batch, 1);
 
-//		for (int i = 0; i < sliders.length; i++) {
-//			Slider s = sliders[i];
-//			s.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + camera.position.y - canvas.getHeight()/3f);
-//			Label l= labels[i];
-//			l.setPosition(camera.position.x - canvas.getWidth()/2.5f, 57*i + 32 +  + camera.position.y - canvas.getHeight()/3f);
-//
-//			l.draw(b, 1.0f);
-//			s.draw(b, 1.0f);
-//		}
-	}
+//	}
 
 
 	/**
@@ -430,13 +372,8 @@ public class PlatformController extends WorldController {
 	}
 
 	public void setPositionPauseMenu(){
-		float positionX = Math.max(canvas.getWidth()/2, camera.position.x);
-		System.out.println(camera.position.x);
 		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
-//		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
-//		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
-//		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
-	}
+		}
 
 	/**
 	 * Creates sliders to adjust game constants.
@@ -1049,7 +986,7 @@ public class PlatformController extends WorldController {
 			ScreenListener listener = getListener();
 			gameScreenActive = false;
 			setPause(false);
-			listener.exitScreen(this, 3);
+			listener.exitScreen(this, WorldController.EXIT_MENU);
 			exitClicked = false;
 			return false;
 		}
@@ -1330,6 +1267,18 @@ public class PlatformController extends WorldController {
 				pauseMenuStage.draw();
 				pauseMenuStage.act(dt);
 //				drawModalWindow();
+			}
+			if (movementController.getAvatar()==somni){
+				pauseMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
+				exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
+				resumeButton.getStyle().up = createDrawable("pause_menu\\resume.png");
+				restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+			}
+			else{
+				pauseMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
+				exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
+				resumeButton.getStyle().up = createDrawable("pause_menu\\resumeorange.png");
+				restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
 			}
 
 			Gdx.input.setInputProcessor(pauseMenuStage);
