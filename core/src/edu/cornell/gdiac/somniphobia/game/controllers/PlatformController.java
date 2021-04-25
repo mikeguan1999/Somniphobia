@@ -229,29 +229,38 @@ public class PlatformController extends WorldController {
 	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
 	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
-	/** pauseMenu variables*/
-	private final int FONT_SIZE = 50;
-	/** Setting the font color to the rgb values of black & visible, ie a=1*/
-	private final Color FONT_COLOR = new Color(0,0,0,1);
-	/** Setting the font color to the rgb values of black & invisible, ie a=0*/
-	private final Color FONT_COLOR_TRANSPARENT = new Color(0,0,0,0);
-
-	private Window pauseMenu1;
+	/** pauseMenu table*/
 	private Table pauseMenu;
-	private Boolean firstTimeRendered=true;
-	private Boolean firstTimeRenderedPauseButton = true;
-	private Button exitButton;
-	private Button resumeButton;
-	private Button restartButton;
-	private Button pauseButton;
-	private boolean exitClicked;
-	private boolean resumeClicked;
-	private boolean restartClicked;
+	/** pauseMenu stage*/
 	private Stage pauseMenuStage;
+	/** pauseButton stage*/
 	private Stage pauseButtonStage;
-	private boolean gameScreenActive = true;
+	/** whether pauseMenu is rendered for the first time*/
+	private Boolean firstTimeRendered=true;
+	/** whether pauseButton is rendered for the first time*/
+	private Boolean firstTimeRenderedPauseButton = true;
+	/** the exit button on pauseMenu*/
+	private Button exitButton;
+	/** the resume button on pauseMenu*/
+	private Button resumeButton;
+	/** the restart button on pauseMenu*/
+	private Button restartButton;
+	/** the pause button on game screen*/
+	private Button pauseButton;
+	/** the slider on pauseMenu*/
 	private Slider volumeSlider;
+	/** the underline on pauseMenu*/
 	private Image underline;
+	/** whether exit button is clicked*/
+	private boolean exitClicked;
+	/** whether resume button is clicked*/
+	private boolean resumeClicked;
+	/** whether restart button is clicked*/
+	private boolean restartClicked;
+	/** whether the current game screen is active*/
+	private boolean gameScreenActive = true;
+
+	/** pause menu drawables*/
 	private TextureRegionDrawable blueUnderline;
 	private TextureRegionDrawable orangeUnderline;
 	private TextureRegionDrawable blueRectangle;
@@ -262,6 +271,19 @@ public class PlatformController extends WorldController {
 	private TextureRegionDrawable orangeExit;
 	private TextureRegionDrawable orangeResume;
 	private TextureRegionDrawable orangeRestart;
+
+	/** constants for positioning pause menu and pause button */
+	private final int PAUSE_BUTTON_OFFSETX = 400;
+	private final int PAUSE_BUTTON_OFFSETY = 200;
+	private final int PAUSE_BUTTON_WIDTH = 100;
+	private final int PAUSE_BUTTON_HEIGHT = 80;
+	private final float PAUSE_MENU_SCALE = 0.5f;
+	private final int PAUSE_MENU_BUTTON_SPACE = 50;
+	private final int UNDERLINE_WIDTH_OFFSET = 10;
+	private final int UNDERLINE_HEIGHT_OFFSET = 0;
+	private final int UNDERLINE_OFFSETX = -5;
+	private final int UNDERLINE_OFFSETY = -40;
+	private final int PAUSE_MENU_POSITION_SCALE = 4;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -298,10 +320,9 @@ public class PlatformController extends WorldController {
 		heightUpperBound = 0;
 	}
 
-//	public void createPauseButton(){
-//		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal()));
-//		Button imgButton= new Button(buttonDrawable);
-//	}
+	/**
+	 * Helper function for creating a drawable from an image with filepath
+	 */
 	private TextureRegionDrawable createDrawable(String filePath){
 		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
 		return drawable;
@@ -317,20 +338,8 @@ public class PlatformController extends WorldController {
 		return imgButton;
 	}
 
-	public Boolean getExitClicked(){
-		return exitClicked;
-	}
-
-	public Boolean getResumeClicked(){
-		return resumeClicked;
-	}
-
-	public Boolean getRestartClicked(){
-		return restartClicked;
-	}
-
 	/**
-	 * Creates sliders to adjust game constants.
+	 * Creates the pauseMenu with the buttons
 	 */
 	public void createModalWindow() {
 		Viewport viewport = canvas.getViewPort();
@@ -344,9 +353,9 @@ public class PlatformController extends WorldController {
 		restartButton = createImageButton("pause_menu\\restart.png");
 		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
 
-		pauseMenu.add(exitButton).space(50);
-		pauseMenu.add(resumeButton).space(50);
-		pauseMenu.add(restartButton).space(50);
+		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE);
+		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE);
 		pauseMenu.row();
 		pauseMenu.add(underline);
 		underline.setVisible(false);
@@ -379,16 +388,19 @@ public class PlatformController extends WorldController {
 			}
 		});
 
-		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
+		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
-		pauseMenu.setScale(0.5f);
+		pauseMenu.setScale(PAUSE_MENU_SCALE);
 
 	}
 
+	/**
+	 * Resets the position of the pauseMenu relative to the camera's position
+	 */
 	public void setPositionPauseMenu(){
-		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
+		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 	}
 
 	/**
@@ -629,25 +641,31 @@ public class PlatformController extends WorldController {
 		}
 	}
 
+	/**
+	 * Creates the pauseButton
+	 */
 	public void createPauseButton(){
 		Table table = new Table();
 		gameScreenActive = true;
 		pauseButtonStage = new Stage(new ScreenViewport(camera));
 		pauseButton = createImageButton("pause_menu\\pause_button.png");
-		pauseButton.setPosition(camera.position.x+350, camera.position.y+150);
+		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				setPause(true);
 			}
 		});
-		pauseButton.setSize(100,80);
+		pauseButton.setSize(PAUSE_BUTTON_WIDTH,PAUSE_BUTTON_HEIGHT);
 		table.add(pauseButton);
 		pauseButtonStage.addActor(table);
 	}
 
+	/**
+	 * Draws the pauseButton and resets the position relative to the camera position
+	 */
 	public void drawPauseButton(){
 		Batch b = canvas.getBatch();
-		pauseButton.setPosition(camera.position.x+400, camera.position.y+200);
+		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.draw(b, 1);
 	}
 
@@ -1285,18 +1303,18 @@ public class PlatformController extends WorldController {
 			pauseMenuStage.act(dt);
 
 			if (exitButton.isOver()){
-				underline.setSize(exitButton.getWidth()+10, exitButton.getHeight());
-				underline.setPosition(exitButton.getX()-5, exitButton.getY()-40);
+				underline.setSize(exitButton.getWidth()+UNDERLINE_WIDTH_OFFSET, exitButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(exitButton.getX()+UNDERLINE_OFFSETX, exitButton.getY()+UNDERLINE_OFFSETY);
 				underline.setVisible(true);
 			}
 			else if (resumeButton.isOver()){
-				underline.setSize(resumeButton.getWidth()+10, resumeButton.getHeight());
-				underline.setPosition(resumeButton.getX()-5, resumeButton.getY()-40);
+				underline.setSize(resumeButton.getWidth()+UNDERLINE_WIDTH_OFFSET, resumeButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(resumeButton.getX()+UNDERLINE_OFFSETX, resumeButton.getY()+UNDERLINE_OFFSETY);
 				underline.setVisible(true);
 			}
 			else if (restartButton.isOver()){
-				underline.setSize(restartButton.getWidth()+10, restartButton.getHeight());
-				underline.setPosition(restartButton.getX()-5, restartButton.getY()-40);
+				underline.setSize(restartButton.getWidth()+UNDERLINE_WIDTH_OFFSET, restartButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(restartButton.getX()+UNDERLINE_OFFSETX, restartButton.getY()+UNDERLINE_OFFSETY);
 				underline.setVisible(true);
 			}
 			else{
