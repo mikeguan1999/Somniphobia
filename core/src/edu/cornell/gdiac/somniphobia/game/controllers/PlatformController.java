@@ -36,6 +36,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.Menu;
@@ -332,7 +333,8 @@ public class PlatformController extends WorldController {
 	 * Creates sliders to adjust game constants.
 	 */
 	public void createModalWindow() {
-		pauseMenuStage = new Stage(new ScreenViewport(camera));
+		Viewport viewport = canvas.getViewPort();
+		pauseMenuStage = new Stage(viewport);
 		pauseMenu = new Table();
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
@@ -377,7 +379,7 @@ public class PlatformController extends WorldController {
 			}
 		});
 
-		pauseMenu.setPosition(camera.position.x, camera.position.y);
+		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
@@ -387,7 +389,7 @@ public class PlatformController extends WorldController {
 
 	public void setPositionPauseMenu(){
 		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
-		}
+	}
 
 	/**
 	 * Creates sliders to adjust game constants.
@@ -1029,87 +1031,87 @@ public class PlatformController extends WorldController {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+		if (!pauseMenuActive()) {
 
-		action = movementController.update();
+			action = movementController.update();
 
-		CharacterModel lead = movementController.getLead();
+			CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
 //		phobia = movementController.getPhobia();
-		CharacterModel avatar = movementController.getAvatar();
-		holdingHands = movementController.isHoldingHands();
+			CharacterModel avatar = movementController.getAvatar();
+			holdingHands = movementController.isHoldingHands();
 
-		if (movementController.getSwitchedCharacters()) {
-			switching = !switching;
+			if (movementController.getSwitchedCharacters()) {
+				switching = !switching;
+			}
+
+			if (holdingHands) {
+				if (lead == somni) {
+					combined.setTexture(somniphobiasTexture[action]);
+				} else {
+					combined.setTexture(phobiasomnisTexture[action]);
+				}
+			} else {
+				if (lead == somni) {
+					somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				} else {
+					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				}
+			}
+
+			// Set camera position bounded by the canvas size
+			camera = canvas.getCamera();
+
+			if (cameraCenter == null) {
+				cameraCenter = new Vector2(avatar.getX(), avatar.getY());
+				cameraCenter.x = avatar.getX();
+				cameraCenter.y = avatar.getY();
+			}
+
+
+			float PAN_DISTANCE = 100f;
+			float CAMERA_SPEED = 10f;
+
+			float newX = avatar.getX() * canvas.PPM;
+			float camX = InputController.getInstance().getCameraHorizontal();
+			if (camX != 0) {
+				panMovement.x = camX * CAMERA_SPEED * canvas.PPM;
+			} else {
+				panMovement.x = 0;
+			}
+
+			float camY = InputController.getInstance().getCameraVertical();
+			if (camY != 0) {
+				panMovement.y = camY * CAMERA_SPEED * canvas.PPM;
+			} else {
+				panMovement.y = 0;
+			}
+
+			float newY = avatar.getY() * canvas.PPM;
+			//float displacementFactor = camera.frustum.sphereInFrustumWithoutNearFar(newX, newY, 0, PAN_RADIUS) ?
+			//			1 : 0;
+
+			newX = Math.min(newX, widthUpperBound);
+			newX = Math.max(canvas.getWidth() / 2, newX);
+			float displacementX = newX - camera.position.x;
+			//panMovement.x +=  camX * CAMERA_SPEED * canvas.PPM;
+			//float lerpDisplacementX = (displacementX + panMovement.x) * displacementFactor;
+			float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ? displacementX + panMovement.x : displacementX;
+			camera.position.x += lerpDisplacementX * LERP * dt;
+
+			newY = Math.min(newY, heightUpperBound);
+			newY = Math.max(canvas.getHeight() / 2, newY);
+			float displacementY = newY - camera.position.y;
+			//panMovement.y += camY * CAMERA_SPEED * canvas.PPM;
+			//float lerpDisplacementY = (displacementY + panMovement.y) * displacementFactor;
+			float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ? displacementY + panMovement.y : displacementY;
+			camera.position.y += lerpDisplacementY * LERP * dt;
+
+			camera.update();
+
 		}
-
-		if(holdingHands){
-            if(lead == somni){
-                combined.setTexture(somniphobiasTexture[action]);
-            }else{
-                combined.setTexture(phobiasomnisTexture[action]);
-            }
-        }
-        else{
-            if(lead == somni){
-                somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
-                phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
-            }else{
-                phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
-				somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
-            }
-        }
-
-		// Set camera position bounded by the canvas size
-		camera = canvas.getCamera();
-
-        if(cameraCenter == null) {
-        	cameraCenter = new Vector2(avatar.getX(), avatar.getY());
-			cameraCenter.x = avatar.getX();
-			cameraCenter.y = avatar.getY();
-		}
-
-
-
-        float PAN_DISTANCE = 100f;
-        float CAMERA_SPEED = 10f;
-
-		float newX = avatar.getX() * canvas.PPM;
-		float camX = InputController.getInstance().getCameraHorizontal();
-		if(camX != 0) {
-			panMovement.x = camX * CAMERA_SPEED * canvas.PPM;
-		} else {
-			panMovement.x = 0;
-		}
-
-		float camY = InputController.getInstance().getCameraVertical();
-		if(camY != 0) {
-			panMovement.y = camY * CAMERA_SPEED * canvas.PPM;
-		} else {
-			panMovement.y = 0;
-		}
-
-		float newY = avatar.getY() * canvas.PPM;
-		//float displacementFactor = camera.frustum.sphereInFrustumWithoutNearFar(newX, newY, 0, PAN_RADIUS) ?
-	//			1 : 0;
-
-		newX = Math.min(newX, widthUpperBound);
-		newX = Math.max(canvas.getWidth() / 2, newX );
-		float displacementX = newX - camera.position.x;
-		//panMovement.x +=  camX * CAMERA_SPEED * canvas.PPM;
-		//float lerpDisplacementX = (displacementX + panMovement.x) * displacementFactor;
-		float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ? displacementX + panMovement.x : displacementX;
-		camera.position.x += lerpDisplacementX * LERP * dt;
-
-		newY = Math.min(newY, heightUpperBound);
-		newY = Math.max(canvas.getHeight() / 2, newY );
-		float displacementY = newY - camera.position.y;
-		//panMovement.y += camY * CAMERA_SPEED * canvas.PPM;
-		//float lerpDisplacementY = (displacementY + panMovement.y) * displacementFactor;
-		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ? displacementY + panMovement.y : displacementY;
-		camera.position.y += lerpDisplacementY * LERP * dt;
-
-		camera.update();
-
 
 	}
 
@@ -1272,16 +1274,16 @@ public class PlatformController extends WorldController {
 
 		// Draw pauseMenu
 		canvas.begin();
+
+		if (firstTimeRendered) {
+			createModalWindow();
+			firstTimeRendered = false;
+		}
 		if (pauseMenuActive()) {
-			if (firstTimeRendered) {
-				createModalWindow();
-				firstTimeRendered = false;
-			} else {
-				setPositionPauseMenu();
-				pauseMenuStage.draw();
-				pauseMenuStage.act(dt);
-//				drawModalWindow();
-			}
+			setPositionPauseMenu();
+			pauseMenuStage.draw();
+			pauseMenuStage.act(dt);
+
 			if (exitButton.isOver()){
 				underline.setSize(exitButton.getWidth()+10, exitButton.getHeight());
 				underline.setPosition(exitButton.getX()-5, exitButton.getY()-40);
