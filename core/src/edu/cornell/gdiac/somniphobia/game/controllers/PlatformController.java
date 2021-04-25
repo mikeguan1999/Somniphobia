@@ -725,7 +725,7 @@ public class PlatformController extends WorldController {
 			JsonValue platformArgs = obj.get("positions");
 
 			//TODO: Testing moving platforms
-			float[] bounds0 = new float[]{15, 15, 2, 2};
+			float[] bounds0 = new float[]{15, 15, 10, 2};
 			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
 			TextureRegion newXTexture0 = new TextureRegion(xTexture[selector]);
 			newXTexture0.setRegion(x0, y0, x0 + width0, y0 + height0);
@@ -742,13 +742,13 @@ public class PlatformController extends WorldController {
 			paths.add(new Vector2(25,15));
 			paths.add(new Vector2(20,10));
 
-
+			float velocity = 2;
 
 			platformModel0.setGravityScale(0);
 			platformModel0.setPaths(paths);
-			platformModel0.setVelocity(2);
+			platformModel0.setVelocity(velocity);
 //			System.out.println(paths);
-			platformModel0.setFriction(100f);
+//			platformModel0.setFriction(100f);
 
 			movingObjects.add(platformModel0);
 			//TODO: Testing moving platforms

@@ -31,6 +31,9 @@ public class PlatformModel extends BoxObstacle {
 
     private int type;
 
+    /** Whether the platform is spiked **/
+    private boolean spiked;
+
     /** Density position*/
     private float density;
     /** Friction position*/

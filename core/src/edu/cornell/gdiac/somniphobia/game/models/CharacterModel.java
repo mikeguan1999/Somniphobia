@@ -80,6 +80,9 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Filter of the model*/
 	private Filter filter;
 
+	/** The platform that the model is touching; Is null if not in contact*/
+	private Obstacle ground;
+
 	public static final boolean LIGHT = true;
 	public static final boolean DARK = false;
 
@@ -391,6 +394,10 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 
+	public void setGround(Obstacle ground) {
+		this.ground = ground;
+	}
+
 
 	/**
 	 * Creates the physics Body(s) for this object, adding them to the world.
@@ -501,7 +508,7 @@ public class CharacterModel extends CapsuleObstacle {
 		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded) {
 			setVX(Math.signum(getVX()) * getMaxSpeed());
 		} else if (!isDashing()) {
-			forceCache.set(getMovement() * .3f,getVY());
+			forceCache.set(getMovement() * .3f + (ground == null ? 0: ground.getVX()),getVY());
 			body.setLinearVelocity(forceCache);
 		}
 

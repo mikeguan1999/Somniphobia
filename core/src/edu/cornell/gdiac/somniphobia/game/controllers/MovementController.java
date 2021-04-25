@@ -417,6 +417,8 @@ public class MovementController implements ContactListener {
                 somni.setGrounded(true);
                 lightSensorFixtures.add(somni == bd1 ? fix2 : fix1); // Could have more than one ground
 //				somni.canJump = true;
+                somni.setGround(somni == bd1 ? bd2: bd1);
+
 
             }
             if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
@@ -424,12 +426,15 @@ public class MovementController implements ContactListener {
                 phobia.setGrounded(true);
                 darkSensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
 //				phobia.canJump = true;
+                phobia.setGround(phobia == bd1 ? bd2: bd1);
+
             }
             if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
                     (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
                 avatar.setGrounded(true);
                 combinedSensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
 //				combined.canJump = true;
+                combined.setGround(combined == bd1 ? bd2: bd1);
             }
 
 
