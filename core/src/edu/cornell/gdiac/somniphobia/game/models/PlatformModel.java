@@ -66,6 +66,7 @@ public class PlatformModel extends BoxObstacle {
         this.setTexture(tr);
 
         this.setTag(t);
+        this.spiked = false;
     }
 
     public float getLeftX() {
@@ -102,20 +103,27 @@ public class PlatformModel extends BoxObstacle {
 
 
     /**
+     * Returns whether the platform is spiked
+     * @return whether the platform is spiked
+     */
+    public boolean isSpiked() {
+        return spiked;
+    }
+
+    /**
+     * Sets whether the platform is spiked
+     * @param spiked whether to set platform as spiked
+     */
+    public void setSpiked(boolean spiked) {
+        this.spiked = spiked;
+    }
+
+    /**
      * Returns the paths
      * @return the paths
      */
     public PooledList<Vector2> getPaths() {
         return this.paths;
-    }
-
-    public boolean hurts(){
-        if(type == 0){
-            return false;
-        }
-        else{
-            return true;
-        }
     }
 
 }

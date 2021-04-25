@@ -742,6 +742,7 @@ public class PlatformController extends WorldController {
 			paths.add(new Vector2(25,15));
 			paths.add(new Vector2(20,10));
 
+			platformModel0.setSpiked(true);
 			float velocity = 2;
 
 			platformModel0.setGravityScale(0);

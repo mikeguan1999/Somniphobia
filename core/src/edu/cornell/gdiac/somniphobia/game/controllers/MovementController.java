@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
+import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.somniphobia.obstacle.BoxObstacle;
 import edu.cornell.gdiac.somniphobia.obstacle.Obstacle;
 import edu.cornell.gdiac.util.PooledList;
@@ -405,10 +406,15 @@ public class MovementController implements ContactListener {
             int tile2 = -1;
 
             // See if we have collided with a wall
-            if (avatar.getCore().equals(fix1) || avatar.getCore().equals(fix2) ||
-                    avatar.getCap1().equals(fix1) || avatar.getCap1().equals(fix2) ||
-                    avatar.getCap2().equals(fix1) || avatar.getCap2().equals(fix2)) {
-//                avatar.endDashing();
+            if (avatar.getCore().equals(fix1) || avatar.getCap1().equals(fix1) || avatar.getCap2().equals(fix1)) {
+                if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).isSpiked()) {
+                    worldController.setFailure(true);
+                }
+            }
+            else if (avatar.getCore().equals(fix2) || avatar.getCap1().equals(fix2) || avatar.getCap2().equals(fix2)) {
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).isSpiked()) {
+                    worldController.setFailure(true);
+                }
             }
 
             // See if we have landed on the ground.
@@ -448,6 +454,10 @@ public class MovementController implements ContactListener {
         }
     }
 
+//    private void handleLanding() {
+//
+//    }
+
     /**
      * Callback method for the end of a collision
      *
@@ -480,6 +490,7 @@ public class MovementController implements ContactListener {
         }
         if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
                 (phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
+
             darkSensorFixtures.remove(phobia == bd1 ? fix2 : fix1);
 
             if (darkSensorFixtures.size == 0) {
