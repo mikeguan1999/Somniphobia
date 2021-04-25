@@ -38,6 +38,9 @@ public class PlatformModel extends BoxObstacle {
     /** restitution position*/
     private float restitution;
 
+    /** velocity for moving platform **/
+    private float velocity;
+
     /** Path for a moving obstacle **/
     private PooledList<Vector2> paths;
 
@@ -56,7 +59,6 @@ public class PlatformModel extends BoxObstacle {
         this.setFriction(f);
         this.setRestitution(r);
         this.setDrawScale(s);
-
 
         this.setTexture(tr);
 
@@ -77,6 +79,22 @@ public class PlatformModel extends BoxObstacle {
      */
     public void setPaths(PooledList<Vector2> paths) {
         this.paths = paths;
+    }
+
+    /**
+     * Sets the velocity of this platform
+     * @param velocity the new velocity
+     */
+    public void setVelocity(float velocity) {
+        this.velocity = velocity;
+    }
+
+    /**
+     * Returns the velocity for this moving platform. If not a moving platform, velocity is 0
+     * @return the velocity
+     */
+    public float getVelocity() {
+        return velocity;
     }
 
 

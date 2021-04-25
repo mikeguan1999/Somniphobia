@@ -234,12 +234,12 @@ public abstract class WorldController implements Screen {
 	}
 
 	/**
-	 * Sets the canvas associated with this controller
+	 * Sets the platformController associated with this controller
 	 *
 	 * The canvas is shared across all controllers.  Setting this value will compute
 	 * the drawing scale from the canvas size.
 	 *
-	 * @param canvas the canvas associated with this controller
+	 * @param plat the canvas associated with this controller
 	 */
 	public void setPlatController(PlatController plat) {
 		this.platController = plat;

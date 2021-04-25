@@ -46,7 +46,7 @@ public class PlatController {
     /**
      * Constructor for platform controller. Creates all the necessary filters.
      */
-    public PlatController(){
+    public PlatController() {
         lightplatf = new Filter();
         lightplatf.categoryBits = CATEGORY_LPLAT;
         lightplatf.maskBits = MASK_LPLAT;
@@ -100,28 +100,21 @@ public class PlatController {
 
             Vector2 nextDestination = paths.getHead();
 
-            if (position.dst(nextDestination) < 0.01) {
+
+            //if overshot (destination - position opposite sign as velocity), switch destination
+            if (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) &&
+            Math.signum(nextDestination.y - position.y) != Math.signum(platform.getLinearVelocity().y)) {
                 position.set(nextDestination);
             }
 
+            // Switch destination if arrived
             if (position.equals(nextDestination)) {
-//                System.out.println("next destination!! \n\n\n");
-//                System.out.println(paths);
                 paths.add(paths.poll());
-//                System.out.println(paths);
                 nextDestination = paths.getHead();
-
-                //Direction towards next
-
             }
 
             Vector2 nextPath = vector.set(nextDestination).sub(position).nor();
-            platform.setLinearVelocity(nextPath.scl(2));
-//            platform.setActive(true);
-//            platform.setAwake(true);
-//            platform.setX(platform.getX() + 1);
-//            platform.getBody().setLinearVelocity(10,10);
-//            platform.update(dt);
+            platform.setLinearVelocity(nextPath.scl(platform.getVelocity()));
 
         }
     }

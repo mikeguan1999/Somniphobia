@@ -58,8 +58,8 @@ public class CharacterModel extends CapsuleObstacle {
 	private int jumpCooldown;
 	/** Whether we are actively jumping */
 	private boolean isJumping;
-	/** How long until we can dash again */
-	private int dashCooldown;
+//	/** How long until we can dash again */
+//	private int dashCooldown;
 	/** Whether we are actively dashing */
 	private boolean isDashing;
 
@@ -178,7 +178,7 @@ public class CharacterModel extends CapsuleObstacle {
 //		dashDistance = 3.5f;
 
 		jumpCooldown = 0;
-		dashCooldown = 0;
+//		dashCooldown = 0;
 		setName("dude");
 	}
 
@@ -541,11 +541,11 @@ public class CharacterModel extends CapsuleObstacle {
 			jumpCooldown = Math.max(0, jumpCooldown - 1);
 		}
 
-		if (isDashing()) {
-			dashCooldown = jumpLimit;
-		} else {
-			dashCooldown = Math.max(0, dashCooldown - 1);
-		}
+//		if (isDashing()) {
+//			dashCooldown = jumpLimit;
+//		} else {
+//			dashCooldown = Math.max(0, dashCooldown - 1);
+//		}
 
 		if(isDashing) {
 //			System.out.println(getVY());
@@ -571,11 +571,10 @@ public class CharacterModel extends CapsuleObstacle {
 
 		}
 
-		if(isGrounded && dashCooldown <= 0) {
+//		if (isGrounded && dashCooldown == 0) {
+		if(isGrounded && !isDashing) {
 			canDash = true;
 		}
-
-		//System.out.println(canDash);
 		super.update(dt);
 	}
 
