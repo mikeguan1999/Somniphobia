@@ -53,6 +53,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private Boolean level1;
 
 	private OrthographicCamera cam;
+	private MainMenu mainMenu;
 
 	private final int LEVEL_CONTROLLER_INDEX = 0;
 	private final int LEVEL_CREATOR_INDEX = 1;
@@ -102,6 +103,8 @@ public class GDXRoot extends Game implements ScreenListener {
 
 		currentMenuIndex = 0;
 		currentMenu = menuPages[currentMenuIndex];
+
+		mainMenu = new MainMenu(canvas);
 
 		// Initialize the Platformer Controller
 		// TODO
@@ -211,10 +214,11 @@ public class GDXRoot extends Game implements ScreenListener {
 				setScreen(menuPages[ii]);
 			}
 
+			mainMenu.setScreenListener(this);
+			setScreen(mainMenu);
 
-			currentMenu.setScreenListener(this);
-//			menu.setCanvas(canvas);
-			setScreen(currentMenu);
+//			currentMenu.setScreenListener(this);
+//			setScreen(currentMenu);
 			loading.dispose();
 			loading = null;
 		} else if (screen==currentMenu){

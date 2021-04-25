@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -248,6 +249,18 @@ public class PlatformController extends WorldController {
 	private Stage pauseMenuStage;
 	private Stage pauseButtonStage;
 	private boolean gameScreenActive = true;
+	private Slider volumeSlider;
+	private Image underline;
+	private TextureRegionDrawable blueUnderline;
+	private TextureRegionDrawable orangeUnderline;
+	private TextureRegionDrawable blueRectangle;
+	private TextureRegionDrawable blueExit;
+	private TextureRegionDrawable blueResume;
+	private TextureRegionDrawable blueRestart;
+	private TextureRegionDrawable orangeRectangle;
+	private TextureRegionDrawable orangeExit;
+	private TextureRegionDrawable orangeResume;
+	private TextureRegionDrawable orangeRestart;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -288,19 +301,19 @@ public class PlatformController extends WorldController {
 //		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal()));
 //		Button imgButton= new Button(buttonDrawable);
 //	}
+	private TextureRegionDrawable createDrawable(String filePath){
+		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
+		return drawable;
+	}
+
 	/**
 	 * Helper function for creating buttons on pause menu:
 	 * Creating an image button that appears as an image with upFilepath.
 	 */
 	private Button createImageButton(String upFilepath){
-		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
-		Button imgButton= new Button(buttonDrawable);
+		TextureRegionDrawable upButtonDrawable = createDrawable(upFilepath);
+		Button imgButton= new Button(upButtonDrawable);
 		return imgButton;
-	}
-
-	private TextureRegionDrawable createDrawable(String filePath){
-		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
-		return drawable;
 	}
 
 	public Boolean getExitClicked(){
@@ -315,21 +328,6 @@ public class PlatformController extends WorldController {
 		return restartClicked;
 	}
 
-
-//	public void drawModalWindow1(){
-//		Batch batch = canvas.getBatch();
-//		pauseMenu.setPosition(camera.position.x - canvas.getWidth()/2, canvas.getHeight());
-//		exitButton.setPosition(camera.position.x - canvas.getWidth()/2+50, canvas.getHeight());
-//		resumeButton.setPosition(camera.position.x - canvas.getWidth()/2+300, canvas.getHeight());
-//		restartButton.setPosition(camera.position.x-canvas.getWidth()/2+600, canvas.getHeight());
-//		pauseMenu.draw(batch, 1);
-//		exitButton.draw(batch, 1);
-//		resumeButton.draw(batch, 1);
-//		restartButton.draw(batch, 1);
-
-//	}
-
-
 	/**
 	 * Creates sliders to adjust game constants.
 	 */
@@ -338,13 +336,29 @@ public class PlatformController extends WorldController {
 		pauseMenu = new Table();
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
+
 		exitButton = createImageButton("pause_menu\\exit.png");
 		resumeButton = createImageButton("pause_menu\\resume.png");
 		restartButton = createImageButton("pause_menu\\restart.png");
+		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
 
 		pauseMenu.add(exitButton).space(50);
 		pauseMenu.add(resumeButton).space(50);
 		pauseMenu.add(restartButton).space(50);
+		pauseMenu.row();
+		pauseMenu.add(underline);
+		underline.setVisible(false);
+		orangeUnderline = createDrawable("pause_menu\\pausemenu_underline_red.png");
+		blueUnderline = createDrawable("pause_menu\\pausemenu_underline.png");
+		blueRectangle = createDrawable("pause_menu\\bluerectangle.png");
+		blueExit = createDrawable("pause_menu\\exit.png");
+		blueResume = createDrawable("pause_menu\\resume.png");
+		blueRestart = createDrawable("pause_menu\\restart.png");
+		orangeRectangle = createDrawable("pause_menu\\orangerectangle.png");
+		orangeExit = createDrawable("pause_menu\\exitorange.png");
+		orangeResume = createDrawable("pause_menu\\resumeorange.png");
+		orangeRestart = createDrawable("pause_menu\\restartorange.png");
+
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				exitClicked = true;
@@ -1268,18 +1282,38 @@ public class PlatformController extends WorldController {
 				pauseMenuStage.act(dt);
 //				drawModalWindow();
 			}
-			if (movementController.getAvatar()==somni){
-				pauseMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resume.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+			if (exitButton.isOver()){
+				underline.setSize(exitButton.getWidth()+10, exitButton.getHeight());
+				underline.setPosition(exitButton.getX()-5, exitButton.getY()-40);
+				underline.setVisible(true);
+			}
+			else if (resumeButton.isOver()){
+				underline.setSize(resumeButton.getWidth()+10, resumeButton.getHeight());
+				underline.setPosition(resumeButton.getX()-5, resumeButton.getY()-40);
+				underline.setVisible(true);
+			}
+			else if (restartButton.isOver()){
+				underline.setSize(restartButton.getWidth()+10, restartButton.getHeight());
+				underline.setPosition(restartButton.getX()-5, restartButton.getY()-40);
+				underline.setVisible(true);
 			}
 			else{
-				pauseMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resumeorange.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+				underline.setVisible(false);
 			}
+			if (movementController.getAvatar()==somni){
+				pauseMenu.setBackground(blueRectangle);
+				exitButton.getStyle().up = blueExit;
+				resumeButton.getStyle().up = blueResume;
+				restartButton.getStyle().up = blueRestart;
+				underline.setDrawable(blueUnderline);
+				}
+			else{
+				pauseMenu.setBackground(orangeRectangle);
+				exitButton.getStyle().up = orangeExit;
+				resumeButton.getStyle().up = orangeResume;
+				restartButton.getStyle().up = orangeRestart;
+				underline.setDrawable(orangeUnderline);
+				}
 
 			Gdx.input.setInputProcessor(pauseMenuStage);
 		}
@@ -1291,6 +1325,12 @@ public class PlatformController extends WorldController {
 			firstTimeRenderedPauseButton = false;
 		}
 		else{
+			if (movementController.getAvatar()==somni){
+				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_button.png");
+			}
+			else{
+				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_red.png");
+			}
 			drawPauseButton();
 		}
 
