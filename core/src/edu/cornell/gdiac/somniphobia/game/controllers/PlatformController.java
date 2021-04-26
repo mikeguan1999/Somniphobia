@@ -1083,7 +1083,6 @@ public class PlatformController extends WorldController {
 				break;
 			default:
 				break;
-
 		}
 
 		// Finally, draw the contents of the FB - this allows us to apply more than one blend in our masked textures,
@@ -1258,10 +1257,11 @@ public class PlatformController extends WorldController {
 		// Draw current model
 		canvas.begin();
 		if(holdingHands) {
-			combined.draw(canvas);
+			combined.draw(canvas, Color.WHITE);
 		} else {
-			follower.draw(canvas);
-			lead.draw(canvas);
+			alphaWhite.a = 0.5f;
+			follower.draw(canvas, alphaWhite);
+			lead.draw(canvas, Color.WHITE);
 		}
 		canvas.end();
 
