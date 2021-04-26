@@ -96,12 +96,14 @@ public class PlatformController extends WorldController {
 	private TextureRegion phobiaSomniDashSideTexture;
 	/** Texture asset for Somni's Dash up*/
 	private TextureRegion phobiaSomniDashUpTexture;
-	/** Texture asset for dark background*/
-	private TextureRegion backgroundDarkTexture;
-	/** Texture asset for light background*/
-	private TextureRegion backgroundLightTexture;
-	/** Texture asset for background*/
+	/** Texture asset for current background*/
 	private TextureRegion backgroundTexture;
+	/** Texture asset for level's light background*/
+	private TextureRegion backgroundLightTexture;
+	/** Texture asset for level's dark background*/
+	private TextureRegion backgroundDarkTexture;
+	/** Texture assets for backgrounds */
+	private TextureRegion[] backgrounds;
 	/** Texture asset list for somni*/
 	private TextureRegion [] somnisTexture;
 	/** Texture asset list for phobia*/
@@ -545,9 +547,17 @@ public class PlatformController extends WorldController {
 		phobiaSomniWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_walk",Texture.class));
 		phobiaSomniDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_side",Texture.class));
 		phobiaSomniDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_up",Texture.class));
-		backgroundDarkTexture = new TextureRegion(directory.getEntry("platform:background_dark",Texture.class));
-		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
-		backgroundTexture = backgroundLightTexture;
+
+		backgrounds = new TextureRegion[] {
+				new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_gear", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_gear", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_dreams", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_dreams", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_house", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
+		};
 
 		TextureRegion [] somnis = {somniIdleTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture, somniFallTexture};
 		somnisTexture = somnis;
@@ -649,7 +659,6 @@ public class PlatformController extends WorldController {
 		camera.update();
 
 		holdingHands = false;
-		backgroundTexture = backgroundLightTexture;
 
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
 		world.setContactListener(movementController);
@@ -759,6 +768,12 @@ public class PlatformController extends WorldController {
 
 		// This world is heavier
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
+
+		// Set level background index
+		int backgroundTextureIndex = levelAssets.get("background").asInt();
+		backgroundLightTexture = backgrounds[backgroundTextureIndex];
+		backgroundDarkTexture = backgrounds[backgroundTextureIndex + 1];
+		backgroundTexture = backgroundLightTexture;
 
 		// Set level bounds
 		widthUpperBound = levelAssets.get("dimensions").getInt(0);

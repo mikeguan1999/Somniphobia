@@ -253,6 +253,7 @@ public class LevelCreator extends WorldController {
         selector.setTexture(crosshairTexture);
         selector.setDrawScale(scale);
         currBackground = 0;
+        backgroundTexture = backgrounds[currBackground];
         if(!loading) {
             // Add Somni
             createPlatform(somniTag, SOMNI_DEFAULT_POS[0], SOMNI_DEFAULT_POS[1], CHARACTER_DIMENSIONS[0],
@@ -487,7 +488,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String fileName = String.format("drafts/%s.json", loadPath.getText());
-                LevelSerializer.serialize(fileName, worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize(fileName, currBackground, worldWidth, worldHeight, platformList);
             }
         });
 
@@ -495,7 +496,7 @@ public class LevelCreator extends WorldController {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                LevelSerializer.serialize("levels/level0.json", worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize("levels/level0.json", currBackground, worldWidth, worldHeight, platformList);
             }
         });
 
@@ -532,8 +533,9 @@ public class LevelCreator extends WorldController {
         switchBackgroundButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                currBackground++;
+                currBackground += 2;
                 currBackground %= backgrounds.length;
+                backgroundTexture = backgrounds[currBackground];
             }
         });
 
@@ -717,12 +719,14 @@ public class LevelCreator extends WorldController {
         } else if (!input.didTertiary() && selector.isSelected()) {
             moving = false;
             selector.deselect();
-        } else {
-//            selector.moveTo(input.getCrossHair().x,input.getCrossHair().y);
         }
-        if(selectedObstacle != null){
-            System.out.println(selectedObstacle.getPosition());
+
+        if(input.didSwitch()) {
+            int backgroundIndex = backgroundTexture.equals(backgrounds[currBackground]) ? currBackground + 1 :
+                    currBackground;
+            backgroundTexture = backgrounds[backgroundIndex];
         }
+
         for(Obstacle obj : objects) {
             // Ignore characters which we draw separately
             if (!(obj instanceof CharacterModel)) {
@@ -794,7 +798,6 @@ public class LevelCreator extends WorldController {
     }
 
     public void gatherAssets(AssetDirectory directory) {
-        backgroundTexture = new TextureRegion(directory.getEntry("platform:background_light", Texture.class));
         lightTexture = new TextureRegion(directory.getEntry("shared:light", Texture.class));
         darkTexture = new TextureRegion(directory.getEntry("shared:dark", Texture.class));
         allTexture = new TextureRegion(directory.getEntry("shared:all", Texture.class));
@@ -882,6 +885,7 @@ public class LevelCreator extends WorldController {
         }
 
         private static class Level {
+            int background;
             int[] dimensions;
             Somni somni;
             Phobia phobia;
@@ -920,7 +924,8 @@ public class LevelCreator extends WorldController {
             }
 
             //TODO Add serialization?
-            private void platformsToLevel(int width, int height, PooledList<Platform> platforms) {
+            private void createLevel(int background, int width, int height, PooledList<Platform> platforms) {
+                this.background = background;
                 this.dimensions = new int[]{width, height};
                 for (Platform platform : platforms) {
                     if (platform.tag < somniTag) {
@@ -964,8 +969,8 @@ public class LevelCreator extends WorldController {
 
             private Level() { }
 
-            private Level(int width, int height, PooledList<Platform> platforms) {
-                platformsToLevel(width, height, platforms);
+            private Level(int background, int width, int height, PooledList<Platform> platforms) {
+                createLevel(background, width, height, platforms);
             }
         }
 
@@ -1029,8 +1034,8 @@ public class LevelCreator extends WorldController {
             }
         }
 
-        public static void serialize(String fileName, int levelWidth, int levelHeight, PooledList<Platform> platforms) {
-            Level level = new Level(levelWidth, levelHeight, platforms);
+        public static void serialize(String fileName, int levelBackground, int levelWidth, int levelHeight, PooledList<Platform> platforms) {
+            Level level = new Level(levelBackground, levelWidth, levelHeight, platforms);
             Json json = new Json();
             json.setOutputType(JsonWriter.OutputType.json);
             FileHandle file = Gdx.files.local(fileName);
