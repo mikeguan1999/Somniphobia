@@ -599,7 +599,7 @@ public class PlatformController extends WorldController {
 
 	/** Sets the current level */
 	public void setLevel(int level) {
-		int newLevel = Math.min(level, 12); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
+		int newLevel = Math.min(level, 19); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
 		newLevel = Math.max(0, newLevel);
 		this.level = newLevel;
 	}
@@ -901,7 +901,7 @@ public class PlatformController extends WorldController {
 		}
 
         float PAN_DISTANCE = 100f;
-        float CAMERA_SPEED = 5f;
+        float CAMERA_SPEED = 10f;
 
 		float newX = avatar.getX() * canvas.PPM;
 		float camX = InputController.getInstance().getCameraHorizontal();

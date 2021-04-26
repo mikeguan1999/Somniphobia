@@ -45,7 +45,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	private int numLevelsPerPage = 4;
-	private int totalNumLevels = 12;
+	private int totalNumLevels = 19;
 	private int numPages;
 	private Menu[] menuPages;
 	private Menu currentMenu;

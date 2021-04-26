@@ -63,6 +63,13 @@
     "platform:PhobiaSomni_stand": "platform/PhobiaSomniStand.png",
     "platform:barrier": "platform/barrier.png",
     "platform:bullet": "platform/bullet.png",
+    "platform:vertex": "platform/vertex.png",
+    "platform:vertex1": "platform/vertex1.png",
+    "platform:vertex2": "platform/vertex2.png",
+    "platform:vertex3": "platform/vertex3.png",
+    "platform:vertex4": "platform/vertex4.png",
+    "platform:vertex5": "platform/vertex5.png",
+    "platform:vertex6": "platform/vertex6.png",
 
     "platform:somni_stand": "platform/SomniStand.png",
     "platform:Somni_Idle": "platform/Somni_Idle.png",
@@ -116,7 +123,14 @@
         "level9": "levels/level9.json",
         "level10": "levels/level10.json",
         "level11": "levels/level11.json",
-        "level12": "levels/level12.json"
+        "level12": "levels/level12.json",
+        "level13": "levels/level13.json",
+        "level14": "levels/level14.json",
+        "level15": "levels/level15.json",
+        "level16": "levels/level16.json",
+        "level17": "levels/level17.json",
+        "level18": "levels/level18.json",
+        "level19": "levels/level19.json"
     },
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",
