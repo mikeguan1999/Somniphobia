@@ -12,12 +12,11 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -27,7 +26,6 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
-import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
@@ -35,8 +33,6 @@ import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
-
-import java.awt.*;
 
 /**
  * Gameplay specific controller for the platformer game.
@@ -120,9 +116,21 @@ public class PlatformController extends WorldController {
 	/** Texture for slider bars*/
 	private Texture sliderBarTexture;
 	private Texture sliderKnobTexture;
+
+	/** Origin for the expanding/shrinking mask */
+	private Vector2 maskOrigin = new Vector2();
 	/** Texture for masking */
 	private TextureRegion circle_mask;
+	/** Texture to cover screen to produce mask effect*/
 	private Texture alpha_background;
+	/** Buffer used to apply 2 blends to one texture*/
+	private FrameBuffer fbo;
+	/** Color used for holding hand fade in effect */
+	private Color alphaWhite = new Color(Color.WHITE);
+	/** Alpha value used for `alphaWhite` */
+	private float alphaAmount = 0.0f;
+	/** Amount to change `alphaAmount` by when holding hands */
+	private float alphaIncrement = 0.05f;
 
 
 	/** Texture asset int for action*/
@@ -183,16 +191,12 @@ public class PlatformController extends WorldController {
 	/** Masking stuff */
 	/** Dimensions for the mask when at its smallest */
 	Vector2 MIN_MASK_DIMENSIONS;
-	/** Max size for the mask to reach to extend off the screen TODO: replace with bounds checking*/
-	float MAX_MASK_SIZE;
 	/** Amount to increase and decrease rift mask size with */
 	float INCREMENT_AMOUNT;
 	/** Current width and height of the mask */
 	float maskWidth, maskHeight;
 	/** Whether or not the mask is in the process of switching*/
 	boolean switching;
-	/** Whether or not the mask is shrinking (switch occurred early on) */
-	boolean shrinking;
 	/** The character to perform the mask effect from */
 	CharacterModel maskLeader;
 
@@ -563,7 +567,6 @@ public class PlatformController extends WorldController {
 		MIN_MASK_DIMENSIONS = new Vector2(mask_size).scl(0.125f);
 		maskWidth = MIN_MASK_DIMENSIONS.x;
 		maskHeight = MIN_MASK_DIMENSIONS.y;
-		MAX_MASK_SIZE = MIN_MASK_DIMENSIONS.x * 22.5f;
 		INCREMENT_AMOUNT = 50;
 
 		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
@@ -658,6 +661,7 @@ public class PlatformController extends WorldController {
 		switching = false;
 		maskWidth = MIN_MASK_DIMENSIONS.x;
 		maskHeight = MIN_MASK_DIMENSIONS.y;
+		alphaAmount = 0;
 	}
 
 	/**
@@ -936,58 +940,174 @@ public class PlatformController extends WorldController {
 
 		camera.update();
 
-
 	}
 
+	private void updateMaskPosition(float maskWidth, float maskHeight, CharacterModel character) {
+		character = holdingHands ? combined : character;
+		float maskX = character.getX() * canvas.PPM + character.getWidth() / 2 - maskWidth / 2;
+		float maskY = character.getY() * canvas.PPM + character.getHeight() / 2 - maskHeight / 2;
+		maskOrigin.set(maskX, maskY);
+	}
 
 	/**
 	 * Draws the necessary textures to mask properly.
+	 * @param mask The image to mask with
+	 * @param background The optional background to apply along with the mask
 	 * @param cameraX The x-coord for the camera origin
 	 * @param cameraY The y-coord for the camera origin
 	 * @param maskWidth The width of the mask
 	 * @param maskHeight The height of the mask
 	 * @param character The character to center the mask on
 	 */
-	public void drawMask(float cameraX, float cameraY, float maskWidth, float maskHeight, CharacterModel character) {
-		character = holdingHands ? combined : character;
-		float leadCenterX = character.getX() * canvas.PPM + character.getWidth() / 2 - maskWidth / 2;
-		float leadCenterY = character.getY() * canvas.PPM + character.getHeight() / 2 - maskHeight / 2;
+	private void drawMask(TextureRegion mask, Texture background, float cameraX, float cameraY, float maskWidth,
+						 float maskHeight, CharacterModel character) {
+		updateMaskPosition(maskWidth, maskHeight, character);
 		canvas.beginCustom(GameCanvas.BlendState.OPAQUE, GameCanvas.ChannelState.ALPHA);
-		if(alpha_background == null) {
-			Pixmap pixmap=new Pixmap(canvas.getWidth(), canvas.getHeight(), Pixmap.Format.RGBA8888);
-			pixmap.setColor(Color.CLEAR);
-			pixmap.fillRectangle(0,0, pixmap.getWidth(), pixmap.getHeight());
-			alpha_background = new Texture(pixmap);
+		if(background != null) {
+			canvas.draw(background, Color.CLEAR, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		}
-		canvas.draw(alpha_background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
-		canvas.draw(circle_mask, Color.WHITE, leadCenterX, leadCenterY, maskWidth, maskHeight);
+		canvas.draw(mask, Color.WHITE, maskOrigin.x, maskOrigin.y, maskWidth, maskHeight);
 		canvas.endCustom();
 	}
 
 	/**
-	 * Draws the necessary textures for the character's realm rift.
+	 * Writes the necessary textures for the character's realm rift into the FrameBuffer.
 	 * @param cameraX The x-coord for the camera origin
 	 * @param cameraY The y-coord for the camera origin
-	 * @param character The character whose environment is being drawn
+	 * @param character The character whose environment is being written
 	 */
-	public void drawCharacterRift(float cameraX, float cameraY, CharacterModel character) {
-		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+	private void writeCharacterRift(float cameraX, float cameraY, CharacterModel character) {
+		fbo.begin();
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 		TextureRegion background = character.equals(somni) ? backgroundLightTexture : backgroundDarkTexture;
 		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
+		fbo.end();
 	}
 
 	/**
-	 * Draws the necessary textures for the character's platforms.
-	 * @param character The character whose environment is being drawn
+	 * Writes the necessary textures for the character's platforms into the FrameBuffer
+	 * @param character The character whose platforms are being written
 	 */
-	public void drawCharacterPlatform(CharacterModel character) {
-		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+	private void writeCharacterPlatform(CharacterModel character, boolean alpha) {
 		PooledList<Obstacle> objects = character.equals(somni) ? lightObjects : darkObjects;
+		fbo.begin();
 		for(Obstacle obj : objects) {
-			obj.draw(canvas);
+			canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
+			if(alpha) {
+				alphaWhite.a = 1 - alphaAmount;
+				((SimpleObstacle) obj).drawWithTint(canvas, alphaWhite);
+			} else {
+				obj.draw(canvas);
+			}
+			canvas.endCustom();
 		}
+		fbo.end();
+	}
+
+	/**
+	 * Draws fading platforms for the given `character`
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param character The character whose fading platforms are being drawn
+	 */
+	private void drawFadePlatforms(float cameraX, float cameraY, CharacterModel character) {
+		fbo.begin();
+		canvas.clear();
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
+		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
+		fbo.end();
+		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+		writeCharacterPlatform(character,false);
+		drawFrameBufferContents(GameCanvas.BlendState.ANTI_MASK);
+	}
+
+	/**
+	 * Draws the FrameBuffer's contents
+	 * @param blend The blend state to use when drawing
+	 */
+	private void drawFrameBufferContents(GameCanvas.BlendState blend) {
+		canvas.beginCustom(blend, GameCanvas.ChannelState.ALL);
+		Texture fbo_t = fbo.getColorBufferTexture();
+		float fbo_x = camera.position.x - canvas.getWidth() / 2;
+		float fbo_y = camera.position.y - canvas.getHeight() / 2 + fbo_t.getHeight();
+		canvas.draw(fbo_t, Color.WHITE, fbo_x, fbo_y, fbo_t.getWidth(), -fbo_t.getHeight());
+		canvas.endCustom();
+	}
+
+
+	/**
+	 * Draws everything necessary for the given `character`
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param maskWidth The width of the mask
+	 * @param maskHeight The height of the mask
+	 * @param platformKind The kind of platform to draw (1 if regular, 2 if fading, otherwise no platform at all)
+	 * @param character The character to center the mask on
+	 */
+	private void drawSpiritObjects(float cameraX, float cameraY, float maskWidth, float maskHeight,
+								  int platformKind, CharacterModel character) {
+		// Start with the mask to properly draw things within a spirit's realm
+		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, character);
+
+		// Now write a spirit's rift into the FrameBuffer (FB), i.e. give the mask a background to look like the
+		// spirit's realm
+		writeCharacterRift(cameraX, cameraY, character);
+
+		// Now write the platforms contained in the spirit's realm into the FB - these will be contained within the
+		// realm
+		switch(platformKind) {
+			case 1:
+				// Draw platforms normally
+				writeCharacterPlatform(character,  false);
+				break;
+			case 2:
+				// Draw platforms with alpha
+				writeCharacterPlatform(character,  true );
+				break;
+			default:
+				break;
+
+		}
+
+		// Finally, draw the contents of the FB - this allows us to apply more than one blend in our masked textures,
+		// i.e. using a platform with alpha that must be alpha composited (NO_PREMULT) first and THEN masked (MASK)
+		drawFrameBufferContents(GameCanvas.BlendState.MASK);
+	}
+
+	/**
+	 * Creates a rectangular texture
+	 * @param width The width of the rectangle
+	 * @param height The height of the rectangle
+	 * @return The rectangular texture
+	 */
+	private Texture createRectangularTexture(int width, int height) {
+		Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+		pixmap.setColor(Color.CLEAR);
+		pixmap.fillRectangle(0,0, pixmap.getWidth(), pixmap.getHeight());
+		return new Texture(pixmap);
+	}
+
+	//Vector2 maskInset = new Vector2(1500, 1500);
+
+	/**
+	 * Helps with bounds checking for when the rift has covered the entirety of the camera bounds
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param maskWidth The width of the mask
+	 * @param maskHeight The height of the mask
+	 * @param character The character to center the mask on
+	 * @returns Whether or not the rift is covering the camera bounds
+	 */
+	private boolean riftCoversCameraBounds(float cameraX, float cameraY, float maskWidth, float maskHeight,
+										   CharacterModel character) {
+		updateMaskPosition(maskWidth, maskHeight, character);
+		boolean coversLeft = maskOrigin.x + widthUpperBound < cameraX;
+		boolean coversRight = maskOrigin.x + maskWidth - widthUpperBound > cameraX + canvas.getWidth();
+		boolean coversBottom = maskOrigin.y + heightUpperBound < cameraY;
+		boolean coversTop = maskOrigin.y + maskHeight - heightUpperBound > cameraY + canvas.getHeight();
+		return coversLeft && coversRight && coversBottom && coversTop;
 	}
 
 	/**
@@ -1000,68 +1120,116 @@ public class PlatformController extends WorldController {
 	public void draw(float dt) {
 
 		CharacterModel lead = movementController.getLead();
-//		CharacterModel maskLeader = movementController.getMaskLeader();
-//		CharacterModel maskLeader = movementController.getMaskLeader();
 		canvas.clear();
-
 
 		float cameraX = camera.position.x - canvas.getWidth() / 2;
 		float cameraY = camera.position.y - canvas.getHeight() / 2;
 
+		// Create the frame buffer if uninitialized
+		if(fbo == null) {
+			fbo = new FrameBuffer(Pixmap.Format.RGBA8888, canvas.getWidth(), canvas.getHeight(), false);
+		}
+
 		// Draw background
-		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 
-		drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
-		drawCharacterRift(cameraX, cameraY, maskLeader);
-		drawCharacterPlatform(maskLeader);
+		// Create alpha background if uninitialized
+		if(alpha_background == null) {
+			alpha_background = createRectangularTexture(canvas.getWidth(), canvas.getHeight());
+		}
 
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
+
 		// Check if switching and update mask drawing
 		if(switching) {
-			maskWidth += maskWidth >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
-			maskHeight += maskHeight >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
-			if(maskWidth >= MAX_MASK_SIZE) {
+			if(!holdingHands) {
+				// Apply fade effect for follower (fading away)
+				drawFadePlatforms(cameraX, cameraY, follower);
+			}
+
+			// Draw mask for the mask leader
+			drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands ? 1 : 0, maskLeader);
+
+			// Draw mask for the follower while switching
+			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1, follower);
+
+			// Draw mask for the mask leader to cover follower's
+			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1,
+					maskLeader);
+
+			// Increase mask size
+			maskWidth += INCREMENT_AMOUNT;
+			maskHeight += INCREMENT_AMOUNT;
+			if(riftCoversCameraBounds(cameraX, cameraY, maskWidth, maskHeight, maskLeader)) {
 				maskWidth = MIN_MASK_DIMENSIONS.x;
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
-
 				maskLeader = follower;
-//				movementController.setMaskLeader(follower);
-				//System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
 			}
-			drawMask(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
-			drawCharacterRift(cameraX, cameraY, follower);
-			drawCharacterPlatform(follower);
 		} else {
-			/*if(maskWidth == MIN)
+			// Check if shrinking
+			boolean shrinking = maskWidth > MIN_MASK_DIMENSIONS.x || maskHeight > MIN_MASK_DIMENSIONS.y;
 			if(shrinking) {
-				drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
-				drawCharacterRift(cameraX, cameraY, maskLeader);
-				drawCharacterPlatform(maskLeader);
-			}*/
+				// Apply fade away effect for the lead (fading in)
+				if(!holdingHands) {
+					drawFadePlatforms(cameraX, cameraY, lead);
+				}
 
-			// Draw lead platform
+				// Make sure the rift is still drawn (to carry over the effect)
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands ? 1 : 0, maskLeader);
+
+				// Draw mask for the lead while shrinking
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y,
+						!holdingHands ? 1 : 0, lead);
+
+				// Draw mask for the mask leader to cover follower's
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1,
+						maskLeader);
+			} else  {
+				// Draw lead platform
+				if(!holdingHands) {
+					canvas.begin();
+					for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+						obj.draw(canvas);
+					}
+					canvas.end();
+				}
+
+				// Draw mask leader's mask AFTER drawing lead platforms (prevents popping platforms)
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, 2, maskLeader);
+
+				// Draw mask for the lead to cover maskLeader's
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1, lead);
+
+			}
+
+			// Decrease mask size to minimum
+			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
+			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
+		}
+
+		// Draw light and dark platforms if holding hands
+		if(holdingHands) {
 			canvas.begin();
 			for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
 				obj.draw(canvas);
 			}
 			canvas.end();
-
-			// Draw follower platforms if holding hands
-			canvas.begin();
-			if(holdingHands) {
-				for(Obstacle obj : lead.equals(somni) ? darkObjects : lightObjects) {
-					obj.draw(canvas);
-				}
-			}
-			canvas.end();
-			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
-			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
+			alphaAmount = alphaAmount + alphaIncrement >= 1 ? 1 : alphaAmount + alphaIncrement;
+		} else {
+			alphaAmount = alphaAmount - alphaIncrement <= 0 ? 0 : alphaAmount - alphaIncrement;;
 		}
+		alphaWhite.a = alphaAmount;
+		canvas.begin();
+		for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
+			((SimpleObstacle) obj).drawWithTint(canvas, alphaWhite);
+		}
+		canvas.end();
+
 		// Draw shared platforms
 		canvas.begin();
 		for(Obstacle obj : sharedObjects) {
