@@ -484,7 +484,6 @@ public class GameCanvas {
 	public void endCustom() {
 		setBlendState(BlendState.NO_PREMULT);
 		setChannelState(ChannelState.ALL);
-		Gdx.gl20.glBlendEquation(GL20.GL_FUNC_ADD);
 		end();
 	}
 
