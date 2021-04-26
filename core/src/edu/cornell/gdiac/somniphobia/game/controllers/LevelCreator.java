@@ -172,9 +172,7 @@ public class LevelCreator extends WorldController {
             this.moving.add(v);
         }
 
-        public void deleteMovement(Vector2 v){
-            this.moving.remove(v);
-        }
+        
 
         public void addBehavior(int t){
             if(t == damagingTag){
