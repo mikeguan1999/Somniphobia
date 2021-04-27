@@ -70,6 +70,7 @@ public class ObstacleSelector implements QueryCallback  {
     private Rectangle  pointer;
     /** The amount to multiply by the mass to move the object */
     private float force;
+
     
     /** Position cache for moving mouse */
     private Vector2 position = new Vector2();
@@ -97,7 +98,8 @@ public class ObstacleSelector implements QueryCallback  {
     public void setFrequency(float speed) { 
     	mouseJointDef.frequencyHz = speed; 
     }
-    
+
+
     /**
      * Returns the damping ratio of the mouse joint
      *

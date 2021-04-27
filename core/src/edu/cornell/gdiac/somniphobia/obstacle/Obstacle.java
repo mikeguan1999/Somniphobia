@@ -50,6 +50,8 @@ public abstract class Obstacle {
     private String nametag;
 	/** Drawing scale to convert physics units to pixels */
 	protected Vector2 drawScale;
+	/** tag*/
+	private int tag;
 
 	/// Track garbage collection status
 	/** Whether the object should be removed from the world on next pass */
@@ -94,7 +96,15 @@ public abstract class Obstacle {
 	public void setBodyType(BodyType value) {
 		bodyinfo.type = value;
 	}
-	
+
+	public void setTag(int t){
+		this.tag = t;
+	}
+
+	public int getTag(){
+		return this.tag;
+	}
+
 	/**
 	 * Returns the current position for this physics body
 	 *
