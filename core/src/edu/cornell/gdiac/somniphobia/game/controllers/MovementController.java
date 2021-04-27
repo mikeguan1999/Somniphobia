@@ -188,7 +188,7 @@ public class MovementController implements ContactListener {
         InputController inputController = InputController.getInstance();
         avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
         avatar.setJumping(inputController.didJump());
-        
+
 
         if(inputController.didDash()) {
             handleDash(inputController.getHorizontal(), inputController.getVertical());
@@ -425,16 +425,12 @@ public class MovementController implements ContactListener {
                     worldController.setFailure(true);
                 }
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).isRaining() && avatar == combined) {
-//                    bd1.deactivatePhysics(worldController.getWorld());
 
-//                    objects.remove(bd1);
                     sharedObjects.remove(bd1);
                     lightObjects.remove(bd1);
                     darkObjects.remove(bd1);
 
                     bd1.markRemoved(true);
-
-
                 }
             }
 

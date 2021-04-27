@@ -94,8 +94,7 @@ public class PlatController {
 
         for (Obstacle obstacle : movingObjects) {
             PlatformModel platform = (PlatformModel) obstacle;
-            Vector2 position = new Vector2();
-            position.set(platform.getLeftX(), platform.getBottomY());
+            Vector2 position = vector.set(platform.getLeftX(), platform.getBottomY());;
             PooledList<Vector2> paths = platform.getPaths();
 
             Vector2 nextDestination = paths.getHead();
@@ -113,7 +112,7 @@ public class PlatController {
                 nextDestination = paths.getHead();
             }
 
-            Vector2 nextPath = vector.set(nextDestination).sub(position).nor();
+            Vector2 nextPath = vector2.set(nextDestination).sub(position).nor();
             platform.setLinearVelocity(nextPath.scl(platform.getVelocity()));
 
         }
