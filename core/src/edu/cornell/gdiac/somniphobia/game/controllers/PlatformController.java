@@ -726,16 +726,16 @@ public class PlatformController extends WorldController {
 			JsonValue pathsArgs = obj.get("paths");
 
 			//TODO: Testing moving platforms
-			float[] bounds0 = new float[]{15, 15, 10, 2};
-			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
-			TextureRegion newXTexture0 = new TextureRegion(xTexture[2]);
-			newXTexture0.setRegion(x0, y0, x0 + width0, y0 + height0);
-			PlatformModel platformModel0  = new PlatformModel(bounds0, 2, newXTexture0, scale,
-					defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
-					defaults.getFloat( "restitution", 0.0f ));
-			platformModel0.setTag(2);
-			addObject(platformModel0);
-			addObjectTo(platformModel0, 2);
+//			float[] bounds0 = new float[]{15, 15, 10, 2};
+//			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
+//			TextureRegion newXTexture0 = new TextureRegion(xTexture[2]);
+//			newXTexture0.setRegion(x0, y0, x0 + width0, y0 + height0);
+//			PlatformModel platformModel0  = new PlatformModel(bounds0, 2, newXTexture0, scale,
+//					defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
+//					defaults.getFloat( "restitution", 0.0f ));
+//			platformModel0.setTag(2);
+//			addObject(platformModel0);
+//			addObjectTo(platformModel0, 2);
 //			platformModel0.setBodyType(BodyDef.BodyType.KinematicBody);
 //			PooledList<Vector2> paths = new PooledList<>();
 //			paths.add(new Vector2(15, 15));
@@ -743,7 +743,7 @@ public class PlatformController extends WorldController {
 //			paths.add(new Vector2(25,15));
 //			paths.add(new Vector2(20,10));
 //
-			platformModel0.setSpiked(true);
+//			platformModel0.setSpiked(true);
 //			platformModel0.setRaining(true);
 //			float velocity = 2;
 //

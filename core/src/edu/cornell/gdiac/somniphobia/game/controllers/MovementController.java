@@ -341,12 +341,12 @@ public class MovementController implements ContactListener {
         avatar.setVY(avatarVY);
         float dampeningFactor = -0.25f;
         if(lead == phobia){
-            phobia.setCanDash(true);
+//            phobia.setCanDash(true);
             somni.setPosition(avatarX, avatarY);
             somni.setVX(avatarVX * dampeningFactor);
             somni.setVY(0);
         }else {
-            somni.setCanDash(true);
+//            somni.setCanDash(true);
             phobia.setPosition(avatarX, avatarY);
             phobia.setVX(avatarVX * dampeningFactor);
             phobia.setVY(0);
