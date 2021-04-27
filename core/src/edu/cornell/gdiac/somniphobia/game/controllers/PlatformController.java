@@ -725,6 +725,9 @@ public class PlatformController extends WorldController {
 			JsonValue platformArgs = obj.get("positions");
 			JsonValue pathsArgs = obj.get("paths");
 
+
+			int property = obj.get("property") == null ?  0: obj.get("property").asInt();
+
 			//TODO: Testing moving platforms
 //			float[] bounds0 = new float[]{15, 15, 10, 2};
 //			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
@@ -764,6 +767,7 @@ public class PlatformController extends WorldController {
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
 						defaults.getFloat( "restitution", 0.0f ));
 				platformModel.setTag(selector);
+				platformModel.setProperty(property);
 				addObject(platformModel);
 				addObjectTo(platformModel, selector);
 				//TODO: Moving platforms
@@ -771,12 +775,11 @@ public class PlatformController extends WorldController {
 
 				if (pathsArgs != null) {
 					float[] paths = pathsArgs.get(j).asFloatArray();
-					boolean moving = false;
+
+
+
 					//** Moving platform if > 1 path or different path from starting position
 					if (paths.length > 2 || paths[0] != x && paths[1] != y) {
-						moving = true;
-					}
-					if (moving) {
 						platformModel.setBodyType(BodyDef.BodyType.KinematicBody);
 						movingObjects.add(platformModel);
 
@@ -784,7 +787,7 @@ public class PlatformController extends WorldController {
 						for (int k = 0; k < paths.length; k+=2) {
 							pathList.add(new Vector2(paths[k], paths[k+1]));
 						}
-						float velocity = 10;
+						float velocity = 2;
 
 						platformModel.setGravityScale(0);
 						platformModel.setPaths(pathList);

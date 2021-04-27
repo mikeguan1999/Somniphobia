@@ -430,15 +430,16 @@ public class MovementController implements ContactListener {
 
             // See if we have collided with a wall
             if (avatar.getCore().equals(fix1) || avatar.getCap1().equals(fix1) || avatar.getCap2().equals(fix1)) {
-                if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).isSpiked()) {
+                if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.harming) {
                     worldController.setFailure(true);
                 }
             }
             else if (avatar.getCore().equals(fix2) || avatar.getCap1().equals(fix2) || avatar.getCap2().equals(fix2)) {
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).isSpiked()) {
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
                     worldController.setFailure(true);
                 }
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).isRaining() && avatar == combined) {
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling
+                        && avatar == combined) {
 
                     sharedObjects.remove(bd1);
                     lightObjects.remove(bd1);

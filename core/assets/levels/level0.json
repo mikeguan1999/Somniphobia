@@ -16,8 +16,7 @@
 		"positions": [
 			[ 8, 1, 20, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	},
 	{
 		"type": "light",
@@ -27,7 +26,8 @@
 		],
 		"paths": [
 			[16, 8, 20, 8]
-		]
+		],
+		"property": 2
 	}
 ]
 }

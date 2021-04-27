@@ -14,6 +14,12 @@ import edu.cornell.gdiac.util.PooledList;
 
 public class PlatformModel extends BoxObstacle {
 
+    /** Behavior tag constants */
+    public final static int normal = 0;
+    public final static int harming = 1;
+    public final static int crumbling = 2;
+    public final static int holdOnly = 3;
+
     /** Width of the platform*/
     private float width;
     /** Height of the platform*/
@@ -44,6 +50,9 @@ public class PlatformModel extends BoxObstacle {
     /** restitution position*/
     private float restitution;
 
+    /** behavior of this platform */
+    private int property;
+
     /** velocity for moving platform **/
     private float velocity;
 
@@ -70,6 +79,7 @@ public class PlatformModel extends BoxObstacle {
 
         this.setTag(t);
         this.spiked = false;
+        this.property = 0;
     }
 
     public float getLeftX() {
@@ -106,35 +116,19 @@ public class PlatformModel extends BoxObstacle {
 
 
     /**
-     * Returns whether the platform is spiked
-     * @return whether the platform is spiked
+     * Get the behavior of this platform
+     * @return the behavior of this platform
      */
-    public boolean isSpiked() {
-        return spiked;
+    public int getProperty() {
+        return property;
     }
 
     /**
-     * Sets whether the platform is spiked
-     * @param spiked whether to set platform as spiked
+     * Set the behavior of this platform
+     * @param property the behavior
      */
-    public void setSpiked(boolean spiked) {
-        this.spiked = spiked;
-    }
-
-    /**
-     * Returns whether the platform is raining
-     * @return whether the platform is raining
-     */
-    public boolean isRaining() {
-        return raining;
-    }
-
-    /**
-     * Sets whether the platform is raining
-     * @param raining whether to set platform as raining
-     */
-    public void setRaining(boolean raining) {
-        this.raining = raining;
+    public void setProperty(int property) {
+        this.property = property;
     }
 
     /**
