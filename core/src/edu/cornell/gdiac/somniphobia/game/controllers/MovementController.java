@@ -35,6 +35,11 @@ public class MovementController implements ContactListener {
     /** All the objects in the world. */
     protected PooledList<Obstacle> objects  = new PooledList<>();
 
+    /** All the objects in the dark world */
+    protected PooledList<Obstacle> lightObjects  = new PooledList<Obstacle>();
+    /** All the objects in the light world. */
+    protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
+
     /** Mark set to handle more sophisticated collision callbacks */
 //	protected ObjectSet<Fixture> sensorFixtures;
     protected ObjectSet<Fixture> lightSensorFixtures;
@@ -64,6 +69,7 @@ public class MovementController implements ContactListener {
      */
     public MovementController(CharacterModel somni, CharacterModel phobia, CharacterModel combined,
                               BoxObstacle goalDoor, PooledList<Obstacle> objects, PooledList<Obstacle> sharedObjects,
+                              PooledList<Obstacle> lightObjects, PooledList<Obstacle> darkObjects,
                               WorldController worldController) {
         this.somni = somni;
         this.phobia = phobia;
@@ -73,6 +79,8 @@ public class MovementController implements ContactListener {
         this.objects = objects;
         this.sharedObjects = sharedObjects;
         this.worldController = worldController;
+        this.lightObjects = lightObjects;
+        this.darkObjects = darkObjects;
 
         lightSensorFixtures = new ObjectSet<Fixture>();
         darkSensorFixtures = new ObjectSet<Fixture>();
@@ -180,6 +188,7 @@ public class MovementController implements ContactListener {
         InputController inputController = InputController.getInstance();
         avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
         avatar.setJumping(inputController.didJump());
+        
 
         if(inputController.didDash()) {
             handleDash(inputController.getHorizontal(), inputController.getVertical());
@@ -414,6 +423,18 @@ public class MovementController implements ContactListener {
             else if (avatar.getCore().equals(fix2) || avatar.getCap1().equals(fix2) || avatar.getCap2().equals(fix2)) {
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).isSpiked()) {
                     worldController.setFailure(true);
+                }
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).isRaining() && avatar == combined) {
+//                    bd1.deactivatePhysics(worldController.getWorld());
+
+//                    objects.remove(bd1);
+                    sharedObjects.remove(bd1);
+                    lightObjects.remove(bd1);
+                    darkObjects.remove(bd1);
+
+                    bd1.markRemoved(true);
+
+
                 }
             }
 

@@ -102,7 +102,7 @@ public class PlatController {
 
 
             //if overshot (destination - position opposite sign as velocity), switch destination
-            if (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) &&
+            if (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) ||
             Math.signum(nextDestination.y - position.y) != Math.signum(platform.getLinearVelocity().y)) {
                 position.set(nextDestination);
             }

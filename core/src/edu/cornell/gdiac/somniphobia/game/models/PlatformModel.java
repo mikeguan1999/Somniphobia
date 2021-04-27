@@ -34,6 +34,9 @@ public class PlatformModel extends BoxObstacle {
     /** Whether the platform is spiked **/
     private boolean spiked;
 
+    /** Whether the platform is raining **/
+    private boolean raining;
+
     /** Density position*/
     private float density;
     /** Friction position*/
@@ -116,6 +119,22 @@ public class PlatformModel extends BoxObstacle {
      */
     public void setSpiked(boolean spiked) {
         this.spiked = spiked;
+    }
+
+    /**
+     * Returns whether the platform is raining
+     * @return whether the platform is raining
+     */
+    public boolean isRaining() {
+        return raining;
+    }
+
+    /**
+     * Sets whether the platform is raining
+     * @param raining whether to set platform as raining
+     */
+    public void setRaining(boolean raining) {
+        this.raining = raining;
     }
 
     /**

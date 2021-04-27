@@ -188,7 +188,15 @@ public abstract class WorldController implements Screen {
 		}
 		failed = value;
 	}
-	
+
+	/**
+	 * Returns the world
+	 * @return the world
+	 */
+	public World getWorld() {
+		return world;
+	}
+
 	/**
 	 * Returns true if this is the active screen
 	 *

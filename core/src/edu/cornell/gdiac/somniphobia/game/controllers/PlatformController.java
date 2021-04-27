@@ -645,7 +645,7 @@ public class PlatformController extends WorldController {
 		holdingHands = false;
 		backgroundTexture = backgroundLightTexture;
 
-		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
+		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, lightObjects, darkObjects, this);
 		world.setContactListener(movementController);
 
 		movementController.setAvatar(somni);
@@ -707,52 +707,52 @@ public class PlatformController extends WorldController {
 			}
 
 			// Apply platform properties
-			String[] properties = obj.get("properties").asStringArray();
-			for(String property: properties) {
-				// TODO: Harming & crumbling platforms
-			}
-
-			// Apply platform behaviors
-			String[] behaviors = obj.get("behaviors").asStringArray();
-			for(String behavior: behaviors) {
-				// TODO: Wandering & chasing platforms
-			}
-
-
+//			String[] properties = obj.get("properties").asStringArray();
+//			for(String property: properties) {
+//				// TODO: Harming & crumbling platforms
+//			}
+//
+//			// Apply platform behaviors
+//			String[] behaviors = obj.get("behaviors").asStringArray();
+//			for(String behavior: behaviors) {
+//				// TODO: Wandering & chasing platforms
+//			}
 
 
+
+//			selector = 2;
 			// Setup platforms
 			JsonValue platformArgs = obj.get("positions");
+			JsonValue pathsArgs = obj.get("paths");
 
 			//TODO: Testing moving platforms
-			float[] bounds0 = new float[]{15, 15, 10, 2};
-			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
-			TextureRegion newXTexture0 = new TextureRegion(xTexture[selector]);
-			newXTexture0.setRegion(x0, y0, x0 + width0, y0 + height0);
-			PlatformModel platformModel0  = new PlatformModel(bounds0, selector, newXTexture0, scale,
-					defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
-					defaults.getFloat( "restitution", 0.0f ));
-			platformModel0.setTag(selector);
-			addObject(platformModel0);
-			addObjectTo(platformModel0, selector);
-			platformModel0.setBodyType(BodyDef.BodyType.KinematicBody);
-			PooledList<Vector2> paths = new PooledList<>();
-			paths.add(new Vector2(15, 15));
-			paths.add(new Vector2(20,20));
-			paths.add(new Vector2(25,15));
-			paths.add(new Vector2(20,10));
-
-			platformModel0.setSpiked(true);
-			float velocity = 2;
-
-			platformModel0.setGravityScale(0);
-			platformModel0.setPaths(paths);
-			platformModel0.setVelocity(velocity);
-//			System.out.println(paths);
-//			platformModel0.setFriction(100f);
-
-			movingObjects.add(platformModel0);
-			//TODO: Testing moving platforms
+//			float[] bounds0 = new float[]{15, 15, 10, 2};
+//			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
+//			TextureRegion newXTexture0 = new TextureRegion(xTexture[2]);
+//			newXTexture0.setRegion(x0, y0, x0 + width0, y0 + height0);
+//			PlatformModel platformModel0  = new PlatformModel(bounds0, 2, newXTexture0, scale,
+//					defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
+//					defaults.getFloat( "restitution", 0.0f ));
+//			platformModel0.setTag(2);
+//			addObject(platformModel0);
+//			addObjectTo(platformModel0, 2);
+//			platformModel0.setBodyType(BodyDef.BodyType.KinematicBody);
+//			PooledList<Vector2> paths = new PooledList<>();
+//			paths.add(new Vector2(15, 15));
+//			paths.add(new Vector2(20,20));
+//			paths.add(new Vector2(25,15));
+//			paths.add(new Vector2(20,10));
+//
+////			platformModel0.setSpiked(false);
+////			platformModel0.setRaining(true);
+//			float velocity = 2;
+//
+////			platformModel0.setGravityScale(0);
+//			platformModel0.setPaths(paths);
+//			platformModel0.setVelocity(velocity);
+//
+////			movingObjects.add(platformModel0);
+//			//TODO: Testing moving platforms
 
 
 			for (int j = 0; j < platformArgs.size; j++) {
@@ -767,10 +767,31 @@ public class PlatformController extends WorldController {
 				addObject(platformModel);
 				addObjectTo(platformModel, selector);
 				//TODO: Moving platforms
-				boolean moving = false;
-				if (moving) {
-					platformModel.setBodyType(BodyDef.BodyType.DynamicBody);
-					movingObjects.add(platformModel);
+
+
+				if (pathsArgs != null) {
+					float[] paths = pathsArgs.get(j).asFloatArray();
+					boolean moving = false;
+					//** Moving platform if > 1 path or different path from starting position
+					if (paths.length > 2 || paths[0] != x && paths[1] != y) {
+						moving = true;
+					}
+					if (moving) {
+						platformModel.setBodyType(BodyDef.BodyType.KinematicBody);
+						movingObjects.add(platformModel);
+
+						PooledList<Vector2> pathList = new PooledList<>();
+						for (int k = 0; k < paths.length; k+=2) {
+							pathList.add(new Vector2(paths[k], paths[k+1]));
+						}
+						float velocity = 1;
+
+						platformModel.setGravityScale(0);
+						platformModel.setPaths(pathList);
+						platformModel.setVelocity(velocity);
+
+						movingObjects.add(platformModel);
+					}
 				}
 			}
 		}
@@ -1082,6 +1103,7 @@ public class PlatformController extends WorldController {
 		// Draw shared platforms
 		canvas.begin();
 		for(Obstacle obj : sharedObjects) {
+
 			// Ignore characters which we draw separately
 			if (!(obj instanceof CharacterModel)) {
 				obj.draw(canvas);
