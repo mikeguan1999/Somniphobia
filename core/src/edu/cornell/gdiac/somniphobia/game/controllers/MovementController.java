@@ -364,6 +364,9 @@ public class MovementController implements ContactListener {
 
         somni.setMovement(0f);
         phobia.setMovement(0f);
+        combined.setMovement(0f);
+        combined.setVX(0f);
+        combined.setVY(0f);
 
         somni.setActive(false);
         phobia.setActive(false);
@@ -384,6 +387,7 @@ public class MovementController implements ContactListener {
 
         avatar = combined;
         avatar.setPosition(avatarX, avatarY);
+
 
         holdingHands = true;
     }
