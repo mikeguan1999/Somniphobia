@@ -298,6 +298,12 @@ public class MovementController implements ContactListener {
             endHoldHands();
             avatar.dashOrPropel(true, x, y);
 
+        } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
+            beginHoldHands();
+//            endHoldHands();
+//            avatar.setCanDash(true);
+//            avatar.dashOrPropel(true, x, y);
+            handleDash(x,y);
         } else {
             avatar.dashOrPropel(false, x, y);
         }
@@ -361,6 +367,11 @@ public class MovementController implements ContactListener {
      * Somni and Phobia hold hands
      */
     private void beginHoldHands() {
+        CharacterModel follower = somni == avatar ? phobia : somni;
+
+        if (follower.isGrounded()) {
+            avatar.setCanDash(true);
+        }
 
         somni.setMovement(0f);
         phobia.setMovement(0f);
@@ -381,7 +392,6 @@ public class MovementController implements ContactListener {
         sharedObjects.add(combined);
 
 
-        CharacterModel follower = somni == avatar ? phobia : somni;
         float avatarX = follower.getX();
         float avatarY = follower.getY();
 
@@ -459,6 +469,8 @@ public class MovementController implements ContactListener {
             if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
                     (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
                 avatar.setGrounded(true);
+                somni.setCanDash(true);
+                phobia.setCanDash(true);
                 combinedSensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
 //				combined.canJump = true;
                 combined.setGround(combined == bd1 ? bd2: bd1);

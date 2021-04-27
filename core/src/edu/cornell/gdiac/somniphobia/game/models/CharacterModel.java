@@ -295,7 +295,7 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 		dashStartPos.set(getPosition());
 		isDashing = canDash;
-		if (isDashing) {
+		if (isDashing || isPropel) {
 			if (!isPropel) {
 				canDash = false;
 			}
