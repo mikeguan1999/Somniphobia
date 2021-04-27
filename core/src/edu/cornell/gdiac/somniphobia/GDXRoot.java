@@ -175,7 +175,6 @@ public class GDXRoot extends Game implements ScreenListener {
 	 *
 	 * @param width  The new width in pixels
 	 * @param height The new height in pixels
-	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
 		canvas.resize();
