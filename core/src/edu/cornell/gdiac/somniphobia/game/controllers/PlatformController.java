@@ -784,7 +784,7 @@ public class PlatformController extends WorldController {
 						for (int k = 0; k < paths.length; k+=2) {
 							pathList.add(new Vector2(paths[k], paths[k+1]));
 						}
-						float velocity = 1;
+						float velocity = 10;
 
 						platformModel.setGravityScale(0);
 						platformModel.setPaths(pathList);

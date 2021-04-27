@@ -519,6 +519,7 @@ public class MovementController implements ContactListener {
 
             if (lightSensorFixtures.size == 0) {
                 somni.setGrounded(false);
+                somni.setGround(null);
             }
         }
         if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
@@ -528,6 +529,8 @@ public class MovementController implements ContactListener {
 
             if (darkSensorFixtures.size == 0) {
                 phobia.setGrounded(false);
+                phobia.setGround(null);
+
             }
         }
         if ((avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
@@ -536,6 +539,7 @@ public class MovementController implements ContactListener {
 
             if (combinedSensorFixtures.size == 0) {
                 combined.setGrounded(false);
+                combined.setGround(null);
             }
         }
     }

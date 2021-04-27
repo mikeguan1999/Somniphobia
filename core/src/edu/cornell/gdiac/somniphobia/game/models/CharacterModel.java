@@ -505,9 +505,10 @@ public class CharacterModel extends CapsuleObstacle {
 //		}
 
 		// Velocity too high on ground, clamp it
-		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded) {
-			setVX(Math.signum(getVX()) * getMaxSpeed());
-		} else if (!isDashing()) {
+//		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded && false) {
+//			setVX(Math.signum(getVX()) * getMaxSpeed());
+//		} else
+		if (!isDashing()) {
 			forceCache.set(getMovement() * .3f + (ground == null ? 0: ground.getVX()),getVY());
 			body.setLinearVelocity(forceCache);
 		}
