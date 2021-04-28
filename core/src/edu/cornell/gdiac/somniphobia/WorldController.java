@@ -104,8 +104,12 @@ public abstract class WorldController implements Screen {
 	private boolean debug;
 	/** Whether or not sliders are active */
 	private boolean sliders;
-	/** Countdown active for winning or losing */
-	private int countdown;
+//	/** Countdown active for winning or losing */
+//	private int countdown;
+
+	//JENNA
+	private boolean pause;
+	//END JENNA
 
 	/**
 	 * Returns true if debug mode is active.
@@ -127,6 +131,21 @@ public abstract class WorldController implements Screen {
 	public boolean slidersActive( ) {
 		return sliders;
 	}
+
+	//JENNA
+
+	public boolean pauseMenuActive(){
+		return pause;
+	}
+
+
+	public void setPause(boolean value){
+		pause = value;
+	}
+
+
+	//END JENNA
+
 
 	/**
 	 * Sets whether debug mode is active.
@@ -158,9 +177,9 @@ public abstract class WorldController implements Screen {
 	 * @param value whether the level is completed.
 	 */
 	public void setComplete(boolean value) {
-		if (value) {
-			countdown = EXIT_COUNT;
-		}
+//		if (value) {
+//			countdown = EXIT_COUNT;
+//		}
 		complete = value;
 	}
 
@@ -183,9 +202,9 @@ public abstract class WorldController implements Screen {
 	 * @param value whether the level is failed.
 	 */
 	public void setFailure(boolean value) {
-		if (value) {
-			countdown = EXIT_COUNT;
-		}
+//		if (value) {
+//			countdown = EXIT_COUNT;
+//		}
 		failed = value;
 	}
 
@@ -298,7 +317,7 @@ public abstract class WorldController implements Screen {
 		failed = false;
 		debug  = false;
 		active = false;
-		countdown = -1;
+//		countdown = -1;
 	}
 	
 	/**
@@ -434,17 +453,8 @@ public abstract class WorldController implements Screen {
 			pause();
 			listener.exitScreen(this, EXIT_SWITCH);
 			return false;
-		} else if (countdown > 0) {
-			countdown--;
-		} else if (countdown == 0) {
-			if (failed) {
-				reset();
-			} else if (complete) {
-				pause();
-				listener.exitScreen(this, EXIT_NEXT);
-				return false;
-			}
 		}
+
 		return true;
 	}
 	
@@ -507,34 +517,34 @@ public abstract class WorldController implements Screen {
 	 */
 	public void draw(float dt) {
 		canvas.clear();
-		
+
 		canvas.begin();
-		for(Obstacle obj : objects) {
+		for (Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
 		canvas.end();
-		
+
 		if (debug) {
 			canvas.beginDebug();
-			for(Obstacle obj : objects) {
+			for (Obstacle obj : objects) {
 				obj.drawDebug(canvas);
 			}
 			canvas.endDebug();
 		}
-		
-		// Final message
-		if (complete && !failed) {
-			displayFont.setColor(Color.YELLOW);
-			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
-			canvas.end();
-		} else if (failed) {
-			displayFont.setColor(Color.RED);
-			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
-			canvas.end();
-		}
 	}
+		// Final message
+//		if (complete && !failed) {
+//			displayFont.setColor(Color.YELLOW);
+//			canvas.begin(); // DO NOT SCALE
+//			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
+//			canvas.end();
+//		} else if (failed) {
+//			displayFont.setColor(Color.RED);
+//			canvas.begin(); // DO NOT SCALE
+//			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
+//			canvas.end();
+//		}
+//	}
 
 	/**
 	 * Method to ensure that a sound asset is only played once.
@@ -652,4 +662,10 @@ public abstract class WorldController implements Screen {
 		this.listener = listener;
 	}
 
-}
+	//JENNA
+	public ScreenListener getListener() {
+		return listener;
+	}
+	//END JENNA
+
+	}
