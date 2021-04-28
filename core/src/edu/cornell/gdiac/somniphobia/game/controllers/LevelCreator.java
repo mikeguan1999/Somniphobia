@@ -816,9 +816,9 @@ public class LevelCreator extends WorldController {
     }
 
     public void gatherAssets(AssetDirectory directory) {
-        lightTexture = new TextureRegion(directory.getEntry("shared:light", Texture.class));
-        darkTexture = new TextureRegion(directory.getEntry("shared:dark", Texture.class));
-        allTexture = new TextureRegion(directory.getEntry("shared:all", Texture.class));
+        lightTexture = new TextureRegion(directory.getEntry("shared:solidCloud_light", Texture.class));
+        darkTexture = new TextureRegion(directory.getEntry("shared:solidCloud_dark", Texture.class));
+        allTexture = new TextureRegion(directory.getEntry("shared:solidCloud_all", Texture.class));
         crosshairTexture = new TextureRegion(directory.getEntry("platform:bullet", Texture.class));
         buttonUpTexture = directory.getEntry( "level_editor:buttonUp", Texture.class);
         buttonDownTexture = directory.getEntry( "level_editor:buttonDown", Texture.class);

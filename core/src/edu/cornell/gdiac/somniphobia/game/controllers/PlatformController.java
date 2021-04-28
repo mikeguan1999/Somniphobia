@@ -722,9 +722,9 @@ public class PlatformController extends WorldController {
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 
 		// Tiles
-		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
-		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
-		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
+		lightTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_light", Texture.class ));
+		darkTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_all", Texture.class ));
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
