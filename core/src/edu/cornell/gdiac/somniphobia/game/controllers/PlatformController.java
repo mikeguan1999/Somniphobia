@@ -348,27 +348,27 @@ public class PlatformController extends WorldController {
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
 
-		exitButton = createImageButton("pause_menu\\exit.png");
-		resumeButton = createImageButton("pause_menu\\resume.png");
-		restartButton = createImageButton("pause_menu\\restart.png");
+		exitButton = createImageButton("pause_menu\\exit_blue.png");
+		resumeButton = createImageButton("pause_menu\\resume_blue.png");
+		restartButton = createImageButton("pause_menu\\restart_blue.png");
 		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
 
-		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE);
-		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE);
-		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE);
+		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,100);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,100);
+		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,100);
 		pauseMenu.row();
 		pauseMenu.add(underline);
 		underline.setVisible(false);
 		orangeUnderline = createDrawable("pause_menu\\pausemenu_underline_red.png");
 		blueUnderline = createDrawable("pause_menu\\pausemenu_underline.png");
 		blueRectangle = createDrawable("pause_menu\\bluerectangle.png");
-		blueExit = createDrawable("pause_menu\\exit.png");
-		blueResume = createDrawable("pause_menu\\resume.png");
-		blueRestart = createDrawable("pause_menu\\restart.png");
+		blueExit = createDrawable("pause_menu\\exit_blue.png");
+		blueResume = createDrawable("pause_menu\\resume_blue.png");
+		blueRestart = createDrawable("pause_menu\\restart_blue.png");
 		orangeRectangle = createDrawable("pause_menu\\orangerectangle.png");
-		orangeExit = createDrawable("pause_menu\\exitorange.png");
-		orangeResume = createDrawable("pause_menu\\resumeorange.png");
-		orangeRestart = createDrawable("pause_menu\\restartorange.png");
+		orangeExit = createDrawable("pause_menu\\exit_orange.png");
+		orangeResume = createDrawable("pause_menu\\resume_orange.png");
+		orangeRestart = createDrawable("pause_menu\\restart_orange.png");
 
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {

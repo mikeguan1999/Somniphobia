@@ -79,7 +79,7 @@ public class MainMenu implements Screen {
 	public MainMenu(GameCanvas canvas) {
 		stage = new Stage();
 		table = new Table();
-		table.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("main_screen\\mainmenu_background.png"))));
+		table.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("main_screen\\mainmenu_withcloudline.png"))));
 		table.setFillParent(true);
 
 		titleImage = createImage("main_screen\\somniphobia_menutitle.png");
