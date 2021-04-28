@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
+import edu.cornell.gdiac.somniphobia.game.controllers.PlatController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 
@@ -83,6 +84,8 @@ public abstract class WorldController implements Screen {
 	protected PooledList<Obstacle> addQueue = new PooledList<>();
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
+	/** Platform controller*/
+	protected PlatController platController;
 
 	/** The Box2D world */
 	protected World world;
@@ -101,8 +104,12 @@ public abstract class WorldController implements Screen {
 	private boolean debug;
 	/** Whether or not sliders are active */
 	private boolean sliders;
-	/** Countdown active for winning or losing */
-	private int countdown;
+//	/** Countdown active for winning or losing */
+//	private int countdown;
+
+	//JENNA
+	private boolean pause;
+	//END JENNA
 
 	/**
 	 * Returns true if debug mode is active.
@@ -124,6 +131,21 @@ public abstract class WorldController implements Screen {
 	public boolean slidersActive( ) {
 		return sliders;
 	}
+
+	//JENNA
+
+	public boolean pauseMenuActive(){
+		return pause;
+	}
+
+
+	public void setPause(boolean value){
+		pause = value;
+	}
+
+
+	//END JENNA
+
 
 	/**
 	 * Sets whether debug mode is active.
@@ -155,9 +177,9 @@ public abstract class WorldController implements Screen {
 	 * @param value whether the level is completed.
 	 */
 	public void setComplete(boolean value) {
-		if (value) {
-			countdown = EXIT_COUNT;
-		}
+//		if (value) {
+//			countdown = EXIT_COUNT;
+//		}
 		complete = value;
 	}
 
@@ -180,12 +202,20 @@ public abstract class WorldController implements Screen {
 	 * @param value whether the level is failed.
 	 */
 	public void setFailure(boolean value) {
-		if (value) {
-			countdown = EXIT_COUNT;
-		}
+//		if (value) {
+//			countdown = EXIT_COUNT;
+//		}
 		failed = value;
 	}
-	
+
+	/**
+	 * Returns the world
+	 * @return the world
+	 */
+	public World getWorld() {
+		return world;
+	}
+
 	/**
 	 * Returns true if this is the active screen
 	 *
@@ -218,6 +248,28 @@ public abstract class WorldController implements Screen {
 		this.canvas = canvas;
 		this.scale.x = canvas.getWidth()/bounds.getWidth();
 		this.scale.y = canvas.getHeight()/bounds.getHeight();
+	}
+	/**
+	 * Returns the canvas associated with this controller
+	 *
+	 * The canvas is shared across all controllers
+	 *
+	 * @return the canvas associated with this controller
+	 */
+	public PlatController getPlatController() {
+		return platController;
+	}
+
+	/**
+	 * Sets the platformController associated with this controller
+	 *
+	 * The canvas is shared across all controllers.  Setting this value will compute
+	 * the drawing scale from the canvas size.
+	 *
+	 * @param plat the canvas associated with this controller
+	 */
+	public void setPlatController(PlatController plat) {
+		this.platController = plat;
 	}
 	
 	/**
@@ -265,7 +317,7 @@ public abstract class WorldController implements Screen {
 		failed = false;
 		debug  = false;
 		active = false;
-		countdown = -1;
+//		countdown = -1;
 	}
 	
 	/**
@@ -401,17 +453,8 @@ public abstract class WorldController implements Screen {
 			pause();
 			listener.exitScreen(this, EXIT_SWITCH);
 			return false;
-		} else if (countdown > 0) {
-			countdown--;
-		} else if (countdown == 0) {
-			if (failed) {
-				reset();
-			} else if (complete) {
-				pause();
-				listener.exitScreen(this, EXIT_NEXT);
-				return false;
-			}
 		}
+
 		return true;
 	}
 	
@@ -474,34 +517,34 @@ public abstract class WorldController implements Screen {
 	 */
 	public void draw(float dt) {
 		canvas.clear();
-		
+
 		canvas.begin();
-		for(Obstacle obj : objects) {
+		for (Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
 		canvas.end();
-		
+
 		if (debug) {
 			canvas.beginDebug();
-			for(Obstacle obj : objects) {
+			for (Obstacle obj : objects) {
 				obj.drawDebug(canvas);
 			}
 			canvas.endDebug();
 		}
-		
-		// Final message
-		if (complete && !failed) {
-			displayFont.setColor(Color.YELLOW);
-			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
-			canvas.end();
-		} else if (failed) {
-			displayFont.setColor(Color.RED);
-			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
-			canvas.end();
-		}
 	}
+		// Final message
+//		if (complete && !failed) {
+//			displayFont.setColor(Color.YELLOW);
+//			canvas.begin(); // DO NOT SCALE
+//			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
+//			canvas.end();
+//		} else if (failed) {
+//			displayFont.setColor(Color.RED);
+//			canvas.begin(); // DO NOT SCALE
+//			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
+//			canvas.end();
+//		}
+//	}
 
 	/**
 	 * Method to ensure that a sound asset is only played once.
@@ -619,4 +662,10 @@ public abstract class WorldController implements Screen {
 		this.listener = listener;
 	}
 
-}
+	//JENNA
+	public ScreenListener getListener() {
+		return listener;
+	}
+	//END JENNA
+
+	}

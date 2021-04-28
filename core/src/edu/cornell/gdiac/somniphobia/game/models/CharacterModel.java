@@ -58,8 +58,8 @@ public class CharacterModel extends CapsuleObstacle {
 	private int jumpCooldown;
 	/** Whether we are actively jumping */
 	private boolean isJumping;
-	/** How long until we can dash again */
-	private int dashCooldown;
+//	/** How long until we can dash again */
+//	private int dashCooldown;
 	/** Whether we are actively dashing */
 	private boolean isDashing;
 
@@ -79,6 +79,9 @@ public class CharacterModel extends CapsuleObstacle {
 	private PolygonShape sensorShape;
 	/** Filter of the model*/
 	private Filter filter;
+
+	/** The platform that the model is touching; Is null if not in contact*/
+	private Obstacle ground;
 
 	public static final boolean LIGHT = true;
 	public static final boolean DARK = false;
@@ -217,7 +220,7 @@ public class CharacterModel extends CapsuleObstacle {
 //		dashDistance = 3.5f;
 
 		jumpCooldown = 0;
-		dashCooldown = 0;
+//		dashCooldown = 0;
 		setName("dude");
 	}
 
@@ -331,7 +334,7 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 		dashStartPos.set(getPosition());
 		isDashing = canDash;
-		if (isDashing) {
+		if (isDashing || isPropel) {
 			if (!isPropel) {
 				canDash = false;
 			}
@@ -429,6 +432,10 @@ public class CharacterModel extends CapsuleObstacle {
 		faceRight = value;
 	}
 
+
+	public void setGround(Obstacle ground) {
+		this.ground = ground;
+	}
 
 
 	/**
@@ -679,16 +686,17 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 
 		// Don't want to be moving. Damp out player motion
-		if (getMovement() == 0f && isGrounded && !isDashing) {
-			forceCache.set(-getDamping()*getVX(),0);
-			body.applyForce(forceCache,getPosition(),true);
-		}
+//		if (getMovement() == 0f && isGrounded && !isDashing) {
+//			forceCache.set(-getDamping()*getVX(),0);
+//			body.applyForce(forceCache,getPosition(),true);
+//		}
 
 		// Velocity too high on ground, clamp it
-		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded) {
-			setVX(Math.signum(getVX()) * getMaxSpeed());
-		} else if (!isDashing()) {
-			forceCache.set(getMovement() * .3f,getVY());
+//		if (Math.abs(getVX()) > getMaxSpeed() && !isDashing() && isGrounded && false) {
+//			setVX(Math.signum(getVX()) * getMaxSpeed());
+//		} else
+		if (!isDashing()) {
+			forceCache.set(getMovement() * .3f + (ground == null ? 0: ground.getVX()),getVY());
 			body.setLinearVelocity(forceCache);
 		}
 
@@ -742,11 +750,11 @@ public class CharacterModel extends CapsuleObstacle {
 			jumpCooldown = Math.max(0, jumpCooldown - 1);
 		}
 
-		if (isDashing()) {
-			dashCooldown = jumpLimit;
-		} else {
-			dashCooldown = Math.max(0, dashCooldown - 1);
-		}
+//		if (isDashing()) {
+//			dashCooldown = jumpLimit;
+//		} else {
+//			dashCooldown = Math.max(0, dashCooldown - 1);
+//		}
 
 		if(isDashing) {
 //			System.out.println(getVY());
@@ -772,11 +780,10 @@ public class CharacterModel extends CapsuleObstacle {
 
 		}
 
-		if(isGrounded && dashCooldown <= 0) {
+//		if (isGrounded && dashCooldown == 0) {
+		if(isGrounded && !isDashing) {
 			canDash = true;
 		}
-
-		//System.out.println(canDash);
 		super.update(dt);
 	}
 
@@ -785,13 +792,10 @@ public class CharacterModel extends CapsuleObstacle {
 	 *
 	 * @param canvas Drawing context
 	 */
-	public void draw(GameCanvas canvas) {
+	public void draw(GameCanvas canvas, Color tint) {
 		float effect = faceRight ? -1.0f : 1.0f;
-//		canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),effect,1.0f);
 		animator.setFrame((int)animeframe);
-
-		// draw the primary animation
-		canvas.draw(animator, Color.WHITE, origin.x+offsetX, origin.y+offsetY,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+		canvas.draw(animator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 				effect, 1.0f);
 
 		// for handholding

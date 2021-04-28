@@ -45,6 +45,21 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:solidCloud_all": {
+      "file": "platform/T_solidCloud_all.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:solidCloud_dark": {
+      "file": "platform/T_solidCloud_dark.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:solidCloud_light": {
+      "file": "platform/T_solidCloud_light.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
     "shared:goalOLD": "platform/DoorOLD.png",
