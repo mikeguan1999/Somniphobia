@@ -795,7 +795,7 @@ public class CharacterModel extends CapsuleObstacle {
 	public void draw(GameCanvas canvas, Color tint) {
 		float effect = faceRight ? -1.0f : 1.0f;
 		animator.setFrame((int)animeframe);
-		canvas.draw(animator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+		canvas.draw(animator, tint, origin.x + offsetX, origin.y + offsetY,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 				effect, 1.0f);
 
 		// for handholding

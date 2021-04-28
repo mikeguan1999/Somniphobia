@@ -1,5 +1,5 @@
 {
-"background": 0,
+"background": 1,
 "dimensions": [ 1400, 800 ],
 "somni": {
 	"pos": [ 10, 11 ]
@@ -12,20 +12,20 @@
 },
 "objects": [
 	{
-		"type": 2,
+		"type": 3,
 		"assetName": "shared:all",
 		"positions": [
 			[ 12, 0, 4, 2 ]
 		],
-		"property": 0
+		"property": 1
 	},
 	{
-		"type": "0",
+		"type": 1,
 		"assetName": "shared:light",
 		"positions": [
 			[ 10, 10, 1, 1 ]
 		],
-		"property": 0
+		"property": 1
 	}
 ]
 }
