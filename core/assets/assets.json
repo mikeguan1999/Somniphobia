@@ -91,6 +91,17 @@
     "platform:Phobia_Stand_Jump": "platform/Phobia_Stand_Jump.png",
     "platform:Phobia_Falling": "platform/Phobia_Falling.png",
 
+    "platform:somni_phobia_hands": "platform/somniPhobia_hands.png",
+    "platform:phobia_somni_hands": "platform/phobiaSomni_hands.png",
+    "platform:blue_ring_big": "platform/blueRing_propel.png",
+    "platform:yellow_ring_big": "platform/yellowRing_propel.png",
+    "platform:somni_hand_front": "platform/somniHandFront.png",
+    "platform:phobia_hand_front": "platform/phobiaHandFront.png",
+    "platform:somni_hand_back": "platform/somniHandBack.png",
+    "platform:phobia_hand_back": "platform/phobiaHandBack.png",
+    "platform:blue_ring_small": "platform/blueRing_dash.png",
+    "platform:yellow_ring_small": "platform/yellowRing_dash.png",
+
 
     "platform:somni_phobia_stand": "platform/SomniPhobiaStand.png",
     "platform:somni_phobia_walk": "platform/SomniPhobiaWalk.png",

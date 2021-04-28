@@ -96,6 +96,28 @@ public class PlatformController extends WorldController {
 	private TextureRegion phobiaSomniDashSideTexture;
 	/** Texture asset for Somni's Dash up*/
 	private TextureRegion phobiaSomniDashUpTexture;
+
+	/** Texture asset for the hands of somni and phobia */
+	private TextureRegion somniPhobiaHandsTexture;
+	/** Texture asset for the hands of phobia and somni */
+	private TextureRegion phobiaSomniHandsTexture;
+	/** Texture asset for phobia's hand and the blue ring in propelling */
+	private TextureRegion blueRingBigTexture;
+	/** Texture asset for somni's hand and the yellow ring in propelling */
+	private TextureRegion yellowRingBigTexture;
+	/** Texture asset for the dashing blue ring */
+	private TextureRegion blueRingSmallTexture;
+	/** Texture asset for the dashing yellow ring */
+	private TextureRegion yellowRingSmallTexture;
+	/** Testure asset for somni's hand reaching out forwards */
+	private TextureRegion somniHandFrontTexture;
+	/** Testure asset for somni's hand reaching out backwards */
+	private TextureRegion somniHandBackTexture;
+	/** Testure asset for phobia's hand reaching out forwards */
+	private TextureRegion phobiaHandFrontTexture;
+	/** Testure asset for phobia's hand reaching out backwards */
+	private TextureRegion phobiaHandBackTexture;
+
 	/** Texture asset for current background*/
 	private TextureRegion backgroundTexture;
 	/** Texture asset for level's light background*/
@@ -112,9 +134,23 @@ public class PlatformController extends WorldController {
 	private TextureRegion [] somniphobiasTexture;
 	/** Texture asset list for phobiasomni*/
 	private TextureRegion [] phobiasomnisTexture;
+
+	/** Texture asset list for somnie's hands */
+	private TextureRegion [] somniHandsTextures;
+	/** Texture asset list for phobia's hands */
+	private TextureRegion [] phobiaHandsTextures;
+
 	/** Texture asset list for phobiasomni*/
 	private float[] animationSpeed;
 	private double[] framePixelWidth;
+	private float[] offsetsX;
+	private float[] offsetsY;
+	private float[] secOffsetsX;
+	private float[] secOffsetsY;
+	private float[] thirdOffsetsX;
+	private float[] thirdOffsetsY;
+	private float[] dashAngles;
+	private float[] propelAngles;
 	/** Texture for slider bars*/
 	private Texture sliderBarTexture;
 	private Texture sliderKnobTexture;
@@ -548,6 +584,17 @@ public class PlatformController extends WorldController {
 		phobiaSomniDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_side",Texture.class));
 		phobiaSomniDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_up",Texture.class));
 
+		somniPhobiaHandsTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_hands",Texture.class));
+		phobiaSomniHandsTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_hands",Texture.class));
+		blueRingBigTexture = new TextureRegion(directory.getEntry("platform:blue_ring_big",Texture.class));
+		yellowRingBigTexture = new TextureRegion(directory.getEntry("platform:yellow_ring_big",Texture.class));
+		blueRingSmallTexture = new TextureRegion(directory.getEntry("platform:blue_ring_small",Texture.class));
+		yellowRingSmallTexture = new TextureRegion(directory.getEntry("platform:yellow_ring_small",Texture.class));
+		somniHandFrontTexture = new TextureRegion(directory.getEntry("platform:somni_hand_front",Texture.class));
+		somniHandBackTexture = new TextureRegion(directory.getEntry("platform:somni_hand_back",Texture.class));
+		phobiaHandFrontTexture = new TextureRegion(directory.getEntry("platform:phobia_hand_front",Texture.class));
+		phobiaHandBackTexture = new TextureRegion(directory.getEntry("platform:phobia_hand_back",Texture.class));
+
 		backgrounds = new TextureRegion[] {
 				new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
@@ -567,9 +614,22 @@ public class PlatformController extends WorldController {
 		somniphobiasTexture = somniphobias;
 		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture, phobiaSomniDashUpTexture};
 		phobiasomnisTexture = phobiasomnis;
+		TextureRegion [] somniHands = {somniHandFrontTexture, somniHandBackTexture, somniPhobiaHandsTexture};
+		somniHandsTextures = somniHands;
+		TextureRegion [] phobiaHands = {phobiaHandFrontTexture, phobiaHandBackTexture, phobiaSomniHandsTexture};
+		phobiaHandsTextures = phobiaHands;
 
 		animationSpeed = new float[]{0.1f, 0.5f, 0.1f, 0.1f, 0.1f};
 		framePixelWidth = new double[]{32, 64, 32, 32, 32};
+		offsetsX = new float[]{12, 19, 0, 0, 15};
+		offsetsY = new float[]{0, 0, 0, 0, 0};
+		secOffsetsX = new float[]{-20, -16, 52, 60, -18, 50};
+		secOffsetsY = new float[]{0, 0, -20, 0, 0, -20};
+		thirdOffsetsX = new float[]{0, -18, -22, -22, 0,   10, -15, 0, 0, 5,   0, -20, 0, 0, -2};
+		thirdOffsetsY = new float[]{0, 0, 0, 0, 0};
+		dashAngles = new float[] {0, 0, -1.55f, 0f};
+		propelAngles = new float[] {0, 0, 0, 1.55f};
+
 
 		// Setup masking
 		circle_mask = new TextureRegion(directory.getEntry("circle_mask",Texture.class));
@@ -891,19 +951,77 @@ public class PlatformController extends WorldController {
 
 		if(holdingHands){
             if(lead == somni){
-                combined.setTexture(somniphobiasTexture[action]);
+            	// draw somni, phobia, and the hands
+				combined.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
+						phobiasTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
+						somniPhobiaHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
             }else{
-                combined.setTexture(phobiasomnisTexture[action]);
+            	// draw phobia, somni, and the hands
+				combined.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
+						somnisTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
+						phobiaSomniHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
             }
         }
         else{
             if(lead == somni){
-                somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
-                phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
+            	// draw somni
+            	if (action == 2 || action ==3) {
+            		int facing = somni.isFacingRight()? 1:-1;
+            		//draw somni with small dash ring
+					somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+							yellowRingSmallTexture, 0.2f, 128, 0, -5, facing * dashAngles[action]);
+				} else {
+					if (movementController.canHoldHands()){
+						// somni reaches out hand when phobia within distance
+						int f = movementController.faceTowards();
+						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								somniHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+					} else {
+						// only draw somni
+						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+					}
+				}
+
+            	// draw phobia
+				if ((action == 2 || action == 3) && movementController.justSeparated()){
+					// draw phobia and a propelling hand
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+				}else{
+					// only draw phobia
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				}
+
             }else{
-                phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
-				somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
+            	// draw the leading character phobia
+            	if (action == 2 || action == 3){
+					int facing = somni.isFacingRight()? 1:-1;
+            		// draw phobia with small dash ring
+					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+							blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
+				} else {
+					if (movementController.canHoldHands()){
+						// phobia reaches out hand when somni within distance
+						int f = movementController.faceTowards();
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								phobiaHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+					} else {
+						// only draw phobia
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+					}
+				}
+
+            	// draw the idle character somni
+                if ((action == 2 || action == 3) && movementController.justSeparated()){
+					// draw somni with a propelling hand
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
+							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+				} else {
+					// only draw somni
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				}
             }
+            movementController.setJustSeparated(false);
         }
 
 		// Set camera position bounded by the canvas size
