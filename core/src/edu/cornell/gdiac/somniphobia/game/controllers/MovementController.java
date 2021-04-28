@@ -475,6 +475,21 @@ public class MovementController implements ContactListener {
                 combinedSensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
 //				combined.canJump = true;
                 combined.setGround(combined == bd1 ? bd2: bd1);
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling) {
+
+                    sharedObjects.remove(bd1);
+                    lightObjects.remove(bd1);
+                    darkObjects.remove(bd1);
+
+                    bd1.markRemoved(true);
+                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
+
+                    sharedObjects.remove(bd2);
+                    lightObjects.remove(bd2);
+                    darkObjects.remove(bd2);
+
+                    bd2.markRemoved(true);
+                }
             }
 
 

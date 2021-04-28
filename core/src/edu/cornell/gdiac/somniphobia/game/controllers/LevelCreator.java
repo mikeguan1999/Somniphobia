@@ -63,6 +63,7 @@ public class LevelCreator extends WorldController {
     private PooledList<Platform> platformList = new PooledList<Platform>();
 
     private Batch batch;
+    private TextField movingVelocity;
 
     /** TextureRegion variables */
     TextureRegion[] backgrounds;
@@ -154,14 +155,17 @@ public class LevelCreator extends WorldController {
         float[] pos;
         ArrayList<Platform> path;
         Platform reference;
+        float velocity;
         public Platform(int type, float posX, float posY, float width, float height,
-                        int property, ArrayList<Platform> path) {
+                        int property, ArrayList<Platform> path, float velocity) {
             super(posX + width / 2, posY + height / 2, width, height);
             this.pos = new float[]{posX, posY, width, height};
             this.type = type;
             this.property = property;
             this.path = path;
+            this.velocity = velocity;
         }
+
 
         public void addMovement(Platform v){
             this.path.add(v);
@@ -189,8 +193,9 @@ public class LevelCreator extends WorldController {
         //selectedObstacle = obj;
     }
 
-    public void createPlatform(int type, float posX, float posY, float width, float height, int property, ArrayList<Platform> path) {
-        Platform platform = new Platform(type, posX, posY, width, height, property, path);
+    public void createPlatform(int type, float posX, float posY, float width, float height, int property,
+                               ArrayList<Platform> path, float velocity) {
+        Platform platform = new Platform(type, posX, posY, width, height, property, path, velocity);
         setupPlatform(platform);
     }
 
@@ -241,13 +246,13 @@ public class LevelCreator extends WorldController {
         if(!loading) {
             // Add Somni
             createPlatform(somniTag, SOMNI_DEFAULT_POS[0], SOMNI_DEFAULT_POS[1], CHARACTER_DIMENSIONS[0],
-                    CHARACTER_DIMENSIONS[1], 0, null);
+                    CHARACTER_DIMENSIONS[1], 0, null, 0);
             // Add Phobia
             createPlatform(phobiaTag, PHOBIA_DEFAULT_POS[0], PHOBIA_DEFAULT_POS[1], CHARACTER_DIMENSIONS[0],
-                    CHARACTER_DIMENSIONS[1], 0, null);
+                    CHARACTER_DIMENSIONS[1], 0, null, 0);
             // Add Goal
             createPlatform(goalTag, GOAL_DEFAULT_POS[0], GOAL_DEFAULT_POS[1], GOAL_DIMENSIONS[0],
-                    GOAL_DIMENSIONS[1], 0, null);
+                    GOAL_DIMENSIONS[1], 0, null, 0);
         } else {
             loading = false;
         }
@@ -388,6 +393,7 @@ public class LevelCreator extends WorldController {
         
 
         Label labelDimension = new Label("Dimensions: ", labelStyle);
+        Label labelVelocity = new Label("Speed: ", labelStyle);
 
 
         platformWidth = new TextField(null, textFieldStyle);
@@ -401,6 +407,11 @@ public class LevelCreator extends WorldController {
         platformHeight.setMaxLength(4);
         platformHeight.setTextFieldFilter(numberFilter);
 
+        movingVelocity = new TextField(null, textFieldStyle);
+        movingVelocity.setText("2");
+        movingVelocity.setMaxLength(4);
+        movingVelocity.setTextFieldFilter(numberFilter);
+
         ImageTextButton addPlatform = new ImageTextButton("Add", buttonStyle);
         addPlatform.addListener(new ClickListener() {
             @Override
@@ -411,9 +422,9 @@ public class LevelCreator extends WorldController {
                 float width = Float.parseFloat(platformWidth.getText());
                 float height = Float.parseFloat(platformHeight.getText());
                 ArrayList<Platform> path = new ArrayList<>();
-
+                float velocity = Float.parseFloat(movingVelocity.getText());
                 if(selectedType < somniTag) {
-                    createPlatform(selectedType, posX, posY, width, height, selectedProperty, path);
+                    createPlatform(selectedType, posX, posY, width, height, selectedProperty, path, velocity);
                 }
             }
         });
@@ -427,8 +438,10 @@ public class LevelCreator extends WorldController {
                 float posY = (int) (camera.position.y/canvas.PPM);
                 float width = Float.parseFloat(platformWidth.getText());;
                 float height = Float.parseFloat(platformHeight.getText());;
+                float velocity = Float.parseFloat(movingVelocity.getText());
                 if(selectedObstacle != null && selectedObstacle instanceof Platform){
-                    Platform vertex = new Platform(vertexPlatformTag, posX, posY, width, height,0,null);
+                    Platform vertex = new Platform(vertexPlatformTag, posX, posY, width, height,0,
+                            null, 0);
                     vertex.reference = (Platform) selectedObstacle;
                     ((Platform)selectedObstacle).addMovement(vertex);
                     setupPlatform(vertex);
@@ -453,15 +466,13 @@ public class LevelCreator extends WorldController {
                     int property = selectedProperty;
                     currPlatform.property = property;
                     ArrayList<Platform> path = currPlatform.path;
-
+                    float velocity = Float.parseFloat(movingVelocity.getText());
 
                     platformList.remove(currPlatform);
                     currPlatform.deactivatePhysics(world);
                     objects.remove(currPlatform);
 
-                    createPlatform(type, posX, posY, width, height, property, path);
-
-
+                    createPlatform(type, posX, posY, width, height, property, path, velocity);
                 }
             }
         });
@@ -534,6 +545,8 @@ public class LevelCreator extends WorldController {
         platformParamTable.add(harmingPlatformSelect).pad(0,5,5,5);
         platformParamTable.row();
         platformParamTable.add(addMovementPlatform).pad(0,5,5,5);
+        platformParamTable.add(labelVelocity).pad(0,5,5,0);
+        platformParamTable.add(movingVelocity).width(60).pad(0,0,5,5);
         platformParamTable.row();
         platformParamTable.add(labelDimension).colspan(3).center();
         platformParamTable.row();
@@ -782,9 +795,9 @@ public class LevelCreator extends WorldController {
     }
 
     public void gatherAssets(AssetDirectory directory) {
-        lightTexture = new TextureRegion(directory.getEntry("shared:light", Texture.class));
-        darkTexture = new TextureRegion(directory.getEntry("shared:dark", Texture.class));
-        allTexture = new TextureRegion(directory.getEntry("shared:all", Texture.class));
+        lightTexture = new TextureRegion(directory.getEntry("shared:solidCloud_light", Texture.class));
+        darkTexture = new TextureRegion(directory.getEntry("shared:solidCloud_dark", Texture.class));
+        allTexture = new TextureRegion(directory.getEntry("shared:solidCloud_all", Texture.class));
         crosshairTexture = new TextureRegion(directory.getEntry("platform:bullet", Texture.class));
         buttonUpTexture = directory.getEntry( "level_editor:buttonUp", Texture.class);
         buttonDownTexture = directory.getEntry( "level_editor:buttonDown", Texture.class);
@@ -861,14 +874,13 @@ public class LevelCreator extends WorldController {
                 PooledList<Platform> platforms = new PooledList<>();
                 // Add Somni
                 platforms.add(new Platform(somniTag, somni.pos[0], somni.pos[1], CHARACTER_DIMENSIONS[0],
-                        CHARACTER_DIMENSIONS[1], 0, null));
+                        CHARACTER_DIMENSIONS[1], 0, null, 0));
                 // Add Phobia
                 platforms.add(new Platform(phobiaTag, phobia.pos[0], phobia.pos[1], CHARACTER_DIMENSIONS[0],
-                        CHARACTER_DIMENSIONS[1], 0, null));
+                        CHARACTER_DIMENSIONS[1], 0, null, 0));
                 // Add Goal
                 platforms.add(new Platform(goalTag, goal.pos[0], goal.pos[1], GOAL_DIMENSIONS[0],
-                        GOAL_DIMENSIONS[1], 0, null));
-
+                        GOAL_DIMENSIONS[1], 0, null, 0));
                 for(LevelObject object: objects) {
                     for(int i = 0; i < object.positions.size(); i++) {
                         float[] pos = object.positions.get(i);
@@ -877,11 +889,12 @@ public class LevelCreator extends WorldController {
                         for(float[] pathVertices: object.paths) {
                             for(int j = 0; i < pathVertices.length; i++) {
                                 float pathX = pathVertices[j * 2], pathY = pathVertices[j * 2 + 1];
-                                path.add(new Platform(object.type, pathX, pathY, width, height, 0, null));
+                                path.add(new Platform(object.type, pathX, pathY, width, height, 0,
+                                        null, 0));
                             }
                         }
 
-                        platforms.add(new Platform(object.type, x, y, width, height, object.property, path));
+                        platforms.add(new Platform(object.type, x, y, width, height, object.property, path, 0));
                     }
                 }
                 return platforms;

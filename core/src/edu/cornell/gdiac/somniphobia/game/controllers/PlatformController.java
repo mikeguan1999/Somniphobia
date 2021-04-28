@@ -15,10 +15,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -219,6 +221,32 @@ public class PlatformController extends WorldController {
 	private int PHOBIA_TAG = 0;
 	private int COMBINED_TAG = 0;
 
+	//JENNA SETUP
+	private Table pauseMenu;
+	private Table failMenu;
+	private Table winMenu;
+	private Boolean firstTimeRenderedPauseMenu=true;
+	private Boolean firstTimeRenderedFailMenu=true;
+	private Boolean firstTimeRenderedWinMenu=true;
+	private Boolean firstTimeRenderedPauseButton = true;
+	private Button exitButton;
+	private Button resumeButton;
+	private Button restartButton;
+	private Button advanceButton;
+	private Button pauseButton;
+	private boolean exitClicked;
+	private boolean resumeClicked;
+	private boolean restartClicked;
+	private boolean advanceClicked;
+	private Stage pauseMenuStage;
+	private Stage failMenuStage;
+	private Stage winMenuStage;
+	private Stage pauseButtonStage;
+	private boolean gameScreenActive = true;
+
+	//END JENNA
+
+
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
 	private Label [] labels;
@@ -253,6 +281,164 @@ public class PlatformController extends WorldController {
 		widthUpperBound = 0;
 		heightUpperBound = 0;
 	}
+
+	//JENNA
+	/**
+	 * Helper function for creating buttons on pause menu:
+	 * Creating an image button that appears as an image with upFilepath.
+	 */
+	private Button createImageButton(String upFilepath){
+		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
+		Button imgButton= new Button(buttonDrawable);
+		return imgButton;
+	}
+
+	private TextureRegionDrawable createDrawable(String filePath){
+		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
+		return drawable;
+	}
+
+	public Boolean getExitClicked(){
+		return exitClicked;
+	}
+
+	public Boolean getResumeClicked(){
+		return resumeClicked;
+	}
+
+	public Boolean getRestartClicked(){
+		return restartClicked;
+	}
+
+
+
+	/**
+	 * Creates sliders to adjust game constants.
+	 */
+	public void createPauseWindow() {
+		pauseMenuStage= new Stage(new ScreenViewport(camera));
+		pauseMenu = new Table();
+		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		pauseMenu.setFillParent(true);
+
+		exitButton = createImageButton("pause_menu\\exit.png");
+		resumeButton = createImageButton("pause_menu\\resume.png");
+		restartButton = createImageButton("pause_menu\\restart.png");
+		advanceButton = createImageButton("pause_menu\\restart.png");
+
+		//Buttons needed
+		pauseMenu.add(exitButton).space(50);
+		pauseMenu.add(resumeButton).space(50);
+		pauseMenu.add(restartButton).space(50);
+
+
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
+
+		resumeButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				resumeClicked = true;
+			}
+		});
+
+		restartButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				restartClicked = true;
+			}
+		});
+
+		pauseMenu.setPosition(camera.position.x, camera.position.y);
+		pauseMenuStage.addActor(pauseMenu);
+		pauseMenu.validate();
+		pauseMenu.setTransform(true);
+		pauseMenu.setScale(0.5f);
+
+	}
+
+	public void createFailWindow() {
+		failMenuStage = new Stage(new ScreenViewport(camera));
+		failMenu = new Table();
+		failMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		failMenu.setFillParent(true);
+
+		exitButton = createImageButton("pause_menu\\exit.png");
+		resumeButton = createImageButton("pause_menu\\resume.png");
+		restartButton = createImageButton("pause_menu\\restart.png");
+		advanceButton = createImageButton("pause_menu\\restart.png");
+
+		//Buttons needed
+		failMenu.add(exitButton).space(50);
+		failMenu.add(restartButton).space(100);
+
+
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
+
+		restartButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				restartClicked = true;
+			}
+		});
+
+		failMenu.setPosition(camera.position.x, camera.position.y);
+		failMenuStage.addActor(failMenu);
+		failMenu.validate();
+		failMenu.setTransform(true);
+		failMenu.setScale(0.5f);
+
+	}
+
+	public void createWinWindow() {
+		winMenuStage= new Stage(new ScreenViewport(camera));
+		winMenu = new Table();
+		winMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		winMenu.setFillParent(true);
+
+		exitButton = createImageButton("pause_menu\\exit.png");
+		resumeButton = createImageButton("pause_menu\\resume.png");
+		restartButton = createImageButton("pause_menu\\restart.png");
+
+		//JENNA: NEED IMAGE
+		advanceButton = createImageButton("pause_menu\\next.png");
+
+		//Buttons needed
+		winMenu.add(exitButton).space(50);
+		winMenu.add(advanceButton).space(100);
+
+
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
+
+
+		advanceButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				advanceClicked = true;
+			}
+		});
+
+		winMenu.setPosition(camera.position.x, camera.position.y);
+		winMenuStage.addActor(winMenu);
+		winMenu.validate();
+		winMenu.setTransform(true);
+		winMenu.setScale(0.5f);
+
+	}
+
+	public void setPositionMenu(Table menu){
+		menu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
+	}
+
+	//END JENNA
+
 
 //	public void createPauseButton(){
 //		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal()));
@@ -497,6 +683,31 @@ public class PlatformController extends WorldController {
 		}
 	}
 
+	//JENNA
+	public void createPauseButton(){
+		Table table = new Table();
+		gameScreenActive = true;
+		pauseButtonStage = new Stage(new ScreenViewport(camera));
+		pauseButton = createImageButton("pause_menu\\pause_button.png");
+		pauseButton.setPosition(camera.position.x+350, camera.position.y+150);
+		pauseButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				setPause(true);
+			}
+		});
+		pauseButton.setSize(100,80);
+		table.add(pauseButton);
+		pauseButtonStage.addActor(table);
+	}
+
+	public void drawPauseButton(){
+		Batch b = canvas.getBatch();
+		pauseButton.setPosition(camera.position.x+400, camera.position.y+200);
+		pauseButton.draw(b, 1);
+	}
+
+	//END JENNA
+
 	/**
 	 * Gather the assets for this controller.
 	 *
@@ -511,9 +722,9 @@ public class PlatformController extends WorldController {
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 
 		// Tiles
-		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
-		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
-		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
+		lightTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_light", Texture.class ));
+		darkTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_all", Texture.class ));
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
@@ -873,6 +1084,30 @@ public class PlatformController extends WorldController {
 		platController.applyFilters(objects);
 	}
 
+//	/**
+//	 * Returns whether to process the update loop
+//	 *
+//	 * At the start of the update loop, we check if it is time
+//	 * to switch to a new game mode.  If not, the update proceeds
+//	 * normally.
+//	 *
+//	 * @param dt	Number of seconds since last animation frame
+//	 *
+//	 * @return whether to process the update loop
+//	 */
+//	public boolean preUpdate(float dt) {
+//		if (!super.preUpdate(dt)) {
+//			return false;
+//		}
+//		if (!isFailure() && (somni.getY() < -1 || phobia.getY() < -1 || combined.getY() < -1)) {
+//			setFailure(true);
+//			return false;
+//		}
+//
+//		return true;
+//	}
+
+	//JENNA
 	/**
 	 * Returns whether to process the update loop
 	 *
@@ -893,8 +1128,46 @@ public class PlatformController extends WorldController {
 			return false;
 		}
 
+		if (exitClicked){
+			pause();
+			ScreenListener listener = getListener();
+			gameScreenActive = false;
+			setPause(false);
+			setFailure(false);
+			setComplete(false);
+			listener.exitScreen(this, WorldController.EXIT_MENU);
+			exitClicked = false;
+			return false;
+		}
+
+		if (advanceClicked){
+			//JENNA ADVANCE
+			pause();
+			ScreenListener listener = getListener();
+			gameScreenActive = false;
+			setPause(false);
+			setFailure(false);
+			setComplete(false);
+			listener.exitScreen(this, WorldController.EXIT_NEXT);
+			advanceClicked = false;
+		}
+
+		if (resumeClicked){
+			setPause(false);
+			setFailure(false);
+			setComplete(false);
+			resumeClicked = false;
+		}
+
+		if (restartClicked){
+			reset();
+			restartClicked = false;
+		}
+
 		return true;
 	}
+
+	//END JENNA
 
 	/**
 	 * The core gameplay loop of this world.
@@ -1315,6 +1588,54 @@ public class PlatformController extends WorldController {
 		}
 		canvas.end();
 
+		//JENNA
+
+		canvas.begin();
+		if (pauseMenuActive()) {
+			if (firstTimeRenderedPauseMenu) {
+				createPauseWindow();
+				firstTimeRenderedPauseMenu = false;
+			} else {
+				setPositionMenu(pauseMenu);
+				pauseMenuStage.draw();
+				pauseMenuStage.act(dt);
+//				drawModalWindow();
+			}
+			if (movementController.getAvatar()==somni){
+				pauseMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
+				exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
+				resumeButton.getStyle().up = createDrawable("pause_menu\\resume.png");
+				restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+			}
+			else{
+				pauseMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
+				exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
+				resumeButton.getStyle().up = createDrawable("pause_menu\\resumeorange.png");
+				restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+			}
+
+			Gdx.input.setInputProcessor(pauseMenuStage);
+		}
+		canvas.end();
+
+		canvas.begin();
+		if (firstTimeRenderedPauseButton){
+			createPauseButton();
+			firstTimeRenderedPauseButton = false;
+		}
+		else{
+			drawPauseButton();
+		}
+
+		if (!pauseMenuActive() && gameScreenActive){
+			Gdx.input.setInputProcessor(pauseButtonStage);
+		}
+		canvas.end();
+
+
+		//END JENNA
+
+
 		// Draw debug if active
 		if (isDebug()) {
 			canvas.beginDebug();
@@ -1336,22 +1657,68 @@ public class PlatformController extends WorldController {
 		}
 
 		// Draw final message when level ends
+		// Draw final message when level ends
+		//JENNA
+
 		if (isComplete() && !isFailure()) {
-			displayFont.setColor(Color.YELLOW);
-			canvas.begin(); // DO NOT SCALE
-			displayFont.getData().setScale(1f, 1f);
+			canvas.begin();
+			if (isComplete()) {
+				if (firstTimeRenderedWinMenu) {
+					createWinWindow();
+					firstTimeRenderedWinMenu = false;
+				} else {
+					setPositionMenu(winMenu);
+					winMenuStage.draw();
+					winMenuStage.act(dt);
+				}
+				if (movementController.getAvatar() == somni) {
+					winMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
+					advanceButton.getStyle().up = createDrawable("pause_menu\\next.png");
+				} else {
+					winMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
+					advanceButton.getStyle().up = createDrawable("pause_menu\\nextorange.png");
+				}
 
-			canvas.drawTextCameraCentered("VICTORY!", displayFont, camera.position.x, camera.position.y);
+				Gdx.input.setInputProcessor(winMenuStage);
+			}
 			canvas.end();
+
+
+
 		} else if (isFailure()) {
-			displayFont.setColor(Color.RED);
-			canvas.begin(); // DO NOT SCALE
-			displayFont.getData().setScale(1f, 1f);
 
-			canvas.drawTextCameraCentered("FAILURE!", displayFont, camera.position.x, camera.position.y);
+			canvas.begin();
+			if (isFailure()) {
+				if (firstTimeRenderedFailMenu) {
+					createFailWindow();
+					firstTimeRenderedFailMenu = false;
+				} else {
+					setPositionMenu(failMenu);
+					failMenuStage.draw();
+					failMenuStage.act(dt);
+				}
+				if (movementController.getAvatar()==somni){
+					failMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
+					restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+				}
+				else{
+					failMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
+					restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+				}
+
+				Gdx.input.setInputProcessor(failMenuStage);
+			}
 			canvas.end();
-		}
-	}
+
+
+		}}
+
+	//END JENNA
+
 
 	/** Unused ContactListener method */
 	public void postSolve(Contact contact, ContactImpulse impulse) {}
