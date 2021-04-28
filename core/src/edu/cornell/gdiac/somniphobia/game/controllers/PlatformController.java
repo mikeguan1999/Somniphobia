@@ -1003,7 +1003,7 @@ public class PlatformController extends WorldController {
 
 
 					//** Moving platform if > 1 path or different path from starting position
-					if (paths.length > 2 || paths[0] != x && paths[1] != y) {
+					if (paths.length > 2 || paths[0] != x || paths[1] != y) {
 						platformModel.setBodyType(BodyDef.BodyType.KinematicBody);
 						movingObjects.add(platformModel);
 
