@@ -15,10 +15,10 @@ import edu.cornell.gdiac.util.PooledList;
 public class PlatformModel extends BoxObstacle {
 
     /** Behavior tag constants */
-    public final static int normal = 0;
-    public final static int harming = 1;
-    public final static int crumbling = 2;
-    public final static int holdOnly = 3;
+    public final static int normal = 1;
+    public final static int harming = 2;
+    public final static int crumbling = 3;
+    public final static int holdOnly = 4;
 
     /** Width of the platform*/
     private float width;

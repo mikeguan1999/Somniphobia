@@ -12,18 +12,17 @@
 },
 "objects": [
 	{
-		"type": "light",
+		"type": 0,
 		"assetName": "shared:light",
 		"positions": [
 			[ 26, 54, 4, 1 ],
 			[ 22, 60, 4, 1 ],
 			[ 14, 60, 4, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	},
 	{
-		"type": "dark",
+		"type": 1,
 		"assetName": "shared:dark",
 		"positions": [
 			[ 26, 45, 4, 1 ],
@@ -35,8 +34,7 @@
 			[ 43, 56, 2, 1 ],
 			[ 38, 59, 2, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	}
 ]
 }

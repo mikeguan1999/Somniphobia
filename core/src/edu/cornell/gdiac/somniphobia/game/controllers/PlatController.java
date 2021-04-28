@@ -78,7 +78,7 @@ public class PlatController {
     public void applyFilters(PooledList<Obstacle> objects){
         for( Obstacle o : objects){
             if(o instanceof PlatformModel){
-                o.setFilterData(filters[o.getTag()]);
+                o.setFilterData(filters[o.getTag() - 1]);
             }
         }
     }

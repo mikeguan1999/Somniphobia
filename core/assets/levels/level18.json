@@ -12,22 +12,20 @@
 },
 "objects": [
 	{
-		"type": "all",
+		"type": 2,
 		"assetName": "shared:all",
 		"positions": [
 			[ 12, 0, 4, 2 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	},
 	{
-		"type": "light",
+		"type": "0",
 		"assetName": "shared:light",
 		"positions": [
 			[ 10, 10, 1, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	}
 ]
 }

@@ -710,14 +710,8 @@ public class PlatformController extends WorldController {
 			JsonValue obj = objs.get(i);
 
 			// Determine platform type
-			String platformType = obj.get("type").asString();
-			int selector = -1;
-			switch (platformType) {
-				case "light": selector = LevelCreator.lightTag; break;
-				case "dark": selector = LevelCreator.darkTag; break;
-				case "all": selector = LevelCreator.allTag; break;
-				default: selector = -1; break;
-			}
+			System.out.println(obj);
+			int platformType = obj.get("type").asInt();
 
 			// Apply platform properties
 //			String[] properties = obj.get("properties").asStringArray();
@@ -736,7 +730,7 @@ public class PlatformController extends WorldController {
 //			selector = 2;
 			// Setup platforms
 			JsonValue platformArgs = obj.get("positions");
-			JsonValue pathsArgs = obj.get("paths");
+			JsonValue pathsArgs = obj.get("path");
 
 
 			int property = obj.get("property") == null ?  0: obj.get("property").asInt();
@@ -774,15 +768,15 @@ public class PlatformController extends WorldController {
 			for (int j = 0; j < platformArgs.size; j++) {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
-				TextureRegion newXTexture = new TextureRegion(xTexture[selector]);
+				TextureRegion newXTexture = new TextureRegion(xTexture[platformType-1]);
 				newXTexture.setRegion(x, y, x + width, y + height);
-				PlatformModel platformModel  = new PlatformModel(bounds, selector, newXTexture, scale,
+				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
 						defaults.getFloat( "restitution", 0.0f ));
-				platformModel.setTag(selector);
+				platformModel.setTag(platformType);
 				platformModel.setProperty(property);
 				addObject(platformModel);
-				addObjectTo(platformModel, selector);
+				addObjectTo(platformModel, platformType);
 				//TODO: Moving platforms
 
 
@@ -792,7 +786,7 @@ public class PlatformController extends WorldController {
 
 
 					//** Moving platform if > 1 path or different path from starting position
-					if (paths.length > 2 || paths[0] != x && paths[1] != y) {
+					if (paths.length > 2 || paths[0] != x || paths[1] != y) {
 						platformModel.setBodyType(BodyDef.BodyType.KinematicBody);
 						movingObjects.add(platformModel);
 
