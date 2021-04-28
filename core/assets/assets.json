@@ -133,7 +133,20 @@
     "platform:background_light_dreams": "platform/BG_dreams_light.png",
     "platform:background_dark_dreams": "platform/BG_dreams_dark.png",
     "platform:background_light_house": "platform/BG_house_light.png",
-    "platform:background_dark_house": "platform/BG_house_dark.png"
+    "platform:background_dark_house": "platform/BG_house_dark.png",
+
+    "tutorial:camera_pan": "tutorial/camera_pan.png",
+    "tutorial:phobia_dash": "tutorial/phobia_dash.png",
+    "tutorial:phobia_jump": "tutorial/phobia_jump.png",
+    "tutorial:phobia_propel": "tutorial/phobia_propel.png",
+    "tutorial:phobia_walk": "platform/T_solidCloud_light.png",
+    "tutorial:somni_dash": "tutorial/somni_dash.png",
+    "tutorial:somni_jump": "tutorial/somni_jump.png",
+    "tutorial:somni_propel": "tutorial/somni_propel.png",
+    "tutorial:somni_walk": "tutorial/somni_walk.png",
+    "tutorial:spirit_switch": "tutorial/spirit_switch.png",
+    "tutorial:spirit_separate": "tutorial/spirit_separate.png",
+    "tutorial:spirit_unify": "tutorial/spirit_unify.png"
   },
     "jsons"  : {
         "constants": "constants.json",

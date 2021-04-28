@@ -131,6 +131,10 @@ public class PlatformController extends WorldController {
 	private TextureRegion backgroundDarkTexture;
 	/** Texture assets for backgrounds */
 	private TextureRegion[] backgrounds;
+
+	/** Texture asset for tutorial signs */
+	private TextureRegion[] tutorial_signs;
+
 	/** Texture asset list for somni*/
 	private TextureRegion [] somnisTexture;
 	/** Texture asset list for phobia*/
@@ -764,6 +768,22 @@ public class PlatformController extends WorldController {
 		darkTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_dark", Texture.class ));
 		allTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_all", Texture.class ));
 
+		// Tutorial
+		tutorial_signs = new TextureRegion[]{
+				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))
+		};
+
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
 		somniIdleTexture  = new TextureRegion(directory.getEntry("platform:Somni_Idle",Texture.class));
@@ -811,6 +831,7 @@ public class PlatformController extends WorldController {
 				new TextureRegion(directory.getEntry("platform:background_light_house", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
 		};
+
 
 		TextureRegion [] somnis = {somniIdleTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture, somniFallTexture};
 		somnisTexture = somnis;
@@ -985,7 +1006,7 @@ public class PlatformController extends WorldController {
 		JsonValue objs = levelAssets.get("objects");
 
 		//group platform constants together for access in following for-loop
-		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
+		TextureRegion[] xTexture = {lightTexture, tutorial_signs[0], allTexture};
 
 
 		// Setup platforms
@@ -1052,7 +1073,14 @@ public class PlatformController extends WorldController {
 			for (int j = 0; j < platformArgs.size; j++) {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
-				TextureRegion newXTexture = new TextureRegion(xTexture[platformType-1]);
+				TextureRegion newXTexture;
+				try {
+					JsonValue assetName = obj.get("assetName");
+					int assetIndex = assetName.asInt();
+					newXTexture = tutorial_signs[assetIndex];
+				} catch(Exception e) {
+					newXTexture = new TextureRegion(xTexture[platformType-1]);
+				}
 				newXTexture.setRegion(x, y, x + width, y + height);
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
