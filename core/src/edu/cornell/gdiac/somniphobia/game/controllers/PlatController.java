@@ -94,15 +94,9 @@ public class PlatController {
 
         for (Obstacle obstacle : movingObjects) {
             PlatformModel platform = (PlatformModel) obstacle;
-
-
             Vector2 position = vector.set(platform.getLeftX(), platform.getBottomY());;
             PooledList<Vector2> paths = platform.getPaths();
-
-            System.out.println("position: ");
-            System.out.println(position);
             Vector2 nextDestination = paths.getHead();
-
 
             //if overshot (destination - position opposite sign as velocity), switch destination
             if (!obstacle.getLinearVelocity().isZero() && (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) ||
@@ -116,16 +110,8 @@ public class PlatController {
                 nextDestination = paths.getHead();
             }
 
-            System.out.println("next destination: ");
-            System.out.println(nextDestination);
-
-
-            System.out.println("next path");
-
-
             Vector2 nextPath = vector2.set(nextDestination).sub(position).nor();
             if (nextPath.isZero()) platform.setVelocity(0);
-//            System.out.println(nextPath);
             platform.setLinearVelocity(nextPath.scl(platform.getVelocity()));
 
         }
