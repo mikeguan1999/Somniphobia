@@ -508,6 +508,11 @@ public class LevelCreator extends WorldController {
                     reset();
                     for(Platform platform: platforms) {
                         setupPlatform(platform);
+                        if(platform.path != null) {
+                            for(Platform pathPlatform: platform.path) {
+                                setupPlatform(pathPlatform);
+                            }
+                        }
                     }
                 }
             }
@@ -885,16 +890,22 @@ public class LevelCreator extends WorldController {
                     for(int i = 0; i < object.positions.size(); i++) {
                         float[] pos = object.positions.get(i);
                         float x = pos[0], y = pos[1], width = pos[2], height = pos[3];
-                        ArrayList<Platform> path = new ArrayList<>();
-                        for(float[] pathVertices: object.paths) {
-                            for(int j = 0; i < pathVertices.length; i++) {
-                                float pathX = pathVertices[j * 2], pathY = pathVertices[j * 2 + 1];
-                                path.add(new Platform(object.type, pathX, pathY, width, height, 0,
-                                        null, 0));
+                        Platform newPlatform = new Platform(object.type, x, y, width, height, object.property,
+                                null, 0);
+
+                        float[] path = object.paths.get(i);
+                        ArrayList<Platform> pathPlatforms = new ArrayList<>();
+                        if(PlatformController.hasValidPath(x, y, path)) {
+                            for (int j = 0; j < path.length / 2; j++) {
+                                float pathX = path[j * 2], pathY = path[j * 2 + 1];
+                                Platform pathPlatform = new Platform(vertexPlatformTag, pathX, pathY, width, height, 0,
+                                        null, 0);
+                                pathPlatform.reference = newPlatform;
+                                pathPlatforms.add(pathPlatform);
                             }
                         }
-
-                        platforms.add(new Platform(object.type, x, y, width, height, object.property, path, 0));
+                        newPlatform.path = pathPlatforms;
+                        platforms.add(newPlatform);
                     }
                 }
                 return platforms;
@@ -904,8 +915,8 @@ public class LevelCreator extends WorldController {
                 float[] path = new float[platformPath.size() * 2];
                 for(int i = 0; i < platformPath.size(); i++) {
                     Platform platform = platformPath.get(i);
-                    path[i * 2]     = platform.pos[0] - platform.getWidth() / 2;
-                    path[i * 2 + 1] = platform.pos[1] - platform.getHeight() / 2;
+                    path[i * 2]     = platform.pos[0];
+                    path[i * 2 + 1] = platform.pos[1];
                 }
                 return path;
             }
@@ -922,7 +933,14 @@ public class LevelCreator extends WorldController {
                             if (object.hasInCommon(platform.type, assetName, platform.property)) {
                                 // If so, add it to that group
                                 object.positions.add(platform.pos);
-                                object.paths.add(extractPath(platform.path));
+                                if(platform.path.size() < 2) {
+                                    float[] pos = new float[2];
+                                    pos[0] = platform.pos[0];
+                                    pos[1] = platform.pos[1];
+                                    object.paths.add(pos);
+                                } else {
+                                    object.paths.add(extractPath(platform.path));
+                                }
                                 unique = false;
                             }
                         }
@@ -932,7 +950,14 @@ public class LevelCreator extends WorldController {
                             ArrayList<float[]> positions = new ArrayList<>();
                             positions.add(platform.pos);
                             ArrayList<float[]> path = new ArrayList<>();
-                            path.add(extractPath(platform.path));
+                            if(platform.path.size() < 2) {
+                                float[] pos = new float[2];
+                                pos[0] = platform.pos[0];
+                                pos[1] = platform.pos[1];
+                                path.add(pos);
+                            } else {
+                                path.add(extractPath(platform.path));
+                            }
                             LevelObject levelObject = new LevelObject(platform.type, assetName, positions, platform.property,
                                     path);
                             objects.add(levelObject);

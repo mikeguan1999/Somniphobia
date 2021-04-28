@@ -37,6 +37,8 @@ import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 
+import java.util.ArrayList;
+
 /**
  * Gameplay specific controller for the platformer game.
  *
@@ -944,6 +946,17 @@ public class PlatformController extends WorldController {
 	}
 
 	/**
+	 * Checks the path of a platform for validity
+	 * @param posX The x position of the platform
+	 * @param posY The y position of the platform
+	 * @param path The path of the platform
+	 * @return Whether or not a platform's path is valid
+	 */
+	public static boolean hasValidPath(float posX, float posY, float[] path) {
+		return path.length > 2 || path[0] != posX || path[1] != posY;
+	}
+
+	/**
 	 * Lays out the game geography.
 	 */
 	private void populateLevel() {
@@ -1055,7 +1068,7 @@ public class PlatformController extends WorldController {
 					float[] paths = pathsArgs.get(j).asFloatArray();
 
 					//** Moving platform if > 1 path or different path from starting position
-					if (paths.length > 2 || paths[0] != x || paths[1] != y) {
+					if (hasValidPath(x, y, paths)) {
 						platformModel.setBodyType(BodyDef.BodyType.KinematicBody);
 						movingObjects.add(platformModel);
 

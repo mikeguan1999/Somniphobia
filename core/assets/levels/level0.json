@@ -8,7 +8,7 @@
 	"pos": [ 7, 5 ]
 },
 "goal": {
-	"pos": [ 27, 13 ]
+	"pos": [ 22, 5 ]
 },
 "objects": [
 	{
@@ -16,36 +16,14 @@
 		"assetName": "shared:all",
 		"positions": [
 			[ 4, 3, 7, 2 ],
-			[ 25, 11, 7, 2 ],
-			[ 18, 6, 7, 2 ]
+			[ 13, 4, 5, 1 ],
+			[ 20, 4, 6, 1 ]
 		],
 		"property": 1,
 		"paths": [
-			[4, 3],
-			[25, 11],
-			[ 20, 10, 14.5, 2 ]
-		]
-	},
-	{
-		"type": 3,
-		"assetName": "shared:all",
-		"positions": [
-			[ 11, 3, 7, 2 ]
-		],
-		"property": 2,
-		"paths": [
-			[11, 3]
-		]
-	},
-	{
-		"type": 3,
-		"assetName": "shared:all",
-		"positions": [
-			[ 11, 6, 7, 1 ]
-		],
-		"property": 3,
-		"paths": [
-			[11, 6]
+			[ 4, 3 ],
+			[ 13, 8.5, 13, 2.5 ],
+			[ 20, 4 ]
 		]
 	}
 ]
