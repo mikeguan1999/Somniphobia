@@ -12,17 +12,16 @@
 },
 "objects": [
 	{
-		"type": "all",
+		"type": 2,
 		"assetName": "shared:all",
 		"positions": [
 			[ 18, 12, 5, 1 ],
 			[ 2, 6, 5, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	},
 	{
-		"type": "light",
+		"type": 0,
 		"assetName": "shared:light",
 		"positions": [
 			[ 23, 7, 5, 1 ],
@@ -31,17 +30,15 @@
 			[ 2, 14, 10, 1 ],
 			[ 13, 4, 5, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	},
 	{
-		"type": "dark",
+		"type": 1,
 		"assetName": "shared:dark",
 		"positions": [
 			[ 7, 6, 5, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	}
 ]
 }

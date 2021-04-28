@@ -12,35 +12,32 @@
 },
 "objects": [
 	{
-		"type": "light",
+		"type": 0,
 		"assetName": "shared:light",
 		"positions": [
 			[ 7, 2, 6, 1 ],
 			[ 19, 2, 1, 7 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	},
 	{
-		"type": "dark",
+		"type": 1,
 		"assetName": "shared:dark",
 		"positions": [
 			[ 21, 3, 10, 1 ],
 			[ 29, 6, 2, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	},
 	{
-		"type": "all",
+		"type": 2,
 		"assetName": "shared:all",
 		"positions": [
 			[ 1, 2, 4, 1 ],
 			[ 15, 2, 4, 1 ],
 			[ 19, 9, 8, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 0
 	}
 ]
 }
