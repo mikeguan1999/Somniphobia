@@ -57,6 +57,9 @@ public class MovementController implements ContactListener {
 
     private float HAND_HOLDING_DISTANCE = 2f;
 
+    private boolean canHoldHands;
+    private boolean justSeparated;
+
 
     /**
      * Creates a new MovementController
@@ -260,6 +263,9 @@ public class MovementController implements ContactListener {
         if (avatar.isDashing() && !avatar.isDashingUp()) {
             action = 2; // Side dash
         }
+        if (avatar.isDashingUp()){
+            action = 3;
+        }
         if (avatar.isFalling() && !holdingHands) { //! CHANGE CODE HERE WHEN ADD ASSET 4 TO HANDHOLDING!
             action = 4; // Falling
         }
@@ -321,9 +327,61 @@ public class MovementController implements ContactListener {
     }
 
     /**
+     * return whether somni and phobia are within range to hold hands
+     */
+    protected boolean canHoldHands(){
+        if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
+            canHoldHands = true;
+        } else {
+            canHoldHands = false;
+        }
+
+        return canHoldHands;
+    }
+
+    /**
+     * set whether the characters have just separated for animation purposes
+     * @param value
+     */
+    protected void setJustSeparated(boolean value){
+        justSeparated = value;
+    }
+
+    /**
+     * returns whether the characters have just separated
+     */
+    protected boolean justSeparated(){
+        return justSeparated;
+    }
+
+    /**
+     * Returns whether the moving characters is facing the idle character
+     * for animation purposes
+     * 0 = true, 1 = false
+     */
+    protected int faceTowards(){
+        if (lead == somni){
+            if ((somni.isFacingRight() && somni.getX() <= phobia.getX()) ||
+                    (!somni.isFacingRight() && somni.getX() >= phobia.getX())) {
+                return 0;
+            }else {
+                return 1;
+            }
+        } else {
+            if ((phobia.isFacingRight() && phobia.getX() <= somni.getX()) ||
+                    (!phobia.isFacingRight() && phobia.getX() >= somni.getX())) {
+                return 0;
+            }else {
+                return 1;
+            }
+        }
+    }
+
+    /**
      * Stops holding hands
      */
     private void endHoldHands() {
+        justSeparated = true;
         somni.setActive(true);
         phobia.setActive(true);
         combined.setActive(false);
