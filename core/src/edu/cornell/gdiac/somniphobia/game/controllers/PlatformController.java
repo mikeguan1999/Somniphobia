@@ -1281,7 +1281,8 @@ public class PlatformController extends WorldController {
 		alphaWhite.a = alphaAmount;
 		canvas.begin();
 		for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
-			((SimpleObstacle) obj).drawWithTint(canvas, alphaWhite);
+//			((SimpleObstacle) obj).drawWithTint(canvas, alphaWhite);
+			((PlatformModel) obj).drawWithTint(canvas, alphaWhite);
 		}
 		canvas.end();
 
@@ -1291,7 +1292,7 @@ public class PlatformController extends WorldController {
 
 			// Ignore characters which we draw separately
 			if (!(obj instanceof CharacterModel)) {
-				obj.draw(canvas);
+				(obj).draw(canvas);
 			}
 		}
 		canvas.end();
