@@ -730,7 +730,7 @@ public class PlatformController extends WorldController {
 //			selector = 2;
 			// Setup platforms
 			JsonValue platformArgs = obj.get("positions");
-			JsonValue pathsArgs = obj.get("path");
+			JsonValue pathsArgs = obj.get("paths");
 
 
 			int property = obj.get("property") == null ?  0: obj.get("property").asInt();
@@ -783,8 +783,6 @@ public class PlatformController extends WorldController {
 				if (pathsArgs != null) {
 					float[] paths = pathsArgs.get(j).asFloatArray();
 
-
-
 					//** Moving platform if > 1 path or different path from starting position
 					if (paths.length > 2 || paths[0] != x || paths[1] != y) {
 						platformModel.setBodyType(BodyDef.BodyType.KinematicBody);
@@ -811,8 +809,8 @@ public class PlatformController extends WorldController {
 
 		// Set level background index
 		int backgroundTextureIndex = levelAssets.get("background").asInt();
-		backgroundLightTexture = backgrounds[backgroundTextureIndex];
-		backgroundDarkTexture = backgrounds[backgroundTextureIndex + 1];
+		backgroundLightTexture = backgrounds[backgroundTextureIndex - 1];
+		backgroundDarkTexture = backgrounds[backgroundTextureIndex];
 		backgroundTexture = backgroundLightTexture;
 
 		// Set level bounds
@@ -1379,10 +1377,7 @@ public class PlatformController extends WorldController {
 	}
 
 	/**
-	 * adds objects to correct list
-	 * 0 for shared
-	 * 1 for light
-	 * else for dark
+	 * Adds objects to their respective lists
 	 * @param obj obstacle to add
 	 * @param l index
 	 */

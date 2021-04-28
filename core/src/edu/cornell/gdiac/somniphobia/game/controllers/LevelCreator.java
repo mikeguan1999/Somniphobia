@@ -71,7 +71,7 @@ public class LevelCreator extends WorldController {
     private TextureRegion lightTexture;
     private TextureRegion darkTexture;
     private TextureRegion allTexture;
-    private TextureRegion damageTexture;
+    private TextureRegion harmTexture;
     private TextureRegion crumbleTexture;
     private TextureRegion vertexTexture;
     private TextureRegion somniTexture;
@@ -101,9 +101,9 @@ public class LevelCreator extends WorldController {
     private ImageTextButton lightPlatformSelect;
     private ImageTextButton darkPlatformSelect;
     private ImageTextButton allPlatformSelect;
-    private ImageTextButton movingPlatformSelect;
+    private ImageTextButton normalPlatformSelect;
     private ImageTextButton crumblePlatformSelect;
-    private ImageTextButton lightningPlatformSelect;
+    private ImageTextButton harmingPlatformSelect;
 
     private ImageTextButton widthInc;
     private ImageTextButton widthDec;
@@ -175,11 +175,11 @@ public class LevelCreator extends WorldController {
         obj.setDrawScale(scale);
         TextureRegion newXTexture;
         if(platform.type < somniTag) {
-            newXTexture = new TextureRegion(platTexture[platform.type]);
+            newXTexture = new TextureRegion(platTexture[platform.type-1]);
             float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
             newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
         } else {
-            newXTexture = platTexture[platform.type];
+            newXTexture = platTexture[platform.type-1];
         }
         if(platform.type == vertexPlatformTag){
             newXTexture = vertices[(platform.reference.path.size()-1)%6];
@@ -364,31 +364,25 @@ public class LevelCreator extends WorldController {
             }
         });
 
-        movingPlatformSelect = new ImageTextButton("Move", selectButtonStyle);
-        movingPlatformSelect.addListener(new ClickListener() {
+        normalPlatformSelect = new ImageTextButton("Normal", selectButtonStyle);
+        normalPlatformSelect.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                movingPlatform = movingPlatformSelect.isChecked();
+                setProperty(PlatformModel.normal);
+            }
+        });
+        normalPlatformSelect.setChecked(true);
+
+        harmingPlatformSelect = new ImageTextButton("Harm", selectButtonStyle);
+        harmingPlatformSelect.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                setProperty(PlatformModel.harming);
             }
         });
 
-        lightningPlatformSelect = new ImageTextButton("Damage", selectButtonStyle);
-        lightningPlatformSelect.addListener(new ClickListener() {
-            public void clicked(InputEvent event, float x, float y) {
-                if(lightningPlatformSelect.isChecked()) {
-                    selectedProperty = 0;
-                } else {
-                    setProperty(PlatformModel.harming);
-                }
-            }
-        });
         crumblePlatformSelect = new ImageTextButton("Crumble", selectButtonStyle);
         crumblePlatformSelect.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                if(crumblePlatformSelect.isChecked()) {
-                    selectedProperty = 0;
-                } else {
-                    setProperty(PlatformModel.crumbling);
-                }
+                setProperty(PlatformModel.crumbling);
             }
         });
         
@@ -477,7 +471,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String fileName = String.format("drafts/%s.json", loadPath.getText());
-                LevelSerializer.serialize(fileName, currBackground, worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize(fileName, currBackground + 1, worldWidth, worldHeight, platformList);
             }
         });
 
@@ -485,7 +479,7 @@ public class LevelCreator extends WorldController {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                LevelSerializer.serialize("levels/level0.json", currBackground, worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize("levels/level0.json", currBackground + 1, worldWidth, worldHeight, platformList);
             }
         });
 
@@ -535,10 +529,10 @@ public class LevelCreator extends WorldController {
         platformParamTable.add(darkPlatformSelect).pad(0,5,5,5);
         platformParamTable.add(allPlatformSelect).pad(0,5,5,5);
         platformParamTable.row();
+        platformParamTable.add(normalPlatformSelect).pad(0,5,5,5);
         platformParamTable.add(crumblePlatformSelect).pad(0,5,5,5);
-        platformParamTable.add(lightningPlatformSelect).pad(0,5,5,5);
+        platformParamTable.add(harmingPlatformSelect).pad(0,5,5,5);
         platformParamTable.row();
-        platformParamTable.add(movingPlatformSelect).pad(0,5,5,5);
         platformParamTable.add(addMovementPlatform).pad(0,5,5,5);
         platformParamTable.row();
         platformParamTable.add(labelDimension).colspan(3).center();
@@ -619,8 +613,9 @@ public class LevelCreator extends WorldController {
      */
     public void setProperty(int tag) {
         if (selectedObstacle instanceof Platform) {
+            normalPlatformSelect.setChecked(tag == PlatformModel.normal);
             crumblePlatformSelect.setChecked(tag == PlatformModel.crumbling);
-            lightningPlatformSelect.setChecked(tag == PlatformModel.harming);
+            harmingPlatformSelect.setChecked(tag == PlatformModel.harming);
             selectedProperty = tag;
         }
 
@@ -814,7 +809,7 @@ public class LevelCreator extends WorldController {
         };
 
 
-        TextureRegion[] temp = {lightTexture,darkTexture,allTexture, lightTexture, lightTexture,somniTexture, phobiaTexture, goalTexture, vertexTexture};
+        TextureRegion[] temp = {lightTexture,darkTexture,allTexture,somniTexture, phobiaTexture, goalTexture, vertexTexture};
         platTexture = temp;
 
         sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
@@ -914,6 +909,7 @@ public class LevelCreator extends WorldController {
                             if (object.hasInCommon(platform.type, assetName, platform.property)) {
                                 // If so, add it to that group
                                 object.positions.add(platform.pos);
+                                object.paths.add(extractPath(platform.path));
                                 unique = false;
                             }
                         }
