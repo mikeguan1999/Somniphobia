@@ -121,6 +121,8 @@ public class MenuScrollable implements Screen {
 	private TextureRegionDrawable[] upImages = new TextureRegionDrawable[numLevels];
 	private TextureRegionDrawable[] overImages = new TextureRegionDrawable[numLevels];
 	private TextureRegion background = new TextureRegion(new Texture("menu\\selection_background1.png"));
+	private TextureRegionDrawable titleDrawable;
+	private Texture titleTexture;
 	private int[] zIndices;
 
 	public Stage getStage(){
@@ -177,9 +179,11 @@ public class MenuScrollable implements Screen {
 		table = new Table();
 		table.setFillParent(true);
 
-		TextureRegionDrawable titleDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\dream_selection.png")));
+		titleTexture = new Texture(Gdx.files.internal("menu\\dream_selection.png"));
+		titleDrawable = new TextureRegionDrawable(titleTexture);
 		Image titleImage = new Image(titleDrawable);
 		table.add(titleImage).colspan(numLevels+4).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
+		titleImage.setVisible(false);
 		table.row();
 //
 //		for (int i=startIndex; i<startIndex+numLevels; i++) {
@@ -304,6 +308,7 @@ public class MenuScrollable implements Screen {
 	private void update(float delta) {
 		stage.getBatch().begin();
 		stage.getBatch().draw(background, camera.position.x-canvas.getWidth()/2, camera.position.y-canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight());
+		stage.getBatch().draw(titleTexture, camera.position.x-canvas.getWidth()/4, camera.position.y+canvas.getHeight()/4, TITLE_WIDTH, TITLE_HEIGHT);
 		stage.getBatch().end();
 
 		if (first) {
