@@ -78,7 +78,7 @@ public class PlatController {
     public void applyFilters(PooledList<Obstacle> objects){
         for( Obstacle o : objects){
             if(o instanceof PlatformModel){
-                o.setFilterData(filters[o.getTag()]);
+                o.setFilterData(filters[o.getTag() - 1]);
             }
         }
     }
@@ -96,13 +96,11 @@ public class PlatController {
             PlatformModel platform = (PlatformModel) obstacle;
             Vector2 position = vector.set(platform.getLeftX(), platform.getBottomY());;
             PooledList<Vector2> paths = platform.getPaths();
-
             Vector2 nextDestination = paths.getHead();
 
-
             //if overshot (destination - position opposite sign as velocity), switch destination
-            if (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) ||
-            Math.signum(nextDestination.y - position.y) != Math.signum(platform.getLinearVelocity().y)) {
+            if (!obstacle.getLinearVelocity().isZero() && (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) ||
+            Math.signum(nextDestination.y - position.y) != Math.signum(platform.getLinearVelocity().y))) {
                 position.set(nextDestination);
             }
 
@@ -113,6 +111,7 @@ public class PlatController {
             }
 
             Vector2 nextPath = vector2.set(nextDestination).sub(position).nor();
+            if (nextPath.isZero()) platform.setVelocity(0);
             platform.setLinearVelocity(nextPath.scl(platform.getVelocity()));
 
         }
