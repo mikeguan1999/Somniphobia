@@ -905,7 +905,7 @@ public class PlatformController extends WorldController {
 		offsetsX = new float[]{12, 19, 0, 0, 15};
 		offsetsY = new float[]{0, 0, 0, 0, 0};
 		secOffsetsX = new float[]{-20, -16, 52, 60, -18, 50};
-		secOffsetsY = new float[]{0, 0, -20, 0, 0, -20};
+		secOffsetsY = new float[]{0, 0, -80, -60, 0, -20};
 		thirdOffsetsX = new float[]{0, -18, -22, -22, 0,   10, -15, 0, 0, 5,   0, -20, 0, 0, -2};
 		thirdOffsetsY = new float[]{0, 0, 0, 0, 0};
 		dashAngles = new float[] {0, 0, -1.55f, 0f};
@@ -1318,7 +1318,7 @@ public class PlatformController extends WorldController {
 			else{
 				if(lead == somni){
 					// draw somni
-					if (action == 2 || action ==3) {
+					if ((action == 2 || action ==3 )&& !movementController.justSeparated()) {
 						int facing = somni.isFacingRight()? 1:-1;
 						//draw somni with small dash ring
 						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
@@ -1336,45 +1336,56 @@ public class PlatformController extends WorldController {
 					}
 
             	// draw phobia
-				if ((action == 2 || action == 3) && movementController.justSeparated()){
-					// draw phobia and a propelling hand
-					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
-							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-				}else{
-					// only draw phobia
-					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
-				}
-
-            }else{
-            	// draw the leading character phobia
-            	if (action == 2 || action == 3){
-					int facing = somni.isFacingRight()? 1:-1;
-            		// draw phobia with small dash ring
-					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-							blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
-				} else {
-					if (movementController.canHoldHands()){
-						// phobia reaches out hand when somni within distance
-						int f = movementController.faceTowards();
-						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-								phobiaHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+					if (action == 2  && movementController.justPropelled()){
+						// draw phobia and a propelling hand
+						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+								blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+					} else if (action == 3 && movementController.justPropelled()) {
+						// draw phobia and an upward propelling hand
+						int facing = phobia.isFacingRight()? 1:-1;
+						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+								blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], facing*propelAngles[action]);
 					} else {
 						// only draw phobia
-						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
 					}
-				}
 
-            	// draw the idle character somni
-                if ((action == 2 || action == 3) && movementController.justSeparated()){
-					// draw somni with a propelling hand
-					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
-							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-				} else {
-					// only draw somni
-					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
-				}
+            }else{
+					// draw the leading character phobia
+					if ((action == 2 || action == 3) && !movementController.justSeparated()){
+						int facing = phobia.isFacingRight()? 1:-1;
+						// draw phobia with small dash ring
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
+					} else {
+						if (movementController.canHoldHands()){
+							// phobia reaches out hand when somni within distance
+							int f = movementController.faceTowards();
+							phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+									phobiaHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+						} else {
+							// only draw phobia
+							phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+						}
+					}
+
+					// draw the idle character somni
+					if (action == 2  && movementController.justPropelled()){
+						// draw somni with a propelling hand
+						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
+								yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+					} else if (action == 3 && movementController.justPropelled()) {
+						int facing = somni.isFacingRight()? 1:-1;
+						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+								yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], facing*propelAngles[action]);
+					} else {
+						// only draw somni
+						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
+					}
+
             }
-            movementController.setJustSeparated(false);
+				movementController.setJustSeparated(false);
+				movementController.setJustPropelled(false);
         }
 
 			// Set camera position bounded by the canvas size

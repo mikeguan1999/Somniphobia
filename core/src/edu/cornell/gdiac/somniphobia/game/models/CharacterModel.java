@@ -480,6 +480,8 @@ public class CharacterModel extends CapsuleObstacle {
 		return true;
 	}
 
+	public boolean isRingCycleComplete(){return ringCycleComplete;}
+	public void setRingCycleComplete(boolean value){ringCycleComplete = value;}
 	/**
 	 * Allows for animated character motions. It sets the texture to prepare to draw.
 	 *
@@ -594,8 +596,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 */
 	public void setTexture(TextureRegion textureRegion, float animationSpeed, double framePixelWidth, float offsetX, float offsetY,
 						   TextureRegion secTextureRegion, float secAnimationSpeed, double secFramePixelWidth, float secOffsetX, float secOffsetY, float angle) {
-		if (ringCycleComplete)
-			ringCycleComplete = false;
+		ringCycleComplete = false;
 
 		// first animation
 		this.animationSpeed = animationSpeed;
@@ -734,9 +735,9 @@ public class CharacterModel extends CapsuleObstacle {
 			secAnimeframe = 0;
 		}
 
-		if (ringAnimeframe > 6 ){
+		if (ringAnimeframe >= 6 ){
 			ringCycleComplete = true;
-			ringAnimeframe = -0.01f;
+			ringAnimeframe = 0;
 		}
 		if (!ringCycleComplete){
 			ringAnimeframe += secAnimationSpeed;
@@ -813,7 +814,7 @@ public class CharacterModel extends CapsuleObstacle {
 		if (secTexture!=null && thirdTexture==null && !ringCycleComplete) {
 			secAnimator.setFrame((int)ringAnimeframe);
 			// draw the blue ring animation
-			canvas.draw(secAnimator, Color.WHITE, secOrigin.x+secOffsetX, secOrigin.y+secOffsetY,getX()*drawScale.x,getY()*drawScale.y,angle,
+			canvas.draw(secAnimator, Color.WHITE, secOrigin.x+secOffsetX, secOrigin.y+secOffsetY+60,getX()*drawScale.x,getY()*drawScale.y,angle,
 					effect, 1.0f);
 		}
 		if (secTexture==null && thirdTexture!=null) {

@@ -59,6 +59,11 @@ public class MovementController implements ContactListener {
 
     private boolean canHoldHands;
     private boolean justSeparated;
+    private boolean justPropelled;
+    /** Determines how long justSeparated remain true */
+    private int separationCoolDown;
+    /** Determines how long justSeparated remain true */
+    private static final int SEPARATION_COOL_DOWN = 24;
 
 
     /**
@@ -275,6 +280,8 @@ public class MovementController implements ContactListener {
             handleHoldingHands();
         }
 
+        separationCoolDown = Math.max(0, separationCoolDown-1);
+
         return action;
 //        if(holdingHands){
 //            if(lead == somni){
@@ -344,7 +351,16 @@ public class MovementController implements ContactListener {
      * @param value
      */
     protected void setJustSeparated(boolean value){
-        justSeparated = value;
+        if (separationCoolDown<=0 && !value)
+            justSeparated = value;
+    }
+
+    /**
+     * set whether the characters have just propelled for animation purposes
+     * @param value
+     */
+    protected void setJustPropelled(boolean value){
+        justPropelled = value;
     }
 
     /**
@@ -352,6 +368,13 @@ public class MovementController implements ContactListener {
      */
     protected boolean justSeparated(){
         return justSeparated;
+    }
+
+    /**
+     * returns whether the characters have just propelled
+     */
+    protected boolean justPropelled(){
+        return justPropelled;
     }
 
     /**
@@ -381,7 +404,12 @@ public class MovementController implements ContactListener {
      * Stops holding hands
      */
     private void endHoldHands() {
-        justSeparated = true;
+        if (separationCoolDown<=0){
+            separationCoolDown = SEPARATION_COOL_DOWN;
+            justSeparated = true;
+        }
+        justPropelled = true;
+
         somni.setActive(true);
         phobia.setActive(true);
         combined.setActive(false);
