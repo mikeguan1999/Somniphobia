@@ -282,7 +282,7 @@ public class PlatformController extends WorldController {
 	private final int UNDERLINE_WIDTH_OFFSET = 10;
 	private final int UNDERLINE_HEIGHT_OFFSET = 0;
 	private final int UNDERLINE_OFFSETX = -5;
-	private final int UNDERLINE_OFFSETY = -40;
+	private final int UNDERLINE_OFFSETY = -60;
 	private final int PAUSE_MENU_POSITION_SCALE = 4;
 
 	Label.LabelStyle labelStyle;
@@ -1320,7 +1320,7 @@ public class PlatformController extends WorldController {
 			else{
 				underline.setVisible(false);
 			}
-			if (movementController.getAvatar()==somni){
+			if (movementController.getAvatar()==somni || movementController.getLead()==somni){
 				pauseMenu.setBackground(blueRectangle);
 				exitButton.getStyle().up = blueExit;
 				resumeButton.getStyle().up = blueResume;
@@ -1345,7 +1345,7 @@ public class PlatformController extends WorldController {
 			firstTimeRenderedPauseButton = false;
 		}
 		else{
-			if (movementController.getAvatar()==somni){
+			if (movementController.getAvatar()==somni || movementController.getLead()==somni){
 				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_button.png");
 			}
 			else{
