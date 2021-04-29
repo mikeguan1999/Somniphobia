@@ -385,13 +385,6 @@ public class PlatformController extends WorldController {
 	public void createModalWindow() {
 		Viewport viewport = canvas.getViewPort();
 		pauseMenuStage = new Stage(viewport);
-	}
-
-	/**
-	 * Creates sliders to adjust game constants.
-	 */
-	public void createPauseWindow() {
-		pauseMenuStage= new Stage(new ScreenViewport(camera));
 		pauseMenu = new Table();
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
@@ -417,7 +410,6 @@ public class PlatformController extends WorldController {
 		orangeExit = createDrawable("pause_menu\\exit_orange.png");
 		orangeResume = createDrawable("pause_menu\\resume_orange.png");
 		orangeRestart = createDrawable("pause_menu\\restart_orange.png");
-
 
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -445,11 +437,12 @@ public class PlatformController extends WorldController {
 
 	}
 
+	/**
+	 * Resets the position of the pauseMenu relative to the camera's position
+	 */
 	public void setPositionPauseMenu(){
 		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 	}
-
-
 
 	public void createFailWindow() {
 		failMenuStage = new Stage(new ScreenViewport(camera));
@@ -1287,7 +1280,7 @@ public class PlatformController extends WorldController {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		if (!pauseMenuActive()) {
+		if (!(pauseMenuActive() || isComplete() || isFailure())) {
 			action = movementController.update();
 			platController.update(dt);
 
@@ -1335,47 +1328,47 @@ public class PlatformController extends WorldController {
 						}
 					}
 
-            	// draw phobia
-				if ((action == 2 || action == 3) && movementController.justSeparated()){
-					// draw phobia and a propelling hand
-					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
-							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-				}else{
-					// only draw phobia
-					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
-				}
-
-            }else{
-            	// draw the leading character phobia
-            	if (action == 2 || action == 3){
-					int facing = somni.isFacingRight()? 1:-1;
-            		// draw phobia with small dash ring
-					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-							blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
-				} else {
-					if (movementController.canHoldHands()){
-						// phobia reaches out hand when somni within distance
-						int f = movementController.faceTowards();
-						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-								phobiaHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
-					} else {
+					// draw phobia
+					if ((action == 2 || action == 3) && movementController.justSeparated()){
+						// draw phobia and a propelling hand
+						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+								blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+					}else{
 						// only draw phobia
-						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
+					}
+
+				}else{
+					// draw the leading character phobia
+					if (action == 2 || action == 3){
+						int facing = somni.isFacingRight()? 1:-1;
+						// draw phobia with small dash ring
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
+					} else {
+						if (movementController.canHoldHands()){
+							// phobia reaches out hand when somni within distance
+							int f = movementController.faceTowards();
+							phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+									phobiaHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+						} else {
+							// only draw phobia
+							phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+						}
+					}
+
+					// draw the idle character somni
+					if ((action == 2 || action == 3) && movementController.justSeparated()){
+						// draw somni with a propelling hand
+						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
+								yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+					} else {
+						// only draw somni
+						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
 					}
 				}
-
-            	// draw the idle character somni
-                if ((action == 2 || action == 3) && movementController.justSeparated()){
-					// draw somni with a propelling hand
-					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
-							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-				} else {
-					// only draw somni
-					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
-				}
-            }
-            movementController.setJustSeparated(false);
-        }
+				movementController.setJustSeparated(false);
+			}
 
 			// Set camera position bounded by the canvas size
 			camera = canvas.getCamera();
@@ -1450,7 +1443,7 @@ public class PlatformController extends WorldController {
 	 * @param character The character to center the mask on
 	 */
 	private void drawMask(TextureRegion mask, Texture background, float cameraX, float cameraY, float maskWidth,
-						 float maskHeight, CharacterModel character) {
+						  float maskHeight, CharacterModel character) {
 		updateMaskPosition(maskWidth, maskHeight, character);
 		canvas.beginCustom(GameCanvas.BlendState.OPAQUE, GameCanvas.ChannelState.ALPHA);
 		if(background != null) {
@@ -1537,7 +1530,7 @@ public class PlatformController extends WorldController {
 	 * @param character The character to center the mask on
 	 */
 	private void drawSpiritObjects(float cameraX, float cameraY, float maskWidth, float maskHeight,
-								  int platformKind, CharacterModel character) {
+								   int platformKind, CharacterModel character) {
 		// Start with the mask to properly draw things within a spirit's realm
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, character);
 
@@ -1791,14 +1784,14 @@ public class PlatformController extends WorldController {
 				resumeButton.getStyle().up = blueResume;
 				restartButton.getStyle().up = blueRestart;
 				underline.setDrawable(blueUnderline);
-				}
+			}
 			else{
 				pauseMenu.setBackground(orangeRectangle);
 				exitButton.getStyle().up = orangeExit;
 				resumeButton.getStyle().up = orangeResume;
 				restartButton.getStyle().up = orangeRestart;
 				underline.setDrawable(orangeUnderline);
-				}
+			}
 
 			Gdx.input.setInputProcessor(pauseMenuStage);
 		}
@@ -1823,54 +1816,6 @@ public class PlatformController extends WorldController {
 			Gdx.input.setInputProcessor(pauseButtonStage);
 		}
 		canvas.end();
-
-		//JENNA
-
-		canvas.begin();
-		if (pauseMenuActive()) {
-			if (firstTimeRenderedPauseMenu) {
-				createPauseWindow();
-				firstTimeRenderedPauseMenu = false;
-			} else {
-				setPositionMenu(pauseMenu);
-				pauseMenuStage.draw();
-				pauseMenuStage.act(dt);
-//				drawModalWindow();
-			}
-			if (movementController.getAvatar()==somni){
-				pauseMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resume.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
-			}
-			else{
-				pauseMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resumeorange.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
-			}
-
-			Gdx.input.setInputProcessor(pauseMenuStage);
-		}
-		canvas.end();
-
-		canvas.begin();
-		if (firstTimeRenderedPauseButton){
-			createPauseButton();
-			firstTimeRenderedPauseButton = false;
-		}
-		else{
-			drawPauseButton();
-		}
-
-		if (!pauseMenuActive() && gameScreenActive){
-			Gdx.input.setInputProcessor(pauseButtonStage);
-		}
-		canvas.end();
-
-
-		//END JENNA
-
 
 		// Draw debug if active
 		if (isDebug()) {
