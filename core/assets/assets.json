@@ -45,6 +45,46 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:rain_cloud_all": {
+      "file": "platform/Raining_White.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_dark": {
+      "file": "platform/Raining_Blue.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_light": {
+      "file": "platform/Raining_Red.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_purple": {
+      "file": "platform/Raining_Purple.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_all": {
+      "file": "platform/LightningStrike_White.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_dark": {
+      "file": "platform/LightningStrike_Blue.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_light": {
+      "file": "platform/LightningStrike_Red.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_purple": {
+      "file": "platform/LightningStrike_Purple.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
     "shared:goalOLD": "platform/DoorOLD.png",

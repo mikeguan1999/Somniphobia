@@ -173,9 +173,7 @@ public class PlatformModel extends BoxObstacle {
         if(animeframe > numAnimFrames) {
             animeframe -= numAnimFrames;
         }
-//        this.origin.set(texture.getRegionWidth()/2.0f, texture.getRegionHeight()/2.0f);
-//        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
-        origin = new Vector2(texture.getRegionWidth()/2.0f, texture.getRegionHeight()/2.0f);
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
         radius = animator.getRegionHeight() / 2.0f;
     }
 
@@ -188,15 +186,9 @@ public class PlatformModel extends BoxObstacle {
     public void draw(GameCanvas canvas) {
         if (texture != null) {
             animator.setFrame((int)animeframe);
-            TextureRegion tempTex = new TextureRegion(actualTexture);
-//            canvas.draw(tempTex, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
-//                    1.0f, 1.0f);
             canvas.draw(animator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
-//        if (texture != null) {
-//            canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.x,getAngle(),1,1);
-//        }
     }
 
     /**
@@ -209,15 +201,9 @@ public class PlatformModel extends BoxObstacle {
     public void drawWithTint(GameCanvas canvas, Color tint) {
         if (texture != null) {
             animator.setFrame((int)animeframe);
-            TextureRegion tempTex = new TextureRegion(actualTexture);
-//            canvas.draw(tempTex, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
-//                    1.0f, 1.0f);
             canvas.draw(animator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
-//        if (texture != null) {
-//            canvas.draw(texture,tint,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.x,getAngle(),1,1);
-//        }
     }
 
     public void update(float dt) {

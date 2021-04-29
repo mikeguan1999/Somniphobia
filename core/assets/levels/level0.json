@@ -32,12 +32,12 @@
 	},
 	{
 		"type": "light",
-		"assetName": "shared:light",
+		"assetName": "shared:dark",
 		"positions": [
-			[ 16, 8, 5, 1 ]
+			[ 16, 6, 5, 1 ]
 		],
 		"paths": [
-			[16, 8, 20, 8]
+			[16, 6, 20, 6]
 		],
 		"property": 2
 	}
