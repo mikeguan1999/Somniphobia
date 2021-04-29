@@ -168,7 +168,8 @@ public class PlatformModel extends BoxObstacle {
             entirePixelWidth = framePixelWidth;
         }
         numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
-        animator = new FilmStrip(actualTexture,1, numAnimFrames, numAnimFrames);
+
+        animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
         if(animeframe > numAnimFrames) {
             animeframe -= numAnimFrames;
         }
@@ -187,11 +188,10 @@ public class PlatformModel extends BoxObstacle {
     public void draw(GameCanvas canvas) {
         if (texture != null) {
             animator.setFrame((int)animeframe);
-            System.out.println(animeframe);
             TextureRegion tempTex = new TextureRegion(actualTexture);
 //            canvas.draw(tempTex, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 //                    1.0f, 1.0f);
-            canvas.draw(tempTex, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+            canvas.draw(animator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
 //        if (texture != null) {
@@ -209,11 +209,10 @@ public class PlatformModel extends BoxObstacle {
     public void drawWithTint(GameCanvas canvas, Color tint) {
         if (texture != null) {
             animator.setFrame((int)animeframe);
-            System.out.println(animeframe);
             TextureRegion tempTex = new TextureRegion(actualTexture);
 //            canvas.draw(tempTex, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 //                    1.0f, 1.0f);
-            canvas.draw(tempTex, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+            canvas.draw(animator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
 //        if (texture != null) {
