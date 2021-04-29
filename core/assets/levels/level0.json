@@ -15,32 +15,40 @@
 		"type": 1,
 		"assetName": 8,
 		"positions": [
-			[ 22, 19, 7, 7 ]
+			[ 25, 20, 1, 1 ]
 		],
 		"paths": [
-			[ 22, 19 ]
+			[ 25, 20 ]
 		]
 	},
 	{
 		"type": 1,
 		"assetName": 9,
 		"positions": [
-			[ 40, 5, 8, 8 ]
+			[ 43, 9, 2, 2 ]
 		],
 		"paths": [
-			[ 40, 5 ]
+			[ 43, 9 ]
 		]
 	},
 	{
 		"type": 2,
-		"assetName": "shared:dark",
+		"assetName": 4,
 		"positions": [
-			[ 59, 19, 7, 7 ],
-			[ 40, 19, 8, 8 ]
+			[ 62, 20, 1, 1 ]
 		],
 		"paths": [
-			[ 59, 19 ],
-			[ 40, 19 ]
+			[ 62, 20 ]
+		]
+	},
+	{
+		"type": 2,
+		"assetName": 11,
+		"positions": [
+			[ 50, 20, 1, 1 ]
+		],
+		"paths": [
+			[ 50, 20 ]
 		]
 	},
 	{

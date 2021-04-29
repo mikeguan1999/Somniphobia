@@ -1006,7 +1006,7 @@ public class PlatformController extends WorldController {
 		JsonValue objs = levelAssets.get("objects");
 
 		//group platform constants together for access in following for-loop
-		TextureRegion[] xTexture = {lightTexture, tutorial_signs[0], allTexture};
+		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
 
 
 		// Setup platforms
@@ -1014,74 +1014,25 @@ public class PlatformController extends WorldController {
 		{
 			JsonValue obj = objs.get(i);
 
-			// Determine platform type
-			System.out.println(obj);
+			// Get platform attributes
 			int platformType = obj.get("type").asInt();
-
-			// Apply platform properties
-//			String[] properties = obj.get("properties").asStringArray();
-//			for(String property: properties) {
-//				// TODO: Harming & crumbling platforms
-//			}
-//
-//			// Apply platform behaviors
-//			String[] behaviors = obj.get("behaviors").asStringArray();
-//			for(String behavior: behaviors) {
-//				// TODO: Wandering & chasing platforms
-//			}
-
-
-
-//			selector = 2;
-			// Setup platforms
+			int property = obj.get("property") == null ?  0: obj.get("property").asInt();
 			JsonValue platformArgs = obj.get("positions");
 			JsonValue pathsArgs = obj.get("paths");
-
-
-			int property = obj.get("property") == null ?  0: obj.get("property").asInt();
-
-			//TODO: Testing moving platforms
-//			float[] bounds0 = new float[]{15, 15, 10, 2};
-//			float x0 = bounds0[0], y0 = bounds0[1], width0 = bounds0[2], height0 = bounds0[3];
-//			TextureRegion newXTexture0 = new TextureRegion(xTexture[2]);
-//			newXTexture0.setRegion(x0, y0, x0 + width0, y0 + height0);
-//			PlatformModel platformModel0  = new PlatformModel(bounds0, 2, newXTexture0, scale,
-//					defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
-//					defaults.getFloat( "restitution", 0.0f ));
-//			platformModel0.setTag(2);
-//			addObject(platformModel0);
-//			addObjectTo(platformModel0, 2);
-//			platformModel0.setBodyType(BodyDef.BodyType.KinematicBody);
-//			PooledList<Vector2> paths = new PooledList<>();
-//			paths.add(new Vector2(15, 15));
-//			paths.add(new Vector2(20,20));
-//			paths.add(new Vector2(25,15));
-//			paths.add(new Vector2(20,10));
-//
-//			platformModel0.setSpiked(true);
-//			platformModel0.setRaining(true);
-//			float velocity = 2;
-//
-////			platformModel0.setGravityScale(0);
-//			platformModel0.setPaths(paths);
-//			platformModel0.setVelocity(velocity);
-//
-////			movingObjects.add(platformModel0);
-//			//TODO: Testing moving platforms
-
 
 			for (int j = 0; j < platformArgs.size; j++) {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
 				TextureRegion newXTexture;
 				try {
+					// temporary - need to refactor asset directory
 					JsonValue assetName = obj.get("assetName");
 					int assetIndex = assetName.asInt();
-					newXTexture = tutorial_signs[assetIndex];
+					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
 					newXTexture = new TextureRegion(xTexture[platformType-1]);
+					newXTexture.setRegion(x, y, x + width, y + height);
 				}
-				newXTexture.setRegion(x, y, x + width, y + height);
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
 						defaults.getFloat( "restitution", 0.0f ));
@@ -1104,7 +1055,7 @@ public class PlatformController extends WorldController {
 						for (int k = 0; k < paths.length; k+=2) {
 							pathList.add(new Vector2(paths[k], paths[k+1]));
 						}
-						float velocity = 2;
+						float velocity = 3;
 
 						platformModel.setGravityScale(0);
 						platformModel.setPaths(pathList);
