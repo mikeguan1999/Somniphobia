@@ -167,6 +167,10 @@ public class PlatformModel extends BoxObstacle {
         if (entirePixelWidth < framePixelWidth) {
             entirePixelWidth = framePixelWidth;
         }
+        // For something that is not a platform, make it only 1 animation frame
+        if (actualTexture.getHeight() > framePixelWidth*2) {
+            framePixelWidth = entirePixelWidth;
+        }
         numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
 
         animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);

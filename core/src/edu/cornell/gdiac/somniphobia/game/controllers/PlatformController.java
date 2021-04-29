@@ -61,6 +61,18 @@ public class PlatformController extends WorldController {
 	private TextureRegion darkTexture;
 	/** Texture asset for "all" tiles*/
 	private TextureRegion allTexture;
+	/** Texture asset for raining light tiles*/
+	private TextureRegion rainLightTexture;
+	/** Texture asset for raining dark tiles*/
+	private TextureRegion rainDarkTexture;
+	/** Texture asset for raining "all" tiles*/
+	private TextureRegion rainAllTexture;
+	/** Texture asset for lightning light tiles*/
+	private TextureRegion lightningLightTexture;
+	/** Texture asset for lightning dark tiles*/
+	private TextureRegion lightningDarkTexture;
+	/** Texture asset for lightning "all" tiles*/
+	private TextureRegion lightningAllTexture;
 	/** Texture asset for Somni*/
 	private TextureRegion somniTexture;
 	/** Texture asset for Somni's Idle animation*/
@@ -767,6 +779,12 @@ public class PlatformController extends WorldController {
 		lightTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_light", Texture.class ));
 		darkTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_dark", Texture.class ));
 		allTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_all", Texture.class ));
+		rainLightTexture = new TextureRegion(directory.getEntry( "shared:rain_cloud_light", Texture.class ));
+		rainDarkTexture = new TextureRegion(directory.getEntry( "shared:rain_cloud_dark", Texture.class ));
+		rainAllTexture = new TextureRegion(directory.getEntry( "shared:rain_cloud_all", Texture.class ));
+		lightningLightTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light", Texture.class ));
+		lightningDarkTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark", Texture.class ));
+		lightningAllTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all", Texture.class ));
 
 		// Tutorial
 		tutorial_signs = new TextureRegion[]{
@@ -1006,8 +1024,9 @@ public class PlatformController extends WorldController {
 		JsonValue objs = levelAssets.get("objects");
 
 		//group platform constants together for access in following for-loop
-		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
-
+		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture,
+			lightningLightTexture, lightningDarkTexture, lightningAllTexture,
+			rainLightTexture, rainDarkTexture, rainAllTexture};
 
 		// Setup platforms
 		for(int i=0; i < objs.size; i++)
@@ -1030,7 +1049,7 @@ public class PlatformController extends WorldController {
 					int assetIndex = assetName.asInt();
 					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
-					newXTexture = new TextureRegion(xTexture[platformType-1]);
+					newXTexture = new TextureRegion(xTexture[platformType-1+(property - 1)*3]);
 					newXTexture.setRegion(x, y, x + width, y + height);
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
