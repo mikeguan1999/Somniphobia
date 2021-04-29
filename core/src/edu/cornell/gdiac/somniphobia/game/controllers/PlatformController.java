@@ -15,11 +15,11 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -34,19 +34,19 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
-import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.Menu;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
+import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 import org.lwjgl.Sys;
 
-import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Gameplay specific controller for the platformer game.
@@ -110,12 +110,40 @@ public class PlatformController extends WorldController {
 	private TextureRegion phobiaSomniDashSideTexture;
 	/** Texture asset for Somni's Dash up*/
 	private TextureRegion phobiaSomniDashUpTexture;
-	/** Texture asset for dark background*/
-	private TextureRegion backgroundDarkTexture;
-	/** Texture asset for light background*/
-	private TextureRegion backgroundLightTexture;
-	/** Texture asset for background*/
+
+	/** Texture asset for the hands of somni and phobia */
+	private TextureRegion somniPhobiaHandsTexture;
+	/** Texture asset for the hands of phobia and somni */
+	private TextureRegion phobiaSomniHandsTexture;
+	/** Texture asset for phobia's hand and the blue ring in propelling */
+	private TextureRegion blueRingBigTexture;
+	/** Texture asset for somni's hand and the yellow ring in propelling */
+	private TextureRegion yellowRingBigTexture;
+	/** Texture asset for the dashing blue ring */
+	private TextureRegion blueRingSmallTexture;
+	/** Texture asset for the dashing yellow ring */
+	private TextureRegion yellowRingSmallTexture;
+	/** Testure asset for somni's hand reaching out forwards */
+	private TextureRegion somniHandFrontTexture;
+	/** Testure asset for somni's hand reaching out backwards */
+	private TextureRegion somniHandBackTexture;
+	/** Testure asset for phobia's hand reaching out forwards */
+	private TextureRegion phobiaHandFrontTexture;
+	/** Testure asset for phobia's hand reaching out backwards */
+	private TextureRegion phobiaHandBackTexture;
+
+	/** Texture asset for current background*/
 	private TextureRegion backgroundTexture;
+	/** Texture asset for level's light background*/
+	private TextureRegion backgroundLightTexture;
+	/** Texture asset for level's dark background*/
+	private TextureRegion backgroundDarkTexture;
+	/** Texture assets for backgrounds */
+	private TextureRegion[] backgrounds;
+
+	/** Texture asset for tutorial signs */
+	private TextureRegion[] tutorial_signs;
+
 	/** Texture asset list for somni*/
 	private TextureRegion [] somnisTexture;
 	/** Texture asset list for phobia*/
@@ -124,15 +152,41 @@ public class PlatformController extends WorldController {
 	private TextureRegion [] somniphobiasTexture;
 	/** Texture asset list for phobiasomni*/
 	private TextureRegion [] phobiasomnisTexture;
+
+	/** Texture asset list for somnie's hands */
+	private TextureRegion [] somniHandsTextures;
+	/** Texture asset list for phobia's hands */
+	private TextureRegion [] phobiaHandsTextures;
+
 	/** Texture asset list for phobiasomni*/
 	private float[] animationSpeed;
 	private double[] framePixelWidth;
+	private float[] offsetsX;
+	private float[] offsetsY;
+	private float[] secOffsetsX;
+	private float[] secOffsetsY;
+	private float[] thirdOffsetsX;
+	private float[] thirdOffsetsY;
+	private float[] dashAngles;
+	private float[] propelAngles;
 	/** Texture for slider bars*/
 	private Texture sliderBarTexture;
 	private Texture sliderKnobTexture;
+
+	/** Origin for the expanding/shrinking mask */
+	private Vector2 maskOrigin = new Vector2();
 	/** Texture for masking */
 	private TextureRegion circle_mask;
+	/** Texture to cover screen to produce mask effect*/
 	private Texture alpha_background;
+	/** Buffer used to apply 2 blends to one texture*/
+	private FrameBuffer fbo;
+	/** Color used for holding hand fade in effect */
+	private Color alphaWhite = new Color(Color.WHITE);
+	/** Alpha value used for `alphaWhite` */
+	private float alphaAmount = 0.0f;
+	/** Amount to change `alphaAmount` by when holding hands */
+	private float alphaIncrement = 0.05f;
 
 
 	/** Texture asset int for action*/
@@ -175,6 +229,8 @@ public class PlatformController extends WorldController {
 	protected PooledList<Obstacle> lightObjects  = new PooledList<Obstacle>();
 	/** shared objects */
 	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
+	/** moving objects */
+	protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
 
 	private boolean lightclear = false;
 	private boolean darkclear = false;
@@ -193,16 +249,12 @@ public class PlatformController extends WorldController {
 	/** Masking stuff */
 	/** Dimensions for the mask when at its smallest */
 	Vector2 MIN_MASK_DIMENSIONS;
-	/** Max size for the mask to reach to extend off the screen TODO: replace with bounds checking*/
-	float MAX_MASK_SIZE;
 	/** Amount to increase and decrease rift mask size with */
 	float INCREMENT_AMOUNT;
 	/** Current width and height of the mask */
 	float maskWidth, maskHeight;
 	/** Whether or not the mask is in the process of switching*/
 	boolean switching;
-	/** Whether or not the mask is shrinking (switch occurred early on) */
-	boolean shrinking;
 	/** The character to perform the mask effect from */
 	CharacterModel maskLeader;
 
@@ -212,54 +264,43 @@ public class PlatformController extends WorldController {
 
 	protected ObjectSet<Fixture> combinedSensorFixtures;
 	// Platform logic
-	/** This values so light only interacts with light and dark only interacts with dark*/
-	private final short CATEGORY_LPLAT = 0x0001;  //0000000000000001
-	private final short CATEGORY_DPLAT = 0x0002;  //0000000000000010
-	private final short CATEGORY_SOMNI = 0x0004;  //0000000000000100
-	private final short CATEGORY_PHOBIA = 0x0008;	   	  //0000000000001000
-	private final short CATEGORY_COMBINED = 0x0010; 	  //0000000000010000
-	private final short CATEGORY_ALLPLAT = 0x0020;
 
-	private final short MASK_LPLAT = CATEGORY_SOMNI | CATEGORY_COMBINED; //Collides with all
+	private int LIGHT_TAG = 0;
+	private int DARK_TAG = 0;
+	private int ALL_TAG = 0;
+	private int SOMNI_TAG = 0;
+	private int PHOBIA_TAG = 0;
+	private int COMBINED_TAG = 0;
 
-	private final short MASK_DPLAT = CATEGORY_PHOBIA | CATEGORY_COMBINED;
-
-	private final short MASK_SOMNI = CATEGORY_LPLAT | CATEGORY_ALLPLAT;
-	private final short MASK_PHOBIA = CATEGORY_DPLAT | CATEGORY_ALLPLAT;
-	private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
-	private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
-
-	/** pauseMenu table*/
+	//JENNA SETUP
 	private Table pauseMenu;
-	/** pauseMenu stage*/
-	private Stage pauseMenuStage;
-	/** pauseButton stage*/
-	private Stage pauseButtonStage;
-	/** whether pauseMenu is rendered for the first time*/
-	private Boolean firstTimeRendered=true;
-	/** whether pauseButton is rendered for the first time*/
+	private Table failMenu;
+	private Table winMenu;
+	private Boolean firstTimeRenderedPauseMenu=true;
+	private Boolean firstTimeRenderedFailMenu=true;
+	private Boolean firstTimeRenderedWinMenu=true;
 	private Boolean firstTimeRenderedPauseButton = true;
-	/** the exit button on pauseMenu*/
 	private Button exitButton;
-	/** the resume button on pauseMenu*/
 	private Button resumeButton;
-	/** the restart button on pauseMenu*/
 	private Button restartButton;
-	/** the pause button on game screen*/
+	private Button advanceButton;
 	private Button pauseButton;
-	/** the slider on pauseMenu*/
-	private Slider volumeSlider;
-	/** the underline on pauseMenu*/
-	private Image underline;
-	/** whether exit button is clicked*/
 	private boolean exitClicked;
-	/** whether resume button is clicked*/
 	private boolean resumeClicked;
-	/** whether restart button is clicked*/
 	private boolean restartClicked;
-	/** whether the current game screen is active*/
+	private boolean advanceClicked;
+	private Stage pauseMenuStage;
+	private Stage failMenuStage;
+	private Stage winMenuStage;
+	private Stage pauseButtonStage;
 	private boolean gameScreenActive = true;
 
+	//END JENNA
+
+	/** whether pauseMenu is rendered for the first time*/
+	private Boolean firstTimeRendered=true;
+	/** the underline on pauseMenu*/
+	private Image underline;
 	/** pause menu drawables*/
 	private TextureRegionDrawable blueUnderline;
 	private TextureRegionDrawable orangeUnderline;
@@ -344,6 +385,13 @@ public class PlatformController extends WorldController {
 	public void createModalWindow() {
 		Viewport viewport = canvas.getViewPort();
 		pauseMenuStage = new Stage(viewport);
+	}
+
+	/**
+	 * Creates sliders to adjust game constants.
+	 */
+	public void createPauseWindow() {
+		pauseMenuStage= new Stage(new ScreenViewport(camera));
 		pauseMenu = new Table();
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
@@ -369,6 +417,7 @@ public class PlatformController extends WorldController {
 		orangeExit = createDrawable("pause_menu\\exit_orange.png");
 		orangeResume = createDrawable("pause_menu\\resume_orange.png");
 		orangeRestart = createDrawable("pause_menu\\restart_orange.png");
+
 
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -396,12 +445,98 @@ public class PlatformController extends WorldController {
 
 	}
 
-	/**
-	 * Resets the position of the pauseMenu relative to the camera's position
-	 */
 	public void setPositionPauseMenu(){
 		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 	}
+
+
+
+	public void createFailWindow() {
+		failMenuStage = new Stage(new ScreenViewport(camera));
+		failMenu = new Table();
+		failMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		failMenu.setFillParent(true);
+
+		exitButton = createImageButton("pause_menu\\exit.png");
+		resumeButton = createImageButton("pause_menu\\resume.png");
+		restartButton = createImageButton("pause_menu\\restart.png");
+		advanceButton = createImageButton("pause_menu\\restart.png");
+
+		//Buttons needed
+		failMenu.add(exitButton).space(50);
+		failMenu.add(restartButton).space(100);
+
+
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
+
+		restartButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				restartClicked = true;
+			}
+		});
+
+		failMenu.setPosition(camera.position.x, camera.position.y);
+		failMenuStage.addActor(failMenu);
+		failMenu.validate();
+		failMenu.setTransform(true);
+		failMenu.setScale(0.5f);
+
+	}
+
+	public void createWinWindow() {
+		winMenuStage= new Stage(new ScreenViewport(camera));
+		winMenu = new Table();
+		winMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		winMenu.setFillParent(true);
+
+		exitButton = createImageButton("pause_menu\\exit.png");
+		resumeButton = createImageButton("pause_menu\\resume.png");
+		restartButton = createImageButton("pause_menu\\restart.png");
+
+		//JENNA: NEED IMAGE
+		advanceButton = createImageButton("pause_menu\\next.png");
+
+		//Buttons needed
+		winMenu.add(exitButton).space(50);
+		winMenu.add(advanceButton).space(100);
+
+
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
+
+
+		advanceButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				advanceClicked = true;
+			}
+		});
+
+		winMenu.setPosition(camera.position.x, camera.position.y);
+		winMenuStage.addActor(winMenu);
+		winMenu.validate();
+		winMenu.setTransform(true);
+		winMenu.setScale(0.5f);
+
+	}
+
+	public void setPositionMenu(Table menu){
+		menu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
+	}
+
+	//END JENNA
+
+
+//	public void createPauseButton(){
+//		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal()));
+//		Button imgButton= new Button(buttonDrawable);
+//	}
 
 	/**
 	 * Creates sliders to adjust game constants.
@@ -683,9 +818,25 @@ public class PlatformController extends WorldController {
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 
 		// Tiles
-		lightTexture = new TextureRegion(directory.getEntry( "shared:light", Texture.class ));
-		darkTexture = new TextureRegion(directory.getEntry( "shared:dark", Texture.class ));
-		allTexture = new TextureRegion(directory.getEntry( "shared:all", Texture.class ));
+		lightTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_light", Texture.class ));
+		darkTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_dark", Texture.class ));
+		allTexture = new TextureRegion(directory.getEntry( "shared:solidCloud_all", Texture.class ));
+
+		// Tutorial
+		tutorial_signs = new TextureRegion[]{
+				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)),
+				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))
+		};
 
 		// Base models
 		somniTexture  = new TextureRegion(directory.getEntry("platform:somni_stand",Texture.class));
@@ -712,9 +863,29 @@ public class PlatformController extends WorldController {
 		phobiaSomniWalkTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_walk",Texture.class));
 		phobiaSomniDashSideTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_side",Texture.class));
 		phobiaSomniDashUpTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_dash_up",Texture.class));
-		backgroundDarkTexture = new TextureRegion(directory.getEntry("platform:background_dark",Texture.class));
-		backgroundLightTexture = new TextureRegion(directory.getEntry("platform:background_light",Texture.class));
-		backgroundTexture = backgroundLightTexture;
+
+		somniPhobiaHandsTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_hands",Texture.class));
+		phobiaSomniHandsTexture = new TextureRegion(directory.getEntry("platform:phobia_somni_hands",Texture.class));
+		blueRingBigTexture = new TextureRegion(directory.getEntry("platform:blue_ring_big",Texture.class));
+		yellowRingBigTexture = new TextureRegion(directory.getEntry("platform:yellow_ring_big",Texture.class));
+		blueRingSmallTexture = new TextureRegion(directory.getEntry("platform:blue_ring_small",Texture.class));
+		yellowRingSmallTexture = new TextureRegion(directory.getEntry("platform:yellow_ring_small",Texture.class));
+		somniHandFrontTexture = new TextureRegion(directory.getEntry("platform:somni_hand_front",Texture.class));
+		somniHandBackTexture = new TextureRegion(directory.getEntry("platform:somni_hand_back",Texture.class));
+		phobiaHandFrontTexture = new TextureRegion(directory.getEntry("platform:phobia_hand_front",Texture.class));
+		phobiaHandBackTexture = new TextureRegion(directory.getEntry("platform:phobia_hand_back",Texture.class));
+
+		backgrounds = new TextureRegion[] {
+				new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_gear", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_gear", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_dreams", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_dreams", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_house", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
+		};
+
 
 		TextureRegion [] somnis = {somniIdleTexture,somniWalkTexture,somniDashSideTexture,somniDashUpTexture, somniFallTexture};
 		somnisTexture = somnis;
@@ -724,9 +895,22 @@ public class PlatformController extends WorldController {
 		somniphobiasTexture = somniphobias;
 		TextureRegion [] phobiasomnis = {phobiaSomniTexture,phobiaSomniWalkTexture,phobiaSomniDashSideTexture,phobiaSomniDashUpTexture, phobiaSomniDashUpTexture};
 		phobiasomnisTexture = phobiasomnis;
+		TextureRegion [] somniHands = {somniHandFrontTexture, somniHandBackTexture, somniPhobiaHandsTexture};
+		somniHandsTextures = somniHands;
+		TextureRegion [] phobiaHands = {phobiaHandFrontTexture, phobiaHandBackTexture, phobiaSomniHandsTexture};
+		phobiaHandsTextures = phobiaHands;
 
 		animationSpeed = new float[]{0.1f, 0.5f, 0.1f, 0.1f, 0.1f};
 		framePixelWidth = new double[]{32, 64, 32, 32, 32};
+		offsetsX = new float[]{12, 19, 0, 0, 15};
+		offsetsY = new float[]{0, 0, 0, 0, 0};
+		secOffsetsX = new float[]{-20, -16, 52, 60, -18, 50};
+		secOffsetsY = new float[]{0, 0, -20, 0, 0, -20};
+		thirdOffsetsX = new float[]{0, -18, -22, -22, 0,   10, -15, 0, 0, 5,   0, -20, 0, 0, -2};
+		thirdOffsetsY = new float[]{0, 0, 0, 0, 0};
+		dashAngles = new float[] {0, 0, -1.55f, 0f};
+		propelAngles = new float[] {0, 0, 0, 1.55f};
+
 
 		// Setup masking
 		circle_mask = new TextureRegion(directory.getEntry("circle_mask",Texture.class));
@@ -734,7 +918,6 @@ public class PlatformController extends WorldController {
 		MIN_MASK_DIMENSIONS = new Vector2(mask_size).scl(0.125f);
 		maskWidth = MIN_MASK_DIMENSIONS.x;
 		maskHeight = MIN_MASK_DIMENSIONS.y;
-		MAX_MASK_SIZE = MIN_MASK_DIMENSIONS.x * 22.5f;
 		INCREMENT_AMOUNT = 50;
 
 		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
@@ -791,10 +974,14 @@ public class PlatformController extends WorldController {
 		for(Obstacle obj : lightObjects) {
 			obj.deactivatePhysics(world);
 		}
+//		for (Obstacle obj: movingObjects) {
+//			obj.deactivatePhysics(world);
+//		}
 		objects.clear();
 		sharedObjects.clear();
 		lightObjects.clear();
 		darkObjects.clear();
+		movingObjects.clear();
 		addQueue.clear();
 		world.dispose();
 
@@ -818,18 +1005,31 @@ public class PlatformController extends WorldController {
 		camera.update();
 
 		holdingHands = false;
-		backgroundTexture = backgroundLightTexture;
 
-		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, this);
+		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, lightObjects, darkObjects, this);
 		world.setContactListener(movementController);
 
 		movementController.setAvatar(somni);
 		movementController.setLead(somni);
 
+		platController.setMovingObjects(movingObjects);
+
 		maskLeader = phobia;
 		switching = false;
 		maskWidth = MIN_MASK_DIMENSIONS.x;
 		maskHeight = MIN_MASK_DIMENSIONS.y;
+		alphaAmount = 0;
+	}
+
+	/**
+	 * Checks the path of a platform for validity
+	 * @param posX The x position of the platform
+	 * @param posY The y position of the platform
+	 * @param path The path of the platform
+	 * @return Whether or not a platform's path is valid
+	 */
+	public static boolean hasValidPath(float posX, float posY, float[] path) {
+		return path.length > 2 || path[0] != posX || path[1] != posY;
 	}
 
 	/**
@@ -837,18 +1037,6 @@ public class PlatformController extends WorldController {
 	 */
 	private void populateLevel() {
 
-		//create filters
-		Filter lightplatf = new Filter();
-		lightplatf.categoryBits = CATEGORY_LPLAT;
-		lightplatf.maskBits = MASK_LPLAT;
-
-		Filter darkplatf = new Filter();
-		darkplatf.categoryBits = CATEGORY_DPLAT;
-		darkplatf.maskBits = MASK_DPLAT;
-
-		Filter allf = new Filter();
-		allf.categoryBits = CATEGORY_ALLPLAT;
-		allf.maskBits = MASK_ALLPLAT;
 
 		// Setup Goal
 		JsonValue goalVal = levelAssets.get("goal");
@@ -874,7 +1062,6 @@ public class PlatformController extends WorldController {
 
 		//group platform constants together for access in following for-loop
 		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture};
-		Filter[] xPlatf = {lightplatf, darkplatf, allf};
 
 
 		// Setup platforms
@@ -882,105 +1069,113 @@ public class PlatformController extends WorldController {
 		{
 			JsonValue obj = objs.get(i);
 
-			// Determine platform type
-			String platformType = obj.get("type").asString();
-			int selector = -1;
-			switch (platformType) {
-				case "light": selector = LevelCreator.lightTag; break;
-				case "dark": selector = LevelCreator.darkTag; break;
-				case "all": selector = LevelCreator.allTag; break;
-				default: selector = -1; break;
-			}
-
-			// Apply platform properties
-			String[] properties = obj.get("properties").asStringArray();
-			for(String property: properties) {
-				// TODO: Harming & crumbling platforms
-			}
-
-			// Apply platform behaviors
-			String[] behaviors = obj.get("behaviors").asStringArray();
-			for(String behavior: behaviors) {
-				// TODO: Wandering & chasing platforms
-			}
-
-			// Setup platforms
+			// Get platform attributes
+			int platformType = obj.get("type").asInt();
+			int property = obj.get("property") == null ?  0: obj.get("property").asInt();
 			JsonValue platformArgs = obj.get("positions");
+			JsonValue pathsArgs = obj.get("paths");
+
 			for (int j = 0; j < platformArgs.size; j++) {
-				BoxObstacle boxstacle;
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
-				boxstacle = new BoxObstacle(x + width / 2, y + height / 2, width, height);
-				boxstacle.setBodyType(BodyDef.BodyType.StaticBody);
-				boxstacle.setDensity(defaults.getFloat( "density", 0.0f ));
-				boxstacle.setFriction(defaults.getFloat( "friction", 0.0f ));
-				boxstacle.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-				boxstacle.setDrawScale(scale);
-				TextureRegion newXTexture = new TextureRegion(xTexture[selector]);
-				newXTexture.setRegion(x, y, x + width, y + height);
-				boxstacle.setTexture(newXTexture);
-				boxstacle.setFilterData(xPlatf[selector]);
-				addObject(boxstacle);
-				addObjectTo(boxstacle, selector);
+				TextureRegion newXTexture;
+				try {
+					// temporary - need to refactor asset directory
+					JsonValue assetName = obj.get("assetName");
+					int assetIndex = assetName.asInt();
+					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
+				} catch(Exception e) {
+					newXTexture = new TextureRegion(xTexture[platformType-1]);
+					newXTexture.setRegion(x, y, x + width, y + height);
+				}
+				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
+						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
+						defaults.getFloat( "restitution", 0.0f ));
+				platformModel.setTag(platformType);
+				platformModel.setProperty(property);
+				addObject(platformModel);
+				addObjectTo(platformModel, platformType);
+				//TODO: Moving platforms
+
+
+				if (pathsArgs != null) {
+					float[] paths = pathsArgs.get(j).asFloatArray();
+
+					//** Moving platform if > 1 path or different path from starting position
+					if (hasValidPath(x, y, paths)) {
+						platformModel.setBodyType(BodyDef.BodyType.KinematicBody);
+						movingObjects.add(platformModel);
+
+						PooledList<Vector2> pathList = new PooledList<>();
+						for (int k = 0; k < paths.length; k+=2) {
+							pathList.add(new Vector2(paths[k], paths[k+1]));
+						}
+						float velocity = 3;
+
+						platformModel.setGravityScale(0);
+						platformModel.setPaths(pathList);
+						platformModel.setVelocity(velocity);
+
+						movingObjects.add(platformModel);
+					}
+				}
 			}
 		}
 
 		// This world is heavier
 		world.setGravity( new Vector2(0,defaults.getFloat("gravity",0)) );
 
+		// Set level background index
+		int backgroundTextureIndex = levelAssets.get("background").asInt();
+		backgroundLightTexture = backgrounds[backgroundTextureIndex - 1];
+		backgroundDarkTexture = backgrounds[backgroundTextureIndex];
+		backgroundTexture = backgroundLightTexture;
+
 		// Set level bounds
 		widthUpperBound = levelAssets.get("dimensions").getInt(0);
 		heightUpperBound = levelAssets.get("dimensions").getInt(1);
 
 		// Setup Somni
-		Filter somnif = new Filter();
-		somnif.categoryBits = CATEGORY_SOMNI;
-		somnif.maskBits = MASK_SOMNI;
 
 		JsonValue somniVal = levelAssets.get("somni");
 		float sWidth  = somniTexture.getRegionWidth()/scale.x;
 		float sHeight = somniTexture.getRegionHeight()/scale.y;
 		float sX = somniVal.get("pos").getFloat(0) + sWidth / 2;
 		float sY = somniVal.get("pos").getFloat(1) + sHeight / 2;
-		somni = new CharacterModel(constants.get("somni"), sX, sY, sWidth, sHeight, somnif, CharacterModel.LIGHT);
+		somni = new CharacterModel(constants.get("somni"), sX, sY, sWidth, sHeight, platController.somnif, CharacterModel.LIGHT);
 		somni.setDrawScale(scale);
 		somni.setTexture(somniIdleTexture);
-		somni.setFilterData(somnif);
+		somni.setFilterData(platController.somnif);
 		somni.setActive(true);
 		addObject(somni);
 		addObjectTo(somni, LevelCreator.allTag);
 
 
 		// Setup Phobia
-		Filter phobiaf = new Filter();
-		phobiaf.categoryBits = CATEGORY_PHOBIA;
-		phobiaf.maskBits = MASK_PHOBIA;
 
 		JsonValue phobiaVal = levelAssets.get("phobia");
 		float pWidth  = phobiaTexture.getRegionWidth()/scale.x;
 		float pHeight = phobiaTexture.getRegionHeight()/scale.y;
 		float pX = phobiaVal.get("pos").getFloat(0) + pWidth / 2;
 		float pY = phobiaVal.get("pos").getFloat(1) + pHeight / 2;
-		phobia = new CharacterModel(constants.get("phobia"), pX, pY, pWidth, pHeight, phobiaf, CharacterModel.DARK);
+		phobia = new CharacterModel(constants.get("phobia"), pX, pY, pWidth, pHeight, platController.phobiaf, CharacterModel.DARK);
 		phobia.setDrawScale(scale);
 		phobia.setTexture(phobiaIdleTexture);
-		phobia.setFilterData(phobiaf);
+		phobia.setFilterData(platController.phobiaf);
 		addObject(phobia);
 		addObjectTo(phobia, LevelCreator.allTag);
 		phobia.setActive(true);
 
 		// Setup Combined
-		Filter combinedf = new Filter();
-		combinedf.categoryBits = CATEGORY_COMBINED;
-		combinedf.maskBits = MASK_COMBINED;
 
 		float cWidth  = combinedTexture.getRegionWidth()/scale.x;
 		float cHeight = combinedTexture.getRegionHeight()/scale.y;
 
-		combined = new CharacterModel(constants.get("combined"), 0, 0, cWidth, cHeight, combinedf, CharacterModel.DARK);
+		combined = new CharacterModel(constants.get("combined"), 0, 0, cWidth, cHeight, platController.combinedf, CharacterModel.DARK);
 		combined.setDrawScale(scale);
 		combined.setTexture(somniPhobiaTexture);
-		combined.setFilterData(combinedf);
+		//combined.setTag();
+		combined.setFilterData(platController.combinedf);
 		addObject(combined);
 		addObjectTo(combined, LevelCreator.allTag);
 		combined.setActive(true);
@@ -993,8 +1188,33 @@ public class PlatformController extends WorldController {
 		action = 0;
 
 		volume = constants.getFloat("volume", 1.0f);
+		platController.applyFilters(objects);
 	}
 
+//	/**
+//	 * Returns whether to process the update loop
+//	 *
+//	 * At the start of the update loop, we check if it is time
+//	 * to switch to a new game mode.  If not, the update proceeds
+//	 * normally.
+//	 *
+//	 * @param dt	Number of seconds since last animation frame
+//	 *
+//	 * @return whether to process the update loop
+//	 */
+//	public boolean preUpdate(float dt) {
+//		if (!super.preUpdate(dt)) {
+//			return false;
+//		}
+//		if (!isFailure() && (somni.getY() < -1 || phobia.getY() < -1 || combined.getY() < -1)) {
+//			setFailure(true);
+//			return false;
+//		}
+//
+//		return true;
+//	}
+
+	//JENNA
 	/**
 	 * Returns whether to process the update loop
 	 *
@@ -1020,13 +1240,29 @@ public class PlatformController extends WorldController {
 			ScreenListener listener = getListener();
 			gameScreenActive = false;
 			setPause(false);
+			setFailure(false);
+			setComplete(false);
 			listener.exitScreen(this, WorldController.EXIT_MENU);
 			exitClicked = false;
 			return false;
 		}
 
+		if (advanceClicked){
+			//JENNA ADVANCE
+			pause();
+			ScreenListener listener = getListener();
+			gameScreenActive = false;
+			setPause(false);
+			setFailure(false);
+			setComplete(false);
+			listener.exitScreen(this, WorldController.EXIT_NEXT);
+			advanceClicked = false;
+		}
+
 		if (resumeClicked){
 			setPause(false);
+			setFailure(false);
+			setComplete(false);
 			resumeClicked = false;
 		}
 
@@ -1037,6 +1273,8 @@ public class PlatformController extends WorldController {
 
 		return true;
 	}
+
+	//END JENNA
 
 	/**
 	 * The core gameplay loop of this world.
@@ -1050,8 +1288,8 @@ public class PlatformController extends WorldController {
 	 */
 	public void update(float dt) {
 		if (!pauseMenuActive()) {
-
 			action = movementController.update();
+			platController.update(dt);
 
 			CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
@@ -1063,21 +1301,81 @@ public class PlatformController extends WorldController {
 				switching = !switching;
 			}
 
-			if (holdingHands) {
-				if (lead == somni) {
-					combined.setTexture(somniphobiasTexture[action]);
-				} else {
-					combined.setTexture(phobiasomnisTexture[action]);
-				}
-			} else {
-				if (lead == somni) {
-					somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
-					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
-				} else {
-					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
-					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
+
+			if(holdingHands){
+				if(lead == somni){
+					// draw somni, phobia, and the hands
+					combined.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
+							phobiasTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
+							somniPhobiaHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
+				}else{
+					// draw phobia, somni, and the hands
+					combined.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
+							somnisTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
+							phobiaSomniHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
 				}
 			}
+			else{
+				if(lead == somni){
+					// draw somni
+					if (action == 2 || action ==3) {
+						int facing = somni.isFacingRight()? 1:-1;
+						//draw somni with small dash ring
+						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								yellowRingSmallTexture, 0.2f, 128, 0, -5, facing * dashAngles[action]);
+					} else {
+						if (movementController.canHoldHands()){
+							// somni reaches out hand when phobia within distance
+							int f = movementController.faceTowards();
+							somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+									somniHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+						} else {
+							// only draw somni
+							somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+						}
+					}
+
+            	// draw phobia
+				if ((action == 2 || action == 3) && movementController.justSeparated()){
+					// draw phobia and a propelling hand
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+				}else{
+					// only draw phobia
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				}
+
+            }else{
+            	// draw the leading character phobia
+            	if (action == 2 || action == 3){
+					int facing = somni.isFacingRight()? 1:-1;
+            		// draw phobia with small dash ring
+					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+							blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
+				} else {
+					if (movementController.canHoldHands()){
+						// phobia reaches out hand when somni within distance
+						int f = movementController.faceTowards();
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								phobiaHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+					} else {
+						// only draw phobia
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+					}
+				}
+
+            	// draw the idle character somni
+                if ((action == 2 || action == 3) && movementController.justSeparated()){
+					// draw somni with a propelling hand
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
+							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+				} else {
+					// only draw somni
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				}
+            }
+            movementController.setJustSeparated(false);
+        }
 
 			// Set camera position bounded by the canvas size
 			camera = canvas.getCamera();
@@ -1131,57 +1429,174 @@ public class PlatformController extends WorldController {
 
 		}
 
+
 	}
 
+	private void updateMaskPosition(float maskWidth, float maskHeight, CharacterModel character) {
+		character = holdingHands ? combined : character;
+		float maskX = character.getX() * canvas.PPM + character.getWidth() / 2 - maskWidth / 2;
+		float maskY = character.getY() * canvas.PPM + character.getHeight() / 2 - maskHeight / 2;
+		maskOrigin.set(maskX, maskY);
+	}
 
 	/**
 	 * Draws the necessary textures to mask properly.
+	 * @param mask The image to mask with
+	 * @param background The optional background to apply along with the mask
 	 * @param cameraX The x-coord for the camera origin
 	 * @param cameraY The y-coord for the camera origin
 	 * @param maskWidth The width of the mask
 	 * @param maskHeight The height of the mask
 	 * @param character The character to center the mask on
 	 */
-	public void drawMask(float cameraX, float cameraY, float maskWidth, float maskHeight, CharacterModel character) {
-		character = holdingHands ? combined : character;
-		float leadCenterX = character.getX() * canvas.PPM + character.getWidth() / 2 - maskWidth / 2;
-		float leadCenterY = character.getY() * canvas.PPM + character.getHeight() / 2 - maskHeight / 2;
+	private void drawMask(TextureRegion mask, Texture background, float cameraX, float cameraY, float maskWidth,
+						 float maskHeight, CharacterModel character) {
+		updateMaskPosition(maskWidth, maskHeight, character);
 		canvas.beginCustom(GameCanvas.BlendState.OPAQUE, GameCanvas.ChannelState.ALPHA);
-		if(alpha_background == null) {
-			Pixmap pixmap=new Pixmap(canvas.getWidth(), canvas.getHeight(), Pixmap.Format.RGBA8888);
-			pixmap.setColor(Color.CLEAR);
-			pixmap.fillRectangle(0,0, pixmap.getWidth(), pixmap.getHeight());
-			alpha_background = new Texture(pixmap);
+		if(background != null) {
+			canvas.draw(background, Color.CLEAR, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		}
-		canvas.draw(alpha_background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
-		canvas.draw(circle_mask, Color.WHITE, leadCenterX, leadCenterY, maskWidth, maskHeight);
+		canvas.draw(mask, Color.WHITE, maskOrigin.x, maskOrigin.y, maskWidth, maskHeight);
 		canvas.endCustom();
 	}
 
 	/**
-	 * Draws the necessary textures for the character's realm rift.
+	 * Writes the necessary textures for the character's realm rift into the FrameBuffer.
 	 * @param cameraX The x-coord for the camera origin
 	 * @param cameraY The y-coord for the camera origin
-	 * @param character The character whose environment is being drawn
+	 * @param character The character whose environment is being written
 	 */
-	public void drawCharacterRift(float cameraX, float cameraY, CharacterModel character) {
-		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+	private void writeCharacterRift(float cameraX, float cameraY, CharacterModel character) {
+		fbo.begin();
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 		TextureRegion background = character.equals(somni) ? backgroundLightTexture : backgroundDarkTexture;
 		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
+		fbo.end();
 	}
 
 	/**
-	 * Draws the necessary textures for the character's platforms.
-	 * @param character The character whose environment is being drawn
+	 * Writes the necessary textures for the character's platforms into the FrameBuffer
+	 * @param character The character whose platforms are being written
 	 */
-	public void drawCharacterPlatform(CharacterModel character) {
-		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+	private void writeCharacterPlatform(CharacterModel character, boolean alpha) {
 		PooledList<Obstacle> objects = character.equals(somni) ? lightObjects : darkObjects;
+		fbo.begin();
 		for(Obstacle obj : objects) {
-			obj.draw(canvas);
+			canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
+			if(alpha) {
+				alphaWhite.a = 1 - alphaAmount;
+				((SimpleObstacle) obj).drawWithTint(canvas, alphaWhite);
+			} else {
+				obj.draw(canvas);
+			}
+			canvas.endCustom();
 		}
+		fbo.end();
+	}
+
+	/**
+	 * Draws fading platforms for the given `character`
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param character The character whose fading platforms are being drawn
+	 */
+	private void drawFadePlatforms(float cameraX, float cameraY, CharacterModel character) {
+		fbo.begin();
+		canvas.clear();
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
+		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
+		fbo.end();
+		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
+		writeCharacterPlatform(character,false);
+		drawFrameBufferContents(GameCanvas.BlendState.ANTI_MASK);
+	}
+
+	/**
+	 * Draws the FrameBuffer's contents
+	 * @param blend The blend state to use when drawing
+	 */
+	private void drawFrameBufferContents(GameCanvas.BlendState blend) {
+		canvas.beginCustom(blend, GameCanvas.ChannelState.ALL);
+		Texture fbo_t = fbo.getColorBufferTexture();
+		float fbo_x = camera.position.x - canvas.getWidth() / 2;
+		float fbo_y = camera.position.y - canvas.getHeight() / 2 + fbo_t.getHeight();
+		canvas.draw(fbo_t, Color.WHITE, fbo_x, fbo_y, fbo_t.getWidth(), -fbo_t.getHeight());
+		canvas.endCustom();
+	}
+
+
+	/**
+	 * Draws everything necessary for the given `character`
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param maskWidth The width of the mask
+	 * @param maskHeight The height of the mask
+	 * @param platformKind The kind of platform to draw (1 if regular, 2 if fading, otherwise no platform at all)
+	 * @param character The character to center the mask on
+	 */
+	private void drawSpiritObjects(float cameraX, float cameraY, float maskWidth, float maskHeight,
+								  int platformKind, CharacterModel character) {
+		// Start with the mask to properly draw things within a spirit's realm
+		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, character);
+
+		// Now write a spirit's rift into the FrameBuffer (FB), i.e. give the mask a background to look like the
+		// spirit's realm
+		writeCharacterRift(cameraX, cameraY, character);
+
+		// Now write the platforms contained in the spirit's realm into the FB - these will be contained within the
+		// realm
+		switch(platformKind) {
+			case 1:
+				// Draw platforms normally
+				writeCharacterPlatform(character,  false);
+				break;
+			case 2:
+				// Draw platforms with alpha
+				writeCharacterPlatform(character,  true );
+				break;
+			default:
+				break;
+		}
+
+		// Finally, draw the contents of the FB - this allows us to apply more than one blend in our masked textures,
+		// i.e. using a platform with alpha that must be alpha composited (NO_PREMULT) first and THEN masked (MASK)
+		drawFrameBufferContents(GameCanvas.BlendState.MASK);
+	}
+
+	/**
+	 * Creates a rectangular texture
+	 * @param width The width of the rectangle
+	 * @param height The height of the rectangle
+	 * @return The rectangular texture
+	 */
+	private Texture createRectangularTexture(int width, int height) {
+		Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+		pixmap.setColor(Color.CLEAR);
+		pixmap.fillRectangle(0,0, pixmap.getWidth(), pixmap.getHeight());
+		return new Texture(pixmap);
+	}
+
+	//Vector2 maskInset = new Vector2(1500, 1500);
+
+	/**
+	 * Helps with bounds checking for when the rift has covered the entirety of the camera bounds
+	 * @param cameraX The x-coord for the camera origin
+	 * @param cameraY The y-coord for the camera origin
+	 * @param maskWidth The width of the mask
+	 * @param maskHeight The height of the mask
+	 * @param character The character to center the mask on
+	 * @returns Whether or not the rift is covering the camera bounds
+	 */
+	private boolean riftCoversCameraBounds(float cameraX, float cameraY, float maskWidth, float maskHeight,
+										   CharacterModel character) {
+		updateMaskPosition(maskWidth, maskHeight, character);
+		boolean coversLeft = maskOrigin.x + widthUpperBound < cameraX;
+		boolean coversRight = maskOrigin.x + maskWidth - widthUpperBound > cameraX + canvas.getWidth();
+		boolean coversBottom = maskOrigin.y + heightUpperBound < cameraY;
+		boolean coversTop = maskOrigin.y + maskHeight - heightUpperBound > cameraY + canvas.getHeight();
+		return coversLeft && coversRight && coversBottom && coversTop;
 	}
 
 	/**
@@ -1194,71 +1609,120 @@ public class PlatformController extends WorldController {
 	public void draw(float dt) {
 
 		CharacterModel lead = movementController.getLead();
-//		CharacterModel maskLeader = movementController.getMaskLeader();
-//		CharacterModel maskLeader = movementController.getMaskLeader();
 		canvas.clear();
-
 
 		float cameraX = camera.position.x - canvas.getWidth() / 2;
 		float cameraY = camera.position.y - canvas.getHeight() / 2;
 
+		// Create the frame buffer if uninitialized
+		if(fbo == null) {
+			fbo = new FrameBuffer(Pixmap.Format.RGBA8888, canvas.getWidth(), canvas.getHeight(), false);
+		}
+
 		// Draw background
-		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT_DST, GameCanvas.ChannelState.ALL);
+		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 
-		drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
-		drawCharacterRift(cameraX, cameraY, maskLeader);
-		drawCharacterPlatform(maskLeader);
+		// Create alpha background if uninitialized
+		if(alpha_background == null) {
+			alpha_background = createRectangularTexture(canvas.getWidth(), canvas.getHeight());
+		}
 
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
+
 		// Check if switching and update mask drawing
 		if(switching) {
-			maskWidth += maskWidth >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
-			maskHeight += maskHeight >= MAX_MASK_SIZE ? 0 : INCREMENT_AMOUNT;
-			if(maskWidth >= MAX_MASK_SIZE) {
+			if(!holdingHands) {
+				// Apply fade effect for follower (fading away)
+				drawFadePlatforms(cameraX, cameraY, follower);
+			}
+
+			// Draw mask for the mask leader
+			drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands ? 1 : 0, maskLeader);
+
+			// Draw mask for the follower while switching
+			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1, follower);
+
+			// Draw mask for the mask leader to cover follower's
+			drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1,
+					maskLeader);
+
+			// Increase mask size
+			maskWidth += INCREMENT_AMOUNT;
+			maskHeight += INCREMENT_AMOUNT;
+			if(riftCoversCameraBounds(cameraX, cameraY, maskWidth, maskHeight, maskLeader)) {
 				maskWidth = MIN_MASK_DIMENSIONS.x;
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
-
 				maskLeader = follower;
-//				movementController.setMaskLeader(follower);
-				//System.out.println(follower.equals(somni) ? "Somni" : "Phobia");
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
 			}
-			drawMask(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, follower);
-			drawCharacterRift(cameraX, cameraY, follower);
-			drawCharacterPlatform(follower);
 		} else {
-			/*if(maskWidth == MIN)
+			// Check if shrinking
+			boolean shrinking = maskWidth > MIN_MASK_DIMENSIONS.x || maskHeight > MIN_MASK_DIMENSIONS.y;
 			if(shrinking) {
-				drawMask(cameraX, cameraY, maskWidth, maskHeight, maskLeader);
-				drawCharacterRift(cameraX, cameraY, maskLeader);
-				drawCharacterPlatform(maskLeader);
-			}*/
+				// Apply fade away effect for the lead (fading in)
+				if(!holdingHands) {
+					drawFadePlatforms(cameraX, cameraY, lead);
+				}
 
-			// Draw lead platform
+				// Make sure the rift is still drawn (to carry over the effect)
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, !holdingHands ? 1 : 0, maskLeader);
+
+				// Draw mask for the lead while shrinking
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y,
+						!holdingHands ? 1 : 0, lead);
+
+				// Draw mask for the mask leader to cover follower's
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1,
+						maskLeader);
+			} else  {
+				// Draw lead platform
+				if(!holdingHands) {
+					canvas.begin();
+					for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+						obj.draw(canvas);
+					}
+					canvas.end();
+				}
+
+				// Draw mask leader's mask AFTER drawing lead platforms (prevents popping platforms)
+				drawSpiritObjects(cameraX, cameraY, maskWidth, maskHeight, 2, maskLeader);
+
+				// Draw mask for the lead to cover maskLeader's
+				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1, lead);
+
+			}
+
+			// Decrease mask size to minimum
+			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
+			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
+		}
+
+		// Draw light and dark platforms if holding hands
+		if(holdingHands) {
 			canvas.begin();
 			for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
 				obj.draw(canvas);
 			}
 			canvas.end();
-
-			// Draw follower platforms if holding hands
-			canvas.begin();
-			if(holdingHands) {
-				for(Obstacle obj : lead.equals(somni) ? darkObjects : lightObjects) {
-					obj.draw(canvas);
-				}
-			}
-			canvas.end();
-			maskWidth -= maskWidth <= MIN_MASK_DIMENSIONS.x ? 0 : INCREMENT_AMOUNT;
-			maskHeight -= maskHeight <= MIN_MASK_DIMENSIONS.y ? 0 : INCREMENT_AMOUNT;
+			alphaAmount = alphaAmount + alphaIncrement >= 1 ? 1 : alphaAmount + alphaIncrement;
+		} else {
+			alphaAmount = alphaAmount - alphaIncrement <= 0 ? 0 : alphaAmount - alphaIncrement;;
 		}
+		alphaWhite.a = alphaAmount;
+		canvas.begin();
+		for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
+			((SimpleObstacle) obj).drawWithTint(canvas, alphaWhite);
+		}
+		canvas.end();
+
 		// Draw shared platforms
 		canvas.begin();
 		for(Obstacle obj : sharedObjects) {
+
 			// Ignore characters which we draw separately
 			if (!(obj instanceof CharacterModel)) {
 				obj.draw(canvas);
@@ -1269,10 +1733,11 @@ public class PlatformController extends WorldController {
 		// Draw current model
 		canvas.begin();
 		if(holdingHands) {
-			combined.draw(canvas);
+			combined.draw(canvas, Color.WHITE);
 		} else {
-			follower.draw(canvas);
-			lead.draw(canvas);
+			alphaWhite.a = 0.5f;
+			follower.draw(canvas, alphaWhite);
+			lead.draw(canvas, Color.WHITE);
 		}
 		canvas.end();
 
@@ -1359,6 +1824,54 @@ public class PlatformController extends WorldController {
 		}
 		canvas.end();
 
+		//JENNA
+
+		canvas.begin();
+		if (pauseMenuActive()) {
+			if (firstTimeRenderedPauseMenu) {
+				createPauseWindow();
+				firstTimeRenderedPauseMenu = false;
+			} else {
+				setPositionMenu(pauseMenu);
+				pauseMenuStage.draw();
+				pauseMenuStage.act(dt);
+//				drawModalWindow();
+			}
+			if (movementController.getAvatar()==somni){
+				pauseMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
+				exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
+				resumeButton.getStyle().up = createDrawable("pause_menu\\resume.png");
+				restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+			}
+			else{
+				pauseMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
+				exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
+				resumeButton.getStyle().up = createDrawable("pause_menu\\resumeorange.png");
+				restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+			}
+
+			Gdx.input.setInputProcessor(pauseMenuStage);
+		}
+		canvas.end();
+
+		canvas.begin();
+		if (firstTimeRenderedPauseButton){
+			createPauseButton();
+			firstTimeRenderedPauseButton = false;
+		}
+		else{
+			drawPauseButton();
+		}
+
+		if (!pauseMenuActive() && gameScreenActive){
+			Gdx.input.setInputProcessor(pauseButtonStage);
+		}
+		canvas.end();
+
+
+		//END JENNA
+
+
 		// Draw debug if active
 		if (isDebug()) {
 			canvas.beginDebug();
@@ -1380,22 +1893,68 @@ public class PlatformController extends WorldController {
 		}
 
 		// Draw final message when level ends
+		// Draw final message when level ends
+		//JENNA
+
 		if (isComplete() && !isFailure()) {
-			displayFont.setColor(Color.YELLOW);
-			canvas.begin(); // DO NOT SCALE
-			displayFont.getData().setScale(1f, 1f);
+			canvas.begin();
+			if (isComplete()) {
+				if (firstTimeRenderedWinMenu) {
+					createWinWindow();
+					firstTimeRenderedWinMenu = false;
+				} else {
+					setPositionMenu(winMenu);
+					winMenuStage.draw();
+					winMenuStage.act(dt);
+				}
+				if (movementController.getAvatar() == somni) {
+					winMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
+					advanceButton.getStyle().up = createDrawable("pause_menu\\next.png");
+				} else {
+					winMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
+					advanceButton.getStyle().up = createDrawable("pause_menu\\nextorange.png");
+				}
 
-			canvas.drawTextCameraCentered("VICTORY!", displayFont, camera.position.x, camera.position.y);
+				Gdx.input.setInputProcessor(winMenuStage);
+			}
 			canvas.end();
+
+
+
 		} else if (isFailure()) {
-			displayFont.setColor(Color.RED);
-			canvas.begin(); // DO NOT SCALE
-			displayFont.getData().setScale(1f, 1f);
 
-			canvas.drawTextCameraCentered("FAILURE!", displayFont, camera.position.x, camera.position.y);
+			canvas.begin();
+			if (isFailure()) {
+				if (firstTimeRenderedFailMenu) {
+					createFailWindow();
+					firstTimeRenderedFailMenu = false;
+				} else {
+					setPositionMenu(failMenu);
+					failMenuStage.draw();
+					failMenuStage.act(dt);
+				}
+				if (movementController.getAvatar()==somni){
+					failMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
+					restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+				}
+				else{
+					failMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
+					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
+					restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+				}
+
+				Gdx.input.setInputProcessor(failMenuStage);
+			}
 			canvas.end();
-		}
-	}
+
+
+		}}
+
+	//END JENNA
+
 
 	/** Unused ContactListener method */
 	public void postSolve(Contact contact, ContactImpulse impulse) {}
@@ -1421,10 +1980,7 @@ public class PlatformController extends WorldController {
 	}
 
 	/**
-	 * adds objects to correct list
-	 * 0 for shared
-	 * 1 for light
-	 * else for dark
+	 * Adds objects to their respective lists
 	 * @param obj obstacle to add
 	 * @param l index
 	 */

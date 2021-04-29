@@ -45,6 +45,21 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:solidCloud_all": {
+      "file": "platform/T_solidCloud_all.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:solidCloud_dark": {
+      "file": "platform/T_solidCloud_dark.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:solidCloud_light": {
+      "file": "platform/T_solidCloud_light.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
     "shared:goalOLD": "platform/DoorOLD.png",
@@ -63,6 +78,13 @@
     "platform:PhobiaSomni_stand": "platform/PhobiaSomniStand.png",
     "platform:barrier": "platform/barrier.png",
     "platform:bullet": "platform/bullet.png",
+    "platform:vertex": "platform/vertex.png",
+    "platform:vertex1": "platform/vertex1.png",
+    "platform:vertex2": "platform/vertex2.png",
+    "platform:vertex3": "platform/vertex3.png",
+    "platform:vertex4": "platform/vertex4.png",
+    "platform:vertex5": "platform/vertex5.png",
+    "platform:vertex6": "platform/vertex6.png",
 
     "platform:somni_stand": "platform/SomniStand.png",
     "platform:Somni_Idle": "platform/Somni_Idle.png",
@@ -84,6 +106,17 @@
     "platform:Phobia_Stand_Jump": "platform/Phobia_Stand_Jump.png",
     "platform:Phobia_Falling": "platform/Phobia_Falling.png",
 
+    "platform:somni_phobia_hands": "platform/somniPhobia_hands.png",
+    "platform:phobia_somni_hands": "platform/phobiaSomni_hands.png",
+    "platform:blue_ring_big": "platform/blueRing_propel.png",
+    "platform:yellow_ring_big": "platform/yellowRing_propel.png",
+    "platform:somni_hand_front": "platform/somniHandFront.png",
+    "platform:phobia_hand_front": "platform/phobiaHandFront.png",
+    "platform:somni_hand_back": "platform/somniHandBack.png",
+    "platform:phobia_hand_back": "platform/phobiaHandBack.png",
+    "platform:blue_ring_small": "platform/blueRing_dash.png",
+    "platform:yellow_ring_small": "platform/yellowRing_dash.png",
+
 
     "platform:somni_phobia_stand": "platform/SomniPhobiaStand.png",
     "platform:somni_phobia_walk": "platform/SomniPhobiaWalk.png",
@@ -100,7 +133,20 @@
     "platform:background_light_dreams": "platform/BG_dreams_light.png",
     "platform:background_dark_dreams": "platform/BG_dreams_dark.png",
     "platform:background_light_house": "platform/BG_house_light.png",
-    "platform:background_dark_house": "platform/BG_house_dark.png"
+    "platform:background_dark_house": "platform/BG_house_dark.png",
+
+    "tutorial:camera_pan": "tutorial/camera_pan.png",
+    "tutorial:phobia_dash": "tutorial/phobia_dash.png",
+    "tutorial:phobia_jump": "tutorial/phobia_jump.png",
+    "tutorial:phobia_propel": "tutorial/phobia_propel.png",
+    "tutorial:phobia_walk": "tutorial/phobia_walk.png",
+    "tutorial:somni_dash": "tutorial/somni_dash.png",
+    "tutorial:somni_jump": "tutorial/somni_jump.png",
+    "tutorial:somni_propel": "tutorial/somni_propel.png",
+    "tutorial:somni_walk": "tutorial/somni_walk.png",
+    "tutorial:spirit_switch": "tutorial/spirit_switch.png",
+    "tutorial:spirit_separate": "tutorial/spirit_separate.png",
+    "tutorial:spirit_unify": "tutorial/spirit_unify.png"
   },
     "jsons"  : {
         "constants": "constants.json",

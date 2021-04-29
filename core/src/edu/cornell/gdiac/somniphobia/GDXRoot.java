@@ -15,6 +15,7 @@ package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
+import edu.cornell.gdiac.somniphobia.game.controllers.PlatController;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
@@ -35,7 +36,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** AssetManager to load game assets (textures, sounds, etc.) */
 	AssetDirectory directory;
 	/** Drawing context to display graphics (VIEW CLASS) */
-	private GameCanvas canvas; 
+	private GameCanvas canvas;
+	/** Platform controller which controlls the filters*/
+	private PlatController platController;
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
 	/** The World Controller */
@@ -77,6 +80,7 @@ public class GDXRoot extends Game implements ScreenListener {
 //		}
 
 		canvas  = new GameCanvas();
+		platController = new PlatController();
 		loading = new LoadingMode("assets.json",canvas,1);
 
 //		menuPages = new Menu[numPages];
@@ -168,7 +172,6 @@ public class GDXRoot extends Game implements ScreenListener {
 	 *
 	 * @param width  The new width in pixels
 	 * @param height The new height in pixels
-	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
 		canvas.resize();
@@ -200,8 +203,10 @@ public class GDXRoot extends Game implements ScreenListener {
 					prepareLevelJson(controllers[ii], 1, false);
 				}
 				controllers[ii].setScreenListener(this);
-				controllers[ii].setCanvas(canvas);
+				controllers [ii].setCanvas(canvas);
+				controllers[ii].setPlatController(platController);
 			}
+
 
 			menu.setScreenListener(this);
 

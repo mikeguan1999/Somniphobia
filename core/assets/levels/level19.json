@@ -1,4 +1,5 @@
 {
+"background": 1,
 "dimensions": [ 1400, 800 ],
 "somni": {
 	"pos": [ 11, 21 ]
@@ -11,18 +12,17 @@
 },
 "objects": [
 	{
-		"type": "all",
+		"type": 3,
 		"assetName": "shared:all",
 		"positions": [
 			[ 3, 1, 17, 1 ],
 			[ 28, 13, 3, 1 ],
 			[ 12, 15, 1, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 1
 	},
 	{
-		"type": "dark",
+		"type": 2,
 		"assetName": "shared:dark",
 		"positions": [
 			[ 20, 1, 1, 11 ],
@@ -36,11 +36,10 @@
 			[ 12, 11, 1, 4 ],
 			[ 13, 20, 4, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 1
 	},
 	{
-		"type": "light",
+		"type": 1,
 		"assetName": "shared:light",
 		"positions": [
 			[ 13, 15, 10, 1 ],
@@ -57,8 +56,7 @@
 			[ 20, 18, 1, 11 ],
 			[ 21, 18, 1, 1 ]
 		],
-		"properties": [],
-		"behaviors": []
+		"property": 1
 	}
 ]
 }
