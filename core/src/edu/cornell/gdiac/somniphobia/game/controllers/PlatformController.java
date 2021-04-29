@@ -1263,6 +1263,7 @@ public class PlatformController extends WorldController {
 		}
 
 		if (restartClicked){
+			setPause(false);
 			reset();
 			restartClicked = false;
 		}
