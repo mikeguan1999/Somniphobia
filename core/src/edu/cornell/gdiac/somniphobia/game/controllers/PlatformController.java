@@ -434,6 +434,8 @@ public class PlatformController extends WorldController {
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
 		pauseMenu.setScale(PAUSE_MENU_SCALE);
+		underline.setZIndex(0);
+		underline.setVisible(false);
 
 	}
 
@@ -1235,6 +1237,7 @@ public class PlatformController extends WorldController {
 			setPause(false);
 			setFailure(false);
 			setComplete(false);
+			firstTimeRendered = true;
 			listener.exitScreen(this, WorldController.EXIT_MENU);
 			exitClicked = false;
 			return false;
@@ -1881,14 +1884,14 @@ public class PlatformController extends WorldController {
 					failMenuStage.act(dt);
 				}
 				if (movementController.getAvatar()==somni){
-					failMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-					restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+					failMenu.setBackground(blueRectangle);
+					exitButton.getStyle().up = blueExit;
+					restartButton.getStyle().up = blueRestart;
 				}
 				else{
-					failMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-					restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+					failMenu.setBackground(orangeRectangle);
+					exitButton.getStyle().up = orangeExit;
+					restartButton.getStyle().up = orangeRestart;
 				}
 
 				Gdx.input.setInputProcessor(failMenuStage);
