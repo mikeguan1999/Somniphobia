@@ -95,7 +95,7 @@ public class MainMenu implements Screen {
 		table.add(about).padRight(200).size(120, 50).expandX().spaceLeft(120).padTop(30);
 		table.row();
 		table.add(underline);
-		underline.setVisible(false);
+//		underline.setVisible(false);
 
 		startDream.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -191,7 +191,9 @@ public class MainMenu implements Screen {
 			}
 
 			else{
+//				underline.setPosition(titleImage.getX(), titleImage.getY());
 				underline.setVisible(false);
+
 			}
 
 		if (started){
