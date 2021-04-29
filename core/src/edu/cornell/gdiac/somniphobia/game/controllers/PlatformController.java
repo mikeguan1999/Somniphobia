@@ -354,7 +354,7 @@ public class PlatformController extends WorldController {
 		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
 
 		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,100);
-		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,100);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,110);
 		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,100);
 		pauseMenu.row();
 		pauseMenu.add(underline);
