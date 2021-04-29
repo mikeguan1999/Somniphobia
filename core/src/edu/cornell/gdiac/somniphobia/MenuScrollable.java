@@ -221,7 +221,7 @@ public class MenuScrollable implements Screen {
 
 //		table.add(rightButton).size(ARROW_SIZE, ARROW_SIZE);
 		Image[] cloudLineImages = new Image[totalNumLevels/numLevels];
-		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloudline_smaller.png")));
+		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloudline_dreamselection.png")));
 		for (int i=0; i<cloudLineImages.length; i++){
 			cloudLineImages[i] = new Image(drawable);
 		}
@@ -352,7 +352,7 @@ public class MenuScrollable implements Screen {
 				btn.getStyle().fontColor = FONT_COLOR;
 				buttons[i].getStyle().up = overImages[i%numLevels];
 				buttons[i].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
-				buttons[i].setZIndex(100);
+				buttons[i].setZIndex(buttons[buttons.length-1].getZIndex());
 
 				Actor actor = (Actor) buttons[i];
 				actor.setX(positionsX[i]-CLOUD_OFFSETX);
