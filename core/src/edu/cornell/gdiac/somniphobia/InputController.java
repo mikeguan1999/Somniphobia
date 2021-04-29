@@ -100,11 +100,13 @@ public class InputController {
 	private float vertical;
 
 
-
 	/** How much did we move the camera horizontally? */
 	private float cameraHorizontal;
 	/** How much did we move the camera vertically? */
 	private float cameraVertical;
+
+	private boolean pauseClicked;
+	private boolean pauseClickedPrevious;
 	
 	/**
 	 * Returns the amount of sideways movement. 
@@ -267,6 +269,8 @@ public class InputController {
 		return switchToCreatorPressed && !switchToCreatorPrevious;
 	}
 
+	public boolean didClickPause() { return pauseClicked && !pauseClickedPrevious; }
+
 
 	/**
 	 * Returns the current position of the crosshairs on the screen.
@@ -302,6 +306,7 @@ public class InputController {
 		nextPrevious 			= nextPressed;
 		prevPrevious 			= prevPressed;
 		returnMenuPrevious		= returnMenuPressed;
+		pauseClickedPrevious	= pauseClicked;
 
 		readKeyboard(bounds,scale);
 	}
@@ -323,12 +328,14 @@ public class InputController {
 		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
 		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
 		walkPressed 			= Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT);
-		returnMenuPressed 		= (Gdx.input.isKeyPressed(Input.Keys.H));
+		returnMenuPressed 		= Gdx.input.isKeyPressed(Input.Keys.H);
+		pauseClicked			= Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET);
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
 		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));
 		sPressed = (Gdx.input.isKeyPressed(Input.Keys.S));
 		dPressed = (Gdx.input.isKeyPressed(Input.Keys.D));
+
 
 		// Directional controls
 		horizontal = 0.0f;
