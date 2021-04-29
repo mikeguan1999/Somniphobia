@@ -93,8 +93,8 @@ public class MenuScrollable implements Screen {
 	private boolean toLeft = false;
 	/** Setting the Y position of the cloudline to overlap with the doors*/
 	private final float CLOUDLINE_YPOSITION = 80;
-	private final float CLOUD_OFFSETX = 50;
-	private final float CLOUD_OFFSETY = 10;
+	private final float CLOUD_OFFSETX = 80;
+	private final float CLOUD_OFFSETY = 30;
 
 	/** Constants for loading, positioning, and resizing images*/
 	private final float TITLE_HEIGHT = 70;
@@ -164,7 +164,7 @@ public class MenuScrollable implements Screen {
 				}
 			});
 			upImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(i%numLevels+1)+"light.png")));
-			overImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloud"+(i%numLevels+1)+".png")));
+			overImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloud_withpink.png")));
 		}
 
 		placeButtons();
@@ -265,8 +265,9 @@ public class MenuScrollable implements Screen {
 			}
 		}
 
-		rightButton.setPosition(-1300,288);
-		leftButton.setPosition(-2100, 288);
+
+		rightButton.setPosition(-1686+canvas.getWidth()/3,288);
+		leftButton.setPosition(-1686-canvas.getWidth()/2+90, 288);
 		leftButton.setVisible(false);
 //		leftButton.setX(LEFT_BUTTON_POSITION);
 //		rightButton.setX(canvas.getWidth()-RIGHT_BUTTON_POSITION);
@@ -308,7 +309,7 @@ public class MenuScrollable implements Screen {
 	private void update(float delta) {
 		stage.getBatch().begin();
 		stage.getBatch().draw(background, camera.position.x-canvas.getWidth()/2, camera.position.y-canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight());
-		stage.getBatch().draw(titleTexture, camera.position.x-canvas.getWidth()/4, camera.position.y+canvas.getHeight()/4, TITLE_WIDTH, TITLE_HEIGHT);
+		stage.getBatch().draw(titleTexture, camera.position.x-canvas.getWidth()/4+40, camera.position.y+canvas.getHeight()/4, TITLE_WIDTH, TITLE_HEIGHT);
 		stage.getBatch().end();
 
 		if (first) {
@@ -316,6 +317,7 @@ public class MenuScrollable implements Screen {
 				zIndices[i] = buttons[i].getZIndex();
 			}
 			initialCameraX =  camera.position.x - canvas.getWidth()*((totalNumLevels/6)-2)-150;
+			System.out.println(initialCameraX);
 			camera.position.x = initialCameraX;
 			camera.position.y = 288;
 		}
@@ -350,9 +352,8 @@ public class MenuScrollable implements Screen {
 				btn.getStyle().fontColor = FONT_COLOR;
 				buttons[i].getStyle().up = overImages[i%numLevels];
 				buttons[i].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
-				if (i<totalNumLevels-1) {
-					buttons[i].setZIndex(buttons[i + 1].getZIndex() + 1);
-				}
+				buttons[i].setZIndex(100);
+
 				Actor actor = (Actor) buttons[i];
 				actor.setX(positionsX[i]-CLOUD_OFFSETX);
 				actor.setY(initialButtonY-CLOUD_OFFSETY);
