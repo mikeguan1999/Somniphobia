@@ -707,6 +707,7 @@ public class LevelCreator extends WorldController {
     @Override
     public void update(float dt) {
         // Move an object if touched
+        Gdx.input.setInputProcessor(stage);
         Camera camera = canvas.getCamera();
         displayFont.getData().setScale(.3f);
         InputController input = InputController.getInstance();

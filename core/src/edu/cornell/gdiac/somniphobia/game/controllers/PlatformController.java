@@ -338,6 +338,7 @@ public class PlatformController extends WorldController {
 
 	private Vector2 cameraCenter;
 	private int cameraDelay = 0;
+	private Stage stage;
 
 
 
@@ -542,7 +543,7 @@ public class PlatformController extends WorldController {
 		CharacterModel avatar = movementController.getAvatar();
 
 
-		Stage stage = new Stage(new ScreenViewport(camera));
+		stage = new Stage(new ScreenViewport(camera));
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
 			@Override
@@ -1736,15 +1737,18 @@ public class PlatformController extends WorldController {
 
 		// Draw sliders if active
 		canvas.begin();
+		if (tes == 0) {
+			createSliders();
+			tes = 1;
+		}
+
 		if (slidersActive()) {
-			if (tes == 0) {
-				createSliders();
-				tes = 1;
-			} else {
-				displayFont.getData().setScale(.3f, .3f);
-				labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
-				drawSliders();
-			}
+			stage.draw();
+			stage.act();
+			displayFont.getData().setScale(.3f, .3f);
+			labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
+			drawSliders();
+			Gdx.input.setInputProcessor(stage);
 		}
 		canvas.end();
 
@@ -1812,7 +1816,7 @@ public class PlatformController extends WorldController {
 			drawPauseButton();
 		}
 
-		if (!pauseMenuActive() && gameScreenActive){
+		if (!pauseMenuActive() && gameScreenActive && !slidersActive()){
 			Gdx.input.setInputProcessor(pauseButtonStage);
 		}
 		canvas.end();
