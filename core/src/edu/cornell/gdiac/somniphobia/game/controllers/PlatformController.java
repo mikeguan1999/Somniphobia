@@ -1350,7 +1350,7 @@ public class PlatformController extends WorldController {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		if (pauseMenuActive()) return;
+		if (pauseMenuActive() || isComplete() || isFailure()) return;
 		//if (pauseMenuActive() || isComplete() || isFailure()) return;
 		// fix pause ^^^
 		action = movementController.update();
@@ -1964,7 +1964,7 @@ public class PlatformController extends WorldController {
 					failMenuStage.draw();
 					failMenuStage.act(dt);
 				}
-				if (movementController.getAvatar()==somni){
+				if (movementController.getAvatar()==somni || movementController.getLead()==somni){
 					failMenu.setBackground(blueRectangle);
 					exitButton.getStyle().up = blueExit;
 					restartButton.getStyle().up = blueRestart;

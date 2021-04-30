@@ -607,7 +607,9 @@ public abstract class WorldController implements Screen {
 		if (active) {
 			if (preUpdate(delta)) {
 				update(delta); // This is the one that must be defined
-				postUpdate(delta);
+				if (!(pauseMenuActive() || isFailure() || isComplete())) {
+					postUpdate(delta);
+				}
 			}
 			draw(delta);
 		}
