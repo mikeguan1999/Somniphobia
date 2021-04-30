@@ -265,7 +265,7 @@ public class MovementController implements ContactListener {
         }else{
             action = 4; // Jump
         }
-        if (avatar.isDashing() && !avatar.isDashingUp()) {
+        if (avatar.isDashing() && !avatar.isDashingUp() && !avatar.isDashingDown()) {
             action = 2; // Side dash
         }
         if (avatar.isDashingUp()){
@@ -274,6 +274,10 @@ public class MovementController implements ContactListener {
         if (avatar.isFalling() && !holdingHands) { //! CHANGE CODE HERE WHEN ADD ASSET 4 TO HANDHOLDING!
             action = 4; // Falling
         }
+        if (avatar.isDashingDown()){
+            action = 5;
+        }
+
 
         //Check if hand holding
         if(inputController.didHoldHands()) {

@@ -297,7 +297,16 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @return true if the dude is actively dashing straight up.
 	 */
 	public boolean isDashingUp() {
-		return (isDashing && dashDirection.x == 0);
+		return (isDashing && dashDirection.y >= 0 && dashDirection.x==0);
+	}
+
+	/**
+	 * Returns true if the dude is actively dashing straight down.
+	 *
+	 * @return true if the dude is actively dashing straight down.
+	 */
+	public boolean isDashingDown() {
+		return (isDashing && dashDirection.y <= 0 && dashDirection.x==0);
 	}
 
 	/**
@@ -738,7 +747,7 @@ public class CharacterModel extends CapsuleObstacle {
 			animeFrameTwo = 0;
 		}
 
-		if (animeframeRing >= 6 ){
+		if (animeframeRing > 6 ){
 			ringCycleComplete = true;
 			animeframeRing = -0.2f;
 		}
