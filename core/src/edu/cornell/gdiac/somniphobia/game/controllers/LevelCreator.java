@@ -828,10 +828,10 @@ public class LevelCreator extends WorldController {
 
         float newX = Math.max(canvas.getWidth() / 2, camera.position.x +
                 InputController.getInstance().getCameraHorizontal() * CAMERA_SPEED);
-        camera.position.x = Math.min(newX, DEFAULT_WORLD_WIDTH > worldWidth ? DEFAULT_WORLD_WIDTH : worldWidth);
+        camera.position.x = Math.min(newX, newX > worldWidth ? worldWidth : worldWidth);
         float newY = Math.max(canvas.getHeight() / 2, camera.position.y +
                 InputController.getInstance().getCameraVertical() * CAMERA_SPEED);
-        camera.position.y = Math.min(newY, DEFAULT_WORLD_HEIGHT > worldHeight ? DEFAULT_WORLD_HEIGHT : worldHeight);
+        camera.position.y = Math.min(newY, newY > worldHeight ? worldWidth : worldHeight);
         menuTable.setPosition(camera.position.x + canvas.getWidth() / 3, camera.position.y);
         selector.moveTo((camera.position.x- canvas.getWidth()/2) / canvas.PPM + input.getCrossHair().x ,
                 (camera.position.y- canvas.getHeight()/2) / canvas.PPM + input.getCrossHair().y  );
