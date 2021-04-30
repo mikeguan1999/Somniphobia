@@ -324,6 +324,8 @@ public class PlatformController extends WorldController {
 	private TextureRegionDrawable orangeExit;
 	private TextureRegionDrawable orangeResume;
 	private TextureRegionDrawable orangeRestart;
+	private TextureRegionDrawable blueNext;
+	private TextureRegionDrawable orangeNext;
 
 	/** constants for positioning pause menu and pause button */
 	private final int PAUSE_BUTTON_OFFSETX = 400;
@@ -469,6 +471,8 @@ public class PlatformController extends WorldController {
 		resumeButton = createImageButton("pause_menu\\resume.png");
 		restartButton = createImageButton("pause_menu\\restart.png");
 		advanceButton = createImageButton("pause_menu\\restart.png");
+		blueNext = createDrawable("pause_menu\\next.png");
+		orangeNext = createDrawable("pause_menu\\nextorange.png");
 
 		//Buttons needed
 		failMenu.add(exitButton).space(50);
@@ -504,6 +508,8 @@ public class PlatformController extends WorldController {
 		exitButton = createImageButton("pause_menu\\exit.png");
 		resumeButton = createImageButton("pause_menu\\resume.png");
 		restartButton = createImageButton("pause_menu\\restart.png");
+		blueNext = createDrawable("pause_menu\\next.png");
+		orangeNext = createDrawable("pause_menu\\nextorange.png");
 
 		//JENNA: NEED IMAGE
 		advanceButton = createImageButton("pause_menu\\next.png");
@@ -1306,6 +1312,7 @@ public class PlatformController extends WorldController {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+		if (pauseMenuActive()) return;
 		//if (pauseMenuActive() || isComplete() || isFailure()) return;
 		// fix pause ^^^
 		action = movementController.update();
@@ -1890,14 +1897,14 @@ public class PlatformController extends WorldController {
 					winMenuStage.draw();
 					winMenuStage.act(dt);
 				}
-				if (movementController.getAvatar() == somni) {
-					winMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-					advanceButton.getStyle().up = createDrawable("pause_menu\\next.png");
+				if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
+					winMenu.setBackground(blueRectangle);
+					exitButton.getStyle().up = blueExit;
+					advanceButton.getStyle().up = blueNext;
 				} else {
-					winMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-					advanceButton.getStyle().up = createDrawable("pause_menu\\nextorange.png");
+					winMenu.setBackground(orangeRectangle);
+					exitButton.getStyle().up = orangeExit;
+					advanceButton.getStyle().up = orangeNext;
 				}
 
 				Gdx.input.setInputProcessor(winMenuStage);
