@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
+import edu.cornell.gdiac.util.FilmStrip;
 import edu.cornell.gdiac.util.PooledList;
 
 public class PlatformModel extends BoxObstacle {
@@ -32,8 +33,6 @@ public class PlatformModel extends BoxObstacle {
 
     /** Filter*/
     private Filter filter;
-    /** Texture of the platform*/
-    private TextureRegion texture;
 
     private int type;
 
@@ -62,9 +61,27 @@ public class PlatformModel extends BoxObstacle {
     /** scale*/
     public float scale;
 
-
-
-
+    /// VARIABLES FOR DRAWING AND ANIMATION
+    /** CURRENT image for this object. May change over time. */
+    private FilmStrip animator;
+    /** Reference to texture origin */
+    private Vector2 origin;
+    /** The texture for the shape. */
+    private TextureRegion texture;
+    /** Radius of the object (used for collisions) */
+    private float radius;
+    /** How fast we change frames (one frame per 10 calls to update) */
+    private float animationSpeed = 0.1f;
+    /** The number of animation frames in our filmstrip */
+    private int numAnimFrames = 2;
+    /** Texture for animated objects */
+    private Texture actualTexture;
+    /** Current animation frame for this shell */
+    private float animeframe = 0.0f;
+    /** Pixel width of the current texture */
+    private double entirePixelWidth;
+    /** Pixel width of the current frame in the texture */
+    private double framePixelWidth = 32;
 
     public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
@@ -137,6 +154,69 @@ public class PlatformModel extends BoxObstacle {
      */
     public PooledList<Vector2> getPaths() {
         return this.paths;
+    }
+
+    /**
+     * Allows for animated character motions. It sets the texture to prepare to draw.
+     * This method overrides the setTexture method in SimpleObstacle
+     */
+    public void setTexture(TextureRegion textureRegion) {
+        texture = textureRegion;
+        actualTexture = textureRegion.getTexture();
+        entirePixelWidth = actualTexture.getWidth();
+        if (entirePixelWidth < framePixelWidth) {
+            entirePixelWidth = framePixelWidth;
+        }
+        // For something that is not a platform, make it only 1 animation frame
+        if (actualTexture.getHeight() > framePixelWidth*2) {
+            framePixelWidth = entirePixelWidth;
+        }
+        numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
+
+        animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
+        if(animeframe > numAnimFrames) {
+            animeframe -= numAnimFrames;
+        }
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+        radius = animator.getRegionHeight() / 2.0f;
+    }
+
+    /**
+     * Draws the physics object.
+     * This method overrides the draw method in SimpleObstacle
+     *
+     * @param canvas Drawing context
+     */
+    public void draw(GameCanvas canvas) {
+        if (texture != null) {
+            animator.setFrame((int)animeframe);
+            canvas.draw(animator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+                    1.0f, 1.0f);
+        }
+    }
+
+    /**
+     * Draws the physics object with tint.
+     * This method overrides the drawWithTint method in SimpleObstacle
+     *
+     * @param canvas Drawing context
+     * @param tint Tint to apply
+     */
+    public void drawWithTint(GameCanvas canvas, Color tint) {
+        if (texture != null) {
+            animator.setFrame((int)animeframe);
+            canvas.draw(animator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+                    1.0f, 1.0f);
+        }
+    }
+
+    public void update(float dt) {
+        // Increase animation frame
+        animeframe += animationSpeed;
+        if (animeframe >= numAnimFrames) {
+            animeframe = 0;
+        }
+        super.update(dt);
     }
 
 }
