@@ -471,8 +471,10 @@ public class PlatformController extends WorldController {
 		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 	}
 
-	public void createFailWindow() {
+	public void createFailWindow(float cameraX, float cameraY) {
 		failMenuStage = new Stage(new ScreenViewport(camera));
+		camera.position.x = cameraX;
+		camera.position.y = cameraY;
 		failMenu = new Table();
 		failMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		failMenu.setFillParent(true);
@@ -509,8 +511,11 @@ public class PlatformController extends WorldController {
 
 	}
 
-	public void createWinWindow() {
+	public void createWinWindow(float cameraX, float cameraY) {
 		winMenuStage= new Stage(new ScreenViewport(camera));
+		camera.position.x = cameraX;
+		camera.position.y = cameraY;
+		camera.update();
 		winMenu = new Table();
 		winMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		winMenu.setFillParent(true);
@@ -542,12 +547,10 @@ public class PlatformController extends WorldController {
 			}
 		});
 
-		winMenu.setPosition(camera.position.x, camera.position.y);
 		winMenuStage.addActor(winMenu);
 		winMenu.validate();
 		winMenu.setTransform(true);
 		winMenu.setScale(0.5f);
-
 	}
 
 	public void setPositionMenu(Table menu){
@@ -1924,12 +1927,12 @@ public class PlatformController extends WorldController {
 		// Draw final message when level ends
 		// Draw final message when level ends
 		//JENNA
-
 		if (isComplete() && !isFailure()) {
 			canvas.begin();
 			if (isComplete()) {
 				if (firstTimeRenderedWinMenu) {
-					createWinWindow();
+					createWinWindow(camera.position.x, camera.position.y);
+					setPositionMenu(winMenu);
 					firstTimeRenderedWinMenu = false;
 				} else {
 					setPositionMenu(winMenu);
@@ -1957,7 +1960,7 @@ public class PlatformController extends WorldController {
 			canvas.begin();
 			if (isFailure()) {
 				if (firstTimeRenderedFailMenu) {
-					createFailWindow();
+					createFailWindow(camera.position.x, camera.position.y);
 					firstTimeRenderedFailMenu = false;
 				} else {
 					setPositionMenu(failMenu);
