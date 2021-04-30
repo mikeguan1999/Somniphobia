@@ -11,13 +11,19 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -29,13 +35,16 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
+import edu.cornell.gdiac.somniphobia.Menu;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
+import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 
@@ -300,6 +309,34 @@ public class PlatformController extends WorldController {
 
 	//END JENNA
 
+	/** whether pauseMenu is rendered for the first time*/
+	private Boolean firstTimeRendered=true;
+	/** the underline on pauseMenu*/
+	private Image underline;
+	/** pause menu drawables*/
+	private TextureRegionDrawable blueUnderline;
+	private TextureRegionDrawable orangeUnderline;
+	private TextureRegionDrawable blueRectangle;
+	private TextureRegionDrawable blueExit;
+	private TextureRegionDrawable blueResume;
+	private TextureRegionDrawable blueRestart;
+	private TextureRegionDrawable orangeRectangle;
+	private TextureRegionDrawable orangeExit;
+	private TextureRegionDrawable orangeResume;
+	private TextureRegionDrawable orangeRestart;
+
+	/** constants for positioning pause menu and pause button */
+	private final int PAUSE_BUTTON_OFFSETX = 400;
+	private final int PAUSE_BUTTON_OFFSETY = 200;
+	private final int PAUSE_BUTTON_WIDTH = 100;
+	private final int PAUSE_BUTTON_HEIGHT = 80;
+	private final float PAUSE_MENU_SCALE = 0.5f;
+	private final int PAUSE_MENU_BUTTON_SPACE = 50;
+	private final int UNDERLINE_WIDTH_OFFSET = 10;
+	private final int UNDERLINE_HEIGHT_OFFSET = 0;
+	private final int UNDERLINE_OFFSETX = -5;
+	private final int UNDERLINE_OFFSETY = -60;
+	private final int PAUSE_MENU_POSITION_SCALE = 4;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -336,55 +373,55 @@ public class PlatformController extends WorldController {
 		heightUpperBound = 0;
 	}
 
-	//JENNA
 	/**
-	 * Helper function for creating buttons on pause menu:
-	 * Creating an image button that appears as an image with upFilepath.
+	 * Helper function for creating a drawable from an image with filepath
 	 */
-	private Button createImageButton(String upFilepath){
-		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
-		Button imgButton= new Button(buttonDrawable);
-		return imgButton;
-	}
-
 	private TextureRegionDrawable createDrawable(String filePath){
 		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
 		return drawable;
 	}
 
-	public Boolean getExitClicked(){
-		return exitClicked;
+	/**
+	 * Helper function for creating buttons on pause menu:
+	 * Creating an image button that appears as an image with upFilepath.
+	 */
+	private Button createImageButton(String upFilepath){
+		TextureRegionDrawable upButtonDrawable = createDrawable(upFilepath);
+		Button imgButton= new Button(upButtonDrawable);
+		return imgButton;
 	}
-
-	public Boolean getResumeClicked(){
-		return resumeClicked;
-	}
-
-	public Boolean getRestartClicked(){
-		return restartClicked;
-	}
-
-
 
 	/**
-	 * Creates sliders to adjust game constants.
+	 * Creates the pauseMenu with the buttons
 	 */
-	public void createPauseWindow() {
-		pauseMenuStage= new Stage(new ScreenViewport(camera));
+	public void createModalWindow() {
+		Viewport viewport = canvas.getViewPort();
+		pauseMenuStage = new Stage(viewport);
 		pauseMenu = new Table();
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
 
-		exitButton = createImageButton("pause_menu\\exit.png");
-		resumeButton = createImageButton("pause_menu\\resume.png");
-		restartButton = createImageButton("pause_menu\\restart.png");
-		advanceButton = createImageButton("pause_menu\\restart.png");
+		exitButton = createImageButton("pause_menu\\exit_blue.png");
+		resumeButton = createImageButton("pause_menu\\resume_blue.png");
+		restartButton = createImageButton("pause_menu\\restart_blue.png");
+		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
 
-		//Buttons needed
-		pauseMenu.add(exitButton).space(50);
-		pauseMenu.add(resumeButton).space(50);
-		pauseMenu.add(restartButton).space(50);
-
+		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,100);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,110);
+		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,100);
+		pauseMenu.row();
+		pauseMenu.add(underline);
+		underline.setVisible(false);
+		orangeUnderline = createDrawable("pause_menu\\pausemenu_underline_red.png");
+		blueUnderline = createDrawable("pause_menu\\pausemenu_underline.png");
+		blueRectangle = createDrawable("pause_menu\\bluerectangle.png");
+		blueExit = createDrawable("pause_menu\\exit_blue.png");
+		blueResume = createDrawable("pause_menu\\resume_blue.png");
+		blueRestart = createDrawable("pause_menu\\restart_blue.png");
+		orangeRectangle = createDrawable("pause_menu\\orangerectangle.png");
+		orangeExit = createDrawable("pause_menu\\exit_orange.png");
+		orangeResume = createDrawable("pause_menu\\resume_orange.png");
+		orangeRestart = createDrawable("pause_menu\\restart_orange.png");
 
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -404,12 +441,21 @@ public class PlatformController extends WorldController {
 			}
 		});
 
-		pauseMenu.setPosition(camera.position.x, camera.position.y);
+		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
-		pauseMenu.setScale(0.5f);
+		pauseMenu.setScale(PAUSE_MENU_SCALE);
+		underline.setZIndex(0);
+		underline.setVisible(false);
 
+	}
+
+	/**
+	 * Resets the position of the pauseMenu relative to the camera's position
+	 */
+	public void setPositionPauseMenu(){
+		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 	}
 
 	public void createFailWindow() {
@@ -721,7 +767,7 @@ public class PlatformController extends WorldController {
 
 		Gdx.input.setInputProcessor(stage);
 
-		s.draw(b, 1.0f);
+//		s.draw(b, 1.0f);
 	}
 
 	public void drawSliders(){
@@ -737,30 +783,33 @@ public class PlatformController extends WorldController {
 		}
 	}
 
-	//JENNA
+	/**
+	 * Creates the pauseButton
+	 */
 	public void createPauseButton(){
 		Table table = new Table();
 		gameScreenActive = true;
 		pauseButtonStage = new Stage(new ScreenViewport(camera));
 		pauseButton = createImageButton("pause_menu\\pause_button.png");
-		pauseButton.setPosition(camera.position.x+350, camera.position.y+150);
+		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				setPause(true);
 			}
 		});
-		pauseButton.setSize(100,80);
+		pauseButton.setSize(PAUSE_BUTTON_WIDTH,PAUSE_BUTTON_HEIGHT);
 		table.add(pauseButton);
 		pauseButtonStage.addActor(table);
 	}
 
+	/**
+	 * Draws the pauseButton and resets the position relative to the camera position
+	 */
 	public void drawPauseButton(){
 		Batch b = canvas.getBatch();
-		pauseButton.setPosition(camera.position.x+400, camera.position.y+200);
+		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.draw(b, 1);
 	}
-
-	//END JENNA
 
 	/**
 	 * Gather the assets for this controller.
@@ -924,6 +973,7 @@ public class PlatformController extends WorldController {
 	 * This method disposes of the world and creates a new one.
 	 */
 	public void reset() {
+		gameScreenActive = true;
 		Vector2 gravity = new Vector2(world.getGravity() );
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
@@ -1206,6 +1256,7 @@ public class PlatformController extends WorldController {
 			setPause(false);
 			setFailure(false);
 			setComplete(false);
+			firstTimeRendered = true;
 			listener.exitScreen(this, WorldController.EXIT_MENU);
 			exitClicked = false;
 			return false;
@@ -1231,6 +1282,7 @@ public class PlatformController extends WorldController {
 		}
 
 		if (restartClicked){
+			setPause(false);
 			reset();
 			restartClicked = false;
 		}
@@ -1251,11 +1303,10 @@ public class PlatformController extends WorldController {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+		if (pauseMenuActive() || isComplete() || isFailure()) return;
 
 		action = movementController.update();
 		platController.update(dt);
-
-
 		CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
 //		phobia = movementController.getPhobia();
@@ -1266,103 +1317,104 @@ public class PlatformController extends WorldController {
 			switching = !switching;
 		}
 
-		if(holdingHands){
-            if(lead == somni){
-            	// draw somni, phobia, and the hands
+
+		if (holdingHands) {
+			if (lead == somni) {
+				// draw somni, phobia, and the hands
 				combined.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
 						phobiasTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
 						somniPhobiaHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
-            }else{
-            	// draw phobia, somni, and the hands
+			} else {
+				// draw phobia, somni, and the hands
 				combined.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
 						somnisTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
 						phobiaSomniHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
-            }
-        }
-        else{
-            if(lead == somni){
-            	// draw somni
-            	if (action == 2 || action ==3) {
-            		int facing = somni.isFacingRight()? 1:-1;
-            		//draw somni with small dash ring
+			}
+		} else {
+			if (lead == somni) {
+				// draw somni
+				if (action == 2 || action == 3) {
+					int facing = somni.isFacingRight() ? 1 : -1;
+					//draw somni with small dash ring
 					somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
 							yellowRingSmallTexture, 0.2f, 128, 0, -5, facing * dashAngles[action]);
 				} else {
-					if (movementController.canHoldHands()){
+					if (movementController.canHoldHands()) {
 						// somni reaches out hand when phobia within distance
 						int f = movementController.faceTowards();
 						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-								somniHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+								somniHandsTextures[f], thirdOffsetsX[action + 5 * (f + 1)], thirdOffsetsY[action]);
 					} else {
 						// only draw somni
 						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
 					}
 				}
 
-            	// draw phobia
-				if ((action == 2 || action == 3) && movementController.justSeparated()){
+				// draw phobia
+				if ((action == 2 || action == 3) && movementController.justSeparated()) {
 					// draw phobia and a propelling hand
 					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
 							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-				}else{
+				} else {
 					// only draw phobia
 					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
 				}
 
-            }else{
-            	// draw the leading character phobia
-            	if (action == 2 || action == 3){
-					int facing = somni.isFacingRight()? 1:-1;
-            		// draw phobia with small dash ring
+			} else {
+				// draw the leading character phobia
+				if (action == 2 || action == 3) {
+					int facing = somni.isFacingRight() ? 1 : -1;
+					// draw phobia with small dash ring
 					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-							blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
+							blueRingSmallTexture, 0.2f, 128, 0, -5, facing * dashAngles[action]);
 				} else {
-					if (movementController.canHoldHands()){
+					if (movementController.canHoldHands()) {
 						// phobia reaches out hand when somni within distance
 						int f = movementController.faceTowards();
 						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-								phobiaHandsTextures[f], thirdOffsetsX[action+5*(f+1)], thirdOffsetsY[action]);
+								phobiaHandsTextures[f], thirdOffsetsX[action + 5 * (f + 1)], thirdOffsetsY[action]);
 					} else {
 						// only draw phobia
 						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
 					}
 				}
 
-            	// draw the idle character somni
-                if ((action == 2 || action == 3) && movementController.justSeparated()){
+				// draw the idle character somni
+				if ((action == 2 || action == 3) && movementController.justSeparated()) {
 					// draw somni with a propelling hand
-					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
 							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
 				} else {
 					// only draw somni
 					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
 				}
-            }
-            movementController.setJustSeparated(false);
-        }
+			}
+			movementController.setJustSeparated(false);
+		}
 
 		// Set camera position bounded by the canvas size
 		camera = canvas.getCamera();
 
-        if(cameraCenter == null) {
-        	cameraCenter = new Vector2(avatar.getX(), avatar.getY());
+		if (cameraCenter == null) {
+			cameraCenter = new Vector2(avatar.getX(), avatar.getY());
 			cameraCenter.x = avatar.getX();
 			cameraCenter.y = avatar.getY();
 		}
 
-        float PAN_DISTANCE = 100f;
-        float CAMERA_SPEED = 10f;
+
+		float PAN_DISTANCE = 100f;
+		float CAMERA_SPEED = 10f;
 
 		float newX = avatar.getX() * canvas.PPM;
 		float camX = InputController.getInstance().getCameraHorizontal();
-		if(camX != 0) {
+		if (camX != 0) {
 			panMovement.x = camX * CAMERA_SPEED * canvas.PPM;
 		} else {
 			panMovement.x = 0;
 		}
 
 		float camY = InputController.getInstance().getCameraVertical();
-		if(camY != 0) {
+		if (camY != 0) {
 			panMovement.y = camY * CAMERA_SPEED * canvas.PPM;
 		} else {
 			panMovement.y = 0;
@@ -1370,10 +1422,10 @@ public class PlatformController extends WorldController {
 
 		float newY = avatar.getY() * canvas.PPM;
 		//float displacementFactor = camera.frustum.sphereInFrustumWithoutNearFar(newX, newY, 0, PAN_RADIUS) ?
-	//			1 : 0;
+		//			1 : 0;
 
 		newX = Math.min(newX, widthUpperBound);
-		newX = Math.max(canvas.getWidth() / 2, newX );
+		newX = Math.max(canvas.getWidth() / 2, newX);
 		float displacementX = newX - camera.position.x;
 		//panMovement.x +=  camX * CAMERA_SPEED * canvas.PPM;
 		//float lerpDisplacementX = (displacementX + panMovement.x) * displacementFactor;
@@ -1381,7 +1433,7 @@ public class PlatformController extends WorldController {
 		camera.position.x += lerpDisplacementX * LERP * dt;
 
 		newY = Math.min(newY, heightUpperBound);
-		newY = Math.max(canvas.getHeight() / 2, newY );
+		newY = Math.max(canvas.getHeight() / 2, newY);
 		float displacementY = newY - camera.position.y;
 		//panMovement.y += camY * CAMERA_SPEED * canvas.PPM;
 		//float lerpDisplacementY = (displacementY + panMovement.y) * displacementFactor;
@@ -1410,7 +1462,7 @@ public class PlatformController extends WorldController {
 	 * @param character The character to center the mask on
 	 */
 	private void drawMask(TextureRegion mask, Texture background, float cameraX, float cameraY, float maskWidth,
-						 float maskHeight, CharacterModel character) {
+						  float maskHeight, CharacterModel character) {
 		updateMaskPosition(maskWidth, maskHeight, character);
 		canvas.beginCustom(GameCanvas.BlendState.OPAQUE, GameCanvas.ChannelState.ALPHA);
 		if(background != null) {
@@ -1497,7 +1549,7 @@ public class PlatformController extends WorldController {
 	 * @param character The character to center the mask on
 	 */
 	private void drawSpiritObjects(float cameraX, float cameraY, float maskWidth, float maskHeight,
-								  int platformKind, CharacterModel character) {
+								   int platformKind, CharacterModel character) {
 		// Start with the mask to properly draw things within a spirit's realm
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, character);
 
@@ -1711,37 +1763,54 @@ public class PlatformController extends WorldController {
 			} else {
 				displayFont.getData().setScale(.3f, .3f);
 				labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
-
-
 				drawSliders();
 			}
 		}
 		canvas.end();
 
-		//JENNA
-
+		// Draw pauseMenu
 		canvas.begin();
+
+		if (firstTimeRendered) {
+			createModalWindow();
+			firstTimeRendered = false;
+		}
 		if (pauseMenuActive()) {
-			if (firstTimeRenderedPauseMenu) {
-				createPauseWindow();
-				firstTimeRenderedPauseMenu = false;
-			} else {
-				setPositionMenu(pauseMenu);
-				pauseMenuStage.draw();
-				pauseMenuStage.act(dt);
-//				drawModalWindow();
+			setPositionPauseMenu();
+			pauseMenuStage.draw();
+			pauseMenuStage.act(dt);
+
+			if (exitButton.isOver()){
+				underline.setSize(exitButton.getWidth()+UNDERLINE_WIDTH_OFFSET, exitButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(exitButton.getX()+UNDERLINE_OFFSETX, exitButton.getY()+UNDERLINE_OFFSETY);
+				underline.setVisible(true);
 			}
-			if (movementController.getAvatar()==somni){
-				pauseMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resume.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+			else if (resumeButton.isOver()){
+				underline.setSize(resumeButton.getWidth()+UNDERLINE_WIDTH_OFFSET, resumeButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(resumeButton.getX()+UNDERLINE_OFFSETX, resumeButton.getY()+UNDERLINE_OFFSETY);
+				underline.setVisible(true);
+			}
+			else if (restartButton.isOver()){
+				underline.setSize(restartButton.getWidth()+UNDERLINE_WIDTH_OFFSET, restartButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(restartButton.getX()+UNDERLINE_OFFSETX, restartButton.getY()+UNDERLINE_OFFSETY);
+				underline.setVisible(true);
 			}
 			else{
-				pauseMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resumeorange.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+				underline.setVisible(false);
+			}
+			if (movementController.getAvatar()==somni || movementController.getLead()==somni){
+				pauseMenu.setBackground(blueRectangle);
+				exitButton.getStyle().up = blueExit;
+				resumeButton.getStyle().up = blueResume;
+				restartButton.getStyle().up = blueRestart;
+				underline.setDrawable(blueUnderline);
+			}
+			else{
+				pauseMenu.setBackground(orangeRectangle);
+				exitButton.getStyle().up = orangeExit;
+				resumeButton.getStyle().up = orangeResume;
+				restartButton.getStyle().up = orangeRestart;
+				underline.setDrawable(orangeUnderline);
 			}
 
 			Gdx.input.setInputProcessor(pauseMenuStage);
@@ -1754,6 +1823,12 @@ public class PlatformController extends WorldController {
 			firstTimeRenderedPauseButton = false;
 		}
 		else{
+			if (movementController.getAvatar()==somni || movementController.getLead()==somni){
+				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_button.png");
+			}
+			else{
+				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_red.png");
+			}
 			drawPauseButton();
 		}
 
@@ -1761,10 +1836,6 @@ public class PlatformController extends WorldController {
 			Gdx.input.setInputProcessor(pauseButtonStage);
 		}
 		canvas.end();
-
-
-		//END JENNA
-
 
 		// Draw debug if active
 		if (isDebug()) {
@@ -1830,14 +1901,14 @@ public class PlatformController extends WorldController {
 					failMenuStage.act(dt);
 				}
 				if (movementController.getAvatar()==somni){
-					failMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-					restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+					failMenu.setBackground(blueRectangle);
+					exitButton.getStyle().up = blueExit;
+					restartButton.getStyle().up = blueRestart;
 				}
 				else{
-					failMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-					restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+					failMenu.setBackground(orangeRectangle);
+					exitButton.getStyle().up = orangeExit;
+					restartButton.getStyle().up = orangeRestart;
 				}
 
 				Gdx.input.setInputProcessor(failMenuStage);
