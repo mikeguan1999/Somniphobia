@@ -69,7 +69,7 @@ public class MainMenu implements Screen {
 	private Button startDream;
 	private Button about;
 	private Button controls;
-	private Image underline;
+	private Button underline;
 	private boolean started;
 
 	public Stage getStage(){
@@ -86,7 +86,7 @@ public class MainMenu implements Screen {
 		about = createImageButton("main_screen\\about.png");
 		controls = createImageButton("main_screen\\controls.png");
 		startDream = createImageButton("main_screen\\start_dream.png");
-		underline = createImage("main_screen\\startdream_underline.png");
+		underline = createImageButton("main_screen\\startdream_underline.png");
 
 		table.add(titleImage).colspan(5).padLeft(300).padRight(300).height(100).padTop(50);
 		table.row().padBottom(300);
@@ -191,15 +191,15 @@ public class MainMenu implements Screen {
 			}
 
 			else{
-//				underline.setPosition(titleImage.getX(), titleImage.getY());
+				underline.setZIndex(0);
 				underline.setVisible(false);
 
 			}
 
-		if (started){
-			started = false;
-			listener.exitScreen(this, WorldController.EXIT_MENU);
-		}
+			if (started){
+				started = false;
+				listener.exitScreen(this, WorldController.EXIT_MENU);
+			}
 		}
 	}
 
@@ -278,4 +278,3 @@ public class MainMenu implements Screen {
 
 
 }
-

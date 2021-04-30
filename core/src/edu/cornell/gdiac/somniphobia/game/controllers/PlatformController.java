@@ -338,6 +338,7 @@ public class PlatformController extends WorldController {
 
 	private Vector2 cameraCenter;
 	private int cameraDelay = 0;
+	private Stage stage;
 
 
 
@@ -385,13 +386,6 @@ public class PlatformController extends WorldController {
 	public void createModalWindow() {
 		Viewport viewport = canvas.getViewPort();
 		pauseMenuStage = new Stage(viewport);
-	}
-
-	/**
-	 * Creates sliders to adjust game constants.
-	 */
-	public void createPauseWindow() {
-		pauseMenuStage= new Stage(new ScreenViewport(camera));
 		pauseMenu = new Table();
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
@@ -418,7 +412,6 @@ public class PlatformController extends WorldController {
 		orangeResume = createDrawable("pause_menu\\resume_orange.png");
 		orangeRestart = createDrawable("pause_menu\\restart_orange.png");
 
-
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				exitClicked = true;
@@ -442,14 +435,17 @@ public class PlatformController extends WorldController {
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
 		pauseMenu.setScale(PAUSE_MENU_SCALE);
+		underline.setZIndex(0);
+		underline.setVisible(false);
 
 	}
 
+	/**
+	 * Resets the position of the pauseMenu relative to the camera's position
+	 */
 	public void setPositionPauseMenu(){
 		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 	}
-
-
 
 	public void createFailWindow() {
 		failMenuStage = new Stage(new ScreenViewport(camera));
@@ -547,7 +543,7 @@ public class PlatformController extends WorldController {
 		CharacterModel avatar = movementController.getAvatar();
 
 
-		Stage stage = new Stage(new ScreenViewport(camera));
+		stage = new Stage(new ScreenViewport(camera));
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
 			@Override
@@ -1242,6 +1238,7 @@ public class PlatformController extends WorldController {
 			setPause(false);
 			setFailure(false);
 			setComplete(false);
+			firstTimeRendered = true;
 			listener.exitScreen(this, WorldController.EXIT_MENU);
 			exitClicked = false;
 			return false;
@@ -1267,6 +1264,7 @@ public class PlatformController extends WorldController {
 		}
 
 		if (restartClicked){
+			setPause(false);
 			reset();
 			restartClicked = false;
 		}
@@ -1287,159 +1285,155 @@ public class PlatformController extends WorldController {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		if (!pauseMenuActive()) {
-			action = movementController.update();
-			platController.update(dt);
+		if (pauseMenuActive() || isComplete() || isFailure()) return;
+		action = movementController.update();
+		platController.update(dt);
 
-			CharacterModel lead = movementController.getLead();
+		CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
 //		phobia = movementController.getPhobia();
-			CharacterModel avatar = movementController.getAvatar();
-			holdingHands = movementController.isHoldingHands();
+		CharacterModel avatar = movementController.getAvatar();
+		holdingHands = movementController.isHoldingHands();
 
-			if (movementController.getSwitchedCharacters()) {
-				switching = !switching;
-			}
-
-
-			if(holdingHands){
-				if(lead == somni){
-					// draw somni, phobia, and the hands
-					combined.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
-							phobiasTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
-							somniPhobiaHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
-				}else{
-					// draw phobia, somni, and the hands
-					combined.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
-							somnisTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
-							phobiaSomniHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
-				}
-			}
-			else{
-				if(avatar == somni){
-					// draw somni
-					if ((action == 2 || action ==3 || action ==5)&& !movementController.justSeparated()) {
-						int facing = somni.isFacingRight()? 1:-1;
-						//draw somni with small dash ring
-						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-								yellowRingSmallTexture, 0.2f, 128, 0, -5, facing * dashAngles[action]);
-					} else {
-						if (movementController.canHoldHands()){
-							// somni reaches out hand when phobia within distance
-							int f = movementController.faceTowards();
-							somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-									somniHandsTextures[f], thirdOffsetsX[action+6*(f+1)], thirdOffsetsY[action]);
-						} else {
-							// only draw somni
-							somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
-						}
-					}
-
-            	// draw phobia
-					if (action == 2  && movementController.justPropelled()){
-						// draw phobia and a propelling hand
-						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
-								blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-					} else if ((action == 3 || action == 5) && movementController.justPropelled()) {
-						// draw phobia and an upward propelling hand
-						int facing = phobia.isFacingRight()? 1:-1;
-						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
-								blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], facing*propelAngles[action]);
-					} else {
-						// only draw phobia
-						phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
-					}
-
-            }else{
-					// draw the leading character phobia
-					if ((action == 2 || action == 3 || action == 5) && !movementController.justSeparated()){
-						int facing = phobia.isFacingRight()? 1:-1;
-						// draw phobia with small dash ring
-						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-								blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
-					} else {
-						if (movementController.canHoldHands()){
-							// phobia reaches out hand when somni within distance
-							int f = movementController.faceTowards();
-							phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
-									phobiaHandsTextures[f], thirdOffsetsX[action+6*(f+1)], thirdOffsetsY[action]);
-						} else {
-							// only draw phobia
-							phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
-						}
-					}
-
-					// draw the idle character somni
-					if (action == 2  && movementController.justPropelled()){
-						// draw somni with a propelling hand
-						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
-								yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-					} else if ( (action == 3 || action ==5 ) && movementController.justPropelled()) {
-						int facing = somni.isFacingRight()? 1:-1;
-						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
-								yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], facing*propelAngles[action]);
-					} else {
-						// only draw somni
-						somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
-					}
-
-            }
-				movementController.setJustSeparated(false);
-				movementController.setJustPropelled(false);
-        }
-
-			// Set camera position bounded by the canvas size
-			camera = canvas.getCamera();
-
-			if (cameraCenter == null) {
-				cameraCenter = new Vector2(avatar.getX(), avatar.getY());
-				cameraCenter.x = avatar.getX();
-				cameraCenter.y = avatar.getY();
-			}
-
-
-			float PAN_DISTANCE = 100f;
-			float CAMERA_SPEED = 10f;
-
-			float newX = avatar.getX() * canvas.PPM;
-			float camX = InputController.getInstance().getCameraHorizontal();
-			if (camX != 0) {
-				panMovement.x = camX * CAMERA_SPEED * canvas.PPM;
-			} else {
-				panMovement.x = 0;
-			}
-
-			float camY = InputController.getInstance().getCameraVertical();
-			if (camY != 0) {
-				panMovement.y = camY * CAMERA_SPEED * canvas.PPM;
-			} else {
-				panMovement.y = 0;
-			}
-
-			float newY = avatar.getY() * canvas.PPM;
-			//float displacementFactor = camera.frustum.sphereInFrustumWithoutNearFar(newX, newY, 0, PAN_RADIUS) ?
-			//			1 : 0;
-
-			newX = Math.min(newX, widthUpperBound);
-			newX = Math.max(canvas.getWidth() / 2, newX);
-			float displacementX = newX - camera.position.x;
-			//panMovement.x +=  camX * CAMERA_SPEED * canvas.PPM;
-			//float lerpDisplacementX = (displacementX + panMovement.x) * displacementFactor;
-			float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ? displacementX + panMovement.x : displacementX;
-			camera.position.x += lerpDisplacementX * LERP * dt;
-
-			newY = Math.min(newY, heightUpperBound);
-			newY = Math.max(canvas.getHeight() / 2, newY);
-			float displacementY = newY - camera.position.y;
-			//panMovement.y += camY * CAMERA_SPEED * canvas.PPM;
-			//float lerpDisplacementY = (displacementY + panMovement.y) * displacementFactor;
-			float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ? displacementY + panMovement.y : displacementY;
-			camera.position.y += lerpDisplacementY * LERP * dt;
-
-			camera.update();
-
+		if (movementController.getSwitchedCharacters()) {
+			switching = !switching;
 		}
 
+
+		if(holdingHands){
+			if(lead == somni){
+				// draw somni, phobia, and the hands
+				combined.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
+						phobiasTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
+						somniPhobiaHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
+			}else{
+				// draw phobia, somni, and the hands
+				combined.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], offsetsX[action], offsetsY[action],
+						somnisTexture[action], animationSpeed[action], framePixelWidth[action], secOffsetsX[action], secOffsetsY[action],
+						phobiaSomniHandsTexture, thirdOffsetsX[action], thirdOffsetsY[action]);
+			}
+		}
+		else{
+			if(avatar == somni){
+				// draw somni
+				if ((action == 2 || action ==3 || action ==5)&& !movementController.justSeparated()) {
+					int facing = somni.isFacingRight()? 1:-1;
+					//draw somni with small dash ring
+					somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+							yellowRingSmallTexture, 0.2f, 128, 0, -5, facing * dashAngles[action]);
+				} else {
+					if (movementController.canHoldHands()){
+						// somni reaches out hand when phobia within distance
+						int f = movementController.faceTowards();
+						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								somniHandsTextures[f], thirdOffsetsX[action+6*(f+1)], thirdOffsetsY[action]);
+					} else {
+						// only draw somni
+						somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action]);
+					}
+				}
+
+				// draw phobia
+				if (action == 2  && movementController.justPropelled()){
+					// draw phobia and a propelling hand
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+				} else if ((action == 3 || action == 5) && movementController.justPropelled()) {
+					// draw phobia and an upward propelling hand
+					int facing = phobia.isFacingRight()? 1:-1;
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], facing*propelAngles[action]);
+				} else {
+					// only draw phobia
+					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				}
+
+			}else{
+				// draw the leading character phobia
+				if ((action == 2 || action == 3 || action == 5) && !movementController.justSeparated()){
+					int facing = phobia.isFacingRight()? 1:-1;
+					// draw phobia with small dash ring
+					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+							blueRingSmallTexture, 0.2f, 128, 0, -5, facing*dashAngles[action]);
+				} else {
+					if (movementController.canHoldHands()){
+						// phobia reaches out hand when somni within distance
+						int f = movementController.faceTowards();
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
+								phobiaHandsTextures[f], thirdOffsetsX[action+6*(f+1)], thirdOffsetsY[action]);
+					} else {
+						// only draw phobia
+						phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action]);
+					}
+				}
+
+				// draw the idle character somni
+				if (action == 2  && movementController.justPropelled()){
+					// draw somni with a propelling hand
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
+							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
+				} else if ( (action == 3 || action ==5 ) && movementController.justPropelled()) {
+					int facing = somni.isFacingRight()? 1:-1;
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
+							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], facing*propelAngles[action]);
+				} else {
+					// only draw somni
+					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0]);
+				}
+
+			}
+			movementController.setJustSeparated(false);
+			movementController.setJustPropelled(false);
+		}
+
+		// Set camera position bounded by the canvas size
+		camera = canvas.getCamera();
+
+		if (cameraCenter == null) {
+			cameraCenter = new Vector2(avatar.getX(), avatar.getY());
+			cameraCenter.x = avatar.getX();
+			cameraCenter.y = avatar.getY();
+		}
+
+		float PAN_DISTANCE = 100f;
+		float CAMERA_SPEED = 10f;
+
+		float newX = avatar.getX() * canvas.PPM;
+		float camX = InputController.getInstance().getCameraHorizontal();
+		if (camX != 0) {
+			panMovement.x = camX * CAMERA_SPEED * canvas.PPM;
+		} else {
+			panMovement.x = 0;
+		}
+
+		float camY = InputController.getInstance().getCameraVertical();
+		if (camY != 0) {
+			panMovement.y = camY * CAMERA_SPEED * canvas.PPM;
+		} else {
+			panMovement.y = 0;
+		}
+
+		float newY = avatar.getY() * canvas.PPM;
+		//float displacementFactor = camera.frustum.sphereInFrustumWithoutNearFar(newX, newY, 0, PAN_RADIUS) ?
+		//			1 : 0;
+
+		newX = Math.min(newX, widthUpperBound);
+		newX = Math.max(canvas.getWidth() / 2, newX);
+		float displacementX = newX - camera.position.x;
+		//panMovement.x +=  camX * CAMERA_SPEED * canvas.PPM;
+		//float lerpDisplacementX = (displacementX + panMovement.x) * displacementFactor;
+		float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ? displacementX + panMovement.x : displacementX;
+		camera.position.x += lerpDisplacementX * LERP * dt;
+
+		newY = Math.min(newY, heightUpperBound);
+		newY = Math.max(canvas.getHeight() / 2, newY);
+		float displacementY = newY - camera.position.y;
+		//panMovement.y += camY * CAMERA_SPEED * canvas.PPM;
+		//float lerpDisplacementY = (displacementY + panMovement.y) * displacementFactor;
+		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ? displacementY + panMovement.y : displacementY;
+		camera.position.y += lerpDisplacementY * LERP * dt;
+
+		camera.update();
 
 	}
 
@@ -1461,7 +1455,7 @@ public class PlatformController extends WorldController {
 	 * @param character The character to center the mask on
 	 */
 	private void drawMask(TextureRegion mask, Texture background, float cameraX, float cameraY, float maskWidth,
-						 float maskHeight, CharacterModel character) {
+						  float maskHeight, CharacterModel character) {
 		updateMaskPosition(maskWidth, maskHeight, character);
 		canvas.beginCustom(GameCanvas.BlendState.OPAQUE, GameCanvas.ChannelState.ALPHA);
 		if(background != null) {
@@ -1548,7 +1542,7 @@ public class PlatformController extends WorldController {
 	 * @param character The character to center the mask on
 	 */
 	private void drawSpiritObjects(float cameraX, float cameraY, float maskWidth, float maskHeight,
-								  int platformKind, CharacterModel character) {
+								   int platformKind, CharacterModel character) {
 		// Start with the mask to properly draw things within a spirit's realm
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, character);
 
@@ -1754,15 +1748,18 @@ public class PlatformController extends WorldController {
 
 		// Draw sliders if active
 		canvas.begin();
+		if (tes == 0) {
+			createSliders();
+			tes = 1;
+		}
+
 		if (slidersActive()) {
-			if (tes == 0) {
-				createSliders();
-				tes = 1;
-			} else {
-				displayFont.getData().setScale(.3f, .3f);
-				labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
-				drawSliders();
-			}
+			stage.draw();
+			stage.act();
+			displayFont.getData().setScale(.3f, .3f);
+			labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
+			drawSliders();
+			Gdx.input.setInputProcessor(stage);
 		}
 		canvas.end();
 
@@ -1802,14 +1799,14 @@ public class PlatformController extends WorldController {
 				resumeButton.getStyle().up = blueResume;
 				restartButton.getStyle().up = blueRestart;
 				underline.setDrawable(blueUnderline);
-				}
+			}
 			else{
 				pauseMenu.setBackground(orangeRectangle);
 				exitButton.getStyle().up = orangeExit;
 				resumeButton.getStyle().up = orangeResume;
 				restartButton.getStyle().up = orangeRestart;
 				underline.setDrawable(orangeUnderline);
-				}
+			}
 
 			Gdx.input.setInputProcessor(pauseMenuStage);
 		}
@@ -1830,58 +1827,10 @@ public class PlatformController extends WorldController {
 			drawPauseButton();
 		}
 
-		if (!pauseMenuActive() && gameScreenActive){
+		if (!pauseMenuActive() && gameScreenActive && !slidersActive()){
 			Gdx.input.setInputProcessor(pauseButtonStage);
 		}
 		canvas.end();
-
-		//JENNA
-
-		canvas.begin();
-		if (pauseMenuActive()) {
-			if (firstTimeRenderedPauseMenu) {
-				createPauseWindow();
-				firstTimeRenderedPauseMenu = false;
-			} else {
-				setPositionMenu(pauseMenu);
-				pauseMenuStage.draw();
-				pauseMenuStage.act(dt);
-//				drawModalWindow();
-			}
-			if (movementController.getAvatar()==somni){
-				pauseMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resume.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
-			}
-			else{
-				pauseMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-				exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-				resumeButton.getStyle().up = createDrawable("pause_menu\\resumeorange.png");
-				restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
-			}
-
-			Gdx.input.setInputProcessor(pauseMenuStage);
-		}
-		canvas.end();
-
-		canvas.begin();
-		if (firstTimeRenderedPauseButton){
-			createPauseButton();
-			firstTimeRenderedPauseButton = false;
-		}
-		else{
-			drawPauseButton();
-		}
-
-		if (!pauseMenuActive() && gameScreenActive){
-			Gdx.input.setInputProcessor(pauseButtonStage);
-		}
-		canvas.end();
-
-
-		//END JENNA
-
 
 		// Draw debug if active
 		if (isDebug()) {
@@ -1947,14 +1896,14 @@ public class PlatformController extends WorldController {
 					failMenuStage.act(dt);
 				}
 				if (movementController.getAvatar()==somni){
-					failMenu.setBackground(createDrawable("pause_menu\\bluerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exit.png");
-					restartButton.getStyle().up = createDrawable("pause_menu\\restart.png");
+					failMenu.setBackground(blueRectangle);
+					exitButton.getStyle().up = blueExit;
+					restartButton.getStyle().up = blueRestart;
 				}
 				else{
-					failMenu.setBackground(createDrawable("pause_menu\\orangerectangle.png"));
-					exitButton.getStyle().up = createDrawable("pause_menu\\exitorange.png");
-					restartButton.getStyle().up = createDrawable("pause_menu\\restartorange.png");
+					failMenu.setBackground(orangeRectangle);
+					exitButton.getStyle().up = orangeExit;
+					restartButton.getStyle().up = orangeRestart;
 				}
 
 				Gdx.input.setInputProcessor(failMenuStage);
