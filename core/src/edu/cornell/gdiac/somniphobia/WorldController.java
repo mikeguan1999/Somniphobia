@@ -421,10 +421,10 @@ public abstract class WorldController implements Screen {
 		if (input.didClickPause()){
 			pause = !pause;
 		}
-		
+
 		// Handle resets
 		if (input.didReset()) {
-			reset();
+			//reset(); // commented 4 gonzalo :)
 		}
 		
 		// Now it is time to maybe switch screens.

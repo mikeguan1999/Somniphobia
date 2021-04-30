@@ -845,14 +845,16 @@ public class LevelCreator extends WorldController {
         sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
 
         backgrounds = new TextureRegion[] {
-                new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
-                new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light_forest", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_dark_forest", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_gear", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_gear", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_dreams", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_dreams", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_house", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
         };
 
 
@@ -904,17 +906,20 @@ public class LevelCreator extends WorldController {
                         Platform newPlatform = new Platform(object.type, x, y, width, height, object.property,
                                 null, 0);
 
-                        float[] path = object.paths.get(i);
                         ArrayList<Platform> pathPlatforms = new ArrayList<>();
-                        if(PlatformController.hasValidPath(x, y, path)) {
-                            for (int j = 0; j < path.length / 2; j++) {
-                                float pathX = path[j * 2], pathY = path[j * 2 + 1];
-                                Platform pathPlatform = new Platform(vertexPlatformTag, pathX, pathY, width, height, 0,
-                                        null, 0);
-                                pathPlatform.reference = newPlatform;
-                                pathPlatforms.add(pathPlatform);
+                        if(object.paths != null) {
+                            float[] path = object.paths.get(i);
+                            if(PlatformController.hasValidPath(x, y, path)) {
+                                for (int j = 0; j < path.length / 2; j++) {
+                                    float pathX = path[j * 2], pathY = path[j * 2 + 1];
+                                    Platform pathPlatform = new Platform(vertexPlatformTag, pathX, pathY, width, height, 0,
+                                            null, 0);
+                                    pathPlatform.reference = newPlatform;
+                                    pathPlatforms.add(pathPlatform);
+                                }
                             }
                         }
+
                         newPlatform.path = pathPlatforms;
                         platforms.add(newPlatform);
                     }
