@@ -478,7 +478,8 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Camera camera = canvas.getCamera();
-                if(selectedObstacle != null && selectedObstacle instanceof Platform){
+                if(selectedObstacle != null && selectedObstacle instanceof Platform &&
+                        ((Platform) selectedObstacle).type <somniTag){
                     float posX = (int) (camera.position.x/canvas.PPM);
                     float posY = (int) (camera.position.y/canvas.PPM);
                     float width = ((Platform) selectedObstacle).getWidth();
@@ -517,7 +518,9 @@ public class LevelCreator extends WorldController {
                     objects.remove(currPlatform);
 
                     createPlatform(type, posX, posY, width, height, property, path, velocity);*/
-                    editPlatform((Platform) selectedObstacle);
+                    if(((Platform) selectedObstacle).type < somniTag) {
+                        editPlatform((Platform) selectedObstacle);
+                    }
                 }
             }
         });
