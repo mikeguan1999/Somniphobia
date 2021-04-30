@@ -3,6 +3,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ObjectSet;
+import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
@@ -227,13 +228,33 @@ public class MovementController implements ContactListener {
             phobia.setGravityScale(1);
         }
 
+        if (holdingHands) {
+            SoundController.getInstance().shiftMusic("phobiaTrack", "combinedTrack");
+            SoundController.getInstance().shiftMusic("somniTrack", "combinedTrack");
+        } else {
+            if (avatar == somni) {
+                SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+                SoundController.getInstance().shiftMusic("combinedTrack", "somniTrack");
+            } else {
+                SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+                SoundController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
+            }
+        }
+
         // Check if switched
         if(inputController.didSwitch()) {
             //Switch active character
             if (!holdingHands) {
                 avatar.setMovement(0f);
+                //TODO: Add combined track
+
                 avatar = avatar == somni ? phobia : somni;
             }else{
+//                if (lead == somni) {
+//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+//                } else {
+//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+//                }
                 lead = lead == somni ? phobia :somni;
             }
             setSwitchedCharacters(true);
@@ -316,11 +337,11 @@ public class MovementController implements ContactListener {
             avatar.dashOrPropel(true, x, y);
 
         } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
-            beginHoldHands();
+//            beginHoldHands();
 //            endHoldHands();
-//            avatar.setCanDash(true);
-//            avatar.dashOrPropel(true, x, y);
-            handleDash(x,y);
+            avatar.setCanDash(true);
+            avatar.dashOrPropel(true, x, y);
+//            handleDash(x,y);
         } else {
             avatar.dashOrPropel(false, x, y);
         }
@@ -410,7 +431,7 @@ public class MovementController implements ContactListener {
     private void endHoldHands() {
         if (separationCoolDown<=0){
             separationCoolDown = SEPARATION_COOL_DOWN;
-            justSeparated = true;
+//            justSeparated = true;
         }
         justPropelled = true;
 

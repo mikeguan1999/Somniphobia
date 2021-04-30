@@ -63,6 +63,8 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Whether we are actively dashing */
 	private boolean isDashing;
 
+	private boolean justPropelled;
+
 //	/** Distance to dash */
 //	private float dashDistance;
 	/** Whether we have applied initial dash velocity */
@@ -216,6 +218,7 @@ public class CharacterModel extends CapsuleObstacle {
 		isGrounded = false;
 		isJumping = false;
 		isDashing = false;
+		justPropelled = false;
 		faceRight = true;
 		canDash = true;
 		dashed = false;
@@ -326,6 +329,21 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * gets whether character just propelled
+	 * @return whether character just propelled
+	 */
+	public boolean justPropelled() {
+		return justPropelled;
+	}
+	/**
+	 * Sets whether character just propelled
+	 * @param b whether character just propelled
+	 */
+	public void setJustPropelled(boolean b) {
+		justPropelled = b;
+	}
+
+	/**
 	 * Performs a dash or propel
 	 *
 	 * @param isPropel whether character propelled
@@ -333,6 +351,12 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param dir_Y vertical component of the dash
 	 */
 	public void dashOrPropel(boolean isPropel, float dir_X, float dir_Y) {
+		if (isPropel) {
+			justPropelled = true;
+		} else {
+			justPropelled = false;
+		}
+
 		if(isGrounded && dir_Y < 0) {
 			return;
 		}

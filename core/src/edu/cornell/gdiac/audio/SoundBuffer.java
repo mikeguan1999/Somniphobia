@@ -120,7 +120,7 @@ public interface SoundBuffer extends Sound {
      *
      * @return the volume of the given instance
      */
-    public float getVolume(long soundId, float volume);
+    public float getVolume(long soundId);
 
     /** 
      * Returns the loop setting of the given instance
