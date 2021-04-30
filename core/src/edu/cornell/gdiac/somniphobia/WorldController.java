@@ -107,9 +107,7 @@ public abstract class WorldController implements Screen {
 //	/** Countdown active for winning or losing */
 //	private int countdown;
 
-	//JENNA
 	private boolean pause;
-	//END JENNA
 
 	/**
 	 * Returns true if debug mode is active.
@@ -132,20 +130,13 @@ public abstract class WorldController implements Screen {
 		return sliders;
 	}
 
-	//JENNA
-
 	public boolean pauseMenuActive(){
 		return pause;
 	}
 
-
 	public void setPause(boolean value){
 		pause = value;
 	}
-
-
-	//END JENNA
-
 
 	/**
 	 * Sets whether debug mode is active.
@@ -426,6 +417,10 @@ public abstract class WorldController implements Screen {
 		if (input.didToggleSliders()) {
 			sliders = !sliders;
 		}
+
+		if (input.didClickPause()){
+			pause = !pause;
+		}
 		
 		// Handle resets
 		if (input.didReset()) {
@@ -662,10 +657,7 @@ public abstract class WorldController implements Screen {
 		this.listener = listener;
 	}
 
-	//JENNA
 	public ScreenListener getListener() {
 		return listener;
 	}
-	//END JENNA
-
-	}
+}

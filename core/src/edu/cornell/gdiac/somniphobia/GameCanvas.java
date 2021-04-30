@@ -179,12 +179,14 @@ public class GameCanvas {
 		debugRender = new ShapeRenderer();
 
 		// Set the projection matrix (for proper scaling)
+
 		camera = new OrthographicCamera(getWidth(), getHeight());
 
 		camera.translate(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
 		camera.update();
 		spriteBatch.setProjectionMatrix(camera.combined);
 		debugRender.setProjectionMatrix(camera.combined);
+		viewport = new FitViewport(camera.viewportWidth, camera.viewportHeight, camera);
 
 		// Initialize the cache objects
 		holder = new TextureRegion();

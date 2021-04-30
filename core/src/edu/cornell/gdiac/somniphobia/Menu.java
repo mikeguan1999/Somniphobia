@@ -44,17 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Class that provides a loading screen for the state of the game.
- *
- * You still DO NOT need to understand this class for this lab.  We will talk about this
- * class much later in the course.  This class provides a basic template for a loading
- * screen to be used at the start of the game or between levels.  Feel free to adopt
- * this to your needs.
- *
- * You will note that this mode has some textures that are not loaded by the AssetManager.
- * You are never required to load through the AssetManager.  But doing this will block
- * the application.  That is why we try to have as few resources as possible for this
- * loading screen.
+ * Class that provides a level selection screen.
  */
 public class Menu implements Screen {
 	/** Reference to GameCanvas created by the root */
@@ -125,6 +115,10 @@ public class Menu implements Screen {
 	private TextureRegionDrawable[] upImages = new TextureRegionDrawable[numLevels];
 	private TextureRegionDrawable[] overImages = new TextureRegionDrawable[numLevels];
 
+	public Stage getStage(){
+		return stage;
+	}
+
 	public Menu(GameCanvas canvas, boolean left, boolean right, int index, int totalLevels) {
 		stage = new Stage();
 		table = new Table();
@@ -133,8 +127,11 @@ public class Menu implements Screen {
 		leftExist = left;
 		rightExist = right;
 		startIndex = index;
+//		number of levels that are actually there
 		totalActualLevels = totalLevels;
+//		number of levels that exist on the menu
 		totalNumLevels = (int) Math.ceil((double)totalActualLevels/(double)numLevels) * numLevels;
+		System.out.println(totalLevels);
 
 //		Creating bmp font from ttf
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));
@@ -253,7 +250,6 @@ public class Menu implements Screen {
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
-
 	}
 
 	/**
@@ -442,7 +438,7 @@ public class Menu implements Screen {
 		table.setFillParent(true);
 		stage.addActor(table);
 
-		table.setDebug(true);
+//		table.setDebug(true);
 		active = true;
 	}
 
