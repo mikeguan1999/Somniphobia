@@ -898,14 +898,16 @@ public class PlatformController extends WorldController {
 		phobiaHandBackTexture = new TextureRegion(directory.getEntry("platform:phobia_hand_back",Texture.class));
 
 		backgrounds = new TextureRegion[] {
-				new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
-				new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_forest", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_forest", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_light_gear", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_gear", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_light_dreams", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_dreams", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_light_house", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
+				new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
 		};
 
 
@@ -981,7 +983,7 @@ public class PlatformController extends WorldController {
 
 	/** Sets the current level */
 	public void setLevel(int level) {
-		int newLevel = Math.min(level, 19); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
+		int newLevel = Math.min(level, GDXRoot.totalNumLevels); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
 		newLevel = Math.max(0, newLevel);
 		this.level = newLevel;
 	}
@@ -1337,7 +1339,8 @@ public class PlatformController extends WorldController {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		if (pauseMenuActive() || isComplete() || isFailure()) return;
+		//if (pauseMenuActive() || isComplete() || isFailure()) return;
+		// fix pause ^^^
 		action = movementController.update();
 		platController.update(dt);
 
