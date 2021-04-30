@@ -86,7 +86,7 @@ public class MenuScrollable implements Screen {
 	/** Reference to the actor of cloudline */
 	private Actor cloudlineActor;
 	/** Height and width of the left and right arrows*/
-	private final float ARROW_SIZE = 50;
+	private final float ARROW_SIZE = 100;
 	private final float LEFT_BUTTON_POSITION = 50;
 	private final float RIGHT_BUTTON_POSITION = 100;
 	private boolean toRight = false;
@@ -104,8 +104,8 @@ public class MenuScrollable implements Screen {
 	private final float TOP_PADDING = 50;
 	private final float SIDE_PADDING = 150;
 	private final float CLOUD_WIDTH = 250;
-	private final float CLOUD_HEIGHT = 280;
-	private final float CLOUDLINE_HEIGHT = 200;
+	private final float CLOUD_HEIGHT = 250;
+	private final float CLOUDLINE_HEIGHT = 250;
 	private final float CLOUDLINE_WIDTH = 800;
 	/** The value of initial Y position of the button group */
 	private float initialButtonY=203;
@@ -207,8 +207,8 @@ public class MenuScrollable implements Screen {
 			}
 		}
 
-		leftButton = createImageButton("menu\\left_arrow.png");
-		rightButton = createImageButton("menu\\right_arrow.png");
+		leftButton = createImageButton("menu\\arrow_left.png");
+		rightButton = createImageButton("menu\\arrow_right.png");
 //
 //		table.add(leftButton).size(ARROW_SIZE, ARROW_SIZE);
 //		leftButton.addListener(new ClickListener() {
@@ -220,7 +220,7 @@ public class MenuScrollable implements Screen {
 
 
 //		table.add(rightButton).size(ARROW_SIZE, ARROW_SIZE);
-		Image[] cloudLineImages = new Image[totalNumLevels/numLevels];
+		Image[] cloudLineImages = new Image[totalNumLevels/numLevels+1];
 		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloudline_dreamselection.png")));
 		for (int i=0; i<cloudLineImages.length; i++){
 			cloudLineImages[i] = new Image(drawable);
@@ -238,8 +238,8 @@ public class MenuScrollable implements Screen {
 		}
 
 
-		table.add(rightButton);
-		table.add(leftButton);
+		table.add(rightButton).size(ARROW_SIZE+30, ARROW_SIZE);
+		table.add(leftButton).size(ARROW_SIZE+30, ARROW_SIZE);
 		rightButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				toRight = true;
@@ -266,8 +266,8 @@ public class MenuScrollable implements Screen {
 		}
 
 
-		rightButton.setPosition(-1686+canvas.getWidth()/3,120);
-		leftButton.setPosition(-1686-canvas.getWidth()/2+90, 120);
+		rightButton.setPosition(-2560+canvas.getWidth()/2-200,120);
+		leftButton.setPosition(-2560-canvas.getWidth()/2+90, 120);
 		leftButton.setVisible(false);
 //		leftButton.setX(LEFT_BUTTON_POSITION);
 //		rightButton.setX(canvas.getWidth()-RIGHT_BUTTON_POSITION);
@@ -316,7 +316,8 @@ public class MenuScrollable implements Screen {
 			for (int i=0; i<totalNumLevels;i++){
 				zIndices[i] = buttons[i].getZIndex();
 			}
-			initialCameraX =  camera.position.x - canvas.getWidth()*((totalNumLevels/6)-2)-150;
+			initialCameraX =  camera.position.x - canvas.getWidth()*((totalNumLevels/6)-2);
+			System.out.println(initialCameraX);
 			camera.position.x = initialCameraX;
 			camera.position.y = 288;
 		}
