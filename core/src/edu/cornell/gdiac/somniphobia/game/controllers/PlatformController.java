@@ -1316,7 +1316,7 @@ public class PlatformController extends WorldController {
 				}
 			}
 			else{
-				if(lead == somni){
+				if(avatar == somni){
 					// draw somni
 					if ((action == 2 || action ==3 )&& !movementController.justSeparated()) {
 						int facing = somni.isFacingRight()? 1:-1;
