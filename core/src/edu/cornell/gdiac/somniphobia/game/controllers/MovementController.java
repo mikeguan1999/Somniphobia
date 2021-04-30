@@ -496,15 +496,6 @@ public class MovementController implements ContactListener {
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
                     worldController.setFailure(true);
                 }
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling
-                        && avatar == combined) {
-
-                    sharedObjects.remove(bd1);
-                    lightObjects.remove(bd1);
-                    darkObjects.remove(bd1);
-
-                    bd1.markRemoved(true);
-                }
             }
 
             // See if we have landed on the ground.
