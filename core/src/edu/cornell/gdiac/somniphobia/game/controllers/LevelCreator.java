@@ -32,6 +32,7 @@ import edu.cornell.gdiac.util.PooledList;
 
 import java.lang.Math;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class LevelCreator extends WorldController {
@@ -197,6 +198,49 @@ public class LevelCreator extends WorldController {
                                ArrayList<Platform> path, float velocity) {
         Platform platform = new Platform(type, posX, posY, width, height, property, path, velocity);
         setupPlatform(platform);
+    }
+
+    public void editPlatform(Platform p ){
+        Platform currPlatform = p;
+
+
+        float posX = currPlatform.getX() - currPlatform.getWidth() / 2;
+        float posY = currPlatform.getY() - currPlatform.getHeight() / 2;
+        float width = Float.parseFloat(platformWidth.getText());
+        float height = Float.parseFloat(platformHeight.getText());
+        int type = selectedType;
+        int property = selectedProperty;
+        currPlatform.property = property;
+        ArrayList<Platform> temp = new ArrayList<>();
+        ArrayList<Platform> path = currPlatform.path;
+        ArrayList<Platform> updatedPath = new ArrayList<>();
+        float velocity = Float.parseFloat(movingVelocity.getText());
+
+        Platform platform = new Platform(type, posX, posY, width, height, property, temp, velocity);
+
+        for (int i = 0; i < currPlatform.path.size(); i++) {
+            updatedPath.add(currPlatform.path.get(i));
+        }
+
+        deletePlatform(currPlatform);
+
+        if(path.size()>0){
+            Iterator<Platform> iter = updatedPath.iterator();
+            while(iter.hasNext()){
+                Platform v = iter.next();
+                System.out.println(v.getX());
+                System.out.println(v.getY());
+                float x = v.getX() - width/2;
+                float y = v.getY() - height/2;
+                Platform vertex = new Platform(vertexPlatformTag, x, y, width, height,0,
+                        null, 0);
+                vertex.reference = platform;
+                platform.addMovement(vertex);
+                setupPlatform(vertex);
+            }
+        }
+        setupPlatform(platform);
+
     }
 
     public void deletePlatform(Obstacle o) {
@@ -434,12 +478,12 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Camera camera = canvas.getCamera();
-                float posX = (int) (camera.position.x/canvas.PPM);
-                float posY = (int) (camera.position.y/canvas.PPM);
-                float width = Float.parseFloat(platformWidth.getText());;
-                float height = Float.parseFloat(platformHeight.getText());;
-                float velocity = Float.parseFloat(movingVelocity.getText());
                 if(selectedObstacle != null && selectedObstacle instanceof Platform){
+                    float posX = (int) (camera.position.x/canvas.PPM);
+                    float posY = (int) (camera.position.y/canvas.PPM);
+                    float width = ((Platform) selectedObstacle).getWidth();
+                    float height = ((Platform) selectedObstacle).getHeight();
+                    float velocity = Float.parseFloat(movingVelocity.getText());
                     Platform vertex = new Platform(vertexPlatformTag, posX, posY, width, height,0,
                             null, 0);
                     vertex.reference = (Platform) selectedObstacle;
@@ -455,9 +499,9 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (selectedObstacle instanceof Platform) {
-                    Platform currPlatform = (Platform) selectedObstacle;
+                    //Platform currPlatform = (Platform) selectedObstacle;
 
-
+                    /*
                     float posX = currPlatform.getX() - currPlatform.getWidth() / 2;
                     float posY = currPlatform.getY() - currPlatform.getHeight() / 2;
                     float width = Float.parseFloat(platformWidth.getText());
@@ -472,7 +516,8 @@ public class LevelCreator extends WorldController {
                     currPlatform.deactivatePhysics(world);
                     objects.remove(currPlatform);
 
-                    createPlatform(type, posX, posY, width, height, property, path, velocity);
+                    createPlatform(type, posX, posY, width, height, property, path, velocity);*/
+                    editPlatform((Platform) selectedObstacle);
                 }
             }
         });
