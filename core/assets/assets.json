@@ -228,7 +228,8 @@
         "platform:pew"  : "platform/pew.mp3",
         "platform:plop" : "platform/plop.mp3",
         "somniTrack": "audio/SomniTrack.mp3",
-        "phobiaTrack": "audio/PhobiaTrack.mp3"
+        "phobiaTrack": "audio/PhobiaTrack.mp3",
+        "combinedTrack": "audio/CombinedTrack.mp3"
     },
     "fonts": {
         "shared:retro": {

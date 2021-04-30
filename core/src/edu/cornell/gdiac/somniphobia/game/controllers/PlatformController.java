@@ -219,6 +219,8 @@ public class PlatformController extends WorldController {
 
 	private SoundBuffer somniTrackPath;
 	private SoundBuffer phobiaTrackPath;
+	private SoundBuffer combinedTrackPath;
+
 
 	private long plopId = -1;
 	/** The default sound volume */
@@ -956,6 +958,8 @@ public class PlatformController extends WorldController {
 
 		somniTrackPath = directory.getEntry("somniTrack", SoundBuffer.class);
 		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
+		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
+
 
 
 
@@ -1057,6 +1061,7 @@ public class PlatformController extends WorldController {
 		System.out.println(somniTrackPath);
 		SoundController.getInstance().play("somniTrack", somniTrackPath, 1f, true);
 		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
+		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);
 	}
 
 //	public void playMusic() {
@@ -1372,7 +1377,7 @@ public class PlatformController extends WorldController {
 		else{
 			if(avatar == somni){
 				// draw somni
-				if ((action == 2 || action ==3 || action ==5)&& !movementController.justSeparated()) {
+				if ((action == 2 || action ==3 || action ==5)&& !avatar.justPropelled()) {
 					int facing = somni.isFacingRight()? 1:-1;
 					//draw somni with small dash ring
 					somni.setTexture(somnisTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
@@ -1390,11 +1395,11 @@ public class PlatformController extends WorldController {
 				}
 
 				// draw phobia
-				if (action == 2  && movementController.justPropelled()){
+				if (action == 2  && somni.justPropelled()){
 					// draw phobia and a propelling hand
 					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
 							blueRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-				} else if ((action == 3 || action == 5) && movementController.justPropelled()) {
+				} else if ((action == 3 || action == 5) && somni.justPropelled()) {
 					// draw phobia and an upward propelling hand
 					int facing = phobia.isFacingRight()? 1:-1;
 					phobia.setTexture(phobiaIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
@@ -1406,7 +1411,7 @@ public class PlatformController extends WorldController {
 
 			}else{
 				// draw the leading character phobia
-				if ((action == 2 || action == 3 || action == 5) && !movementController.justSeparated()){
+				if ((action == 2 || action == 3 || action == 5) && !avatar.justPropelled()){
 					int facing = phobia.isFacingRight()? 1:-1;
 					// draw phobia with small dash ring
 					phobia.setTexture(phobiasTexture[action], animationSpeed[action], framePixelWidth[action], 0, 0,
@@ -1424,11 +1429,11 @@ public class PlatformController extends WorldController {
 				}
 
 				// draw the idle character somni
-				if (action == 2  && movementController.justPropelled()){
+				if (action == 2  && phobia.justPropelled()){
 					// draw somni with a propelling hand
 					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0],0, 0,
 							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], propelAngles[action]);
-				} else if ( (action == 3 || action ==5 ) && movementController.justPropelled()) {
+				} else if ( (action == 3 || action ==5 ) && phobia.justPropelled()) {
 					int facing = somni.isFacingRight()? 1:-1;
 					somni.setTexture(somniIdleTexture, animationSpeed[0], framePixelWidth[0], 0, 0,
 							yellowRingBigTexture, 0.2f, 128, secOffsetsX[action], secOffsetsY[action], facing*propelAngles[action]);
