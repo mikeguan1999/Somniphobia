@@ -10,6 +10,10 @@
  */
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.audio.Sound;
+import edu.cornell.gdiac.audio.SoundController;
+import edu.cornell.gdiac.audio.MusicController;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
@@ -212,6 +216,10 @@ public class PlatformController extends WorldController {
 	private long fireId = -1;
 	/** The weapon pop sound.  We only want to play once. */
 	private SoundBuffer plopSound;
+
+	private SoundBuffer somniTrackPath;
+	private SoundBuffer phobiaTrackPath;
+
 	private long plopId = -1;
 	/** The default sound volume */
 	private float volume;
@@ -942,7 +950,16 @@ public class PlatformController extends WorldController {
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
 
 		constants = directory.getEntry( "constants", JsonValue.class );
+
+
+		somniTrackPath = directory.getEntry("somniTrack", SoundBuffer.class);
+		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
+
+
+
 		super.gatherAssets(directory);
+
+
 	}
 
 	/**
@@ -1033,7 +1050,23 @@ public class PlatformController extends WorldController {
 		maskWidth = MIN_MASK_DIMENSIONS.x;
 		maskHeight = MIN_MASK_DIMENSIONS.y;
 		alphaAmount = 0;
+
+		System.out.println("somni");
+		System.out.println(somniTrackPath);
+		SoundController.getInstance().play("somniTrack", somniTrackPath, 1f, true);
+		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
 	}
+
+//	public void playMusic() {
+//
+//		if (movementController.getAvatar() == somni) {
+//			SoundController.getInstance().play("somni", somniTrack, 1f, true);
+//		} else if (movementController.getAvatar() == phobia) {
+//			SoundController.getInstance().play("phobia", phobiaTrack, 1f, true);
+//		} else {
+//			SoundController.getInstance().play("phobia", phobiaTrack, 1f, true);
+//		}
+//	}
 
 	/**
 	 * Checks the path of a platform for validity
@@ -1316,6 +1349,7 @@ public class PlatformController extends WorldController {
 
 		if (movementController.getSwitchedCharacters()) {
 			switching = !switching;
+
 		}
 
 

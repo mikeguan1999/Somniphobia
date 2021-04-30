@@ -3,6 +3,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ObjectSet;
+import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
@@ -227,13 +228,34 @@ public class MovementController implements ContactListener {
             phobia.setGravityScale(1);
         }
 
+        if (holdingHands) {
+            if (lead == somni) {
+                SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+            } else {
+                SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+            }
+        } else {
+            if (avatar == somni) {
+                SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+            } else {
+                SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+            }
+        }
+
         // Check if switched
         if(inputController.didSwitch()) {
             //Switch active character
             if (!holdingHands) {
                 avatar.setMovement(0f);
+                //TODO: Add combined track
+
                 avatar = avatar == somni ? phobia : somni;
             }else{
+//                if (lead == somni) {
+//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+//                } else {
+//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+//                }
                 lead = lead == somni ? phobia :somni;
             }
             setSwitchedCharacters(true);

@@ -186,7 +186,8 @@
     "tutorial:somni_walk": "tutorial/somni_walk.png",
     "tutorial:spirit_switch": "tutorial/spirit_switch.png",
     "tutorial:spirit_separate": "tutorial/spirit_separate.png",
-    "tutorial:spirit_unify": "tutorial/spirit_unify.png"
+    "tutorial:spirit_unify": "tutorial/spirit_unify.png",
+
   },
     "jsons"  : {
         "constants": "constants.json",
@@ -214,12 +215,14 @@
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",
         "platform:pew"  : "platform/pew.mp3",
-        "platform:plop" : "platform/plop.mp3"
+        "platform:plop" : "platform/plop.mp3",
+        "somniTrack": "audio/SomniTrack.mp3",
+        "phobiaTrack": "audio/PhobiaTrack.mp3"
     },
     "fonts": {
         "shared:retro": {
             "file": "shared/RetroGame.ttf",
             "size": 64
         }
-    }
+    },
 }
