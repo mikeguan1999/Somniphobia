@@ -59,6 +59,11 @@ public class MovementController implements ContactListener {
 
     private boolean canHoldHands;
     private boolean justSeparated;
+    private boolean justPropelled;
+    /** Determines how long justSeparated remain true */
+    private int separationCoolDown;
+    /** Determines how long justSeparated remain true */
+    private static final int SEPARATION_COOL_DOWN = 24;
 
 
     /**
@@ -260,7 +265,7 @@ public class MovementController implements ContactListener {
         }else{
             action = 4; // Jump
         }
-        if (avatar.isDashing() && !avatar.isDashingUp()) {
+        if (avatar.isDashing() && !avatar.isDashingUp() && !avatar.isDashingDown()) {
             action = 2; // Side dash
         }
         if (avatar.isDashingUp()){
@@ -269,11 +274,17 @@ public class MovementController implements ContactListener {
         if (avatar.isFalling() && !holdingHands) { //! CHANGE CODE HERE WHEN ADD ASSET 4 TO HANDHOLDING!
             action = 4; // Falling
         }
+        if (avatar.isDashingDown()){
+            action = 5;
+        }
+
 
         //Check if hand holding
         if(inputController.didHoldHands()) {
             handleHoldingHands();
         }
+
+        separationCoolDown = Math.max(0, separationCoolDown-1);
 
         return action;
 //        if(holdingHands){
@@ -344,7 +355,16 @@ public class MovementController implements ContactListener {
      * @param value
      */
     protected void setJustSeparated(boolean value){
-        justSeparated = value;
+        if (separationCoolDown<=0 && !value)
+            justSeparated = value;
+    }
+
+    /**
+     * set whether the characters have just propelled for animation purposes
+     * @param value
+     */
+    protected void setJustPropelled(boolean value){
+        justPropelled = value;
     }
 
     /**
@@ -352,6 +372,13 @@ public class MovementController implements ContactListener {
      */
     protected boolean justSeparated(){
         return justSeparated;
+    }
+
+    /**
+     * returns whether the characters have just propelled
+     */
+    protected boolean justPropelled(){
+        return justPropelled;
     }
 
     /**
@@ -381,7 +408,12 @@ public class MovementController implements ContactListener {
      * Stops holding hands
      */
     private void endHoldHands() {
-        justSeparated = true;
+        if (separationCoolDown<=0){
+            separationCoolDown = SEPARATION_COOL_DOWN;
+            justSeparated = true;
+        }
+        justPropelled = true;
+
         somni.setActive(true);
         phobia.setActive(true);
         combined.setActive(false);
@@ -495,15 +527,6 @@ public class MovementController implements ContactListener {
             else if (avatar.getCore().equals(fix2) || avatar.getCap1().equals(fix2) || avatar.getCap2().equals(fix2)) {
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
                     worldController.setFailure(true);
-                }
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling
-                        && avatar == combined) {
-
-                    sharedObjects.remove(bd1);
-                    lightObjects.remove(bd1);
-                    darkObjects.remove(bd1);
-
-                    bd1.markRemoved(true);
                 }
             }
 

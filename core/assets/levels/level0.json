@@ -19,7 +19,8 @@
 		],
 		"paths": [
 			[ 25, 20 ]
-		]
+		],
+		"property": 1
 	},
 	{
 		"type": 1,
@@ -29,7 +30,8 @@
 		],
 		"paths": [
 			[ 43, 9 ]
-		]
+		],
+		"property": 1
 	},
 	{
 		"type": 2,
@@ -39,7 +41,8 @@
 		],
 		"paths": [
 			[ 62, 20 ]
-		]
+		],
+		"property": 1
 	},
 	{
 		"type": 2,
@@ -49,7 +52,8 @@
 		],
 		"paths": [
 			[ 50, 20 ]
-		]
+		],
+		"property": 1
 	},
 	{
 		"type": 3,
@@ -59,7 +63,20 @@
 		],
 		"paths": [
 			[ 24, 13 ]
-		]
+		],
+		"property": 1
+	},
+	{
+		"type": 2,
+		"assetName": "shared:rain_cloud_light",
+		"positions": [
+			[ 35, 16, 1, 1 ]
+		],
+		"paths": [
+			[ 35, 16, 40, 16 ]
+		],
+		"property": 3
 	}
+
 ]
 }
