@@ -67,7 +67,7 @@
 		"property": 1
 	},
 	{
-		"type": 1,
+		"type": 2,
 		"assetName": "shared:rain_cloud_light",
 		"positions": [
 			[ 35, 16, 1, 1 ]
@@ -75,7 +75,7 @@
 		"paths": [
 			[ 35, 16, 40, 16 ]
 		],
-		"property": 2
+		"property": 3
 	}
 
 ]
