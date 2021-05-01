@@ -305,6 +305,7 @@ public class PlatformController extends WorldController {
 	private Button exitButton;
 	private Button resumeButton;
 	private Button restartButton;
+	private Button restartButtonFail;
 	private Button advanceButton;
 	private Button pauseButton;
 	private boolean exitClicked;
@@ -481,14 +482,14 @@ public class PlatformController extends WorldController {
 
 		exitButton = createImageButton("pause_menu\\exit.png");
 		resumeButton = createImageButton("pause_menu\\resume.png");
-		restartButton = createImageButton("pause_menu\\restart.png");
+		restartButtonFail = createImageButton("pause_menu\\restart.png");
 		advanceButton = createImageButton("pause_menu\\restart.png");
 		blueNext = createDrawable("pause_menu\\next.png");
 		orangeNext = createDrawable("pause_menu\\nextorange.png");
 
 		//Buttons needed
 		failMenu.add(exitButton).space(50);
-		failMenu.add(restartButton).space(100);
+		failMenu.add(restartButtonFail).space(100);
 
 
 		exitButton.addListener(new ClickListener() {
@@ -497,7 +498,7 @@ public class PlatformController extends WorldController {
 			}
 		});
 
-		restartButton.addListener(new ClickListener() {
+		restartButtonFail.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				restartClicked = true;
 			}
@@ -1691,7 +1692,7 @@ public class PlatformController extends WorldController {
 		float cameraY = camera.position.y - canvas.getHeight() / 2;
 
 		// Create the frame buffer if uninitialized
-		if(fbo == null) {
+		if (fbo == null) {
 			fbo = new FrameBuffer(Pixmap.Format.RGBA8888, canvas.getWidth(), canvas.getHeight(), false);
 		}
 
@@ -1701,15 +1702,15 @@ public class PlatformController extends WorldController {
 		canvas.endCustom();
 
 		// Create alpha background if uninitialized
-		if(alpha_background == null) {
+		if (alpha_background == null) {
 			alpha_background = createRectangularTexture(canvas.getWidth(), canvas.getHeight());
 		}
 
 		CharacterModel follower = lead.equals(phobia) ? somni : phobia;
 
 		// Check if switching and update mask drawing
-		if(switching) {
-			if(!holdingHands) {
+		if (switching) {
+			if (!holdingHands) {
 				// Apply fade effect for follower (fading away)
 				drawFadePlatforms(cameraX, cameraY, follower);
 			}
@@ -1727,7 +1728,7 @@ public class PlatformController extends WorldController {
 			// Increase mask size
 			maskWidth += INCREMENT_AMOUNT;
 			maskHeight += INCREMENT_AMOUNT;
-			if(riftCoversCameraBounds(cameraX, cameraY, maskWidth, maskHeight, maskLeader)) {
+			if (riftCoversCameraBounds(cameraX, cameraY, maskWidth, maskHeight, maskLeader)) {
 				maskWidth = MIN_MASK_DIMENSIONS.x;
 				maskHeight = MIN_MASK_DIMENSIONS.y;
 				switching = false;
@@ -1738,9 +1739,9 @@ public class PlatformController extends WorldController {
 		} else {
 			// Check if shrinking
 			boolean shrinking = maskWidth > MIN_MASK_DIMENSIONS.x || maskHeight > MIN_MASK_DIMENSIONS.y;
-			if(shrinking) {
+			if (shrinking) {
 				// Apply fade away effect for the lead (fading in)
-				if(!holdingHands) {
+				if (!holdingHands) {
 					drawFadePlatforms(cameraX, cameraY, lead);
 				}
 
@@ -1754,11 +1755,11 @@ public class PlatformController extends WorldController {
 				// Draw mask for the mask leader to cover follower's
 				drawSpiritObjects(cameraX, cameraY, MIN_MASK_DIMENSIONS.x, MIN_MASK_DIMENSIONS.y, 1,
 						maskLeader);
-			} else  {
+			} else {
 				// Draw lead platform
-				if(!holdingHands) {
+				if (!holdingHands) {
 					canvas.begin();
-					for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+					for (Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
 						obj.draw(canvas);
 					}
 					canvas.end();
@@ -1778,19 +1779,20 @@ public class PlatformController extends WorldController {
 		}
 
 		// Draw light and dark platforms if holding hands
-		if(holdingHands) {
+		if (holdingHands) {
 			canvas.begin();
-			for(Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
+			for (Obstacle obj : lead.equals(somni) ? lightObjects : darkObjects) {
 				obj.draw(canvas);
 			}
 			canvas.end();
 			alphaAmount = alphaAmount + alphaIncrement >= 1 ? 1 : alphaAmount + alphaIncrement;
 		} else {
-			alphaAmount = alphaAmount - alphaIncrement <= 0 ? 0 : alphaAmount - alphaIncrement;;
+			alphaAmount = alphaAmount - alphaIncrement <= 0 ? 0 : alphaAmount - alphaIncrement;
+			;
 		}
 		alphaWhite.a = alphaAmount;
 		canvas.begin();
-		for(Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
+		for (Obstacle obj : follower.equals(somni) ? lightObjects : darkObjects) {
 //			((SimpleObstacle) obj).drawWithTint(canvas, alphaWhite);
 			((PlatformModel) obj).drawWithTint(canvas, alphaWhite);
 		}
@@ -1798,7 +1800,7 @@ public class PlatformController extends WorldController {
 
 		// Draw shared platforms
 		canvas.begin();
-		for(Obstacle obj : sharedObjects) {
+		for (Obstacle obj : sharedObjects) {
 
 			// Ignore characters which we draw separately
 			if (!(obj instanceof CharacterModel)) {
@@ -1809,7 +1811,7 @@ public class PlatformController extends WorldController {
 
 		// Draw current model
 		canvas.begin();
-		if(holdingHands) {
+		if (holdingHands) {
 			combined.draw(canvas, Color.WHITE);
 		} else {
 			alphaWhite.a = 0.5f;
@@ -1829,7 +1831,7 @@ public class PlatformController extends WorldController {
 			stage.draw();
 			stage.act();
 			displayFont.getData().setScale(.3f, .3f);
-			labelStyle.fontColor = lead == phobia? Color.BLACK: Color.WHITE;
+			labelStyle.fontColor = lead == phobia ? Color.BLACK : Color.WHITE;
 			drawSliders();
 			Gdx.input.setInputProcessor(stage);
 		}
@@ -1842,37 +1844,43 @@ public class PlatformController extends WorldController {
 			createModalWindow();
 			firstTimeRendered = false;
 		}
+		if (firstTimeRenderedWinMenu) {
+			createWinWindow(camera.position.x, camera.position.y);
+			firstTimeRenderedWinMenu = false;
+		}
+
+		if (firstTimeRenderedFailMenu) {
+			createFailWindow(camera.position.x, camera.position.y);
+			firstTimeRenderedFailMenu = false;
+		}
+
 		if (pauseMenuActive()) {
 			setPositionPauseMenu();
 			pauseMenuStage.draw();
 			pauseMenuStage.act(dt);
 
-			if (exitButton.isOver()){
-				underline.setSize(exitButton.getWidth()+UNDERLINE_WIDTH_OFFSET, exitButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
-				underline.setPosition(exitButton.getX()+UNDERLINE_OFFSETX, exitButton.getY()+UNDERLINE_OFFSETY);
+			if (exitButton.isOver()) {
+				underline.setSize(exitButton.getWidth() + UNDERLINE_WIDTH_OFFSET, exitButton.getHeight() + UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(exitButton.getX() + UNDERLINE_OFFSETX, exitButton.getY() + UNDERLINE_OFFSETY);
 				underline.setVisible(true);
-			}
-			else if (resumeButton.isOver()){
-				underline.setSize(resumeButton.getWidth()+UNDERLINE_WIDTH_OFFSET, resumeButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
-				underline.setPosition(resumeButton.getX()+UNDERLINE_OFFSETX, resumeButton.getY()+UNDERLINE_OFFSETY);
+			} else if (resumeButton.isOver()) {
+				underline.setSize(resumeButton.getWidth() + UNDERLINE_WIDTH_OFFSET, resumeButton.getHeight() + UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(resumeButton.getX() + UNDERLINE_OFFSETX, resumeButton.getY() + UNDERLINE_OFFSETY);
 				underline.setVisible(true);
-			}
-			else if (restartButton.isOver()){
-				underline.setSize(restartButton.getWidth()+UNDERLINE_WIDTH_OFFSET, restartButton.getHeight()+UNDERLINE_HEIGHT_OFFSET);
-				underline.setPosition(restartButton.getX()+UNDERLINE_OFFSETX, restartButton.getY()+UNDERLINE_OFFSETY);
+			} else if (restartButton.isOver()) {
+				underline.setSize(restartButton.getWidth() + UNDERLINE_WIDTH_OFFSET, restartButton.getHeight() + UNDERLINE_HEIGHT_OFFSET);
+				underline.setPosition(restartButton.getX() + UNDERLINE_OFFSETX, restartButton.getY() + UNDERLINE_OFFSETY);
 				underline.setVisible(true);
-			}
-			else{
+			} else {
 				underline.setVisible(false);
 			}
-			if (movementController.getAvatar()==somni || movementController.getLead()==somni){
+			if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
 				pauseMenu.setBackground(blueRectangle);
 				exitButton.getStyle().up = blueExit;
 				resumeButton.getStyle().up = blueResume;
 				restartButton.getStyle().up = blueRestart;
 				underline.setDrawable(blueUnderline);
-			}
-			else{
+			} else {
 				pauseMenu.setBackground(orangeRectangle);
 				exitButton.getStyle().up = orangeExit;
 				resumeButton.getStyle().up = orangeResume;
@@ -1885,21 +1893,19 @@ public class PlatformController extends WorldController {
 		canvas.end();
 
 		canvas.begin();
-		if (firstTimeRenderedPauseButton){
+		if (firstTimeRenderedPauseButton) {
 			createPauseButton();
 			firstTimeRenderedPauseButton = false;
-		}
-		else{
-			if (movementController.getAvatar()==somni || movementController.getLead()==somni){
+		} else {
+			if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
 				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_button.png");
-			}
-			else{
+			} else {
 				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_red.png");
 			}
 			drawPauseButton();
 		}
 
-		if (!pauseMenuActive() && gameScreenActive && !slidersActive()){
+		if (!pauseMenuActive() && gameScreenActive && !slidersActive()) {
 			Gdx.input.setInputProcessor(pauseButtonStage);
 		}
 		canvas.end();
@@ -1907,17 +1913,17 @@ public class PlatformController extends WorldController {
 		// Draw debug if active
 		if (isDebug()) {
 			canvas.beginDebug();
-			for(Obstacle obj : sharedObjects) {
+			for (Obstacle obj : sharedObjects) {
 				obj.drawDebug(canvas);
 			}
 			canvas.endDebug();
 			canvas.beginDebug();
-			for(Obstacle obj : lightObjects) {
+			for (Obstacle obj : lightObjects) {
 				obj.drawDebug(canvas);
 			}
 			canvas.endDebug();
 			canvas.beginDebug();
-			for(Obstacle obj : darkObjects) {
+			for (Obstacle obj : darkObjects) {
 				obj.drawDebug(canvas);
 			}
 			canvas.endDebug();
@@ -1930,15 +1936,10 @@ public class PlatformController extends WorldController {
 		if (isComplete() && !isFailure()) {
 			canvas.begin();
 			if (isComplete()) {
-				if (firstTimeRenderedWinMenu) {
-					createWinWindow(camera.position.x, camera.position.y);
-					setPositionMenu(winMenu);
-					firstTimeRenderedWinMenu = false;
-				} else {
-					setPositionMenu(winMenu);
-					winMenuStage.draw();
-					winMenuStage.act(dt);
-				}
+				setPositionMenu(winMenu);
+				winMenuStage.draw();
+				winMenuStage.act(dt);
+
 				if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
 					winMenu.setBackground(blueRectangle);
 					exitButton.getStyle().up = blueExit;
@@ -1954,28 +1955,22 @@ public class PlatformController extends WorldController {
 			canvas.end();
 
 
-
 		} else if (isFailure()) {
 
 			canvas.begin();
 			if (isFailure()) {
-				if (firstTimeRenderedFailMenu) {
-					createFailWindow(camera.position.x, camera.position.y);
-					firstTimeRenderedFailMenu = false;
-				} else {
-					setPositionMenu(failMenu);
-					failMenuStage.draw();
-					failMenuStage.act(dt);
-				}
-				if (movementController.getAvatar()==somni || movementController.getLead()==somni){
+				setPositionMenu(failMenu);
+				failMenuStage.draw();
+				failMenuStage.act(dt);
+
+				if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
 					failMenu.setBackground(blueRectangle);
 					exitButton.getStyle().up = blueExit;
-					restartButton.getStyle().up = blueRestart;
-				}
-				else{
+					restartButtonFail.getStyle().up = blueRestart;
+				} else {
 					failMenu.setBackground(orangeRectangle);
 					exitButton.getStyle().up = orangeExit;
-					restartButton.getStyle().up = orangeRestart;
+					restartButtonFail.getStyle().up = orangeRestart;
 				}
 
 				Gdx.input.setInputProcessor(failMenuStage);
@@ -1983,7 +1978,9 @@ public class PlatformController extends WorldController {
 			canvas.end();
 
 
-		}}
+		}
+	}
+
 
 	//END JENNA
 
