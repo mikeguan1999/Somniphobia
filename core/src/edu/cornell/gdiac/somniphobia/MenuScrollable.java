@@ -336,6 +336,9 @@ public class MenuScrollable implements Screen {
 					leftButton.setPosition(leftButton.getX() - 7, leftButton.getY());
 					rightButton.setPosition(rightButton.getX() - 7, rightButton.getY());
 				}
+				else{
+					leftButton.setVisible(false);
+				}
 			}
 //
 		}
