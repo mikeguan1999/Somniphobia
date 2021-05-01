@@ -303,6 +303,8 @@ public class PlatformController extends WorldController {
 	private Boolean firstTimeRenderedWinMenu=true;
 	private Boolean firstTimeRenderedPauseButton = true;
 	private Button exitButton;
+	private Button exitButtonFail;
+	private Button exitButtonWin;
 	private Button resumeButton;
 	private Button restartButton;
 	private Button restartButtonFail;
@@ -324,6 +326,13 @@ public class PlatformController extends WorldController {
 	private Boolean firstTimeRendered=true;
 	/** the underline on pauseMenu*/
 	private Image underline;
+	private Image underlineWinMenu;
+	private Image underlineFailMenu;
+	/** pauseMenu sliders and icons*/
+	private Slider sliderMusic;
+	private Slider sliderSound;
+	private Image musicIcon;
+	private Image soundIcon;
 	/** pause menu drawables*/
 	private TextureRegionDrawable blueUnderline;
 	private TextureRegionDrawable orangeUnderline;
@@ -337,6 +346,14 @@ public class PlatformController extends WorldController {
 	private TextureRegionDrawable orangeRestart;
 	private TextureRegionDrawable blueNext;
 	private TextureRegionDrawable orangeNext;
+	private TextureRegionDrawable blueKnob;
+	private TextureRegionDrawable orangeKnob;
+	private TextureRegionDrawable blueMusicNote;
+	private TextureRegionDrawable orangeMusicNote;
+	private TextureRegionDrawable blueSlider;
+	private TextureRegionDrawable orangeSlider;
+	private TextureRegionDrawable blueSound;
+	private TextureRegionDrawable orangeSound;
 
 	/** constants for positioning pause menu and pause button */
 	private final int PAUSE_BUTTON_OFFSETX = 400;
@@ -344,11 +361,11 @@ public class PlatformController extends WorldController {
 	private final int PAUSE_BUTTON_WIDTH = 100;
 	private final int PAUSE_BUTTON_HEIGHT = 80;
 	private final float PAUSE_MENU_SCALE = 0.5f;
-	private final int PAUSE_MENU_BUTTON_SPACE = 50;
+	private final int PAUSE_MENU_BUTTON_SPACE = 0;
 	private final int UNDERLINE_WIDTH_OFFSET = 10;
 	private final int UNDERLINE_HEIGHT_OFFSET = 0;
 	private final int UNDERLINE_OFFSETX = -5;
-	private final int UNDERLINE_OFFSETY = -60;
+	private final int UNDERLINE_OFFSETY = -40;
 	private final int PAUSE_MENU_POSITION_SCALE = 4;
 
 	Label.LabelStyle labelStyle;
@@ -415,17 +432,7 @@ public class PlatformController extends WorldController {
 		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		pauseMenu.setFillParent(true);
 
-		exitButton = createImageButton("pause_menu\\exit_blue.png");
-		resumeButton = createImageButton("pause_menu\\resume_blue.png");
-		restartButton = createImageButton("pause_menu\\restart_blue.png");
-		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
-
-		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,100);
-		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,110);
-		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,100);
-		pauseMenu.row();
-		pauseMenu.add(underline);
-		underline.setVisible(false);
+//		create drawables
 		orangeUnderline = createDrawable("pause_menu\\pausemenu_underline_red.png");
 		blueUnderline = createDrawable("pause_menu\\pausemenu_underline.png");
 		blueRectangle = createDrawable("pause_menu\\bluerectangle.png");
@@ -436,7 +443,45 @@ public class PlatformController extends WorldController {
 		orangeExit = createDrawable("pause_menu\\exit_orange.png");
 		orangeResume = createDrawable("pause_menu\\resume_orange.png");
 		orangeRestart = createDrawable("pause_menu\\restart_orange.png");
+		//		Sliders
+		orangeSlider = createDrawable("pause_menu\\slider_orange.png");
+		blueSlider = createDrawable("pause_menu\\slider_blue.png");
+		orangeKnob = createDrawable("pause_menu\\knob_orange.png");
+		blueKnob = createDrawable("pause_menu\\knob_blue.png");
+		orangeSound = createDrawable("pause_menu\\sound_orange.png");
+		blueSound = createDrawable("pause_menu\\sound_blue.png");
+		blueMusicNote = createDrawable("pause_menu\\musicnote_blue.png");
+		orangeMusicNote = createDrawable("pause_menu\\musicnote_orange.png");
 
+
+//		create sliders
+		Slider.SliderStyle sliderStyle = new Slider.SliderStyle(blueSlider, blueKnob);
+		sliderMusic = new Slider(0,1,0.01f,false,sliderStyle);
+		sliderSound = new Slider(0,1,0.01f,false,sliderStyle);
+		musicIcon = new Image(blueMusicNote);
+		soundIcon = new Image(blueSound);
+		sliderMusic.setValue(0.5f);
+
+		exitButton = createImageButton("pause_menu\\exit_blue.png");
+		resumeButton = createImageButton("pause_menu\\resume_blue.png");
+		restartButton = createImageButton("pause_menu\\restart_blue.png");
+		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
+
+		pauseMenu.add(musicIcon).height(100).width(100);
+		pauseMenu.add(sliderMusic).colspan(3).height(150).width(500).padRight(150);
+		pauseMenu.row();
+		pauseMenu.add(soundIcon).height(100).width(100);
+		pauseMenu.add(sliderSound).colspan(3).height(100).width(500).padRight(150);
+		sliderSound.setDisabled(true);
+		pauseMenu.row();
+		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,70).padLeft(110).padTop(50);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,80).padTop(50).padLeft(20);
+		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,70).padRight(110).padTop(50);
+		pauseMenu.row();
+		pauseMenu.add(underline);
+		underline.setVisible(false);
+
+//		adding listeners
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				exitClicked = true;
@@ -452,6 +497,23 @@ public class PlatformController extends WorldController {
 		restartButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				restartClicked = true;
+			}
+		});
+
+		sliderMusic.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				float musicVolume = sliderMusic.getValue();
+				if (movementController.isHoldingHands()){
+					SoundController.getInstance().setVolume(musicVolume, "combinedTrack");
+				}
+				else if (movementController.getAvatar()==somni){
+					SoundController.getInstance().setVolume(musicVolume, "somniTrack");
+				}
+				else if (movementController.getAvatar()==phobia){
+					SoundController.getInstance().setVolume(musicVolume, "phobiaTrack");
+				}
+
 			}
 		});
 
@@ -480,19 +542,18 @@ public class PlatformController extends WorldController {
 		failMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		failMenu.setFillParent(true);
 
-		exitButton = createImageButton("pause_menu\\exit.png");
-		resumeButton = createImageButton("pause_menu\\resume.png");
-		restartButtonFail = createImageButton("pause_menu\\restart.png");
-		advanceButton = createImageButton("pause_menu\\restart.png");
-		blueNext = createDrawable("pause_menu\\next.png");
-		orangeNext = createDrawable("pause_menu\\nextorange.png");
+		exitButtonFail = createImageButton("pause_menu\\exit_blue.png");
+		restartButtonFail = createImageButton("pause_menu\\restart_blue.png");
+		underlineFailMenu = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
 
 		//Buttons needed
-		failMenu.add(exitButton).space(50);
-		failMenu.add(restartButtonFail).space(100);
+		failMenu.add(exitButtonFail).size(150,70);
+		failMenu.add(restartButtonFail).size(200,70);
+		failMenu.row();
+		failMenu.add(underlineFailMenu);
+		underlineFailMenu.setVisible(false);
 
-
-		exitButton.addListener(new ClickListener() {
+		exitButtonFail.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				exitClicked = true;
 			}
@@ -509,6 +570,7 @@ public class PlatformController extends WorldController {
 		failMenu.validate();
 		failMenu.setTransform(true);
 		failMenu.setScale(0.5f);
+		underlineFailMenu.setZIndex(0);
 
 	}
 
@@ -521,26 +583,25 @@ public class PlatformController extends WorldController {
 		winMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
 		winMenu.setFillParent(true);
 
-		exitButton = createImageButton("pause_menu\\exit.png");
-		resumeButton = createImageButton("pause_menu\\resume.png");
-		restartButton = createImageButton("pause_menu\\restart.png");
-		blueNext = createDrawable("pause_menu\\next.png");
+		exitButtonWin = createImageButton("pause_menu\\exit_blue.png");
+		advanceButton = createImageButton("pause_menu\\nextblue.png");
+		blueNext = createDrawable("pause_menu\\nextblue.png");
 		orangeNext = createDrawable("pause_menu\\nextorange.png");
+		underlineWinMenu = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
 
-		//JENNA: NEED IMAGE
-		advanceButton = createImageButton("pause_menu\\next.png");
 
 		//Buttons needed
-		winMenu.add(exitButton).space(50);
-		winMenu.add(advanceButton).space(100);
+		winMenu.add(exitButtonWin).size(150,70);
+		winMenu.add(advanceButton).size(150,70);
+		winMenu.row();
+		winMenu.add(underlineWinMenu);
+		underlineWinMenu.setVisible(false);
 
-
-		exitButton.addListener(new ClickListener() {
+		exitButtonWin.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				exitClicked = true;
 			}
 		});
-
 
 		advanceButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -552,6 +613,9 @@ public class PlatformController extends WorldController {
 		winMenu.validate();
 		winMenu.setTransform(true);
 		winMenu.setScale(0.5f);
+		underlineWinMenu.setZIndex(0);
+		underlineWinMenu.setVisible(false);
+
 	}
 
 	public void setPositionMenu(Table menu){
@@ -1035,6 +1099,7 @@ public class PlatformController extends WorldController {
 		world = new World(gravity,false);
 		setComplete(false);
 		setFailure(false);
+		firstTimeRendered=true;
 		populateLevel();
 
 		Camera camera = canvas.getCamera();
@@ -1880,12 +1945,24 @@ public class PlatformController extends WorldController {
 				resumeButton.getStyle().up = blueResume;
 				restartButton.getStyle().up = blueRestart;
 				underline.setDrawable(blueUnderline);
+				musicIcon.setDrawable(blueMusicNote);
+				soundIcon.setDrawable(blueSound);
+				sliderMusic.getStyle().background = blueSlider;
+				sliderMusic.getStyle().knob = blueKnob;
+				sliderSound.getStyle().background = blueSlider;
+				sliderSound.getStyle().knob = blueKnob;
 			} else {
 				pauseMenu.setBackground(orangeRectangle);
 				exitButton.getStyle().up = orangeExit;
 				resumeButton.getStyle().up = orangeResume;
 				restartButton.getStyle().up = orangeRestart;
 				underline.setDrawable(orangeUnderline);
+				musicIcon.setDrawable(orangeMusicNote);
+				soundIcon.setDrawable(orangeSound);
+				sliderMusic.getStyle().background = orangeSlider;
+				sliderMusic.getStyle().knob = orangeKnob;
+				sliderSound.getStyle().background = orangeSlider;
+				sliderSound.getStyle().knob = orangeKnob;
 			}
 
 			Gdx.input.setInputProcessor(pauseMenuStage);
@@ -1940,14 +2017,28 @@ public class PlatformController extends WorldController {
 				winMenuStage.draw();
 				winMenuStage.act(dt);
 
+				if (exitButtonWin.isOver()) {
+					underlineWinMenu.setSize(exitButtonWin.getWidth() + UNDERLINE_WIDTH_OFFSET, exitButtonWin.getHeight() + UNDERLINE_HEIGHT_OFFSET);
+					underlineWinMenu.setPosition(exitButtonWin.getX() + UNDERLINE_OFFSETX, exitButtonWin.getY() + UNDERLINE_OFFSETY);
+					underlineWinMenu.setVisible(true);
+				} else if (advanceButton.isOver()) {
+					underlineWinMenu.setSize(advanceButton.getWidth() + UNDERLINE_WIDTH_OFFSET, advanceButton.getHeight() + UNDERLINE_HEIGHT_OFFSET);
+					underlineWinMenu.setPosition(advanceButton.getX() + UNDERLINE_OFFSETX, advanceButton.getY() + UNDERLINE_OFFSETY);
+					underlineWinMenu.setVisible(true);
+				} else {
+					underlineWinMenu.setVisible(false);
+				}
+
 				if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
 					winMenu.setBackground(blueRectangle);
-					exitButton.getStyle().up = blueExit;
+					exitButtonWin.getStyle().up = blueExit;
 					advanceButton.getStyle().up = blueNext;
+					underlineWinMenu.setDrawable(blueUnderline);
 				} else {
 					winMenu.setBackground(orangeRectangle);
-					exitButton.getStyle().up = orangeExit;
+					exitButtonWin.getStyle().up = orangeExit;
 					advanceButton.getStyle().up = orangeNext;
+					underlineWinMenu.setDrawable(orangeUnderline);
 				}
 
 				Gdx.input.setInputProcessor(winMenuStage);
@@ -1963,14 +2054,28 @@ public class PlatformController extends WorldController {
 				failMenuStage.draw();
 				failMenuStage.act(dt);
 
+				if (exitButtonFail.isOver()) {
+					underlineFailMenu.setSize(exitButtonFail.getWidth() + UNDERLINE_WIDTH_OFFSET, exitButtonFail.getHeight() + UNDERLINE_HEIGHT_OFFSET);
+					underlineFailMenu.setPosition(exitButtonFail.getX() + UNDERLINE_OFFSETX, exitButtonFail.getY() + UNDERLINE_OFFSETY);
+					underlineFailMenu.setVisible(true);
+				} else if (restartButtonFail.isOver()) {
+					underlineFailMenu.setSize(restartButtonFail.getWidth() + UNDERLINE_WIDTH_OFFSET, restartButtonFail.getHeight() + UNDERLINE_HEIGHT_OFFSET);
+					underlineFailMenu.setPosition(restartButtonFail.getX() + UNDERLINE_OFFSETX, restartButtonFail.getY() + UNDERLINE_OFFSETY);
+					underlineFailMenu.setVisible(true);
+				} else {
+					underlineFailMenu.setVisible(false);
+				}
+
 				if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
 					failMenu.setBackground(blueRectangle);
-					exitButton.getStyle().up = blueExit;
+					exitButtonFail.getStyle().up = blueExit;
 					restartButtonFail.getStyle().up = blueRestart;
+					underlineFailMenu.setDrawable(blueUnderline);
 				} else {
 					failMenu.setBackground(orangeRectangle);
-					exitButton.getStyle().up = orangeExit;
+					exitButtonFail.getStyle().up = orangeExit;
 					restartButtonFail.getStyle().up = orangeRestart;
+					underlineFailMenu.setDrawable(orangeUnderline);
 				}
 
 				Gdx.input.setInputProcessor(failMenuStage);

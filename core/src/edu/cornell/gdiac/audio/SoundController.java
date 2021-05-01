@@ -116,6 +116,11 @@ public class SoundController implements SoundBuffer.OnCompletionListener {
         return controller;
     }
 
+    public void setVolume(float value, String key){
+        volume = value;
+        ActiveSound snd = actives.get(key);
+        snd.sound.setVolume(snd.id, volume);
+    }
     /// Sound Management
     /**
      * Plays the an instance of the given sound
@@ -132,7 +137,7 @@ public class SoundController implements SoundBuffer.OnCompletionListener {
      * @return True if the sound was successfully played
      */
     public boolean play(String key, SoundBuffer sound) {
-        return play(key,sound,1.0f, false);
+        return play(key,sound,volume, false);
     }
 
     /**

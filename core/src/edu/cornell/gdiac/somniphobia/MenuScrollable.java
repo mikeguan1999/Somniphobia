@@ -323,10 +323,12 @@ public class MenuScrollable implements Screen {
 		}
 		else{
 			if (rightButton.isOver()){
-				leftButton.setVisible(true);
-				camera.translate(7,0);
-				rightButton.setPosition(rightButton.getX()+7, rightButton.getY());
-				leftButton.setPosition(leftButton.getX()+7, leftButton.getY());
+				if (camera.position.x<(buttons[totalActualLevels-3].getX())) {
+					leftButton.setVisible(true);
+					camera.translate(7, 0);
+					rightButton.setPosition(rightButton.getX() + 7, rightButton.getY());
+					leftButton.setPosition(leftButton.getX() + 7, leftButton.getY());
+				}
 			}
 			if (leftButton.isOver()){
 				if (camera.position.x>=initialCameraX) {
