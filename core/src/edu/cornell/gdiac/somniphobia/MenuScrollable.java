@@ -34,13 +34,11 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.util.ScreenListener;
 import org.w3c.dom.Text;
 
@@ -62,6 +60,8 @@ public class MenuScrollable implements Screen {
 	private GameCanvas canvas;
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
+	/** Internal assets for this menu screen */
+	private AssetDirectory internal;
 
 	private Stage stage;
 	private Table table;
@@ -123,6 +123,10 @@ public class MenuScrollable implements Screen {
 	private TextureRegion background = new TextureRegion(new Texture("menu\\selection_background1.png"));
 	private TextureRegionDrawable titleDrawable;
 	private Texture titleTexture;
+	private TextureRegionDrawable leftButtonDrawable;
+	private TextureRegionDrawable rightButtonDrawable;
+	private TextureRegionDrawable cloudLineDrawable;
+	private TextureRegionDrawable cloudDrawable;
 	private int[] zIndices;
 
 	public Stage getStage(){
@@ -130,6 +134,22 @@ public class MenuScrollable implements Screen {
 	}
 
 	public MenuScrollable(GameCanvas canvas, int totalLevels) {
+		internal = new AssetDirectory( "level_select.json" );
+		internal.loadAssets();
+		internal.finishLoading();
+
+		titleTexture = internal.getEntry("title", Texture.class);
+		titleDrawable = new TextureRegionDrawable(titleTexture);
+		leftButtonDrawable = new TextureRegionDrawable(internal.getEntry("left_button", Texture.class));
+		rightButtonDrawable = new TextureRegionDrawable(internal.getEntry("right_button", Texture.class));
+		cloudLineDrawable = new TextureRegionDrawable(internal.getEntry("cloudline", Texture.class));
+		cloudDrawable = new TextureRegionDrawable(internal.getEntry("cloud", Texture.class));
+
+		for (int i=0; i<numLevels; i++){
+			upImages[i] = new TextureRegionDrawable(internal.getEntry("door"+(i%numLevels+1), Texture.class));
+
+		}
+
 		this.canvas = canvas;
 		int numPages = totalNumLevels/numLevels;
 		if (totalNumLevels%numLevels != 0){
@@ -156,15 +176,14 @@ public class MenuScrollable implements Screen {
 
 		buttons = new ImageTextButton[totalNumLevels];
 		for (i=0; i<totalNumLevels; i++) {
-			buttons[i] = createImageTextButton("menu\\door"+(i%numLevels+1)+"light.png", font, i+1);
+			buttons[i] = createImageTextButton(upImages[i%numLevels], font, i+1);
 			buttons[i].addListener(new ClickListener() {
 				int saved_i = i;
 				public void clicked(InputEvent event, float x, float y) {
 					buttonsClicked[saved_i] = true;
 				}
 			});
-			upImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(i%numLevels+1)+"light.png")));
-			overImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloud_withpink.png")));
+			overImages[i%numLevels] = cloudDrawable;
 		}
 
 		placeButtons();
@@ -179,8 +198,6 @@ public class MenuScrollable implements Screen {
 		table = new Table();
 		table.setFillParent(true);
 
-		titleTexture = new Texture(Gdx.files.internal("menu\\dream_selection.png"));
-		titleDrawable = new TextureRegionDrawable(titleTexture);
 		Image titleImage = new Image(titleDrawable);
 		table.add(titleImage).colspan(numLevels+4).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
 		titleImage.setVisible(false);
@@ -207,8 +224,8 @@ public class MenuScrollable implements Screen {
 			}
 		}
 
-		leftButton = createImageButton("menu\\arrow_left.png");
-		rightButton = createImageButton("menu\\arrow_right.png");
+		leftButton = new ImageButton(leftButtonDrawable);
+		rightButton = new ImageButton(rightButtonDrawable);
 //
 //		table.add(leftButton).size(ARROW_SIZE, ARROW_SIZE);
 //		leftButton.addListener(new ClickListener() {
@@ -221,9 +238,8 @@ public class MenuScrollable implements Screen {
 
 //		table.add(rightButton).size(ARROW_SIZE, ARROW_SIZE);
 		Image[] cloudLineImages = new Image[totalNumLevels/numLevels+1];
-		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloudline_dreamselection.png")));
 		for (int i=0; i<cloudLineImages.length; i++){
-			cloudLineImages[i] = new Image(drawable);
+			cloudLineImages[i] = new Image(cloudLineDrawable);
 		}
 
 		table.row();
@@ -283,10 +299,9 @@ public class MenuScrollable implements Screen {
 		return imgButton;
 	}
 
-	private ImageTextButton createImageTextButton(String upFilepath, BitmapFont font, int number){
-		TextureRegionDrawable drawable1 = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
+	private ImageTextButton createImageTextButton(TextureRegionDrawable drawable, BitmapFont font, int number){ ;
 		ImageTextButton.ImageTextButtonStyle btnStyle1 = new ImageTextButton.ImageTextButtonStyle();
-		btnStyle1.up = drawable1;
+		btnStyle1.up = drawable;
 		btnStyle1.font = font;
 		ImageTextButton btn = new ImageTextButton(""+number, btnStyle1);
 		return btn;
@@ -295,7 +310,10 @@ public class MenuScrollable implements Screen {
 	/**
 	 * Called when this screen should release all resources.
 	 */
-	public void dispose() {}
+	public void dispose() {
+		internal.unloadAssets();
+		internal.dispose();
+	}
 
 	/**
 	 * Update the status of this player mode.

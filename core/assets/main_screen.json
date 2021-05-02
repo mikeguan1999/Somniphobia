@@ -1,0 +1,12 @@
+{
+	"textures": {
+            "background": "main_screen/mainmenu_withcloudline.png",
+            "title": "main_screen/somniphobia_menutitle.png",
+            "about": "main_screen/about.png",
+            "controls": "main_screen/controls.png",
+            "start_dream": "main_screen/start_dream.png",
+            "underline": "main_screen/startdream_underline.png"
+
+    }
+}
+
