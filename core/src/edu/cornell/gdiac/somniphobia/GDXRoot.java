@@ -14,14 +14,12 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import edu.cornell.gdiac.somniphobia.game.controllers.LevelController;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
-import edu.cornell.gdiac.somniphobia.game.controllers.PlatController;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import edu.cornell.gdiac.somniphobia.Menu;
-import org.lwjgl.Sys;
 
 /**
  * Root class for a LibGDX.  
@@ -38,7 +36,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Drawing context to display graphics (VIEW CLASS) */
 	private GameCanvas canvas;
 	/** Platform controller which controlls the filters*/
-	private PlatController platController;
+	private PlatformController platformController;
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
 	/** The World Controller */
@@ -80,7 +78,7 @@ public class GDXRoot extends Game implements ScreenListener {
 //		}
 
 		canvas  = new GameCanvas();
-		platController = new PlatController();
+		platformController = new PlatformController();
 		loading = new LoadingMode("assets.json",canvas,1);
 
 //		menuPages = new Menu[numPages];
@@ -112,7 +110,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		// TODO
 
 		controllers = new WorldController[2];
-		controllers[LEVEL_CONTROLLER_INDEX] = new PlatformController();
+		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController();
 		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
 
 		levelCreator = new LevelCreator();
@@ -182,7 +180,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
 	 *  otherwise, prepares for level `num`. */
 	public void prepareLevelJson(WorldController wc, int num, boolean increment) {
-		PlatformController pc = (PlatformController) wc;
+		LevelController pc = (LevelController) wc;
 		pc.setLevel(increment ? pc.getLevel() + num : num);
 		pc.gatherLevelJson(directory);
 	}
@@ -205,7 +203,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				}
 				controllers[ii].setScreenListener(this);
 				controllers [ii].setCanvas(canvas);
-				controllers[ii].setPlatController(platController);
+				controllers[ii].setPlatController(platformController);
 			}
 
 

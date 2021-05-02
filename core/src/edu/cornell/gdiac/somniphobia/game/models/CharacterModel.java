@@ -852,7 +852,6 @@ public class CharacterModel extends CapsuleObstacle {
 			// draw the blue ring animation
 			canvas.draw(animatorTwo, Color.WHITE, originTwo.x+xOffset2, originTwo.y+yOffset2+60,getX()*drawScale.x,getY()*drawScale.y,angle,
 					effect, 1.0f);
-			System.out.println((int)animeframeRing);
 		}
 		if (textureTwo==null && textureThree !=null) {
 			// draw the reaching out hand (can-hold-hand indicator)

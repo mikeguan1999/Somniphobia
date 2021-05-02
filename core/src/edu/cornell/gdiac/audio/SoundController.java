@@ -169,10 +169,6 @@ public class SoundController implements SoundBuffer.OnCompletionListener {
             SoundController.ActiveSound currentMusic = actives.get(currentMusicTag);
             SoundController.ActiveSound newMusic = actives.get(newMusicTag);
 
-//            currentMusic.sound.getVolume()
-            System.out.println(currentMusic.sound);
-
-//            System.out.println(currentMusic.sound.getVolume(currentMusic.id, 0));
             float crossFade = .05f;
 
 //            currentMusic.sound.setVolume(currentMusic.id, 1);

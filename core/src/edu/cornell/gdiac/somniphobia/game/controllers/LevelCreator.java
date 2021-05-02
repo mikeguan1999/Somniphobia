@@ -909,7 +909,7 @@ public class LevelCreator extends WorldController {
                         ArrayList<Platform> pathPlatforms = new ArrayList<>();
                         if(object.paths != null) {
                             float[] path = object.paths.get(i);
-                            if(PlatformController.hasValidPath(x, y, path)) {
+                            if(LevelController.hasValidPath(x, y, path)) {
                                 for (int j = 0; j < path.length / 2; j++) {
                                     float pathX = path[j * 2], pathY = path[j * 2 + 1];
                                     Platform pathPlatform = new Platform(vertexPlatformTag, pathX, pathY, width, height, 0,

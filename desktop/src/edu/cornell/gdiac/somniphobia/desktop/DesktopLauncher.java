@@ -36,6 +36,7 @@ public class DesktopLauncher {
 		config.width  = 1024;
 		config.height = 576;
 		config.resizable = false;
+		config.title = "SomniPhobia";
 		new GDXApp(new GDXRoot(), config);
 	}
 }

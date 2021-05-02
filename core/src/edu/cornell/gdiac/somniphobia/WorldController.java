@@ -25,7 +25,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
-import edu.cornell.gdiac.somniphobia.game.controllers.PlatController;
+import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 
@@ -85,7 +85,7 @@ public abstract class WorldController implements Screen {
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
 	/** Platform controller*/
-	protected PlatController platController;
+	protected PlatformController platformController;
 
 	/** The Box2D world */
 	protected World world;
@@ -247,8 +247,8 @@ public abstract class WorldController implements Screen {
 	 *
 	 * @return the canvas associated with this controller
 	 */
-	public PlatController getPlatController() {
-		return platController;
+	public PlatformController getPlatController() {
+		return platformController;
 	}
 
 	/**
@@ -259,8 +259,8 @@ public abstract class WorldController implements Screen {
 	 *
 	 * @param plat the canvas associated with this controller
 	 */
-	public void setPlatController(PlatController plat) {
-		this.platController = plat;
+	public void setPlatController(PlatformController plat) {
+		this.platformController = plat;
 	}
 	
 	/**

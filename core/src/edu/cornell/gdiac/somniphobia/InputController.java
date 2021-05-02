@@ -24,6 +24,17 @@ import com.badlogic.gdx.math.*;
 public class InputController {
 	/** The singleton instance of the input controller */
 	private static InputController theController = null;
+
+
+	/** Key mappings */
+	private int jumpKey	= Input.Keys.UP;
+	private int dashKey = Input.Keys.Z;
+	private int handHoldingKey = Input.Keys.X;
+	private int switchKey = Input.Keys.C;
+	private int prevKey = Input.Keys.P;
+	private int nextKey = Input.Keys.N;
+	private int leftKey = Input.Keys.LEFT;
+	private int rightKey = Input.Keys.RIGHT;
 	
 	/** 
 	 * Return the singleton instance of the input controller
@@ -303,18 +314,18 @@ public class InputController {
 	 */
 	private void readKeyboard(Rectangle bounds, Vector2 scale) {
 		// Give priority to gamepad results
-		resetPressed			= Gdx.input.isKeyPressed(Input.Keys.SEMICOLON);
+		resetPressed			= Gdx.input.isKeyPressed(Input.Keys.R);
 		debugPressed  			= Gdx.input.isKeyPressed(Input.Keys.G);
 		sliderToggled  			= Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
-		jumpPressed  			= Gdx.input.isKeyPressed(Input.Keys.UP);
-		dashPressed 			= Gdx.input.isKeyPressed(Input.Keys.SPACE);
-		handHoldingPressed 		= Gdx.input.isKeyPressed(Input.Keys.E);
-		switchPressed 			= Gdx.input.isKeyPressed(Input.Keys.Q);
+		jumpPressed  			= Gdx.input.isKeyPressed(jumpKey);
+		dashPressed 			= Gdx.input.isKeyPressed(dashKey);
+		handHoldingPressed 		= Gdx.input.isKeyPressed(handHoldingKey);
+		switchPressed 			= Gdx.input.isKeyPressed(switchKey);
 		exitPressed   			= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
 		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
 		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
-		walkPressed 			= Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+		walkPressed 			= Gdx.input.isKeyPressed(leftKey) || Gdx.input.isKeyPressed(rightKey);
 		pauseClicked			= Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET);
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));

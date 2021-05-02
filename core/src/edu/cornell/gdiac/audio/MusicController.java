@@ -204,7 +204,6 @@ public class MusicController {
         }
 
         // Play the new sound and add it
-        System.out.println(this.volume);
         music.setVolume(volume * this.volume);
         music.play();
         if (loop) {

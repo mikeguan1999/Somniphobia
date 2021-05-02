@@ -220,8 +220,6 @@ public class FilmStrip extends TextureRegion {
 	 */
 	public void setFrame(int frame) {
 		if (frame < 0 || frame >= size) {
-			System.out.println(frame);
-			System.out.println(size);
 			Gdx.app.error("FilmStrip", "Invalid animation frame", new IllegalArgumentException());
 			return;
 		}
