@@ -191,6 +191,28 @@
     "tutorial:spirit_separate": "tutorial/spirit_separate.png",
     "tutorial:spirit_unify": "tutorial/spirit_unify.png",
 
+    "pause_menu:pausemenu_underline_red": "pause_menu/pausemenu_underline_red.png",
+    "pause_menu:pausemenu_underline": "pause_menu/pausemenu_underline.png",
+    "pause_menu:bluerectangle": "pause_menu/bluerectangle.png",
+    "pause_menu:exit_blue": "pause_menu/exit_blue.png",
+    "pause_menu:resume_blue": "pause_menu/resume_blue.png",
+    "pause_menu:restart_blue": "pause_menu/restart_blue.png",
+    "pause_menu:orangerectangle": "pause_menu/orangerectangle.png",
+    "pause_menu:exit_orange": "pause_menu/exit_orange.png",
+    "pause_menu:resume_orange": "pause_menu/resume_orange.png",
+    "pause_menu:restart_orange": "pause_menu/restart_orange.png",
+    "pause_menu:slider_orange": "pause_menu/slider_orange.png",
+    "pause_menu:slider_blue": "pause_menu/slider_blue.png",
+    "pause_menu:knob_orange": "pause_menu/knob_orange.png",
+    "pause_menu:knob_blue": "pause_menu/knob_blue.png",
+    "pause_menu:sound_orange": "pause_menu/sound_orange.png",
+    "pause_menu:sound_blue": "pause_menu/sound_blue.png",
+    "pause_menu:musicnote_blue": "pause_menu/musicnote_blue.png",
+    "pause_menu:musicnote_orange": "pause_menu/musicnote_orange.png",
+    "pause_menu:nextblue": "pause_menu/nextblue.png",
+    "pause_menu:nextorange": "pause_menu/nextorange.png",
+    "pause_menu:pause_button_blue":  "pause_menu/pause_button.png",
+    "pause_menu:pause_button_red": "pause_menu/pause_red.png",
   },
     "jsons"  : {
         "constants": "constants.json",
@@ -236,5 +258,5 @@
             "file": "shared/RetroGame.ttf",
             "size": 64
         }
-    },
+    }
 }

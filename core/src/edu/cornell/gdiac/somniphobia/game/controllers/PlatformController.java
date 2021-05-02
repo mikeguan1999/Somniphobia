@@ -354,6 +354,8 @@ public class PlatformController extends WorldController {
 	private TextureRegionDrawable orangeSlider;
 	private TextureRegionDrawable blueSound;
 	private TextureRegionDrawable orangeSound;
+	private TextureRegionDrawable bluePauseButton;
+	private TextureRegionDrawable orangePauseButton;
 
 	/** constants for positioning pause menu and pause button */
 	private final int PAUSE_BUTTON_OFFSETX = 400;
@@ -404,23 +406,23 @@ public class PlatformController extends WorldController {
 		heightUpperBound = 0;
 	}
 
-	/**
-	 * Helper function for creating a drawable from an image with filepath
-	 */
-	private TextureRegionDrawable createDrawable(String filePath){
-		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
-		return drawable;
-	}
+//	/**
+//	 * Helper function for creating a drawable from an image with filepath
+//	 */
+//	private TextureRegionDrawable createDrawable(String filePath){
+//		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(filePath)));
+//		return drawable;
+//	}
 
-	/**
-	 * Helper function for creating buttons on pause menu:
-	 * Creating an image button that appears as an image with upFilepath.
-	 */
-	private Button createImageButton(String upFilepath){
-		TextureRegionDrawable upButtonDrawable = createDrawable(upFilepath);
-		Button imgButton= new Button(upButtonDrawable);
-		return imgButton;
-	}
+//	/**
+//	 * Helper function for creating buttons on pause menu:
+//	 * Creating an image button that appears as an image with upFilepath.
+//	 */
+//	private Button createImageButton(String upFilepath){
+//		TextureRegionDrawable upButtonDrawable = createDrawable(upFilepath);
+//		Button imgButton= new Button(upButtonDrawable);
+//		return imgButton;
+//	}
 
 	/**
 	 * Creates the pauseMenu with the buttons
@@ -429,29 +431,8 @@ public class PlatformController extends WorldController {
 		Viewport viewport = canvas.getViewPort();
 		pauseMenuStage = new Stage(viewport);
 		pauseMenu = new Table();
-		pauseMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		pauseMenu.setBackground(blueRectangle);
 		pauseMenu.setFillParent(true);
-
-//		create drawables
-		orangeUnderline = createDrawable("pause_menu\\pausemenu_underline_red.png");
-		blueUnderline = createDrawable("pause_menu\\pausemenu_underline.png");
-		blueRectangle = createDrawable("pause_menu\\bluerectangle.png");
-		blueExit = createDrawable("pause_menu\\exit_blue.png");
-		blueResume = createDrawable("pause_menu\\resume_blue.png");
-		blueRestart = createDrawable("pause_menu\\restart_blue.png");
-		orangeRectangle = createDrawable("pause_menu\\orangerectangle.png");
-		orangeExit = createDrawable("pause_menu\\exit_orange.png");
-		orangeResume = createDrawable("pause_menu\\resume_orange.png");
-		orangeRestart = createDrawable("pause_menu\\restart_orange.png");
-		//		Sliders
-		orangeSlider = createDrawable("pause_menu\\slider_orange.png");
-		blueSlider = createDrawable("pause_menu\\slider_blue.png");
-		orangeKnob = createDrawable("pause_menu\\knob_orange.png");
-		blueKnob = createDrawable("pause_menu\\knob_blue.png");
-		orangeSound = createDrawable("pause_menu\\sound_orange.png");
-		blueSound = createDrawable("pause_menu\\sound_blue.png");
-		blueMusicNote = createDrawable("pause_menu\\musicnote_blue.png");
-		orangeMusicNote = createDrawable("pause_menu\\musicnote_orange.png");
 
 
 //		create sliders
@@ -462,10 +443,10 @@ public class PlatformController extends WorldController {
 		soundIcon = new Image(blueSound);
 		sliderMusic.setValue(0.5f);
 
-		exitButton = createImageButton("pause_menu\\exit_blue.png");
-		resumeButton = createImageButton("pause_menu\\resume_blue.png");
-		restartButton = createImageButton("pause_menu\\restart_blue.png");
-		underline = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
+		exitButton = new Button(blueExit);
+		resumeButton = new Button(blueResume);
+		restartButton = new Button(blueRestart);
+		underline = new Image(blueUnderline);
 
 		pauseMenu.add(musicIcon).height(100).width(100);
 		pauseMenu.add(sliderMusic).colspan(3).height(150).width(500).padRight(150);
@@ -539,12 +520,12 @@ public class PlatformController extends WorldController {
 		camera.position.x = cameraX;
 		camera.position.y = cameraY;
 		failMenu = new Table();
-		failMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		failMenu.setBackground(blueRectangle);
 		failMenu.setFillParent(true);
 
-		exitButtonFail = createImageButton("pause_menu\\exit_blue.png");
-		restartButtonFail = createImageButton("pause_menu\\restart_blue.png");
-		underlineFailMenu = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
+		exitButtonFail = new Button(blueExit);
+		restartButtonFail = new Button(blueRestart);
+		underlineFailMenu = new Image(blueUnderline);
 
 		//Buttons needed
 		failMenu.add(exitButtonFail).size(150,70);
@@ -580,14 +561,12 @@ public class PlatformController extends WorldController {
 		camera.position.y = cameraY;
 		camera.update();
 		winMenu = new Table();
-		winMenu.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("pause_menu\\bluerectangle.png"))));
+		winMenu.setBackground(blueRectangle);
 		winMenu.setFillParent(true);
 
-		exitButtonWin = createImageButton("pause_menu\\exit_blue.png");
-		advanceButton = createImageButton("pause_menu\\nextblue.png");
-		blueNext = createDrawable("pause_menu\\nextblue.png");
-		orangeNext = createDrawable("pause_menu\\nextorange.png");
-		underlineWinMenu = new Image(createDrawable("pause_menu\\pausemenu_underline.png"));
+		exitButtonWin = new Button(blueExit);
+		advanceButton = new Button(blueNext);
+		underlineWinMenu = new Image(blueUnderline);
 
 
 		//Buttons needed
@@ -875,7 +854,7 @@ public class PlatformController extends WorldController {
 		Table table = new Table();
 		gameScreenActive = true;
 		pauseButtonStage = new Stage(new ScreenViewport(camera));
-		pauseButton = createImageButton("pause_menu\\pause_button.png");
+		pauseButton = new Button(bluePauseButton);
 		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -1035,7 +1014,32 @@ public class PlatformController extends WorldController {
 		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
 
 
+//		menu drawables
+		orangeUnderline = new TextureRegionDrawable(directory.getEntry("pause_menu:pausemenu_underline_red", Texture.class));
+		blueUnderline = new TextureRegionDrawable(directory.getEntry("pause_menu:pausemenu_underline", Texture.class));
+		blueRectangle = new TextureRegionDrawable(directory.getEntry("pause_menu:bluerectangle", Texture.class));
+		blueExit = new TextureRegionDrawable(directory.getEntry("pause_menu:exit_blue", Texture.class));
+		blueResume = new TextureRegionDrawable(directory.getEntry("pause_menu:resume_blue", Texture.class));
+		blueRestart = new TextureRegionDrawable(directory.getEntry("pause_menu:restart_blue", Texture.class));
+		orangeRectangle = new TextureRegionDrawable(directory.getEntry("pause_menu:orangerectangle", Texture.class));
+		orangeExit = new TextureRegionDrawable(directory.getEntry("pause_menu:exit_orange", Texture.class));
+		orangeResume = new TextureRegionDrawable(directory.getEntry("pause_menu:resume_orange", Texture.class));
+		orangeRestart = new TextureRegionDrawable(directory.getEntry("pause_menu:restart_orange", Texture.class));
+		//		Sliders
+		orangeSlider = new TextureRegionDrawable(directory.getEntry("pause_menu:slider_orange", Texture.class));
+		blueSlider = new TextureRegionDrawable(directory.getEntry("pause_menu:slider_blue", Texture.class));
+		orangeKnob = new TextureRegionDrawable(directory.getEntry("pause_menu:knob_orange", Texture.class));
+		blueKnob = new TextureRegionDrawable(directory.getEntry("pause_menu:knob_blue", Texture.class));
+		orangeSound = new TextureRegionDrawable(directory.getEntry("pause_menu:sound_orange", Texture.class));
+		blueSound = new TextureRegionDrawable(directory.getEntry("pause_menu:sound_blue", Texture.class));
+		blueMusicNote = new TextureRegionDrawable(directory.getEntry("pause_menu:musicnote_blue", Texture.class));
+		orangeMusicNote = new TextureRegionDrawable(directory.getEntry("pause_menu:musicnote_orange", Texture.class));
 
+		blueNext = new TextureRegionDrawable(directory.getEntry("pause_menu:nextblue", Texture.class));
+		orangeNext = new TextureRegionDrawable(directory.getEntry("pause_menu:nextorange", Texture.class));
+
+		bluePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_blue", Texture.class));
+		orangePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_red", Texture.class));
 
 		super.gatherAssets(directory);
 
@@ -1975,9 +1979,9 @@ public class PlatformController extends WorldController {
 			firstTimeRenderedPauseButton = false;
 		} else {
 			if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
-				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_button.png");
+				pauseButton.getStyle().up = bluePauseButton;
 			} else {
-				pauseButton.getStyle().up = createDrawable("pause_menu\\pause_red.png");
+				pauseButton.getStyle().up = orangePauseButton;
 			}
 			drawPauseButton();
 		}
