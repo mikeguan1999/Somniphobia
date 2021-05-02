@@ -29,8 +29,11 @@ public class InputController {
 	/** Key mappings */
 	private int jumpKey	= Input.Keys.UP;
 	private int dashKey = Input.Keys.Z;
+	private int dashKey2 = Input.Keys.SPACE;
 	private int handHoldingKey = Input.Keys.X;
+	private int handHoldingKey2 = Input.Keys.E;
 	private int switchKey = Input.Keys.C;
+	private int switchKey2 = Input.Keys.Q;
 	private int prevKey = Input.Keys.P;
 	private int nextKey = Input.Keys.N;
 	private int leftKey = Input.Keys.LEFT;
@@ -318,9 +321,9 @@ public class InputController {
 		debugPressed  			= Gdx.input.isKeyPressed(Input.Keys.G);
 		sliderToggled  			= Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
 		jumpPressed  			= Gdx.input.isKeyPressed(jumpKey);
-		dashPressed 			= Gdx.input.isKeyPressed(dashKey);
-		handHoldingPressed 		= Gdx.input.isKeyPressed(handHoldingKey);
-		switchPressed 			= Gdx.input.isKeyPressed(switchKey);
+		dashPressed 			= Gdx.input.isKeyPressed(dashKey) || Gdx.input.isKeyPressed(dashKey2);
+		handHoldingPressed 		= Gdx.input.isKeyPressed(handHoldingKey) || Gdx.input.isKeyPressed(handHoldingKey2);
+		switchPressed 			= Gdx.input.isKeyPressed(switchKey) || Gdx.input.isKeyPressed(switchKey2);
 		exitPressed   			= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
 		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
