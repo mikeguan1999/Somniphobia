@@ -98,10 +98,16 @@ public class PlatformController {
             PooledList<Vector2> paths = platform.getPaths();
             Vector2 nextDestination = paths.getHead();
 
+//            System.out.println(paths);
+
             //if overshot (destination - position opposite sign as velocity), switch destination
             if (!obstacle.getLinearVelocity().isZero() && (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) ||
             Math.signum(nextDestination.y - position.y) != Math.signum(platform.getLinearVelocity().y))) {
                 position.set(nextDestination);
+                platform.setVY(0);
+                platform.setVX(0);
+                platform.setX(position.x + platform.getWidth()/2);
+                platform.setY(position.y + platform.getHeight()/2);
             }
 
             // Switch destination if arrived
