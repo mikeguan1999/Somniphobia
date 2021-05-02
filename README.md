@@ -2,9 +2,13 @@
 Welcome to Somniphobia! Control the characters using the following control scheme:
 
 Left/Right arrow keys: Move left/right
+
 Up arrow key: Jump
+
 arrow keys + Z: Dash in direction of arrow keys (8 directions)
+
 X: Toggle holding hands
+
 C: Switch between our two characters Somni and Phobia
 
 WASD: Camera panning
