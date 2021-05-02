@@ -82,10 +82,6 @@ public class InputController {
 	private boolean exitPressed;
 	private boolean exitPrevious;
 
-	/** Whether the return menu button was pressed. */
-	private boolean returnMenuPressed;
-	private boolean returnMenuPrevious;
-
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
 	/** The crosshair position (for raddoll) */
@@ -253,14 +249,6 @@ public class InputController {
 	}
 
 	/**
-	 * Returns true if the return menu button was pressed.
-	 *
-	 * @return true if the return menu button was pressed.
-	 */
-	public boolean didReturnMenu(){ return returnMenuPressed && !returnMenuPrevious; }
-
-
-	/**
 	 * Returns true if the button to enter the creator was pressed.
 	 *
 	 * @return true if the creator mode button was pressed.
@@ -305,7 +293,6 @@ public class InputController {
 		switchToCreatorPrevious = switchToCreatorPressed;
 		nextPrevious 			= nextPressed;
 		prevPrevious 			= prevPressed;
-		returnMenuPrevious		= returnMenuPressed;
 		pauseClickedPrevious	= pauseClicked;
 
 		readKeyboard(bounds,scale);
@@ -316,7 +303,7 @@ public class InputController {
 	 */
 	private void readKeyboard(Rectangle bounds, Vector2 scale) {
 		// Give priority to gamepad results
-		resetPressed			= Gdx.input.isKeyPressed(Input.Keys.R);
+		resetPressed			= Gdx.input.isKeyPressed(Input.Keys.SEMICOLON);
 		debugPressed  			= Gdx.input.isKeyPressed(Input.Keys.G);
 		sliderToggled  			= Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
 		jumpPressed  			= Gdx.input.isKeyPressed(Input.Keys.UP);
@@ -328,7 +315,6 @@ public class InputController {
 		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
 		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
 		walkPressed 			= Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT);
-		returnMenuPressed 		= Gdx.input.isKeyPressed(Input.Keys.H);
 		pauseClicked			= Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET);
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));

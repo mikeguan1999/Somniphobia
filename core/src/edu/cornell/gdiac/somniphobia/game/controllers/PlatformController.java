@@ -1136,8 +1136,6 @@ public class PlatformController extends WorldController {
 		maskHeight = MIN_MASK_DIMENSIONS.y;
 		alphaAmount = 0;
 
-		System.out.println("somni");
-		System.out.println(somniTrackPath);
 		SoundController.getInstance().play("somniTrack", somniTrackPath, 1f, true);
 		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
 		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);

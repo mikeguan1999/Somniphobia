@@ -432,10 +432,6 @@ public abstract class WorldController implements Screen {
 			pause();
 			listener.exitScreen(this, EXIT_QUIT);
 			return false;
-		} else if (input.didReturnMenu()){
-			pause();
-			listener.exitScreen(this, EXIT_MENU);
-			return false;
 		} else if (input.didAdvance()) {
 			pause();
 			listener.exitScreen(this, EXIT_NEXT);
