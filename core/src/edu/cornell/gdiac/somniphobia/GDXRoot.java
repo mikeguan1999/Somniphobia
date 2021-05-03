@@ -35,8 +35,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	AssetDirectory directory;
 	/** Drawing context to display graphics (VIEW CLASS) */
 	private GameCanvas canvas;
+
 	/** Platform controller which controlls the filters*/
 	private PlatformController platformController;
+
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
 	/** The World Controller */
@@ -47,7 +49,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private int current;
 
 	/** Level selection screen variables */
-	static public int totalNumLevels = 28;
+	static public int totalNumLevels = 27;
 	private MenuScrollable menu;
 
 	private OrthographicCamera cam;
