@@ -131,7 +131,6 @@ public class Menu implements Screen {
 		totalActualLevels = totalLevels;
 //		number of levels that exist on the menu
 		totalNumLevels = (int) Math.ceil((double)totalActualLevels/(double)numLevels) * numLevels;
-		System.out.println(totalLevels);
 
 //		Creating bmp font from ttf
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));

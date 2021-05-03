@@ -1074,7 +1074,6 @@ public class LevelCreator extends WorldController {
             String text;
             try {
                 text = file.readString();
-                System.out.println(text);
             } catch (Exception e) {
                 System.out.println(e);
                 return null;
@@ -1083,7 +1082,6 @@ public class LevelCreator extends WorldController {
             Level level;
             try {
                 level = json.fromJson(Level.class, text);
-                System.out.println(level);
             } catch (Exception e) {
                 System.out.println(e);
                 return null;

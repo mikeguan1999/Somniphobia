@@ -335,7 +335,6 @@ public class MenuScrollable implements Screen {
 				zIndices[i] = buttons[i].getZIndex();
 			}
 			initialCameraX =  camera.position.x - canvas.getWidth()*((totalNumLevels/6)-2);
-			System.out.println(initialCameraX);
 			camera.position.x = initialCameraX;
 			camera.position.y = 288;
 		}
