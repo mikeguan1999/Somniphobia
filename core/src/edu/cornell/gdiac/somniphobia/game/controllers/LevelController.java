@@ -513,13 +513,18 @@ public class LevelController extends WorldController {
 		failMenu.setBackground(blueRectangle);
 		failMenu.setFillParent(true);
 
+		TextureRegionDrawable drawable1 = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause_menu\\dreamfailed.png")));
+		Image img = new Image (drawable1);
+
 		exitButtonFail = new Button(blueExit);
 		restartButtonFail = new Button(blueRestart);
 		underlineFailMenu = new Image(blueUnderline);
 
 		//Buttons needed
-		failMenu.add(exitButtonFail).size(150,70);
-		failMenu.add(restartButtonFail).size(200,70);
+		failMenu.add(img).colspan(2);
+		failMenu.row().padTop(50);
+		failMenu.add(exitButtonFail).size(150,70).padRight(70);
+		failMenu.add(restartButtonFail).size(200,70).padRight(10);
 		failMenu.row();
 		failMenu.add(underlineFailMenu);
 		underlineFailMenu.setVisible(false);
@@ -554,14 +559,22 @@ public class LevelController extends WorldController {
 		winMenu.setBackground(blueRectangle);
 		winMenu.setFillParent(true);
 
+		TextureRegionDrawable drawable1 = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause_menu\\dreamcomplete.png")));
+		Image img = new Image (drawable1);
+
 		exitButtonWin = new Button(blueExit);
 		advanceButton = new Button(blueNext);
 		underlineWinMenu = new Image(blueUnderline);
 
 
 		//Buttons needed
+		winMenu.add(img).colspan(2);
+		winMenu.row().padTop(50);
 		winMenu.add(exitButtonWin).size(150,70);
-		winMenu.add(advanceButton).size(150,70);
+		winMenu.add(advanceButton).size(150,70).padLeft(90).padRight(40);
+		winMenu.row();
+		winMenu.add(underlineWinMenu);
+		underlineWinMenu.setVisible(false);
 		winMenu.row();
 		winMenu.add(underlineWinMenu);
 		underlineWinMenu.setVisible(false);
