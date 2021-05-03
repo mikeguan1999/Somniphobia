@@ -141,6 +141,7 @@ public class LevelCreator extends WorldController {
     private TextField platformHeight;
     private TextField worldWidthText;
     private TextField worldHeightText;
+    private TextField assetText;
 
     Stage stage;
 
@@ -349,6 +350,9 @@ public class LevelCreator extends WorldController {
         worldHeightText.setMaxLength(4);
         worldHeightText.setTextFieldFilter(numberFilter);
 
+        assetText = new TextField(null, textFieldStyle);
+        assetText.setText("");
+
 
         // Remove Object
         ImageTextButton setWorldDimension = new ImageTextButton("Set Dimensions", buttonStyle);
@@ -371,6 +375,18 @@ public class LevelCreator extends WorldController {
 
                 if (selectedObstacle != null && ((Platform) selectedObstacle).type < somniTag) {
                     deletePlatform(selectedObstacle);
+                }
+            }
+        });
+
+        ImageTextButton setAsset = new ImageTextButton("Set Asset", buttonStyle);
+
+        setAsset.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(selectedObstacle != null && selectedObstacle instanceof Platform &&
+                        ((Platform) selectedObstacle).type <somniTag) {
+                    ((Platform) selectedObstacle).setTexture(assetText.getText());
                 }
             }
         });
