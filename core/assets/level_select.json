@@ -1,0 +1,14 @@
+{
+	"textures": {
+        "title": "menu/dream_selection.png",
+		"left_button": "menu/arrow_left.png",
+        "right_button": "menu/arrow_right.png",
+        "cloudline": "menu/cloudline_dreamselection.png",
+        "cloud": "menu/cloud_withpink.png",
+        "door1": "menu/door1light.png",
+        "door2": "menu/door2light.png",
+        "door3": "menu/door3light.png",
+        "door4": "menu/door4light.png"
+    }
+}
+

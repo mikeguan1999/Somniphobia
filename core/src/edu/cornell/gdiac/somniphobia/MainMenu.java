@@ -39,6 +39,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.util.ScreenListener;
 
 /**
@@ -59,7 +60,8 @@ public class MainMenu implements Screen {
 	private GameCanvas canvas;
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
-
+	/** Internal assets for this menu screen */
+	private AssetDirectory internal;
 	/** Whether or not this player mode is still active */
 	private boolean active;
 	private Stage stage;
@@ -72,21 +74,39 @@ public class MainMenu implements Screen {
 	private Button underline;
 	private boolean started;
 
+	private TextureRegionDrawable titleDrawable;
+	private TextureRegionDrawable aboutDrawable;
+	private TextureRegionDrawable controlsDrawable;
+	private TextureRegionDrawable startDreamDrawable;
+	private TextureRegionDrawable underlineDrawable;
+	private TextureRegionDrawable backgroundDrawable;
+
 	public Stage getStage(){
 		return stage;
 	}
 
 	public MainMenu(GameCanvas canvas) {
+		internal = new AssetDirectory( "main_screen.json" );
+		internal.loadAssets();
+		internal.finishLoading();
+
 		stage = new Stage();
 		table = new Table();
-		table.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture("main_screen\\mainmenu_withcloudline.png"))));
+		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("background", Texture.class));
+		titleDrawable = new TextureRegionDrawable(internal.getEntry("title", Texture.class));
+		aboutDrawable = new TextureRegionDrawable(internal.getEntry("about", Texture.class));
+		controlsDrawable = new TextureRegionDrawable(internal.getEntry("controls", Texture.class));
+		startDreamDrawable = new TextureRegionDrawable(internal.getEntry("start_dream", Texture.class));
+		underlineDrawable = new TextureRegionDrawable(internal.getEntry("underline", Texture.class));
+
+		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
 
-		titleImage = createImage("main_screen\\somniphobia_menutitle.png");
-		about = createImageButton("main_screen\\about.png");
-		controls = createImageButton("main_screen\\controls.png");
-		startDream = createImageButton("main_screen\\start_dream.png");
-		underline = createImageButton("main_screen\\startdream_underline.png");
+		titleImage = new Image(titleDrawable);
+		about = new Button(aboutDrawable);
+		controls = new Button(controlsDrawable);
+		startDream = new Button(startDreamDrawable);
+		underline = new Button(underlineDrawable);
 
 		table.add(titleImage).colspan(5).padLeft(300).padRight(300).height(100).padTop(50);
 		table.row().padBottom(300);
@@ -131,6 +151,8 @@ public class MainMenu implements Screen {
 	 * Called when this screen should release all resources.
 	 */
 	public void dispose() {
+		internal.unloadAssets();
+		internal.dispose();
 	}
 
 	/**

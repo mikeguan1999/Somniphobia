@@ -718,7 +718,7 @@ public class GDXAudio implements AudioEngine {
         if (sourceId != -1 && !noDevice) {
             AL10.alGetSource(sourceId, AL10.AL_POSITION, floatdata);
             float x = (float)Math.acos(floatdata.get());
-            floatdata.clear();
+            ((java.nio.Buffer)floatdata).clear();
             return (2*x/MathUtils.PI)+1;
         }
         return 0.0f;
@@ -1309,7 +1309,7 @@ public class GDXAudio implements AudioEngine {
          * @return the volume of the given instance
          */
         @Override
-        public float getVolume(long soundId, float volume) {
+        public float getVolume(long soundId) {
             Integer sourceId = soundToSource.get(soundId);
             return getSourceGain(sourceId != null ? sourceId : -1);
         }
@@ -1874,7 +1874,7 @@ public class GDXAudio implements AudioEngine {
                 length = streams.get( position ).seek(byteOffs, tempBytes );
                 if (length > 0) {
                     int bufferId = obtainBuffer();
-                    tempBuffer.clear();
+                    ((java.nio.Buffer)tempBuffer).clear();
                     tempBuffer.put( tempBytes, 0, length ).flip();
                     AL10.alBufferData( bufferId, format, tempBuffer, sampleRate );
                     AL10.alSourceQueueBuffers( sourceId, bufferId );
@@ -2537,7 +2537,7 @@ public class GDXAudio implements AudioEngine {
          * @param bufferID  The OpenAL buffer to fill
          */
         private boolean fill(int bufferID) {
-            tempBuffer.clear();
+            ((java.nio.Buffer)tempBuffer).clear();
             int length = 0;
             if (orphaned != null) {
                 leaving[bufferID-bufferStart]  = orphaned;
@@ -3135,7 +3135,7 @@ public class GDXAudio implements AudioEngine {
                 }
                 int bufferId = obtainBuffer();
                 int amount = Math.min( bufferSize, length-written );
-                tempBuffer.clear();
+                ((java.nio.Buffer)tempBuffer).clear();
                 tempBuffer.put(data, offset, amount).flip();
                 AL10.alBufferData(bufferId, format, tempBuffer, sampleRate);
                 AL10.alSourceQueueBuffers(sourceId, bufferId);

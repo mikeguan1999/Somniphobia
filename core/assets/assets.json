@@ -60,6 +60,46 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:rain_cloud_all": {
+      "file": "platform/Raining_White.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_dark": {
+      "file": "platform/Raining_Blue.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_light": {
+      "file": "platform/Raining_Red.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_purple": {
+      "file": "platform/Raining_Purple.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_all": {
+      "file": "platform/LightningStrike_White.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_dark": {
+      "file": "platform/LightningStrike_Blue.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_light": {
+      "file": "platform/LightningStrike_Red.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_purple": {
+      "file": "platform/LightningStrike_Purple.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
     "shared:goalOLD": "platform/DoorOLD.png",
@@ -126,14 +166,17 @@
     "platform:phobia_somni_walk": "platform/PhobiaSomniWalk.png",
     "platform:phobia_somni_dash_side": "platform/PhobiaSomniSide.png",
     "platform:phobia_somni_dash_up": "platform/PhobiaSomniUp.png",
-    "platform:background_light": "platform/BG_forest_light.png",
-    "platform:background_dark": "platform/BG_forest_dark.png",
+
+    "platform:background_light_forest": "platform/BG_forest_light.png",
+    "platform:background_dark_forest": "platform/BG_forest_dark.png",
     "platform:background_light_gear": "platform/BG_gear_light.png",
     "platform:background_dark_gear": "platform/BG_gear_dark.png",
     "platform:background_light_dreams": "platform/BG_dreams_light.png",
     "platform:background_dark_dreams": "platform/BG_dreams_dark.png",
     "platform:background_light_house": "platform/BG_house_light.png",
     "platform:background_dark_house": "platform/BG_house_dark.png",
+    "platform:background_light_statues": "platform/BG_statues_light.png",
+    "platform:background_dark_statues": "platform/BG_statues_dark.png",
 
     "tutorial:camera_pan": "tutorial/camera_pan.png",
     "tutorial:phobia_dash": "tutorial/phobia_dash.png",
@@ -146,35 +189,70 @@
     "tutorial:somni_walk": "tutorial/somni_walk.png",
     "tutorial:spirit_switch": "tutorial/spirit_switch.png",
     "tutorial:spirit_separate": "tutorial/spirit_separate.png",
-    "tutorial:spirit_unify": "tutorial/spirit_unify.png"
+    "tutorial:spirit_unify": "tutorial/spirit_unify.png",
+
+    "pause_menu:pausemenu_underline_red": "pause_menu/pausemenu_underline_red.png",
+    "pause_menu:pausemenu_underline": "pause_menu/pausemenu_underline.png",
+    "pause_menu:bluerectangle": "pause_menu/bluerectangle.png",
+    "pause_menu:exit_blue": "pause_menu/exit_blue.png",
+    "pause_menu:resume_blue": "pause_menu/resume_blue.png",
+    "pause_menu:restart_blue": "pause_menu/restart_blue.png",
+    "pause_menu:orangerectangle": "pause_menu/orangerectangle.png",
+    "pause_menu:exit_orange": "pause_menu/exit_orange.png",
+    "pause_menu:resume_orange": "pause_menu/resume_orange.png",
+    "pause_menu:restart_orange": "pause_menu/restart_orange.png",
+    "pause_menu:slider_orange": "pause_menu/slider_orange.png",
+    "pause_menu:slider_blue": "pause_menu/slider_blue.png",
+    "pause_menu:knob_orange": "pause_menu/knob_orange.png",
+    "pause_menu:knob_blue": "pause_menu/knob_blue.png",
+    "pause_menu:sound_orange": "pause_menu/sound_orange.png",
+    "pause_menu:sound_blue": "pause_menu/sound_blue.png",
+    "pause_menu:musicnote_blue": "pause_menu/musicnote_blue.png",
+    "pause_menu:musicnote_orange": "pause_menu/musicnote_orange.png",
+    "pause_menu:nextblue": "pause_menu/nextblue.png",
+    "pause_menu:nextorange": "pause_menu/nextorange.png",
+    "pause_menu:pause_button_blue":  "pause_menu/pause_button.png",
+    "pause_menu:pause_button_red": "pause_menu/pause_red.png",
   },
     "jsons"  : {
         "constants": "constants.json",
         "level0": "levels/level0.json",
-        "level1": "levels/level1.json",
-        "level2": "levels/level2.json",
-        "level3": "levels/level3.json",
-        "level4": "levels/level4.json",
-        "level5": "levels/level5.json",
-        "level6": "levels/level6.json",
-        "level7": "levels/level7.json",
-        "level8": "levels/level8.json",
-        "level9": "levels/level9.json",
-        "level10": "levels/level10.json",
-        "level11": "levels/level11.json",
-        "level12": "levels/level12.json",
-        "level13": "levels/level13.json",
-        "level14": "levels/level14.json",
-        "level15": "levels/level15.json",
-        "level16": "levels/level16.json",
-        "level17": "levels/level17.json",
-        "level18": "levels/level18.json",
-        "level19": "levels/level19.json"
+        "level1": "levels/house_tutorial_0.json",
+        "level2": "levels/house_tutorial_1.json",
+        "level3": "levels/house_tutorial_2.json",
+        "level4": "levels/house_tutorial_3.json",
+        "level5": "levels/house_tutorial_4.json",
+        "level6": "levels/house_tutorial_5.json",
+        "level7": "levels/house_tutorial_6.json",
+        "level8": "levels/house_tutorial_7.json",
+        "level9": "levels/forest_switch_1.json",
+        "level10": "levels/forest_switch_2.json",
+        "level11": "levels/forest_switch_3.json",
+        "level12": "levels/forest_handhold_1.json",
+        "level13": "levels/forest_handhold_2.json",
+        "level14": "levels/forest_separate_1.json",
+        "level15": "levels/forest_catch_1.json",
+        "level16": "levels/forest_dash_1.json",
+        "level17": "levels/dream_propel_1.json",
+        "level18": "levels/dream_propel_2.json",
+        "level19": "levels/dream_propel_3.json",
+        "level20": "levels/dream_propel_4.json",
+        "level21": "levels/dream_propel_5.json",
+        "level22": "levels/dream_propel_6.json",
+        "level23": "levels/dream_propel_7.json",
+        "level24": "levels/statues_old_tutorial.json",
+        "level25": "levels/statues_tower.json",
+        "level26": "levels/statues_symmetry_puzzle.json",
+        "level27": "levels/gear_betademo.json",
+        "level28": "levels/gear_juggle.json"
     },
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",
         "platform:pew"  : "platform/pew.mp3",
-        "platform:plop" : "platform/plop.mp3"
+        "platform:plop" : "platform/plop.mp3",
+        "somniTrack": "audio/SomniTrack.mp3",
+        "phobiaTrack": "audio/PhobiaTrack.mp3",
+        "combinedTrack": "audio/CombinedTrack.mp3"
     },
     "fonts": {
         "shared:retro": {

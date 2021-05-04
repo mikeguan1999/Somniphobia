@@ -63,6 +63,8 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Whether we are actively dashing */
 	private boolean isDashing;
 
+	private boolean justPropelled;
+
 //	/** Distance to dash */
 //	private float dashDistance;
 	/** Whether we have applied initial dash velocity */
@@ -109,44 +111,47 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Pixel width of the current frame in the texture */
 	private double framePixelWidth = 32;
 	/** Offset in x direction */
-	private float offsetX;
+	private float xOffset;
 	/** Offset in y direction */
-	private float offsetY;
+	private float yOffset;
 
 	/// VARIABLES FOR SECOND DRAWING AND ANIMATION
 	/** CURRENT image for this object. May change over time. */
-	private FilmStrip secAnimator;
+	private FilmStrip animatorTwo;
 	/** Reference to texture origin */
-	private Vector2 secOrigin;
+	private Vector2 originTwo;
 	/** How fast we change frames (one frame per 10 calls to update) */
-	private float secAnimationSpeed = 0.1f;
+	private float animationSpeedTwo = 0.1f;
 	/** The number of animation frames in our filmstrip */
-	private int secNumAnimFrames = 2;
+	private int numAnimeframesTwo = 2;
 	/** Texture for animated objects */
-	private Texture secTexture;
+	private Texture textureTwo;
 	/** Current animation frame for this shell */
-	private float secAnimeframe = 0.0f;
-	private float ringAnimeframe = 0.0f;
+	private float animeFrameTwo = 0.0f;
 	/** Pixel width of the current texture */
-	private double secEntirePixelWidth;
+	private double entirePixelWidthTwo;
 	/** Pixel width of the current frame in the texture */
-	private double secFramePixelWidth = 32;
+	private double framePixelWidthTwo = 32;
 	/** Offset in x direction */
-	private float secOffsetX;
+	private float xOffset2;
 	/** Offset in y direction */
-	private float secOffsetY;
+	private float yOffset2;
 	/** rotation of the animation */
 	private float angle;
+
+
+	/** Current animation frame for the ring */
+	private float animeframeRing = 0.0f;
 	/** Whether a ring animation cycle is complete */
-	private static boolean ringCycleComplete;
+	private boolean ringCycleComplete;
 
 	/// VARIABLES FOR THIRD DRAWING AND ANIMATION
 	/** Texture for animated objects */
-	private Texture thirdTexture;
+	private Texture textureThree;
 	/** Offset in x direction */
-	private float thirdOffsetX;
+	private float xOffset3;
 	/** Offset in x direction */
-	private float thirdOffsetY;
+	private float yOffset3;
 
 	/** Getters and setters*/
 	public float getDashEndVelocity() { return dashEndVelocity; }
@@ -213,6 +218,7 @@ public class CharacterModel extends CapsuleObstacle {
 		isGrounded = false;
 		isJumping = false;
 		isDashing = false;
+		justPropelled = false;
 		faceRight = true;
 		canDash = true;
 		dashed = false;
@@ -294,7 +300,16 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @return true if the dude is actively dashing straight up.
 	 */
 	public boolean isDashingUp() {
-		return (isDashing && dashDirection.x == 0);
+		return (isDashing && dashDirection.y >= 0 && dashDirection.x==0);
+	}
+
+	/**
+	 * Returns true if the dude is actively dashing straight down.
+	 *
+	 * @return true if the dude is actively dashing straight down.
+	 */
+	public boolean isDashingDown() {
+		return (isDashing && dashDirection.y <= 0 && dashDirection.x==0);
 	}
 
 	/**
@@ -314,6 +329,21 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * gets whether character just propelled
+	 * @return whether character just propelled
+	 */
+	public boolean justPropelled() {
+		return justPropelled;
+	}
+	/**
+	 * Sets whether character just propelled
+	 * @param b whether character just propelled
+	 */
+	public void setJustPropelled(boolean b) {
+		justPropelled = b;
+	}
+
+	/**
 	 * Performs a dash or propel
 	 *
 	 * @param isPropel whether character propelled
@@ -321,6 +351,12 @@ public class CharacterModel extends CapsuleObstacle {
 	 * @param dir_Y vertical component of the dash
 	 */
 	public void dashOrPropel(boolean isPropel, float dir_X, float dir_Y) {
+		if (isPropel) {
+			justPropelled = true;
+		} else {
+			justPropelled = false;
+		}
+
 		if(isGrounded && dir_Y < 0) {
 			return;
 		}
@@ -480,6 +516,8 @@ public class CharacterModel extends CapsuleObstacle {
 		return true;
 	}
 
+	public boolean isRingCycleComplete(){return ringCycleComplete;}
+	public void setRingCycleComplete(boolean value){ringCycleComplete = value;}
 	/**
 	 * Allows for animated character motions. It sets the texture to prepare to draw.
 	 *
@@ -526,9 +564,9 @@ public class CharacterModel extends CapsuleObstacle {
 		radius = animator.getRegionHeight() / 2.0f;
 
 		if (ringCycleComplete){
-			secTexture = null;
+			textureTwo = null;
 		}
-		thirdTexture = null;
+		textureThree = null;
 	}
 
 
@@ -557,33 +595,33 @@ public class CharacterModel extends CapsuleObstacle {
 
 		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
+		this.xOffset = offsetX;
+		this.yOffset = offsetY;
 
 		//second animation
-		this.secAnimationSpeed = secAnimationSpeed;
-		this.secFramePixelWidth = secFramePixelWidth;
-		secTexture = new Texture(String.valueOf(secTextureRegion.getTexture()));
-		secEntirePixelWidth = secTexture.getWidth();
-		if (secEntirePixelWidth < secFramePixelWidth) {
-			secEntirePixelWidth = secFramePixelWidth;
+		this.animationSpeedTwo = secAnimationSpeed;
+		this.framePixelWidthTwo = secFramePixelWidth;
+		textureTwo = new Texture(String.valueOf(secTextureRegion.getTexture()));
+		entirePixelWidthTwo = textureTwo.getWidth();
+		if (entirePixelWidthTwo < secFramePixelWidth) {
+			entirePixelWidthTwo = secFramePixelWidth;
 		}
 
-		secNumAnimFrames = (int)(secEntirePixelWidth/secFramePixelWidth);
-		secAnimator = new FilmStrip(secTexture,1, secNumAnimFrames, secNumAnimFrames);
-		if(secAnimeframe > secNumAnimFrames) {
-			secAnimeframe -= secNumAnimFrames;
+		numAnimeframesTwo = (int)(entirePixelWidthTwo/secFramePixelWidth);
+		animatorTwo = new FilmStrip(textureTwo,1, numAnimeframesTwo, numAnimeframesTwo);
+		if(animeFrameTwo > numAnimeframesTwo) {
+			animeFrameTwo -= numAnimeframesTwo;
 		}
 
-		secOrigin = new Vector2(secAnimator.getRegionWidth()/2.0f, secAnimator.getRegionHeight()/2.0f);
-		this.secOffsetX = secOffsetX;
-		this.secOffsetY = secOffsetY;
+		originTwo = new Vector2(animatorTwo.getRegionWidth()/2.0f, animatorTwo.getRegionHeight()/2.0f);
+		this.xOffset2 = secOffsetX;
+		this.yOffset2 = secOffsetY;
 
 		//third animation
 		if (thirdTextureRegion!=null) {
-			thirdTexture = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
-			this.thirdOffsetX = thirdOffsetX;
-			this.thirdOffsetY = thirdOffsetY;
+			textureThree = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
+			this.xOffset3 = thirdOffsetX;
+			this.yOffset3 = thirdOffsetY;
 		}
 	}
 
@@ -594,8 +632,7 @@ public class CharacterModel extends CapsuleObstacle {
 	 */
 	public void setTexture(TextureRegion textureRegion, float animationSpeed, double framePixelWidth, float offsetX, float offsetY,
 						   TextureRegion secTextureRegion, float secAnimationSpeed, double secFramePixelWidth, float secOffsetX, float secOffsetY, float angle) {
-		if (ringCycleComplete)
-			ringCycleComplete = false;
+		ringCycleComplete = false;
 
 		// first animation
 		this.animationSpeed = animationSpeed;
@@ -614,30 +651,30 @@ public class CharacterModel extends CapsuleObstacle {
 
 		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
+		this.xOffset = offsetX;
+		this.yOffset = offsetY;
 
 		//second animation
-		this.secAnimationSpeed = secAnimationSpeed;
-		this.secFramePixelWidth = secFramePixelWidth;
-		secTexture = new Texture(String.valueOf(secTextureRegion.getTexture()));
-		secEntirePixelWidth = secTexture.getWidth();
-		if (secEntirePixelWidth < secFramePixelWidth) {
-			secEntirePixelWidth = secFramePixelWidth;
+		this.animationSpeedTwo = secAnimationSpeed;
+		this.framePixelWidthTwo = secFramePixelWidth;
+		textureTwo = new Texture(String.valueOf(secTextureRegion.getTexture()));
+		entirePixelWidthTwo = textureTwo.getWidth();
+		if (entirePixelWidthTwo < secFramePixelWidth) {
+			entirePixelWidthTwo = secFramePixelWidth;
 		}
 
-		secNumAnimFrames = (int)(secEntirePixelWidth/secFramePixelWidth);
-		secAnimator = new FilmStrip(secTexture,1, secNumAnimFrames, secNumAnimFrames);
-		if(secAnimeframe > secNumAnimFrames) {
-			secAnimeframe -= secNumAnimFrames;
+		numAnimeframesTwo = (int)(entirePixelWidthTwo/secFramePixelWidth);
+		animatorTwo = new FilmStrip(textureTwo,1, numAnimeframesTwo, numAnimeframesTwo);
+		if(animeFrameTwo > numAnimeframesTwo) {
+			animeFrameTwo -= numAnimeframesTwo;
 		}
 
-		secOrigin = new Vector2(secAnimator.getRegionWidth()/2.0f, secAnimator.getRegionHeight()/2.0f);
-		this.secOffsetX = secOffsetX;
-		this.secOffsetY = secOffsetY;
+		originTwo = new Vector2(animatorTwo.getRegionWidth()/2.0f, animatorTwo.getRegionHeight()/2.0f);
+		this.xOffset2 = secOffsetX;
+		this.yOffset2 = secOffsetY;
 		this.angle = angle;
 
-		thirdTexture = null;
+		textureThree = null;
 	}
 
 	/**
@@ -664,15 +701,15 @@ public class CharacterModel extends CapsuleObstacle {
 
 		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
+		this.xOffset = offsetX;
+		this.yOffset = offsetY;
 
 		//third animation
-		thirdTexture = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
-		this.thirdOffsetX = thirdOffsetX;
-		this.thirdOffsetY = thirdOffsetY;
+		textureThree = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
+		this.xOffset3 = thirdOffsetX;
+		this.yOffset3 = thirdOffsetY;
 
-		secTexture = null;
+		textureTwo = null;
 	}
 
 	/**
@@ -729,17 +766,17 @@ public class CharacterModel extends CapsuleObstacle {
 			animeframe = 0;
 		}
 
-		secAnimeframe += secAnimationSpeed;
-		if (secAnimeframe >= secNumAnimFrames) {
-			secAnimeframe = 0;
+		animeFrameTwo += animationSpeedTwo;
+		if (animeFrameTwo >= numAnimeframesTwo) {
+			animeFrameTwo = 0;
 		}
 
-		if (ringAnimeframe > 6 ){
+		if (animeframeRing > 6 ){
 			ringCycleComplete = true;
-			ringAnimeframe = -0.01f;
+			animeframeRing = -0.2f;
 		}
 		if (!ringCycleComplete){
-			ringAnimeframe += secAnimationSpeed;
+			animeframeRing += animationSpeedTwo;
 		}
 
 
@@ -795,30 +832,30 @@ public class CharacterModel extends CapsuleObstacle {
 	public void draw(GameCanvas canvas, Color tint) {
 		float effect = faceRight ? -1.0f : 1.0f;
 		animator.setFrame((int)animeframe);
-		canvas.draw(animator, tint, origin.x + offsetX, origin.y + offsetY,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+		canvas.draw(animator, tint, origin.x + xOffset, origin.y + yOffset,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 				effect, 1.0f);
 
 		// for handholding
-		if (secTexture!=null && thirdTexture!=null) {
-			secAnimator.setFrame((int)secAnimeframe);
+		if (textureTwo!=null && textureThree !=null) {
+			animatorTwo.setFrame((int)animeFrameTwo);
 			// draw the second character
-			canvas.draw(secAnimator, Color.WHITE, secOrigin.x+secOffsetX, secOrigin.y+secOffsetY,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+			canvas.draw(animatorTwo, Color.WHITE, originTwo.x+xOffset2, originTwo.y+yOffset2,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 					effect, 1.0f);
 			// draw the hands
-			canvas.draw(thirdTexture, Color.WHITE, origin.x+thirdOffsetX, origin.y+thirdOffsetY, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+			canvas.draw(textureThree, Color.WHITE, origin.x+ xOffset3, origin.y+ yOffset3, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 					effect, 1.0f);
 		}
 
 		// for propelling / dashing
-		if (secTexture!=null && thirdTexture==null && !ringCycleComplete) {
-			secAnimator.setFrame((int)ringAnimeframe);
+		if (textureTwo!=null && textureThree ==null && animeframeRing>=0 && animeframeRing <=6) {
+			animatorTwo.setFrame((int)animeframeRing);
 			// draw the blue ring animation
-			canvas.draw(secAnimator, Color.WHITE, secOrigin.x+secOffsetX, secOrigin.y+secOffsetY,getX()*drawScale.x,getY()*drawScale.y,angle,
+			canvas.draw(animatorTwo, Color.WHITE, originTwo.x+xOffset2, originTwo.y+yOffset2+60,getX()*drawScale.x,getY()*drawScale.y,angle,
 					effect, 1.0f);
 		}
-		if (secTexture==null && thirdTexture!=null) {
+		if (textureTwo==null && textureThree !=null) {
 			// draw the reaching out hand (can-hold-hand indicator)
-			canvas.draw(thirdTexture, Color.WHITE, origin.x+thirdOffsetX, origin.y+thirdOffsetY, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+			canvas.draw(textureThree, Color.WHITE, origin.x+ xOffset3, origin.y+ yOffset3, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 					effect, 1.0f);
 		}
 	}

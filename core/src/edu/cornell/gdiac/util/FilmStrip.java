@@ -57,7 +57,9 @@ public class FilmStrip extends TextureRegion {
 	private int size;	
 	/** The active animation frame */
 	private int frame;
-	
+
+	// CONSTRUCTOR METHODS FOR TEXTURE INPUTS
+
 	/**
 	 * Creates a new filmstrip from the given texture.
 	 *
@@ -123,6 +125,73 @@ public class FilmStrip extends TextureRegion {
 		setFrame(0);
 	}
 
+	// CONSTRUCTOR METHODS FOR TEXTURE REGION INPUTS
+
+	/**
+	 * Creates a new filmstrip from the given texture.
+	 *
+	 * The filmstrip will use the entire texture.
+	 *
+	 * @param texture The texture region image to use
+	 * @param rows The number of rows in the filmstrip
+	 * @param cols The number of columns in the filmstrip
+	 */
+	public FilmStrip(TextureRegion texture, int rows, int cols) {
+		this(texture,rows,cols,rows*cols);
+	}
+
+	/**
+	 * Creates a new filmstrip from the given texture.
+	 *
+	 * The parameter size is to indicate that there are unused frames in
+	 * the filmstrip.  The value size must be less than or equal to
+	 * rows*cols, or this constructor will raise an error.
+	 *
+	 * The filmstrip will use the entire texture.
+	 *
+	 * @param texture The texture region image to use
+	 * @param rows The number of rows in the filmstrip
+	 * @param cols The number of columns in the filmstrip
+	 * @param size The number of frames in the filmstrip
+	 */
+	public FilmStrip(TextureRegion texture, int rows, int cols, int size) {
+		this(texture,rows,cols,size,0,0, texture.getRegionWidth(), texture.getRegionHeight() );
+	}
+
+	/**
+	 * Creates a new filmstrip from the given texture.
+	 *
+	 * The parameter size is to indicate that there are unused frames in
+	 * the filmstrip.  The value size must be less than or equal to
+	 * rows*cols, or this constructor will raise an error.
+	 *
+	 * This version of the constructor allows you to specify the film
+	 * strip as a subset of the entire texture.
+	 *
+	 * @param texture 	The texture region image to use
+	 * @param rows 		The number of rows in the filmstrip
+	 * @param cols 		The number of columns in the filmstrip
+	 * @param size 		The number of frames in the filmstrip
+	 * @param x   		The x-position of the film strip origin
+	 * @param y   		The y-position of the film strip origin
+	 * @param width   	The width of the entire film strip
+	 * @param height	The height of the entire film strip
+	 */
+	public FilmStrip(TextureRegion texture, int rows, int cols, int size,
+					 int x, int y, int width, int height) {
+		super(texture);
+		if (size > rows*cols) {
+			Gdx.app.error("FilmStrip", "Invalid strip size", new IllegalArgumentException());
+			return;
+		}
+		this.rows = rows;
+		this.cols = cols;
+		this.size = size;
+		fwidth  = width/cols;
+		fheight = height/rows;
+		setFrame(0);
+	}
+
 	
 	/**
 	 * Returns the number of frames in this filmstrip.
@@ -151,8 +220,6 @@ public class FilmStrip extends TextureRegion {
 	 */
 	public void setFrame(int frame) {
 		if (frame < 0 || frame >= size) {
-			System.out.println(frame);
-			System.out.println(size);
 			Gdx.app.error("FilmStrip", "Invalid animation frame", new IllegalArgumentException());
 			return;
 		}

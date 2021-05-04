@@ -3,6 +3,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ObjectSet;
+import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
@@ -59,6 +60,11 @@ public class MovementController implements ContactListener {
 
     private boolean canHoldHands;
     private boolean justSeparated;
+    private boolean justPropelled;
+    /** Determines how long justSeparated remain true */
+    private int separationCoolDown;
+    /** Determines how long justSeparated remain true */
+    private static final int SEPARATION_COOL_DOWN = 24;
 
 
     /**
@@ -222,13 +228,33 @@ public class MovementController implements ContactListener {
             phobia.setGravityScale(1);
         }
 
+        if (holdingHands) {
+            SoundController.getInstance().shiftMusic("phobiaTrack", "combinedTrack");
+            SoundController.getInstance().shiftMusic("somniTrack", "combinedTrack");
+        } else {
+            if (avatar == somni) {
+                SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+                SoundController.getInstance().shiftMusic("combinedTrack", "somniTrack");
+            } else {
+                SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+                SoundController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
+            }
+        }
+
         // Check if switched
         if(inputController.didSwitch()) {
             //Switch active character
             if (!holdingHands) {
                 avatar.setMovement(0f);
+                //TODO: Add combined track
+
                 avatar = avatar == somni ? phobia : somni;
             }else{
+//                if (lead == somni) {
+//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+//                } else {
+//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+//                }
                 lead = lead == somni ? phobia :somni;
             }
             setSwitchedCharacters(true);
@@ -260,7 +286,7 @@ public class MovementController implements ContactListener {
         }else{
             action = 4; // Jump
         }
-        if (avatar.isDashing() && !avatar.isDashingUp()) {
+        if (avatar.isDashing() && !avatar.isDashingUp() && !avatar.isDashingDown()) {
             action = 2; // Side dash
         }
         if (avatar.isDashingUp()){
@@ -269,11 +295,17 @@ public class MovementController implements ContactListener {
         if (avatar.isFalling() && !holdingHands) { //! CHANGE CODE HERE WHEN ADD ASSET 4 TO HANDHOLDING!
             action = 4; // Falling
         }
+        if (avatar.isDashingDown()){
+            action = 5;
+        }
+
 
         //Check if hand holding
         if(inputController.didHoldHands()) {
             handleHoldingHands();
         }
+
+        separationCoolDown = Math.max(0, separationCoolDown-1);
 
         return action;
 //        if(holdingHands){
@@ -305,11 +337,11 @@ public class MovementController implements ContactListener {
             avatar.dashOrPropel(true, x, y);
 
         } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
-            beginHoldHands();
+//            beginHoldHands();
 //            endHoldHands();
-//            avatar.setCanDash(true);
-//            avatar.dashOrPropel(true, x, y);
-            handleDash(x,y);
+            avatar.setCanDash(true);
+            avatar.dashOrPropel(true, x, y);
+//            handleDash(x,y);
         } else {
             avatar.dashOrPropel(false, x, y);
         }
@@ -344,7 +376,16 @@ public class MovementController implements ContactListener {
      * @param value
      */
     protected void setJustSeparated(boolean value){
-        justSeparated = value;
+        if (separationCoolDown<=0 && !value)
+            justSeparated = value;
+    }
+
+    /**
+     * set whether the characters have just propelled for animation purposes
+     * @param value
+     */
+    protected void setJustPropelled(boolean value){
+        justPropelled = value;
     }
 
     /**
@@ -352,6 +393,13 @@ public class MovementController implements ContactListener {
      */
     protected boolean justSeparated(){
         return justSeparated;
+    }
+
+    /**
+     * returns whether the characters have just propelled
+     */
+    protected boolean justPropelled(){
+        return justPropelled;
     }
 
     /**
@@ -381,7 +429,12 @@ public class MovementController implements ContactListener {
      * Stops holding hands
      */
     private void endHoldHands() {
-        justSeparated = true;
+        if (separationCoolDown<=0){
+            separationCoolDown = SEPARATION_COOL_DOWN;
+//            justSeparated = true;
+        }
+        justPropelled = true;
+
         somni.setActive(true);
         phobia.setActive(true);
         combined.setActive(false);
@@ -495,15 +548,6 @@ public class MovementController implements ContactListener {
             else if (avatar.getCore().equals(fix2) || avatar.getCap1().equals(fix2) || avatar.getCap2().equals(fix2)) {
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
                     worldController.setFailure(true);
-                }
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling
-                        && avatar == combined) {
-
-                    sharedObjects.remove(bd1);
-                    lightObjects.remove(bd1);
-                    darkObjects.remove(bd1);
-
-                    bd1.markRemoved(true);
                 }
             }
 

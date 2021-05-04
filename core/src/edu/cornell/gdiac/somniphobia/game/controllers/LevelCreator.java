@@ -52,8 +52,8 @@ public class LevelCreator extends WorldController {
     protected static final float[] CHARACTER_DIMENSIONS = new float[]{1.0f, 2.0f};
     protected static final float[] GOAL_DIMENSIONS = new float[]{2.0f, 4.0f};
 
-    private int worldWidth;
-    private int worldHeight;
+    static int worldWidth;
+    static int worldHeight;
 
     private final float CAMERA_SPEED = 6.0f;
 
@@ -121,7 +121,7 @@ public class LevelCreator extends WorldController {
     protected final static int goalTag = 6;
     protected final static int vertexPlatformTag = 7;
 
-    private int currBackground;
+    static int currBackground;
     private int selectedType; // needs to be removed since we have reference to selectedObstacle
     private int selectedProperty;
     private boolean addingMovement;
@@ -566,10 +566,21 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String fileName = String.format("levels/%s.json", loadPath.getText());
-                PooledList<Platform> platforms = LevelSerializer.deserialize(fileName);
-                if(platforms != null) {
+                LevelSerializer.Level level = LevelSerializer.deserialize(fileName);
+                if(level != null) {
                     loading = true;
                     reset();
+
+                    currBackground = level.background - 1;
+                    backgroundTexture = backgrounds[currBackground];
+
+                    worldWidth = level.dimensions[0];
+                    worldWidthText.setText(String.valueOf(worldWidth));
+
+                    worldHeight = level.dimensions[1];
+                    worldHeightText.setText(String.valueOf(worldHeight));
+
+                    PooledList<Platform> platforms = level.levelToPlatforms();
                     for(Platform platform: platforms) {
                         setupPlatform(platform);
                         if(platform.path != null) {
@@ -586,7 +597,6 @@ public class LevelCreator extends WorldController {
         button5.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("button press!");
                 reset();
             }
         });
@@ -899,14 +909,16 @@ public class LevelCreator extends WorldController {
         sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
 
         backgrounds = new TextureRegion[] {
-                new TextureRegion(directory.getEntry("platform:background_light", Texture.class)),
-                new TextureRegion(directory.getEntry("platform:background_dark", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light_forest", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_dark_forest", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_gear", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_gear", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_dreams", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_dreams", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_house", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
+                new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
         };
 
 
@@ -932,7 +944,7 @@ public class LevelCreator extends WorldController {
             return assetName;
         }
 
-        private static class Level {
+        public static class Level {
             int background;
             int[] dimensions;
             Somni somni;
@@ -940,7 +952,7 @@ public class LevelCreator extends WorldController {
             Goal goal;
             ArrayList<LevelObject> objects = new ArrayList<LevelObject>();
 
-            private PooledList<Platform> levelToPlatforms() {
+            public PooledList<Platform> levelToPlatforms() {
                 PooledList<Platform> platforms = new PooledList<>();
                 // Add Somni
                 platforms.add(new Platform(somniTag, somni.pos[0], somni.pos[1], CHARACTER_DIMENSIONS[0],
@@ -958,17 +970,20 @@ public class LevelCreator extends WorldController {
                         Platform newPlatform = new Platform(object.type, x, y, width, height, object.property,
                                 null, 0);
 
-                        float[] path = object.paths.get(i);
                         ArrayList<Platform> pathPlatforms = new ArrayList<>();
-                        if(PlatformController.hasValidPath(x, y, path)) {
-                            for (int j = 0; j < path.length / 2; j++) {
-                                float pathX = path[j * 2], pathY = path[j * 2 + 1];
-                                Platform pathPlatform = new Platform(vertexPlatformTag, pathX, pathY, width, height, 0,
-                                        null, 0);
-                                pathPlatform.reference = newPlatform;
-                                pathPlatforms.add(pathPlatform);
+                        if(object.paths != null) {
+                            float[] path = object.paths.get(i);
+                            if(LevelController.hasValidPath(x, y, path)) {
+                                for (int j = 0; j < path.length / 2; j++) {
+                                    float pathX = path[j * 2], pathY = path[j * 2 + 1];
+                                    Platform pathPlatform = new Platform(vertexPlatformTag, pathX, pathY, width, height, 0,
+                                            null, 0);
+                                    pathPlatform.reference = newPlatform;
+                                    pathPlatforms.add(pathPlatform);
+                                }
                             }
                         }
+
                         newPlatform.path = pathPlatforms;
                         platforms.add(newPlatform);
                     }
@@ -1046,7 +1061,7 @@ public class LevelCreator extends WorldController {
 
             private Level() { }
 
-            private Level(int background, int width, int height, PooledList<Platform> platforms) {
+            public Level(int background, int width, int height, PooledList<Platform> platforms) {
                 createLevel(background, width, height, platforms);
             }
         }
@@ -1118,12 +1133,11 @@ public class LevelCreator extends WorldController {
             file.writeString(json.prettyPrint(level), false);
         }
 
-        public static PooledList<Platform> deserialize(String fileName) {
+        public static Level deserialize(String fileName) {
             FileHandle file = Gdx.files.internal(fileName);
             String text;
             try {
                 text = file.readString();
-                System.out.println(text);
             } catch (Exception e) {
                 System.out.println(e);
                 return null;
@@ -1132,12 +1146,11 @@ public class LevelCreator extends WorldController {
             Level level;
             try {
                 level = json.fromJson(Level.class, text);
-                System.out.println(level);
             } catch (Exception e) {
                 System.out.println(e);
                 return null;
             }
-            return level.levelToPlatforms();
+            return level;
         }
     }
 }

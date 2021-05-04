@@ -1,5 +1,5 @@
 {
-"background": 5,
+"background": 3,
 "dimensions": [ 1400, 1000 ],
 "somni": {
 	"pos": [ 7, 9 ]
@@ -29,7 +29,8 @@
 			[ 19, 13 ],
 			[ 31, 20 ],
 			[ 37, 30 ]
-		]
+		],
+		"property": 1
 	},
 	{
 		"type": 3,
