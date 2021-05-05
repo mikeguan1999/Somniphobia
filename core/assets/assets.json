@@ -244,7 +244,8 @@
         "level25": "levels/statues_tower.json",
         "level26": "levels/statues_symmetry_puzzle.json",
         "level27": "levels/gear_betademo.json",
-        "level28": "levels/gear_juggle.json"
+        "level28": "levels/gear_juggle.json",
+        "level29": "levels/statues_somnibros.json"
     },
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",
