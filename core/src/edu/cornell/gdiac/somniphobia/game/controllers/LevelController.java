@@ -437,6 +437,7 @@ public class LevelController extends WorldController {
 		soundIcon = new Image(blueSound);
 		sliderMusic.setValue(0.5f);
 
+
 		exitButton = new Button(blueExit);
 		resumeButton = new Button(blueResume);
 		restartButton = new Button(blueRestart);
