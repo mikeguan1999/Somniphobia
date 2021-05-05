@@ -527,13 +527,14 @@ public class CharacterModel extends CapsuleObstacle {
 	 * This method overrides the setTexture method in SimpleObstacle
 	 */
 	public void setTexture(TextureRegion textureRegion) {
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
 		}
 
 		numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
+
 		animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
 		if(animeframe > numAnimFrames) {
 			animeframe -= numAnimFrames;
@@ -551,7 +552,7 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setTexture(TextureRegion textureRegion, float animationSpeed, double framePixelWidth) {
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -584,7 +585,7 @@ public class CharacterModel extends CapsuleObstacle {
 		// first animation
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -604,7 +605,7 @@ public class CharacterModel extends CapsuleObstacle {
 		//second animation
 		this.animationSpeedTwo = secAnimationSpeed;
 		this.framePixelWidthTwo = secFramePixelWidth;
-		textureTwo = new Texture(String.valueOf(secTextureRegion.getTexture()));
+		textureTwo = secTextureRegion.getTexture();
 		entirePixelWidthTwo = textureTwo.getWidth();
 		if (entirePixelWidthTwo < secFramePixelWidth) {
 			entirePixelWidthTwo = secFramePixelWidth;
@@ -622,7 +623,7 @@ public class CharacterModel extends CapsuleObstacle {
 
 		//third animation
 		if (thirdTextureRegion!=null) {
-			textureThree = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
+			textureThree = thirdTextureRegion.getTexture();
 			this.xOffset3 = thirdOffsetX;
 			this.yOffset3 = thirdOffsetY;
 		}
@@ -640,7 +641,7 @@ public class CharacterModel extends CapsuleObstacle {
 		// first animation
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -660,7 +661,7 @@ public class CharacterModel extends CapsuleObstacle {
 		//second animation
 		this.animationSpeedTwo = secAnimationSpeed;
 		this.framePixelWidthTwo = secFramePixelWidth;
-		textureTwo = new Texture(String.valueOf(secTextureRegion.getTexture()));
+		textureTwo = secTextureRegion.getTexture();
 		entirePixelWidthTwo = textureTwo.getWidth();
 		if (entirePixelWidthTwo < secFramePixelWidth) {
 			entirePixelWidthTwo = secFramePixelWidth;
@@ -690,7 +691,7 @@ public class CharacterModel extends CapsuleObstacle {
 		// first animation
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -708,7 +709,7 @@ public class CharacterModel extends CapsuleObstacle {
 		this.yOffset = offsetY;
 
 		//third animation
-		textureThree = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
+		textureThree = thirdTextureRegion.getTexture();
 		this.xOffset3 = thirdOffsetX;
 		this.yOffset3 = thirdOffsetY;
 
