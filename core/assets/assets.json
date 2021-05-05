@@ -71,7 +71,7 @@
       "wrapV": "repeated"
     },
     "shared:rain_cloud_light": {
-      "file": "platform/Rain_Idle_Red.png",
+      "file": "platform/Rain_Idle_Yellow.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
@@ -91,7 +91,7 @@
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_light": {
-      "file": "platform/LightningIdle_Red.png",
+      "file": "platform/LightningIdle_Yellow.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
