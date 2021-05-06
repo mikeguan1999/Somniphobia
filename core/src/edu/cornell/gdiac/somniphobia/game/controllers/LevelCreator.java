@@ -69,6 +69,7 @@ public class LevelCreator extends WorldController {
     /** TextureRegion variables */
     TextureRegion[] backgrounds;
     TextureRegion[] vertices;
+    TextureRegion[] special;
     private TextureRegion backgroundTexture;
     private TextureRegion lightTexture;
     private TextureRegion darkTexture;
@@ -181,9 +182,15 @@ public class LevelCreator extends WorldController {
         obj.setDrawScale(scale);
         TextureRegion newXTexture;
         if(platform.type < somniTag) {
-            newXTexture = new TextureRegion(platTexture[platform.type-1]);
-            float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
-            newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
+            if(platform.property == 1) {
+                newXTexture = new TextureRegion(platTexture[platform.type - 1]);
+                float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
+                newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
+            }else{
+                newXTexture = new TextureRegion(special[2*(platform.type - 1)+(platform.property-PlatformModel.harming)]);
+                float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
+                newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
+            }
         } else {
             newXTexture = platTexture[platform.type-1];
         }
@@ -386,7 +393,7 @@ public class LevelCreator extends WorldController {
             public void clicked(InputEvent event, float x, float y) {
                 if(selectedObstacle != null && selectedObstacle instanceof Platform &&
                         ((Platform) selectedObstacle).type <somniTag) {
-                    ((Platform) selectedObstacle).setTexture(assetText.getText());
+                    //((Platform) selectedObstacle).setTexture(assetText.getText());
                 }
             }
         });
@@ -691,7 +698,7 @@ public class LevelCreator extends WorldController {
      * Sets the selectedObstacle
      */
     public void setSelectedColor(int tag) {
-        if (selectedObstacle instanceof Platform) {
+        if (selectedObstacle==null || selectedObstacle instanceof Platform) {
             lightPlatformSelect.setChecked(tag == lightTag);
             darkPlatformSelect.setChecked(tag == darkTag);
             allPlatformSelect.setChecked(tag == allTag);
@@ -704,7 +711,7 @@ public class LevelCreator extends WorldController {
      * Sets the selectedObstacle
      */
     public void setProperty(int tag) {
-        if (selectedObstacle instanceof Platform) {
+        if (selectedObstacle==null || selectedObstacle instanceof Platform) {
             normalPlatformSelect.setChecked(tag == PlatformModel.normal);
             crumblePlatformSelect.setChecked(tag == PlatformModel.crumbling);
             harmingPlatformSelect.setChecked(tag == PlatformModel.harming);
@@ -919,6 +926,14 @@ public class LevelCreator extends WorldController {
                 new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
+        };
+        special = new TextureRegion[]{
+                new TextureRegion(directory.getEntry("shared:lightning_cloud_light_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:rain_cloud_light_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:lightning_cloud_dark_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:rain_cloud_dark_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:lightning_cloud_all_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:rain_cloud_all_single", Texture.class)),
         };
 
 
