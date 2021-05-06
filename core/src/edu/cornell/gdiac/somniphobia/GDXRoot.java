@@ -41,10 +41,12 @@ public class GDXRoot extends Game implements ScreenListener {
 
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
+
+	static private Preferences preferences;
+
 	/** The World Controller */
 	private WorldController[] controllers;
 
-	private LevelCreator levelCreator;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 
@@ -74,36 +76,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * the asynchronous loader for all other assets.
 	 */
 	public void create() {
-//		numPages = totalNumLevels/numLevelsPerPage;
-//		if (totalNumLevels%numLevelsPerPage != 0){
-//			numPages += 1;
-//		}
-
 		canvas  = new GameCanvas();
 		platformController = new PlatformController();
 		loading = new LoadingMode("assets.json",canvas,1);
 
-//		menuPages = new Menu[numPages];
-//		for (int i=0; i<menuPages.length; i++){
-//			if (i==0){
-//				Menu menu = new Menu(canvas, false, true, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//			else if (i== menuPages.length-1){
-//				Menu menu = new Menu(canvas, true, false, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//			else {
-//				Menu menu = new Menu(canvas, true, true, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//		}
-//		0123
-//				4567
-//						891011
-//
-//		currentMenuIndex = 0;
-//		currentMenu = menuPages[currentMenuIndex];
 		menu = new MenuScrollable(canvas, totalNumLevels);
 
 		mainMenu = new MainMenu(canvas);
@@ -115,11 +91,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController();
 		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
 
-		levelCreator = new LevelCreator();
-
 		// Constructs a new OrthographicCamera, using the given viewport width and height
 		// Height is multiplied by aspect ratio.
-
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 
@@ -131,12 +104,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		loading.setScreenListener(this);
 		setScreen(loading);
 
-//		levelCreator.setScreenListener(this);
-//		setScreen(levelCreator);
-//		levelCreator.setCanvas(canvas);
-//	    loading.getAssets();
-//		levelCreator.gatherAssets(directory);
-//		levelCreator.initialize();
+		preferences = Gdx.app.getPreferences("save_data.json");
 	}
 
 	/** 
@@ -156,6 +124,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas.dispose();
 		mainMenu.dispose();
 		canvas = null;
+
 		// Unload all of the resources
 		if (directory != null) {
 			directory.unloadAssets();
@@ -187,6 +156,14 @@ public class GDXRoot extends Game implements ScreenListener {
 		pc.gatherLevelJson(directory);
 	}
 
+	static public Preferences getPreferences() {
+		return preferences;
+	}
+
+	static public void setPreferences(Preferences prefs) {
+		preferences = prefs;
+	}
+
 	/**
 	 * The given screen has made a request to exit its player mode.
 	 *
@@ -214,39 +191,24 @@ public class GDXRoot extends Game implements ScreenListener {
 			mainMenu.setScreenListener(this);
 			setScreen(mainMenu);
 
-//			currentMenu.setScreenListener(this);
-//			setScreen(currentMenu);
 			loading.dispose();
 			loading = null;
 		} else if (screen==menu){
-//			if (exitCode<0){
-//				if (exitCode==currentMenu.getLEFT_EXIT_CODE()){
-//					currentMenuIndex -= 1;
-//				}
-//				else if (exitCode==currentMenu.getRIGHT_EXIT_CODE()) {
-//					currentMenuIndex += 1;
-//				}
-//				currentMenu = menuPages[currentMenuIndex];
-//				setScreen(currentMenu);
-//			}
-//			else {
 			prepareLevelJson(controllers[current], exitCode+1, false);
 			controllers[current].reset();
 			setScreen(controllers[current]);
 
 		} else if (exitCode == WorldController.EXIT_MENU) {
-//			resetting the menu
+			// Resetting the menu
 			menu = new MenuScrollable(canvas, totalNumLevels);
 			menu.setScreenListener(this);
 			setScreen(menu);
-//			System.out.println(Gdx.input.getInputProcessor().equals(currentMenu.getStage()));
 		} else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(controllers[current], 1, true);
 				controllers[current].reset();
 			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
-
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(controllers[current], -1, true);
 				controllers[current].reset();
@@ -256,8 +218,8 @@ public class GDXRoot extends Game implements ScreenListener {
 			controllers[current].reset();
 			setScreen(controllers[current]);
 		} else if (exitCode == WorldController.EXIT_QUIT) {
-			// We quit the main application
-			Gdx.app.exit();
+			preferences.flush(); // Persist user save data
+			Gdx.app.exit(); // We quit the main application
 		}
 	}
 
