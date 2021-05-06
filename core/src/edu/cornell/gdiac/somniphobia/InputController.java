@@ -28,11 +28,11 @@ public class InputController {
 
 	/** Key mappings */
 	private int jumpKey	= Input.Keys.UP;
-	private int dashKey = Input.Keys.Z;
+	private int dashKey = Input.Keys.SHIFT_LEFT;
 	private int dashKey2 = Input.Keys.SPACE;
-	private int handHoldingKey = Input.Keys.X;
+	private int handHoldingKey = Input.Keys.Z;
 	private int handHoldingKey2 = Input.Keys.E;
-	private int switchKey = Input.Keys.C;
+	private int switchKey = Input.Keys.X;
 	private int switchKey2 = Input.Keys.Q;
 	private int prevKey = Input.Keys.P;
 	private int nextKey = Input.Keys.N;

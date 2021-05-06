@@ -19,7 +19,7 @@
     "damping": 10.0,
     "force": 20.0,
     "dash_damping": 5.0,
-    "jump_force": 8.0,
+    "jump_force": 8.6,
     "jump_cool": 30,
     "sensor": {
       "shrink": 0.6,
@@ -34,7 +34,7 @@
     "damping": 10.0,
     "force": 20.0,
     "dash_damping": 5.0,
-    "jump_force": 8.0,
+    "jump_force": 8.6,
     "jump_cool": 30,
     "sensor": {
       "shrink": 0.6,
@@ -49,7 +49,7 @@
     "damping": 10.0,
     "force": 20.0,
     "dash_damping": 5.0,
-    "jump_force": 8.0,
+    "jump_force": 8.6,
     "jump_cool": 30,
     "sensor": {
       "shrink": 0.6,

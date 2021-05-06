@@ -539,14 +539,16 @@ public class MovementController implements ContactListener {
             int tile1 = -1;
             int tile2 = -1;
 
-            // See if we have collided with a wall
-            if (avatar.getCore().equals(fix1) || avatar.getCap1().equals(fix1) || avatar.getCap2().equals(fix1)) {
-                if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.harming) {
+            //Harming platforms
+
+            if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
+                if (somni.getCore().equals(fix2) || somni.getCap1().equals(fix2) || somni.getCap2().equals(fix2) ||
+                        phobia.getCore().equals(fix2) || phobia.getCap1().equals(fix2) || phobia.getCap2().equals(fix2) ) {
                     worldController.setFailure(true);
                 }
-            }
-            else if (avatar.getCore().equals(fix2) || avatar.getCap1().equals(fix2) || avatar.getCap2().equals(fix2)) {
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
+            } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.harming) {
+                if (somni.getCore().equals(fix1) || somni.getCap1().equals(fix1) || somni.getCap2().equals(fix1) ||
+                        phobia.getCore().equals(fix1) || phobia.getCap1().equals(fix1) || phobia.getCap2().equals(fix1) ) {
                     worldController.setFailure(true);
                 }
             }

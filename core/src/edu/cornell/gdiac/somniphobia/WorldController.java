@@ -424,7 +424,7 @@ public abstract class WorldController implements Screen {
 
 		// Handle resets
 		if (input.didReset()) {
-			reset(); // commented 4 gonzalo
+			//reset(); // commented 4 gonzalo
 		}
 		
 		// Now it is time to maybe switch screens.

@@ -259,12 +259,16 @@ public class LevelController extends WorldController {
 
 
 	/** Masking stuff */
+	/** Amount to scale down circle mask image by */
+	float mask_shrink_factor = 0.125f;
 	/** Dimensions for the mask when at its smallest */
 	Vector2 MIN_MASK_DIMENSIONS;
 	/** Amount to increase and decrease rift mask size with */
-	float INCREMENT_AMOUNT;
+	float INCREMENT_AMOUNT = 50;
 	/** Current width and height of the mask */
 	float maskWidth, maskHeight;
+	/** Offset to apply to mask when checking if in camera bounds*/
+	float maskOffset = 1000;
 	/** Whether or not the mask is in the process of switching*/
 	boolean switching;
 	/** The character to perform the mask effect from */
@@ -433,6 +437,7 @@ public class LevelController extends WorldController {
 		soundIcon = new Image(blueSound);
 		sliderMusic.setValue(0.5f);
 
+
 		exitButton = new Button(blueExit);
 		resumeButton = new Button(blueResume);
 		restartButton = new Button(blueRestart);
@@ -513,13 +518,18 @@ public class LevelController extends WorldController {
 		failMenu.setBackground(blueRectangle);
 		failMenu.setFillParent(true);
 
+		TextureRegionDrawable drawable1 = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause_menu\\dreamfailed.png")));
+		Image img = new Image (drawable1);
+
 		exitButtonFail = new Button(blueExit);
 		restartButtonFail = new Button(blueRestart);
 		underlineFailMenu = new Image(blueUnderline);
 
 		//Buttons needed
-		failMenu.add(exitButtonFail).size(150,70);
-		failMenu.add(restartButtonFail).size(200,70);
+		failMenu.add(img).colspan(2);
+		failMenu.row().padTop(50);
+		failMenu.add(exitButtonFail).size(150,70).padRight(70);
+		failMenu.add(restartButtonFail).size(200,70).padRight(10);
 		failMenu.row();
 		failMenu.add(underlineFailMenu);
 		underlineFailMenu.setVisible(false);
@@ -554,14 +564,22 @@ public class LevelController extends WorldController {
 		winMenu.setBackground(blueRectangle);
 		winMenu.setFillParent(true);
 
+		TextureRegionDrawable drawable1 = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause_menu\\dreamcomplete.png")));
+		Image img = new Image (drawable1);
+
 		exitButtonWin = new Button(blueExit);
 		advanceButton = new Button(blueNext);
 		underlineWinMenu = new Image(blueUnderline);
 
 
 		//Buttons needed
+		winMenu.add(img).colspan(2);
+		winMenu.row().padTop(50);
 		winMenu.add(exitButtonWin).size(150,70);
-		winMenu.add(advanceButton).size(150,70);
+		winMenu.add(advanceButton).size(150,70).padLeft(90).padRight(40);
+		winMenu.row();
+		winMenu.add(underlineWinMenu);
+		underlineWinMenu.setVisible(false);
 		winMenu.row();
 		winMenu.add(underlineWinMenu);
 		underlineWinMenu.setVisible(false);
@@ -984,10 +1002,9 @@ public class LevelController extends WorldController {
 		// Setup masking
 		circle_mask = new TextureRegion(directory.getEntry("circle_mask",Texture.class));
 		Vector2 mask_size = new Vector2(circle_mask.getRegionWidth(), circle_mask.getRegionHeight());
-		MIN_MASK_DIMENSIONS = new Vector2(mask_size).scl(0.125f);
+		MIN_MASK_DIMENSIONS = new Vector2(mask_size).scl(mask_shrink_factor);
 		maskWidth = MIN_MASK_DIMENSIONS.x;
 		maskHeight = MIN_MASK_DIMENSIONS.y;
-		INCREMENT_AMOUNT = 50;
 
 		sliderBarTexture = directory.getEntry( "platform:sliderbar", Texture.class);
 		sliderKnobTexture = directory.getEntry( "platform:sliderknob", Texture.class);
@@ -1112,7 +1129,8 @@ public class LevelController extends WorldController {
 
 		holdingHands = false;
 
-		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects, lightObjects, darkObjects, this);
+		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects,
+				lightObjects, darkObjects, this);
 		world.setContactListener(movementController);
 
 		movementController.setAvatar(somni);
@@ -1543,23 +1561,19 @@ public class LevelController extends WorldController {
 		}
 
 		float newY = avatar.getY() * canvas.PPM;
-		//float displacementFactor = camera.frustum.sphereInFrustumWithoutNearFar(newX, newY, 0, PAN_RADIUS) ?
-		//			1 : 0;
 
 		newX = Math.min(newX, widthUpperBound);
 		newX = Math.max(canvas.getWidth() / 2, newX);
 		float displacementX = newX - camera.position.x;
-		//panMovement.x +=  camX * CAMERA_SPEED * canvas.PPM;
-		//float lerpDisplacementX = (displacementX + panMovement.x) * displacementFactor;
-		float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ? displacementX + panMovement.x : displacementX;
+		float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ?
+				displacementX + panMovement.x : displacementX;
 		camera.position.x += lerpDisplacementX * LERP * dt;
 
 		newY = Math.min(newY, heightUpperBound);
 		newY = Math.max(canvas.getHeight() / 2, newY);
 		float displacementY = newY - camera.position.y;
-		//panMovement.y += camY * CAMERA_SPEED * canvas.PPM;
-		//float lerpDisplacementY = (displacementY + panMovement.y) * displacementFactor;
-		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ? displacementY + panMovement.y : displacementY;
+		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ?
+				displacementY + panMovement.y : displacementY;
 		camera.position.y += lerpDisplacementY * LERP * dt;
 
 		camera.update();
@@ -1726,10 +1740,10 @@ public class LevelController extends WorldController {
 	private boolean riftCoversCameraBounds(float cameraX, float cameraY, float maskWidth, float maskHeight,
 										   CharacterModel character) {
 		updateMaskPosition(maskWidth, maskHeight, character);
-		boolean coversLeft = maskOrigin.x + widthUpperBound < cameraX;
-		boolean coversRight = maskOrigin.x + maskWidth - widthUpperBound > cameraX + canvas.getWidth();
-		boolean coversBottom = maskOrigin.y + heightUpperBound < cameraY;
-		boolean coversTop = maskOrigin.y + maskHeight - heightUpperBound > cameraY + canvas.getHeight();
+		boolean coversLeft = maskOrigin.x + maskOffset < cameraX;
+		boolean coversRight = maskOrigin.x + maskWidth - maskOffset > cameraX + canvas.getWidth();
+		boolean coversBottom = maskOrigin.y + maskOffset < cameraY;
+		boolean coversTop = maskOrigin.y + maskHeight - maskOffset > cameraY + canvas.getHeight();
 		return coversLeft && coversRight && coversBottom && coversTop;
 	}
 

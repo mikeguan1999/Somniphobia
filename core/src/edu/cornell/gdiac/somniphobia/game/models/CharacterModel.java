@@ -119,7 +119,7 @@ public class CharacterModel extends CapsuleObstacle {
 	/** CURRENT image for this object. May change over time. */
 	private FilmStrip animatorTwo;
 	/** Reference to texture origin */
-	private Vector2 originTwo;
+	private Vector2 origin2;
 	/** How fast we change frames (one frame per 10 calls to update) */
 	private float animationSpeedTwo = 0.1f;
 	/** The number of animation frames in our filmstrip */
@@ -212,7 +212,7 @@ public class CharacterModel extends CapsuleObstacle {
 		filter = f;
 
 		dashVelocity = 35f;
-		dashEndVelocity = 4f;
+		dashEndVelocity = 10f;
 
 		// Gameplay attributes
 		isGrounded = false;
@@ -224,6 +224,9 @@ public class CharacterModel extends CapsuleObstacle {
 		dashed = false;
 
 //		dashDistance = 3.5f;
+
+		origin = new Vector2();
+		origin2 = new Vector2();
 
 		jumpCooldown = 0;
 //		dashCooldown = 0;
@@ -524,19 +527,20 @@ public class CharacterModel extends CapsuleObstacle {
 	 * This method overrides the setTexture method in SimpleObstacle
 	 */
 	public void setTexture(TextureRegion textureRegion) {
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
 		}
 
 		numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
+
 		animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
 		if(animeframe > numAnimFrames) {
 			animeframe -= numAnimFrames;
 		}
 
-		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		origin.set(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
 	}
 
@@ -548,7 +552,7 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setTexture(TextureRegion textureRegion, float animationSpeed, double framePixelWidth) {
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -560,7 +564,7 @@ public class CharacterModel extends CapsuleObstacle {
 			animeframe -= numAnimFrames;
 		}
 
-		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		origin.set(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
 
 		if (ringCycleComplete){
@@ -581,7 +585,7 @@ public class CharacterModel extends CapsuleObstacle {
 		// first animation
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -593,7 +597,7 @@ public class CharacterModel extends CapsuleObstacle {
 			animeframe -= numAnimFrames;
 		}
 
-		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		origin.set(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
 		this.xOffset = offsetX;
 		this.yOffset = offsetY;
@@ -601,7 +605,7 @@ public class CharacterModel extends CapsuleObstacle {
 		//second animation
 		this.animationSpeedTwo = secAnimationSpeed;
 		this.framePixelWidthTwo = secFramePixelWidth;
-		textureTwo = new Texture(String.valueOf(secTextureRegion.getTexture()));
+		textureTwo = secTextureRegion.getTexture();
 		entirePixelWidthTwo = textureTwo.getWidth();
 		if (entirePixelWidthTwo < secFramePixelWidth) {
 			entirePixelWidthTwo = secFramePixelWidth;
@@ -613,13 +617,13 @@ public class CharacterModel extends CapsuleObstacle {
 			animeFrameTwo -= numAnimeframesTwo;
 		}
 
-		originTwo = new Vector2(animatorTwo.getRegionWidth()/2.0f, animatorTwo.getRegionHeight()/2.0f);
+		origin2.set(animatorTwo.getRegionWidth()/2.0f, animatorTwo.getRegionHeight()/2.0f);
 		this.xOffset2 = secOffsetX;
 		this.yOffset2 = secOffsetY;
 
 		//third animation
 		if (thirdTextureRegion!=null) {
-			textureThree = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
+			textureThree = thirdTextureRegion.getTexture();
 			this.xOffset3 = thirdOffsetX;
 			this.yOffset3 = thirdOffsetY;
 		}
@@ -637,7 +641,7 @@ public class CharacterModel extends CapsuleObstacle {
 		// first animation
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -649,7 +653,7 @@ public class CharacterModel extends CapsuleObstacle {
 			animeframe -= numAnimFrames;
 		}
 
-		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		origin.set(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
 		this.xOffset = offsetX;
 		this.yOffset = offsetY;
@@ -657,7 +661,7 @@ public class CharacterModel extends CapsuleObstacle {
 		//second animation
 		this.animationSpeedTwo = secAnimationSpeed;
 		this.framePixelWidthTwo = secFramePixelWidth;
-		textureTwo = new Texture(String.valueOf(secTextureRegion.getTexture()));
+		textureTwo = secTextureRegion.getTexture();
 		entirePixelWidthTwo = textureTwo.getWidth();
 		if (entirePixelWidthTwo < secFramePixelWidth) {
 			entirePixelWidthTwo = secFramePixelWidth;
@@ -669,7 +673,7 @@ public class CharacterModel extends CapsuleObstacle {
 			animeFrameTwo -= numAnimeframesTwo;
 		}
 
-		originTwo = new Vector2(animatorTwo.getRegionWidth()/2.0f, animatorTwo.getRegionHeight()/2.0f);
+		origin2.set(animatorTwo.getRegionWidth()/2.0f, animatorTwo.getRegionHeight()/2.0f);
 		this.xOffset2 = secOffsetX;
 		this.yOffset2 = secOffsetY;
 		this.angle = angle;
@@ -687,7 +691,7 @@ public class CharacterModel extends CapsuleObstacle {
 		// first animation
 		this.animationSpeed = animationSpeed;
 		this.framePixelWidth = framePixelWidth;
-		texture = new Texture(String.valueOf(textureRegion.getTexture()));
+		texture = textureRegion.getTexture();
 		entirePixelWidth = texture.getWidth();
 		if (entirePixelWidth < framePixelWidth) {
 			entirePixelWidth = framePixelWidth;
@@ -699,13 +703,13 @@ public class CharacterModel extends CapsuleObstacle {
 			animeframe -= numAnimFrames;
 		}
 
-		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		origin.set(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
 		radius = animator.getRegionHeight() / 2.0f;
 		this.xOffset = offsetX;
 		this.yOffset = offsetY;
 
 		//third animation
-		textureThree = new Texture(String.valueOf(thirdTextureRegion.getTexture()));
+		textureThree = thirdTextureRegion.getTexture();
 		this.xOffset3 = thirdOffsetX;
 		this.yOffset3 = thirdOffsetY;
 
@@ -839,7 +843,7 @@ public class CharacterModel extends CapsuleObstacle {
 		if (textureTwo!=null && textureThree !=null) {
 			animatorTwo.setFrame((int)animeFrameTwo);
 			// draw the second character
-			canvas.draw(animatorTwo, Color.WHITE, originTwo.x+xOffset2, originTwo.y+yOffset2,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+			canvas.draw(animatorTwo, Color.WHITE, origin2.x+xOffset2, origin2.y+yOffset2,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 					effect, 1.0f);
 			// draw the hands
 			canvas.draw(textureThree, Color.WHITE, origin.x+ xOffset3, origin.y+ yOffset3, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
@@ -850,7 +854,7 @@ public class CharacterModel extends CapsuleObstacle {
 		if (textureTwo!=null && textureThree ==null && animeframeRing>=0 && animeframeRing <=6) {
 			animatorTwo.setFrame((int)animeframeRing);
 			// draw the blue ring animation
-			canvas.draw(animatorTwo, Color.WHITE, originTwo.x+xOffset2, originTwo.y+yOffset2+60,getX()*drawScale.x,getY()*drawScale.y,angle,
+			canvas.draw(animatorTwo, Color.WHITE, origin2.x+xOffset2, origin2.y+yOffset2+60,getX()*drawScale.x,getY()*drawScale.y,angle,
 					effect, 1.0f);
 		}
 		if (textureTwo==null && textureThree !=null) {
