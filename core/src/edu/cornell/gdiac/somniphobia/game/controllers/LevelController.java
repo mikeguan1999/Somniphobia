@@ -1063,7 +1063,14 @@ public class LevelController extends WorldController {
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherLevelJson(AssetDirectory directory) {
-		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+		if(level == 0) { // Get level editor level
+			Preferences prefs = GDXRoot.getPreferences();
+			if(prefs.contains("playLevel")) {
+				levelAssets = new JsonReader().parse(prefs.getString("playLevel"));
+			}
+		} else {
+			levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+		}
 	}
 
 	/** Returns the current level */

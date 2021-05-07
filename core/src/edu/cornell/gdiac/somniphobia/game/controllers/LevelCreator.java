@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.somniphobia.GDXRoot;
 import edu.cornell.gdiac.somniphobia.GameCanvas;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
@@ -146,7 +147,8 @@ public class LevelCreator extends WorldController {
     private TextField loadPath;
     /** Whether or not currently loading a level */
     private boolean loading;
-
+    /** Whether or not the play button was pressed */
+    private boolean playtesting;
 
 
     static class Platform extends BoxObstacle {
@@ -256,6 +258,7 @@ public class LevelCreator extends WorldController {
         } else {
             loading = false;
         }
+        playtesting = false;
         selectedType = lightTag;
         selectedProperty = PlatformModel.normal;
         addingMovement = false;
@@ -482,7 +485,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String fileName = String.format("drafts/%s.json", loadPath.getText());
-                LevelSerializer.serialize(fileName, currBackground + 1, worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize(fileName, currBackground + 1, worldWidth, worldHeight, platformList, false);
             }
         });
 
@@ -490,7 +493,8 @@ public class LevelCreator extends WorldController {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                LevelSerializer.serialize("levels/level0.json", currBackground + 1, worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize(null, currBackground + 1, worldWidth, worldHeight, platformList, true);
+                playtesting = true;
             }
         });
 
@@ -502,7 +506,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String fileName = String.format("levels/%s.json", loadPath.getText());
-                LevelSerializer.Level level = LevelSerializer.deserialize(fileName);
+                LevelSerializer.Level level = LevelSerializer.deserialize(fileName, loadPath.getText().equals("prefs"));
                 if(level != null) {
                     loading = true;
                     reset();
@@ -702,6 +706,10 @@ public class LevelCreator extends WorldController {
 
     @Override
     public void reset() {
+        if(playtesting) {
+            playtesting = false;
+            return;
+        }
         Vector2 gravity = new Vector2(world.getGravity() );
         objects.clear();
         addQueue.clear();
@@ -738,6 +746,11 @@ public class LevelCreator extends WorldController {
             int backgroundIndex = backgroundTexture.equals(backgrounds[currBackground]) ? currBackground + 1 :
                     currBackground;
             backgroundTexture = backgrounds[backgroundIndex];
+        }
+
+        if(playtesting) {
+            GDXRoot.prepareLevelJson(0, false);
+            getListener().exitScreen(this, EXIT_SWITCH);
         }
 
         for(Obstacle obj : objects) {
@@ -1060,20 +1073,30 @@ public class LevelCreator extends WorldController {
             }
         }
 
-        public static void serialize(String fileName, int levelBackground, int levelWidth, int levelHeight, PooledList<Platform> platforms) {
+        public static void serialize(String fileName, int levelBackground, int levelWidth, int levelHeight,
+                                     PooledList<Platform> platforms, boolean isEditor) {
             Level level = new Level(levelBackground, levelWidth, levelHeight, platforms);
             Json json = new Json();
             json.setOutputType(JsonWriter.OutputType.json);
-            FileHandle file = Gdx.files.local(fileName);
-            System.out.println(json.prettyPrint(level));
-            file.writeString(json.prettyPrint(level), false);
+            String prettyJson = json.prettyPrint(level);
+            System.out.println(prettyJson);
+            if(isEditor) {
+                GDXRoot.setPreferences(GDXRoot.getPreferences().putString("playLevel", prettyJson));
+            } else {
+                FileHandle file = Gdx.files.local(fileName);
+                file.writeString(prettyJson, false);
+            }
         }
 
-        public static Level deserialize(String fileName) {
-            FileHandle file = Gdx.files.internal(fileName);
+        public static Level deserialize(String fileName, boolean isEditor) {
             String text;
             try {
-                text = file.readString();
+                if(isEditor) {
+                    text = GDXRoot.getPreferences().getString("playLevel");
+                } else {
+                    FileHandle file = Gdx.files.internal(fileName);
+                    text = file.readString();
+                }
             } catch (Exception e) {
                 System.out.println(e);
                 return null;
