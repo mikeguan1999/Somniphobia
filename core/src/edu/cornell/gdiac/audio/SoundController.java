@@ -87,7 +87,7 @@ public class SoundController implements SoundBuffer.OnCompletionListener {
         soundbank = new IdentityMap<String,SoundBuffer>();
         actives = new IdentityMap<String,ActiveSound>();
         keyMap  = new ObjectMap<String,String>();
-        volume = .5f;
+        volume = 0.5f;
         somniVolume = 0;
         phobiaVolume = 0;
         combinedVolume = 0;
