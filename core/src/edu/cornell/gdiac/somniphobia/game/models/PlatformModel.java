@@ -173,6 +173,7 @@ public class PlatformModel extends BoxObstacle {
         }
         numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
 
+
         animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
         if(animeframe > numAnimFrames) {
             animeframe -= numAnimFrames;
