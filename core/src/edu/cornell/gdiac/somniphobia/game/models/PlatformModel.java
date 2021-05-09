@@ -19,7 +19,6 @@ public class PlatformModel extends BoxObstacle {
     public final static int normal = 1;
     public final static int harming = 2;
     public final static int crumbling = 3;
-    public final static int holdOnly = 4;
 
     /** Width of the platform*/
     private float width;
@@ -36,11 +35,9 @@ public class PlatformModel extends BoxObstacle {
 
     private int type;
 
-    /** Whether the platform is spiked **/
-    private boolean spiked;
 
-    /** Whether the platform is raining **/
-    private boolean raining;
+    /** Whether the platform is currently raining **/
+    private boolean currentlyRaining;
 
     /** Density position*/
     private float density;
@@ -83,6 +80,8 @@ public class PlatformModel extends BoxObstacle {
     /** Pixel width of the current frame in the texture */
     private double framePixelWidth = 32;
 
+    Obstacle touching = null;
+
     public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
                 bounds[2], bounds[3]);
@@ -95,8 +94,9 @@ public class PlatformModel extends BoxObstacle {
         this.setTexture(tr);
 
         this.setTag(t);
-        this.spiked = false;
         this.property = 0;
+        this.currentlyRaining = false;
+
     }
 
     public float getLeftX() {
@@ -104,6 +104,30 @@ public class PlatformModel extends BoxObstacle {
     }
     public float getBottomY() {
         return getY() - getHeight() / 2;
+    }
+
+
+    /**
+     * Begins the rain animation for a raining platform
+     */
+    public void beginRainAnimation() {
+        currentlyRaining = true;
+    }
+
+    /**
+     * Sets what this platform is currently touching
+     * @param o the obstacle the platform is touching
+     */
+    public void setTouching(Obstacle o) {
+        this.touching = o;
+    }
+
+    /**
+     * Returns an obstacle that is it is in contact with, otherwise returning null
+     * @return the obstacle or null of no obstacle in contact
+     */
+    public Obstacle getTouching() {
+        return touching;
     }
 
 
