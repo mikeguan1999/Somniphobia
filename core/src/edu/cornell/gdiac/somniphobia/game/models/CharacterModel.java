@@ -371,9 +371,9 @@ public class CharacterModel extends CapsuleObstacle {
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
 		}
-		dashStartPos.set(getPosition());
-		isDashing = canDash;
-		if (isDashing || isPropel) {
+//		dashStartPos.set(getPosition());
+		isDashing = canDash || isPropel;
+		if (isDashing) {
 			if (!isPropel) {
 				canDash = false;
 			}
