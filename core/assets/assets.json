@@ -100,6 +100,36 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:rain_cloud_all_single": {
+      "file": "platform/rain_cloud_all_single.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_dark_single": {
+      "file": "platform/rain_cloud_dark_single.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_light_single": {
+      "file": "platform/rain_cloud_light_single.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_all_single": {
+      "file": "platform/lightning_cloud_all_single.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_dark_single": {
+      "file": "platform/lightning_cloud_dark_single.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_light_single": {
+      "file": "platform/lightning_cloud_light_single.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
     "shared:goalOLD": "platform/DoorOLD.png",
@@ -216,7 +246,6 @@
   },
     "jsons"  : {
         "constants": "constants.json",
-        "level0": "levels/level0.json",
         "level1": "levels/house_tutorial_0.json",
         "level2": "levels/house_tutorial_1.json",
         "level3": "levels/house_tutorial_2.json",

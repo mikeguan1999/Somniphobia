@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.somniphobia.GDXRoot;
 import edu.cornell.gdiac.somniphobia.GameCanvas;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
@@ -32,6 +33,7 @@ import edu.cornell.gdiac.util.PooledList;
 
 import java.lang.Math;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class LevelCreator extends WorldController {
@@ -68,6 +70,7 @@ public class LevelCreator extends WorldController {
     /** TextureRegion variables */
     TextureRegion[] backgrounds;
     TextureRegion[] vertices;
+    TextureRegion[] special;
     private TextureRegion backgroundTexture;
     private TextureRegion lightTexture;
     private TextureRegion darkTexture;
@@ -140,13 +143,15 @@ public class LevelCreator extends WorldController {
     private TextField platformHeight;
     private TextField worldWidthText;
     private TextField worldHeightText;
+    private TextField assetText;
 
     Stage stage;
 
     private TextField loadPath;
     /** Whether or not currently loading a level */
     private boolean loading;
-
+    /** Whether or not the play button was pressed */
+    private boolean playtesting;
 
 
     static class Platform extends BoxObstacle {
@@ -179,9 +184,15 @@ public class LevelCreator extends WorldController {
         obj.setDrawScale(scale);
         TextureRegion newXTexture;
         if(platform.type < somniTag) {
-            newXTexture = new TextureRegion(platTexture[platform.type-1]);
-            float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
-            newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
+            if(platform.property == 1) {
+                newXTexture = new TextureRegion(platTexture[platform.type - 1]);
+                float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
+                newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
+            }else{
+                newXTexture = new TextureRegion(special[2*(platform.type - 1)+(platform.property-PlatformModel.harming)]);
+                float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
+                newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
+            }
         } else {
             newXTexture = platTexture[platform.type-1];
         }
@@ -197,6 +208,49 @@ public class LevelCreator extends WorldController {
                                ArrayList<Platform> path, float velocity) {
         Platform platform = new Platform(type, posX, posY, width, height, property, path, velocity);
         setupPlatform(platform);
+    }
+
+    public void editPlatform(Platform p ){
+        Platform currPlatform = p;
+
+
+        float posX = currPlatform.getX() - currPlatform.getWidth() / 2;
+        float posY = currPlatform.getY() - currPlatform.getHeight() / 2;
+        float width = Float.parseFloat(platformWidth.getText());
+        float height = Float.parseFloat(platformHeight.getText());
+        int type = selectedType;
+        int property = selectedProperty;
+        currPlatform.property = property;
+        ArrayList<Platform> temp = new ArrayList<>();
+        ArrayList<Platform> path = currPlatform.path;
+        ArrayList<Platform> updatedPath = new ArrayList<>();
+        float velocity = Float.parseFloat(movingVelocity.getText());
+
+        Platform platform = new Platform(type, posX, posY, width, height, property, temp, velocity);
+
+        for (int i = 0; i < currPlatform.path.size(); i++) {
+            updatedPath.add(currPlatform.path.get(i));
+        }
+
+        deletePlatform(currPlatform);
+
+        if(path.size()>0){
+            Iterator<Platform> iter = updatedPath.iterator();
+            while(iter.hasNext()){
+                Platform v = iter.next();
+                System.out.println(v.getX());
+                System.out.println(v.getY());
+                float x = v.getX() - width/2;
+                float y = v.getY() - height/2;
+                Platform vertex = new Platform(vertexPlatformTag, x, y, width, height,0,
+                        null, 0);
+                vertex.reference = platform;
+                platform.addMovement(vertex);
+                setupPlatform(vertex);
+            }
+        }
+        setupPlatform(platform);
+
     }
 
     public void deletePlatform(Obstacle o) {
@@ -256,6 +310,7 @@ public class LevelCreator extends WorldController {
         } else {
             loading = false;
         }
+        playtesting = false;
         selectedType = lightTag;
         selectedProperty = PlatformModel.normal;
         addingMovement = false;
@@ -305,6 +360,9 @@ public class LevelCreator extends WorldController {
         worldHeightText.setMaxLength(4);
         worldHeightText.setTextFieldFilter(numberFilter);
 
+        assetText = new TextField(null, textFieldStyle);
+        assetText.setText("");
+
 
         // Remove Object
         ImageTextButton setWorldDimension = new ImageTextButton("Set Dimensions", buttonStyle);
@@ -327,6 +385,18 @@ public class LevelCreator extends WorldController {
 
                 if (selectedObstacle != null && ((Platform) selectedObstacle).type < somniTag) {
                     deletePlatform(selectedObstacle);
+                }
+            }
+        });
+
+        ImageTextButton setAsset = new ImageTextButton("Set Asset", buttonStyle);
+
+        setAsset.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(selectedObstacle != null && selectedObstacle instanceof Platform &&
+                        ((Platform) selectedObstacle).type <somniTag) {
+                    //((Platform) selectedObstacle).setTexture(assetText.getText());
                 }
             }
         });
@@ -434,12 +504,13 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Camera camera = canvas.getCamera();
-                float posX = (int) (camera.position.x/canvas.PPM);
-                float posY = (int) (camera.position.y/canvas.PPM);
-                float width = Float.parseFloat(platformWidth.getText());;
-                float height = Float.parseFloat(platformHeight.getText());;
-                float velocity = Float.parseFloat(movingVelocity.getText());
-                if(selectedObstacle != null && selectedObstacle instanceof Platform){
+                if(selectedObstacle != null && selectedObstacle instanceof Platform &&
+                        ((Platform) selectedObstacle).type <somniTag){
+                    float posX = (int) (camera.position.x/canvas.PPM);
+                    float posY = (int) (camera.position.y/canvas.PPM);
+                    float width = ((Platform) selectedObstacle).getWidth();
+                    float height = ((Platform) selectedObstacle).getHeight();
+                    float velocity = Float.parseFloat(movingVelocity.getText());
                     Platform vertex = new Platform(vertexPlatformTag, posX, posY, width, height,0,
                             null, 0);
                     vertex.reference = (Platform) selectedObstacle;
@@ -455,9 +526,9 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (selectedObstacle instanceof Platform) {
-                    Platform currPlatform = (Platform) selectedObstacle;
+                    //Platform currPlatform = (Platform) selectedObstacle;
 
-
+                    /*
                     float posX = currPlatform.getX() - currPlatform.getWidth() / 2;
                     float posY = currPlatform.getY() - currPlatform.getHeight() / 2;
                     float width = Float.parseFloat(platformWidth.getText());
@@ -472,7 +543,10 @@ public class LevelCreator extends WorldController {
                     currPlatform.deactivatePhysics(world);
                     objects.remove(currPlatform);
 
-                    createPlatform(type, posX, posY, width, height, property, path, velocity);
+                    createPlatform(type, posX, posY, width, height, property, path, velocity);*/
+                    if(((Platform) selectedObstacle).type < somniTag) {
+                        editPlatform((Platform) selectedObstacle);
+                    }
                 }
             }
         });
@@ -482,7 +556,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String fileName = String.format("drafts/%s.json", loadPath.getText());
-                LevelSerializer.serialize(fileName, currBackground + 1, worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize(fileName, currBackground + 1, worldWidth, worldHeight, platformList, false);
             }
         });
 
@@ -490,7 +564,8 @@ public class LevelCreator extends WorldController {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                LevelSerializer.serialize("levels/level0.json", currBackground + 1, worldWidth, worldHeight, platformList);
+                LevelSerializer.serialize(null, currBackground + 1, worldWidth, worldHeight, platformList, true);
+                playtesting = true;
             }
         });
 
@@ -502,7 +577,7 @@ public class LevelCreator extends WorldController {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String fileName = String.format("levels/%s.json", loadPath.getText());
-                LevelSerializer.Level level = LevelSerializer.deserialize(fileName);
+                LevelSerializer.Level level = LevelSerializer.deserialize(fileName, loadPath.getText().equals("prefs"));
                 if(level != null) {
                     loading = true;
                     reset();
@@ -627,7 +702,7 @@ public class LevelCreator extends WorldController {
      * Sets the selectedObstacle
      */
     public void setSelectedColor(int tag) {
-        if (selectedObstacle instanceof Platform) {
+        if (selectedObstacle==null || selectedObstacle instanceof Platform) {
             lightPlatformSelect.setChecked(tag == lightTag);
             darkPlatformSelect.setChecked(tag == darkTag);
             allPlatformSelect.setChecked(tag == allTag);
@@ -640,7 +715,7 @@ public class LevelCreator extends WorldController {
      * Sets the selectedObstacle
      */
     public void setProperty(int tag) {
-        if (selectedObstacle instanceof Platform) {
+        if (selectedObstacle==null || selectedObstacle instanceof Platform) {
             normalPlatformSelect.setChecked(tag == PlatformModel.normal);
             crumblePlatformSelect.setChecked(tag == PlatformModel.crumbling);
             harmingPlatformSelect.setChecked(tag == PlatformModel.harming);
@@ -702,6 +777,10 @@ public class LevelCreator extends WorldController {
 
     @Override
     public void reset() {
+        if(playtesting) {
+            playtesting = false;
+            return;
+        }
         Vector2 gravity = new Vector2(world.getGravity() );
         objects.clear();
         addQueue.clear();
@@ -738,6 +817,11 @@ public class LevelCreator extends WorldController {
             int backgroundIndex = backgroundTexture.equals(backgrounds[currBackground]) ? currBackground + 1 :
                     currBackground;
             backgroundTexture = backgrounds[backgroundIndex];
+        }
+
+        if(playtesting) {
+            GDXRoot.prepareLevelJson(0, false);
+            getListener().exitScreen(this, EXIT_SWITCH);
         }
 
         for(Obstacle obj : objects) {
@@ -855,6 +939,14 @@ public class LevelCreator extends WorldController {
                 new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
+        };
+        special = new TextureRegion[]{
+                new TextureRegion(directory.getEntry("shared:lightning_cloud_light_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:rain_cloud_light_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:lightning_cloud_dark_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:rain_cloud_dark_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:lightning_cloud_all_single", Texture.class)),
+                new TextureRegion(directory.getEntry("shared:rain_cloud_all_single", Texture.class)),
         };
 
 
@@ -1060,20 +1152,30 @@ public class LevelCreator extends WorldController {
             }
         }
 
-        public static void serialize(String fileName, int levelBackground, int levelWidth, int levelHeight, PooledList<Platform> platforms) {
+        public static void serialize(String fileName, int levelBackground, int levelWidth, int levelHeight,
+                                     PooledList<Platform> platforms, boolean isEditor) {
             Level level = new Level(levelBackground, levelWidth, levelHeight, platforms);
             Json json = new Json();
             json.setOutputType(JsonWriter.OutputType.json);
-            FileHandle file = Gdx.files.local(fileName);
-            System.out.println(json.prettyPrint(level));
-            file.writeString(json.prettyPrint(level), false);
+            String prettyJson = json.prettyPrint(level);
+            System.out.println(prettyJson);
+            if(isEditor) {
+                GDXRoot.setPreferences(GDXRoot.getPreferences().putString("playLevel", prettyJson));
+            } else {
+                FileHandle file = Gdx.files.local(fileName);
+                file.writeString(prettyJson, false);
+            }
         }
 
-        public static Level deserialize(String fileName) {
-            FileHandle file = Gdx.files.internal(fileName);
+        public static Level deserialize(String fileName, boolean isEditor) {
             String text;
             try {
-                text = file.readString();
+                if(isEditor) {
+                    text = GDXRoot.getPreferences().getString("playLevel");
+                } else {
+                    FileHandle file = Gdx.files.internal(fileName);
+                    text = file.readString();
+                }
             } catch (Exception e) {
                 System.out.println(e);
                 return null;

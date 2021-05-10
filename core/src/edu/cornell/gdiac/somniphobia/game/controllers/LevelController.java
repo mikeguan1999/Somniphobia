@@ -10,6 +10,7 @@
  */
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.Preferences;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -435,7 +436,7 @@ public class LevelController extends WorldController {
 		sliderSound = new Slider(0,1,0.01f,false,sliderStyle);
 		musicIcon = new Image(blueMusicNote);
 		soundIcon = new Image(blueSound);
-		sliderMusic.setValue(0.5f);
+		sliderMusic.setValue(volume);
 
 
 		exitButton = new Button(blueExit);
@@ -479,17 +480,17 @@ public class LevelController extends WorldController {
 		sliderMusic.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				float musicVolume = sliderMusic.getValue();
 				if (movementController.isHoldingHands()){
-					SoundController.getInstance().setVolume(musicVolume, "combinedTrack");
+					SoundController.getInstance().setVolume(volume, "combinedTrack");
 				}
 				else if (movementController.getAvatar()==somni){
-					SoundController.getInstance().setVolume(musicVolume, "somniTrack");
+					SoundController.getInstance().setVolume(volume, "somniTrack");
 				}
 				else if (movementController.getAvatar()==phobia){
-					SoundController.getInstance().setVolume(musicVolume, "phobiaTrack");
+					SoundController.getInstance().setVolume(volume, "phobiaTrack");
 				}
-
+				volume = sliderMusic.getValue();
+				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
 			}
 		});
 
@@ -1062,7 +1063,14 @@ public class LevelController extends WorldController {
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherLevelJson(AssetDirectory directory) {
-		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+		if(level == 0) { // Get level editor level
+			Preferences prefs = GDXRoot.getPreferences();
+			if(prefs.contains("playLevel")) {
+				levelAssets = new JsonReader().parse(prefs.getString("playLevel"));
+			}
+		} else {
+			levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+		}
 	}
 
 	/** Returns the current level */
@@ -1144,7 +1152,8 @@ public class LevelController extends WorldController {
 		maskHeight = MIN_MASK_DIMENSIONS.y;
 		alphaAmount = 0;
 
-		SoundController.getInstance().play("somniTrack", somniTrackPath, 1f, true);
+		SoundController.getInstance().play("somniTrack", somniTrackPath, volume, true);
+		SoundController.getInstance().setVolume(volume, "somniTrack");
 		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
 		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);
 	}
@@ -1332,7 +1341,11 @@ public class LevelController extends WorldController {
 
 		action = 0;
 
-		volume = constants.getFloat("volume", 1.0f);
+		Preferences prefs = GDXRoot.getPreferences();
+		volume = prefs.contains("volume") ? prefs.getFloat("volume") : defaults.getFloat("volume",
+				1.0f);
+		System.out.println(volume);
+
 		platformController.applyFilters(objects);
 	}
 

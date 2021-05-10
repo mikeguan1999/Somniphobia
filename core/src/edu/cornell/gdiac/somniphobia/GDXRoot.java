@@ -32,7 +32,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
  */
 public class GDXRoot extends Game implements ScreenListener {
 	/** AssetManager to load game assets (textures, sounds, etc.) */
-	AssetDirectory directory;
+	static AssetDirectory directory;
 	/** Drawing context to display graphics (VIEW CLASS) */
 	private GameCanvas canvas;
 
@@ -41,10 +41,12 @@ public class GDXRoot extends Game implements ScreenListener {
 
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
-	/** The World Controller */
-	private WorldController[] controllers;
 
-	private LevelCreator levelCreator;
+	static private Preferences preferences;
+
+	/** The World Controller */
+	static private WorldController[] controllers;
+
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 
@@ -55,8 +57,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private OrthographicCamera cam;
 	private MainMenu mainMenu;
 
-	private final int LEVEL_CONTROLLER_INDEX = 0;
-	private final int LEVEL_CREATOR_INDEX = 1;
+	static private final int LEVEL_CONTROLLER_INDEX = 0;
+	static private final int LEVEL_CREATOR_INDEX = 1;
 
 
 	/**
@@ -74,36 +76,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * the asynchronous loader for all other assets.
 	 */
 	public void create() {
-//		numPages = totalNumLevels/numLevelsPerPage;
-//		if (totalNumLevels%numLevelsPerPage != 0){
-//			numPages += 1;
-//		}
-
 		canvas  = new GameCanvas();
 		platformController = new PlatformController();
 		loading = new LoadingMode("assets.json",canvas,1);
 
-//		menuPages = new Menu[numPages];
-//		for (int i=0; i<menuPages.length; i++){
-//			if (i==0){
-//				Menu menu = new Menu(canvas, false, true, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//			else if (i== menuPages.length-1){
-//				Menu menu = new Menu(canvas, true, false, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//			else {
-//				Menu menu = new Menu(canvas, true, true, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//		}
-//		0123
-//				4567
-//						891011
-//
-//		currentMenuIndex = 0;
-//		currentMenu = menuPages[currentMenuIndex];
 		menu = new MenuScrollable(canvas, totalNumLevels);
 
 		mainMenu = new MainMenu(canvas);
@@ -115,11 +91,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController();
 		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
 
-		levelCreator = new LevelCreator();
-
 		// Constructs a new OrthographicCamera, using the given viewport width and height
 		// Height is multiplied by aspect ratio.
-
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 
@@ -131,12 +104,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		loading.setScreenListener(this);
 		setScreen(loading);
 
-//		levelCreator.setScreenListener(this);
-//		setScreen(levelCreator);
-//		levelCreator.setCanvas(canvas);
-//	    loading.getAssets();
-//		levelCreator.gatherAssets(directory);
-//		levelCreator.initialize();
+		preferences = Gdx.app.getPreferences("save_data.json");
 	}
 
 	/** 
@@ -156,6 +124,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas.dispose();
 		mainMenu.dispose();
 		canvas = null;
+
 		// Unload all of the resources
 		if (directory != null) {
 			directory.unloadAssets();
@@ -181,10 +150,18 @@ public class GDXRoot extends Game implements ScreenListener {
 
 	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
 	 *  otherwise, prepares for level `num`. */
-	public void prepareLevelJson(WorldController wc, int num, boolean increment) {
-		LevelController pc = (LevelController) wc;
-		pc.setLevel(increment ? pc.getLevel() + num : num);
-		pc.gatherLevelJson(directory);
+	static public void prepareLevelJson(int num, boolean increment) {
+		LevelController lc = (LevelController) controllers[LEVEL_CONTROLLER_INDEX];
+		lc.setLevel(increment ? lc.getLevel() + num : num);
+		lc.gatherLevelJson(directory);
+	}
+
+	static public Preferences getPreferences() {
+		return preferences;
+	}
+
+	static public void setPreferences(Preferences prefs) {
+		preferences = prefs;
 	}
 
 	/**
@@ -201,7 +178,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
 				if (ii == LEVEL_CONTROLLER_INDEX) {
-					prepareLevelJson(controllers[ii], 1, false);
+					prepareLevelJson(1, false);
 				}
 				controllers[ii].setScreenListener(this);
 				controllers [ii].setCanvas(canvas);
@@ -214,41 +191,26 @@ public class GDXRoot extends Game implements ScreenListener {
 			mainMenu.setScreenListener(this);
 			setScreen(mainMenu);
 
-//			currentMenu.setScreenListener(this);
-//			setScreen(currentMenu);
 			loading.dispose();
 			loading = null;
 		} else if (screen==menu){
-//			if (exitCode<0){
-//				if (exitCode==currentMenu.getLEFT_EXIT_CODE()){
-//					currentMenuIndex -= 1;
-//				}
-//				else if (exitCode==currentMenu.getRIGHT_EXIT_CODE()) {
-//					currentMenuIndex += 1;
-//				}
-//				currentMenu = menuPages[currentMenuIndex];
-//				setScreen(currentMenu);
-//			}
-//			else {
-			prepareLevelJson(controllers[current], exitCode+1, false);
+			prepareLevelJson(exitCode+1, false);
 			controllers[current].reset();
 			setScreen(controllers[current]);
 
 		} else if (exitCode == WorldController.EXIT_MENU) {
-//			resetting the menu
+			// Resetting the menu
 			menu = new MenuScrollable(canvas, totalNumLevels);
 			menu.setScreenListener(this);
 			setScreen(menu);
-//			System.out.println(Gdx.input.getInputProcessor().equals(currentMenu.getStage()));
 		} else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
-				prepareLevelJson(controllers[current], 1, true);
+				prepareLevelJson(1, true);
 				controllers[current].reset();
 			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
-
 			if(current == LEVEL_CONTROLLER_INDEX) {
-				prepareLevelJson(controllers[current], -1, true);
+				prepareLevelJson(-1, true);
 				controllers[current].reset();
 			}
 		} else if (exitCode == WorldController.EXIT_SWITCH) {;
@@ -256,8 +218,8 @@ public class GDXRoot extends Game implements ScreenListener {
 			controllers[current].reset();
 			setScreen(controllers[current]);
 		} else if (exitCode == WorldController.EXIT_QUIT) {
-			// We quit the main application
-			Gdx.app.exit();
+			preferences.flush(); // Persist user save data
+			Gdx.app.exit(); // We quit the main application
 		}
 	}
 
