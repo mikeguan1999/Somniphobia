@@ -337,11 +337,11 @@ public class MovementController implements ContactListener {
             avatar.dashOrPropel(true, x, y);
 
         } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
-//            beginHoldHands();
-//            endHoldHands();
-            avatar.setCanDash(true);
             avatar.dashOrPropel(true, x, y);
-//            handleDash(x,y);
+            CharacterModel oppositeCharacter = avatar == somni? phobia: somni;
+            if (oppositeCharacter.isGrounded()) {
+                avatar.setCanDash(true);
+            }
         } else {
             avatar.dashOrPropel(false, x, y);
         }
