@@ -26,9 +26,14 @@ public class PlatformModel extends BoxObstacle {
     /** Height of the platform*/
     private float height;
 
-    /** X position based on lower left corner*/
+    /** X position based on top left corner*/
     private float leftX;
-    /** Y position based on lower left corner*/
+    /** Y position based on top left corner*/
+    private float topY;
+
+    /** X position based on bottom right corner*/
+    private float rightX;
+    /** Y position based on bottom right corner*/
     private float bottomY;
 
     /** Filter*/
@@ -91,6 +96,10 @@ public class PlatformModel extends BoxObstacle {
         this.setFriction(f);
         this.setRestitution(r);
         this.setDrawScale(s);
+        this.leftX = bounds[0];
+        this.topY = bounds[1];
+        this.width = bounds[2];
+        this.height = bounds[3];
 
         this.setTexture(tr);
 
@@ -172,8 +181,6 @@ public class PlatformModel extends BoxObstacle {
             framePixelWidth = entirePixelWidth;
         }
         numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
-
-
         animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
         if(animeframe > numAnimFrames) {
             animeframe -= numAnimFrames;
@@ -190,8 +197,14 @@ public class PlatformModel extends BoxObstacle {
      */
     public void draw(GameCanvas canvas) {
         if (texture != null) {
-            animator.setFrame((int)animeframe);
-            canvas.draw(animator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+            if (animeframe >= numAnimFrames) {
+                animeframe = 0;
+            }
+            FilmStrip tempAnimator = animator;
+            tempAnimator.setFrame((int)animeframe);
+//            texture.setRegion(0, 0, 32, 32);
+//            tempAnimator.setRegion(leftX, topY, width, height);
+            canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
     }
@@ -205,8 +218,14 @@ public class PlatformModel extends BoxObstacle {
      */
     public void drawWithTint(GameCanvas canvas, Color tint) {
         if (texture != null) {
-            animator.setFrame((int)animeframe);
-            canvas.draw(animator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+            if (animeframe >= numAnimFrames) {
+                animeframe = 0;
+            }
+            FilmStrip tempAnimator = animator;
+            tempAnimator.setFrame((int)animeframe);
+//            texture.setRegion(0, 0, 32, 32);
+//            tempAnimator.setRegion(0,0, width, height);
+            canvas.draw(tempAnimator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
     }

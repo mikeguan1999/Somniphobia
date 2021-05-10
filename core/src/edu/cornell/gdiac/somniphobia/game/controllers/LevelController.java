@@ -1226,7 +1226,7 @@ public class LevelController extends WorldController {
 					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
 					newXTexture = new TextureRegion(xTexture[platformType-1+(property - 1)*3]);
-					newXTexture.setRegion(x, y, x + width, y + height);
+					newXTexture.setRegion(0, 0, width, height);
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,

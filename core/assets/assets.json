@@ -212,7 +212,7 @@
     "pause_menu:nextblue": "pause_menu/nextblue.png",
     "pause_menu:nextorange": "pause_menu/nextorange.png",
     "pause_menu:pause_button_blue":  "pause_menu/pause_button.png",
-    "pause_menu:pause_button_red": "pause_menu/pause_red.png",
+    "pause_menu:pause_button_red": "pause_menu/pause_red.png"
   },
     "jsons"  : {
         "constants": "constants.json",
