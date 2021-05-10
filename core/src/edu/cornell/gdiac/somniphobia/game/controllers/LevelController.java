@@ -1226,7 +1226,12 @@ public class LevelController extends WorldController {
 					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
 					newXTexture = new TextureRegion(xTexture[platformType-1+(property - 1)*3]);
+//					Texture actualTexture = newXTexture.getTexture();
 					newXTexture.setRegion(0, 0, width, height);
+//					int entirePixelWidth = actualTexture.getWidth();
+//					if (entirePixelWidth > 32 && entirePixelWidth == 32*width){
+//						newXTexture.setRegion(0, 0, width+1, height);;
+//					}
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
