@@ -199,6 +199,9 @@ public class LevelController extends WorldController {
 	/** Texture asset int for action*/
 	private int action;
 
+	private int appWidth;
+	private int appHeight;
+
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
 	private long jumpId = -1;
@@ -249,6 +252,8 @@ public class LevelController extends WorldController {
 	private boolean darkclear = false;
 	private boolean sharedclear = false;
 	private boolean allclear = false;
+
+	private boolean isfullscreen = false;
 
 	/** Are characters currently holding hands */
 	private boolean holdingHands;
@@ -1136,6 +1141,8 @@ public class LevelController extends WorldController {
 		camera.update();
 
 		holdingHands = false;
+		appWidth = Gdx.graphics.getWidth();
+		appHeight = Gdx.graphics.getHeight();
 
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects,
 				lightObjects, darkObjects, this);
@@ -1544,6 +1551,22 @@ public class LevelController extends WorldController {
 			}
 			movementController.setJustSeparated(false);
 			movementController.setJustPropelled(false);
+		}
+		//fullscreen
+		if(InputController.getInstance().didFullscreen()) {
+			System.out.println(InputController.getInstance().didFullscreen());
+		}
+		if(InputController.getInstance().didHoldHands() && !isfullscreen){
+			System.out.println(Gdx.graphics.getHeight());
+			System.out.println(Gdx.graphics.getWidth());
+			Gdx.graphics.setFullscreenMode((Gdx.graphics.getDisplayMode()));
+			isfullscreen = true;
+		}
+		else if(InputController.getInstance().didHoldHands() && isfullscreen){
+			System.out.println(Gdx.graphics.getHeight());
+			System.out.println(Gdx.graphics.getWidth());
+			Gdx.graphics.setWindowedMode(appWidth,appHeight);
+			isfullscreen = false;
 		}
 
 		// Set camera position bounded by the canvas size

@@ -189,7 +189,7 @@ public class LevelCreator extends WorldController {
                 float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
                 newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
             }else{
-                newXTexture = new TextureRegion(special[2*(platform.type - 1)+(platform.property-PlatformModel.harming)]);
+                newXTexture = new TextureRegion(special[Math.abs(2*(platform.type - 1)+(platform.property-PlatformModel.harming))]);
                 float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
                 newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
             }

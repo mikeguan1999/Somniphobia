@@ -31,6 +31,7 @@ public class InputController {
 	private int dashKey = Input.Keys.SHIFT_LEFT;
 	private int dashKey2 = Input.Keys.SPACE;
 	private int handHoldingKey = Input.Keys.Z;
+	private int fullscreenKey = Input.Keys.O;
 	private int handHoldingKey2 = Input.Keys.E;
 	private int switchKey = Input.Keys.X;
 	private int switchKey2 = Input.Keys.Q;
@@ -73,6 +74,9 @@ public class InputController {
 	/** Whether the hand holding button was pressed. */
 	private boolean handHoldingPressed;
 	private boolean handHoldingPrevious;
+	/** Whether the hand holding button was pressed. */
+	private boolean fullscreenPressed;
+	private boolean fullscreenPrevious;
 	/** Whether the switch button was pressed. */
 	private boolean switchPressed;
 	private boolean switchPrevious;
@@ -214,6 +218,18 @@ public class InputController {
 	}
 
 	/**
+	 * Returns true if the hand holding button was pressed.
+	 *
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * @return true if the dash button was pressed.
+	 */
+	public boolean didFullscreen() {
+		return fullscreenPressed && !fullscreenPrevious;
+	}
+
+	/**
 	 * Returns true if the switch button was pressed.
 	 *
 	 * This is a one-press button. It only returns true at the moment it was
@@ -299,6 +315,7 @@ public class InputController {
 		jumpPrevious  			= jumpPressed;
 		dashPrevious 			= dashPressed;
 		handHoldingPrevious 	= handHoldingPressed;
+		fullscreenPrevious   	= fullscreenPressed;
 		switchPrevious 			= switchPressed;
 		resetPrevious  			= resetPressed;
 		debugPrevious  			= debugPressed;
@@ -323,6 +340,7 @@ public class InputController {
 		jumpPressed  			= Gdx.input.isKeyPressed(jumpKey);
 		dashPressed 			= Gdx.input.isKeyPressed(dashKey) || Gdx.input.isKeyPressed(dashKey2);
 		handHoldingPressed 		= Gdx.input.isKeyPressed(handHoldingKey) || Gdx.input.isKeyPressed(handHoldingKey2);
+		fullscreenPressed       = Gdx.input.isButtonPressed(fullscreenKey);
 		switchPressed 			= Gdx.input.isKeyPressed(switchKey) || Gdx.input.isKeyPressed(switchKey2);
 		exitPressed   			= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);

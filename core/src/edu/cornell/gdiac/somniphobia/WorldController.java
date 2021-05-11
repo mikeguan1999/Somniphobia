@@ -16,12 +16,15 @@
  */
 package edu.cornell.gdiac.somniphobia;
 
+import java.awt.*;
 import java.util.Iterator;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
@@ -61,6 +64,8 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_SWITCH = 4;
     /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
+	/** Fullscreen*/
+	public static Graphics.DisplayMode fullscreen;
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -93,6 +98,7 @@ public abstract class WorldController implements Screen {
 	protected Rectangle bounds;
 	/** The world scale */
 	protected Vector2 scale;
+
 	
 	/** Whether or not this is an active controller */
 	private boolean active;
@@ -308,6 +314,7 @@ public abstract class WorldController implements Screen {
 		failed = false;
 		debug  = false;
 		active = false;
+		//fullscreen = new Graphics.DisplayMode(32,32,60,4);
 //		countdown = -1;
 	}
 	
