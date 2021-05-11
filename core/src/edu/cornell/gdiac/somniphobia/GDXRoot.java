@@ -20,6 +20,9 @@ import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import org.lwjgl.Sys;
+
+import java.util.HashMap;
 
 /**
  * Root class for a LibGDX.  
@@ -58,6 +61,14 @@ public class GDXRoot extends Game implements ScreenListener {
 	private final int LEVEL_CONTROLLER_INDEX = 0;
 	private final int LEVEL_CREATOR_INDEX = 1;
 
+	private WorldSelect worldSelectMenu;
+	private MenuScrollable [] menus;
+	private final int numWorlds=5;
+//	in the sequence of first row then second row of buttons in the world selector
+	private int [] worldToNumLevels = {10, 10, 10, 10, 10};
+	private boolean [] levelsCompleted;
+	private int currentIndexController;
+
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -82,6 +93,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas  = new GameCanvas();
 		platformController = new PlatformController();
 		loading = new LoadingMode("assets.json",canvas,1);
+		worldSelectMenu = new WorldSelect(canvas);
+		levelsCompleted = new boolean[totalNumLevels];
 
 //		menuPages = new Menu[numPages];
 //		for (int i=0; i<menuPages.length; i++){
@@ -104,7 +117,12 @@ public class GDXRoot extends Game implements ScreenListener {
 //
 //		currentMenuIndex = 0;
 //		currentMenu = menuPages[currentMenuIndex];
-		menu = new MenuScrollable(canvas, totalNumLevels);
+		menus = new MenuScrollable[numWorlds];
+		for (int i=0; i< menus.length; i++){
+			menus[i] = new MenuScrollable(canvas, worldToNumLevels[i], i, levelsCompleted);
+		}
+
+		menu = new MenuScrollable(canvas, totalNumLevels, 0, levelsCompleted);
 
 		mainMenu = new MainMenu(canvas);
 
@@ -196,6 +214,15 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
+		LevelController pc = (LevelController) controllers[current];
+		if (pc.isComplete()){
+			levelsCompleted[pc.getLevel()-1] = true;
+		}
+//		for (int k=0; k< controllers.length; k++){
+//			if (controllers[k].isComplete()){
+//				levelsCompleted[k] = true;
+//			}
+//		}
 		if (screen == loading) {
 			for(int ii = 0; ii < controllers.length; ii++) {
 				directory = loading.getAssets();
@@ -208,7 +235,6 @@ public class GDXRoot extends Game implements ScreenListener {
 				controllers[ii].setPlatController(platformController);
 			}
 
-
 			menu.setScreenListener(this);
 
 			mainMenu.setScreenListener(this);
@@ -218,7 +244,17 @@ public class GDXRoot extends Game implements ScreenListener {
 //			setScreen(currentMenu);
 			loading.dispose();
 			loading = null;
-		} else if (screen==menu){
+		} else if (exitCode==WorldController.EXIT_WORLD_SELECT){
+			worldSelectMenu = new WorldSelect(canvas);
+			worldSelectMenu.setScreenListener(this);
+			setScreen(worldSelectMenu);
+		} else if (screen==worldSelectMenu && exitCode!=WorldController.EXIT_MAIN_SCREEN){
+//			for (int j=0; j< menus.length; j++){
+//				menus[j] = new MenuScrollable(canvas, worldToNumLevels[j], j, levelsCompleted);
+//			}
+			menus[exitCode].setScreenListener(this);
+			setScreen(menus[exitCode]);
+		} else if (screen instanceof MenuScrollable){
 //			if (exitCode<0){
 //				if (exitCode==currentMenu.getLEFT_EXIT_CODE()){
 //					currentMenuIndex -= 1;
@@ -231,12 +267,16 @@ public class GDXRoot extends Game implements ScreenListener {
 //			}
 //			else {
 			prepareLevelJson(controllers[current], exitCode+1, false);
+			currentIndexController = exitCode+1;
 			controllers[current].reset();
 			setScreen(controllers[current]);
 
+		} else if (exitCode==WorldController.EXIT_MAIN_SCREEN){
+			mainMenu.setScreenListener(this);
+			setScreen(mainMenu);
 		} else if (exitCode == WorldController.EXIT_MENU) {
 //			resetting the menu
-			menu = new MenuScrollable(canvas, totalNumLevels);
+			menu = new MenuScrollable(canvas, totalNumLevels, 0, levelsCompleted);
 			menu.setScreenListener(this);
 			setScreen(menu);
 //			System.out.println(Gdx.input.getInputProcessor().equals(currentMenu.getStage()));

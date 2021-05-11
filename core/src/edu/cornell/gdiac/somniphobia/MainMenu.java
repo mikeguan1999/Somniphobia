@@ -71,8 +71,10 @@ public class MainMenu implements Screen {
 	private Button startDream;
 	private Button about;
 	private Button controls;
-	private Button underline;
+	private Image underline;
+	private Button exit;
 	private boolean started;
+	private boolean exitClicked;
 
 	private TextureRegionDrawable titleDrawable;
 	private TextureRegionDrawable aboutDrawable;
@@ -80,6 +82,8 @@ public class MainMenu implements Screen {
 	private TextureRegionDrawable startDreamDrawable;
 	private TextureRegionDrawable underlineDrawable;
 	private TextureRegionDrawable backgroundDrawable;
+	private TextureRegionDrawable exitDrawable;
+	private TextureRegionDrawable underlineOrangeDrawable;
 
 	public Stage getStage(){
 		return stage;
@@ -98,6 +102,8 @@ public class MainMenu implements Screen {
 		controlsDrawable = new TextureRegionDrawable(internal.getEntry("controls", Texture.class));
 		startDreamDrawable = new TextureRegionDrawable(internal.getEntry("start_dream", Texture.class));
 		underlineDrawable = new TextureRegionDrawable(internal.getEntry("underline", Texture.class));
+		exitDrawable = new TextureRegionDrawable(internal.getEntry("exit", Texture.class));
+		underlineOrangeDrawable = new TextureRegionDrawable(internal.getEntry("orange_underline", Texture.class));
 
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
@@ -106,13 +112,15 @@ public class MainMenu implements Screen {
 		about = new Button(aboutDrawable);
 		controls = new Button(controlsDrawable);
 		startDream = new Button(startDreamDrawable);
-		underline = new Button(underlineDrawable);
-
-		table.add(titleImage).colspan(5).padLeft(300).padRight(300).height(100).padTop(50);
+		underline = new Image(underlineDrawable);
+		exit = new Button(exitDrawable);
+    
+		table.add(titleImage).colspan(4).height(100).padTop(50).padLeft(150).padRight(150).width(500);
 		table.row().padBottom(300);
-		table.add(startDream).padLeft(150).size(200,50).expandX().padTop(30);
-		table.add(controls).size(150,50).expandX().spaceLeft(120).padTop(30);
-		table.add(about).padRight(200).size(120, 50).expandX().spaceLeft(120).padTop(30);
+		table.add(startDream).padTop(30).size(startDream.getWidth()/2, startDream.getHeight()/2).expand().fillX();
+		table.add(controls).padTop(30).size(controls.getWidth()/2, controls.getHeight()/2).expand().fillX();
+		table.add(about).padTop(30).size(about.getWidth()/2, about.getHeight()/2).expand().fillX();
+		table.add(exit).padTop(30).size(exit.getWidth()/2, exit.getHeight()/2).expand().fillX();
 		table.row();
 		table.add(underline);
 //		underline.setVisible(false);
@@ -123,9 +131,18 @@ public class MainMenu implements Screen {
 			}
 		});
 
+		exit.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				exitClicked = true;
+			}
+		});
 
 		stage.addActor(table);
 		table.validate();
+		startDream.setX(50);
+		controls.setX(startDream.getX()+startDream.getWidth()+80);
+		about.setX(canvas.getWidth()/2+50);
+		exit.setX(about.getWidth()+about.getX()+200);
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
@@ -195,20 +212,27 @@ public class MainMenu implements Screen {
 			stage.draw();
 
 			if (startDream.isOver()){
-				underline.setSize(startDream.getWidth(), startDream.getHeight());
-				underline.setPosition(startDream.getX(), startDream.getY()-30);
+				underline.setSize(startDream.getWidth()+10, startDream.getHeight());
+				underline.setPosition(startDream.getX()-5, startDream.getY()-20);
 				underline.setVisible(true);
 			}
 
 			else if (controls.isOver()){
-				underline.setSize(controls.getWidth(), controls.getHeight());
-				underline.setPosition(controls.getX(), controls.getY()-30);
+				underline.setSize(controls.getWidth()+10, controls.getHeight());
+				underline.setPosition(controls.getX()-5, controls.getY()-20);
 				underline.setVisible(true);
 			}
 
 			else if (about.isOver()){
-				underline.setSize(about.getWidth(), about.getHeight());
-				underline.setPosition(about.getX(), about.getY()-30);
+				underline.setSize(about.getWidth()+10, about.getHeight());
+				underline.setPosition(about.getX()-5, about.getY()-20);
+//				underline.setDrawable(underlineOrangeDrawable);
+				underline.setVisible(true);
+			}
+			else if (exit.isOver()){
+				underline.setSize(exit.getWidth()+10, exit.getHeight());
+				underline.setPosition(exit.getX()-5, exit.getY()-20);
+//				underline.setDrawable(underlineOrangeDrawable);
 				underline.setVisible(true);
 			}
 
@@ -220,7 +244,12 @@ public class MainMenu implements Screen {
 
 			if (started){
 				started = false;
-				listener.exitScreen(this, WorldController.EXIT_MENU);
+				listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT);
+			}
+
+			if (exitClicked){
+				exitClicked = false;
+				listener.exitScreen(this, WorldController.EXIT_QUIT);
 			}
 		}
 	}

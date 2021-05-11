@@ -386,7 +386,6 @@ public class LevelController extends WorldController {
 	 * The game has default gravity and other settings
 	 */
 	public LevelController() {
-
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
 		setDebug(false);
 		setComplete(false);
@@ -422,8 +421,8 @@ public class LevelController extends WorldController {
 	 * Creates the pauseMenu with the buttons
 	 */
 	public void createModalWindow() {
-		Viewport viewport = canvas.getViewPort();
-		pauseMenuStage = new Stage(viewport);
+
+		pauseMenuStage = new Stage(new ScreenViewport(camera));
 		pauseMenu = new Table();
 		pauseMenu.setBackground(blueRectangle);
 		pauseMenu.setFillParent(true);
@@ -556,7 +555,7 @@ public class LevelController extends WorldController {
 	}
 
 	public void createWinWindow(float cameraX, float cameraY) {
-		winMenuStage= new Stage(new ScreenViewport(camera));
+		winMenuStage = new Stage(new ScreenViewport(camera));
 		camera.position.x = cameraX;
 		camera.position.y = cameraY;
 		camera.update();
@@ -1381,9 +1380,9 @@ public class LevelController extends WorldController {
 			gameScreenActive = false;
 			setPause(false);
 			setFailure(false);
-			setComplete(false);
 			firstTimeRendered = true;
-			listener.exitScreen(this, WorldController.EXIT_MENU);
+			listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT);
+			setComplete(false);
 			exitClicked = false;
 			return false;
 		}
@@ -1395,8 +1394,8 @@ public class LevelController extends WorldController {
 			gameScreenActive = false;
 			setPause(false);
 			setFailure(false);
-			setComplete(false);
 			listener.exitScreen(this, WorldController.EXIT_NEXT);
+			setComplete(false);
 			advanceClicked = false;
 		}
 

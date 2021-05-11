@@ -8,7 +8,8 @@
         "door1": "menu/door1light.png",
         "door2": "menu/door2light.png",
         "door3": "menu/door3light.png",
-        "door4": "menu/door4light.png"
+        "door4": "menu/door4light.png",
+        "back_arrow": "menu/backwitharrow_orange.png"
     }
 }
 
