@@ -1,0 +1,13 @@
+{
+	"textures": {
+        "title": "world_selection/world selection_text.png",
+        "background": "world_selection/worldselection_background.png",
+		"world1": "world_selection/forest_worldselect.png",
+        "world2": "world_selection/world2_worldselect.png",
+        "world3": "world_selection/world3_world selection.png",
+        "world4": "world_selection/world4_worldselection.png",
+        "world5": "world_selection/world4_worldselection.png",
+        "blue_arrow": "world_selection/backwitharrow_blue.png"
+    }
+}
+
