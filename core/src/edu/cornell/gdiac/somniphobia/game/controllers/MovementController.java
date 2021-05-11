@@ -490,12 +490,12 @@ public class MovementController implements ContactListener {
         combined.setVX(0f);
         combined.setVY(0f);
 
-        if (somni.getGround() != null) {
-            ((PlatformModel) somni.getGround()).setTouching(null);
-        }
-        if (phobia.getGround() != null) {
-            ((PlatformModel) phobia.getGround()).setTouching(null);
-        }
+//        if (somni.getGround() != null) {
+//            ((PlatformModel) somni.getGround()).setTouching(null);
+//        }
+//        if (phobia.getGround() != null) {
+//            ((PlatformModel) phobia.getGround()).setTouching(null);
+//        }
 //        ((PlatformModel) somni.getGround()).setTouching(null);
 
 
@@ -588,6 +588,8 @@ public class MovementController implements ContactListener {
                         lightObjects.remove(bd2);
                         darkObjects.remove(bd2);
 
+
+
                         bd2.markRemoved(true);
                     } else {
                         ((PlatformModel) bd2).setTouching(somni);
@@ -603,6 +605,7 @@ public class MovementController implements ContactListener {
                 phobia.setGround(phobia == bd1 ? bd2: bd1);
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling)  {
                     if (((PlatformModel) bd1).getTouching() == somni) {
+
                         sharedObjects.remove(bd1);
                         lightObjects.remove(bd1);
                         darkObjects.remove(bd1);
@@ -625,8 +628,8 @@ public class MovementController implements ContactListener {
                 }
 
             }
-            if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
-                    (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
+            if (avatar == combined && ((avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
+                    (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2))) {
                 avatar.setGrounded(true);
                 somni.setCanDash(true);
                 phobia.setCanDash(true);
@@ -634,14 +637,12 @@ public class MovementController implements ContactListener {
 //				combined.canJump = true;
                 combined.setGround(combined == bd1 ? bd2: bd1);
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling) {
-
                     sharedObjects.remove(bd1);
                     lightObjects.remove(bd1);
                     darkObjects.remove(bd1);
 
                     bd1.markRemoved(true);
                 } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
-
                     sharedObjects.remove(bd2);
                     lightObjects.remove(bd2);
                     darkObjects.remove(bd2);
