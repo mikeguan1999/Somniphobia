@@ -472,8 +472,21 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 
+	/**
+	 * Sets the obstacle that the character is standing on
+	 * @param ground the obstacle that the character is standing on
+	 */
 	public void setGround(Obstacle ground) {
 		this.ground = ground;
+	}
+
+
+	/**
+	 * Gets the ground that the character is standing on
+	 * @return the ground
+	 */
+	public Obstacle getGround() {
+		return ground;
 	}
 
 

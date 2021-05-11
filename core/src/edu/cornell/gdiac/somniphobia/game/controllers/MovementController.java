@@ -490,6 +490,15 @@ public class MovementController implements ContactListener {
         combined.setVX(0f);
         combined.setVY(0f);
 
+        if (somni.getGround() != null) {
+            ((PlatformModel) somni.getGround()).setTouching(null);
+        }
+        if (phobia.getGround() != null) {
+            ((PlatformModel) phobia.getGround()).setTouching(null);
+        }
+//        ((PlatformModel) somni.getGround()).setTouching(null);
+
+
         somni.setActive(false);
         phobia.setActive(false);
         combined.setActive(true);
@@ -543,12 +552,14 @@ public class MovementController implements ContactListener {
 
             if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
                 if (somni.getCore().equals(fix2) || somni.getCap1().equals(fix2) || somni.getCap2().equals(fix2) ||
-                        phobia.getCore().equals(fix2) || phobia.getCap1().equals(fix2) || phobia.getCap2().equals(fix2) ) {
+                        phobia.getCore().equals(fix2) || phobia.getCap1().equals(fix2) || phobia.getCap2().equals(fix2) ||
+                            combined.getCore().equals(fix2) || combined.getCap1().equals(fix2) || combined.getCap2().equals(fix2)) {
                     worldController.setFailure(true);
                 }
             } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.harming) {
                 if (somni.getCore().equals(fix1) || somni.getCap1().equals(fix1) || somni.getCap2().equals(fix1) ||
-                        phobia.getCore().equals(fix1) || phobia.getCap1().equals(fix1) || phobia.getCap2().equals(fix1) ) {
+                        phobia.getCore().equals(fix1) || phobia.getCap1().equals(fix1) || phobia.getCap2().equals(fix1) ||
+                        combined.getCore().equals(fix1) || combined.getCap1().equals(fix1) || combined.getCap2().equals(fix1)) {
                     worldController.setFailure(true);
                 }
             }
