@@ -335,6 +335,10 @@ public class MovementController implements ContactListener {
             // Check for propel
             endHoldHands();
             avatar.dashOrPropel(true, x, y);
+            CharacterModel oppositeChar = avatar == somni? phobia: somni;
+            if (!oppositeChar.isGrounded()) {
+                oppositeChar.setCanDash(false);
+            }
 
         } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
             avatar.dashOrPropel(true, x, y);
