@@ -340,7 +340,7 @@ public class InputController {
 		jumpPressed  			= Gdx.input.isKeyPressed(jumpKey);
 		dashPressed 			= Gdx.input.isKeyPressed(dashKey) || Gdx.input.isKeyPressed(dashKey2);
 		handHoldingPressed 		= Gdx.input.isKeyPressed(handHoldingKey) || Gdx.input.isKeyPressed(handHoldingKey2);
-		fullscreenPressed       = Gdx.input.isButtonPressed(fullscreenKey);
+		fullscreenPressed       = Gdx.input.isKeyPressed(fullscreenKey);
 		switchPressed 			= Gdx.input.isKeyPressed(switchKey) || Gdx.input.isKeyPressed(switchKey2);
 		exitPressed   			= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);

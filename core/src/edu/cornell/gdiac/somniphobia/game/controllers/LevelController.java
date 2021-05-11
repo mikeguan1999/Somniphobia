@@ -1553,19 +1553,27 @@ public class LevelController extends WorldController {
 			movementController.setJustPropelled(false);
 		}
 		//fullscreen
-		if(InputController.getInstance().didFullscreen()) {
-			System.out.println(InputController.getInstance().didFullscreen());
-		}
-		if(InputController.getInstance().didHoldHands() && !isfullscreen){
+		if(InputController.getInstance().didFullscreen() && !isfullscreen){
+			System.out.println("Before fullscreen:");
 			System.out.println(Gdx.graphics.getHeight());
 			System.out.println(Gdx.graphics.getWidth());
+			System.out.println(somni.getPosition());
 			Gdx.graphics.setFullscreenMode((Gdx.graphics.getDisplayMode()));
+			System.out.println("After fullscreen:");
+			System.out.println(Gdx.graphics.getHeight());
+			System.out.println(Gdx.graphics.getWidth());
+			System.out.println(somni.getPosition());
+			int h = Gdx.graphics.getHeight();
+			int w = Gdx.graphics.getWidth();
+			canvas.setSize(w,h);
+			//canvas.setFullscreen(true,true);
 			isfullscreen = true;
 		}
-		else if(InputController.getInstance().didHoldHands() && isfullscreen){
+		else if(InputController.getInstance().didFullscreen() && isfullscreen){
 			System.out.println(Gdx.graphics.getHeight());
 			System.out.println(Gdx.graphics.getWidth());
 			Gdx.graphics.setWindowedMode(appWidth,appHeight);
+			//canvas.setFullscreen(false,true);
 			isfullscreen = false;
 		}
 
@@ -1599,11 +1607,23 @@ public class LevelController extends WorldController {
 		float newY = avatar.getY() * canvas.PPM;
 
 		newX = Math.min(newX, widthUpperBound);
-		newX = Math.max(canvas.getWidth() / 2, newX);
+		float ratio = 1024;
+		if (isfullscreen) {
+			ratio = 1024/ canvas.getWidth();
+			newX = Math.max(canvas.getWidth() * ratio, newX);
+		}else {
+			newX = Math.max(canvas.getWidth() / 2, newX);
+		}
 		float displacementX = newX - camera.position.x;
+		System.out.println(newX);
+		System.out.println(String.format("panMovement: %s", panMovement.x));
+		System.out.println(String.format("displacementX: %s", displacementX));
 		float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ?
 				displacementX + panMovement.x : displacementX;
 		camera.position.x += lerpDisplacementX * LERP * dt;
+		//System.out.println(Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM);
+		//System.out.println(lerpDisplacementX * LERP * dt);
+
 
 		newY = Math.min(newY, heightUpperBound);
 		newY = Math.max(canvas.getHeight() / 2, newY);
@@ -1611,7 +1631,7 @@ public class LevelController extends WorldController {
 		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ?
 				displacementY + panMovement.y : displacementY;
 		camera.position.y += lerpDisplacementY * LERP * dt;
-
+		System.out.println(PAN_DISTANCE * canvas.PPM);
 		camera.update();
 
 	}
