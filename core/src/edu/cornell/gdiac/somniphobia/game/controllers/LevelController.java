@@ -513,7 +513,13 @@ public class LevelController extends WorldController {
 	 * Resets the position of the pauseMenu relative to the camera's position
 	 */
 	public void setPositionPauseMenu(){
-		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
+		if (isfullscreen) {
+			float ratio = 1024/ canvas.getWidth();
+			pauseMenu.setPosition(camera.position.x- canvas.getWidth()*ratio/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
+		}else {
+			pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
+		}
+
 	}
 
 	public void createFailWindow(float cameraX, float cameraY) {
@@ -1626,7 +1632,12 @@ public class LevelController extends WorldController {
 
 
 		newY = Math.min(newY, heightUpperBound);
-		newY = Math.max(canvas.getHeight() / 2, newY);
+		if (isfullscreen) {
+			ratio = 1024/ canvas.getHeight();
+			newY = Math.max(canvas.getHeight() * ratio, newY);
+		}else {
+			newY = Math.max(canvas.getWidth() / 2, newY);
+		}
 		float displacementY = newY - camera.position.y;
 		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ?
 				displacementY + panMovement.y : displacementY;
