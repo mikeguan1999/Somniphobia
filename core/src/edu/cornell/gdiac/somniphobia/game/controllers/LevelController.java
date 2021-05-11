@@ -910,18 +910,18 @@ public class LevelController extends WorldController {
 
 		// Tutorial
 		tutorial_signs = new TextureRegion[]{
-				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))
+				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),      //0
+				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),     //1
+				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),     //2
+				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),   //3
+				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),     //4
+				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),      //5
+				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),      //6
+				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),    //7
+				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),      //8
+				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),   //9
+				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)), //10
+				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))     //11
 		};
 
 		// Base models
