@@ -24,6 +24,8 @@ public class PlatformController {
     private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
     private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
+    public static final float rainingCooldown = 100;
+
     /** Filters for objects*/
     public Filter lightplatf;
     public Filter darkplatf;
@@ -35,8 +37,16 @@ public class PlatformController {
 
 
 
+    /** shared objects */
+    protected PooledList<Obstacle> sharedObjects  = new PooledList<Obstacle>();
+    /** shared objects */
+    protected PooledList<Obstacle> lightObjects  = new PooledList<Obstacle>();
+    /** shared objects */
+    protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
     /** moving objects */
     protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
+    /** platforms that are raining out of the world **/
+    protected PooledList<Obstacle> currRainingPlatforms = new PooledList<>();
 
     /** Vector2 cache */
     private Vector2 vector;
@@ -83,6 +93,44 @@ public class PlatformController {
         }
     }
 
+    /**
+     * Sets the light objects
+     * @param lightObjects
+     */
+    public void setLightObjects(PooledList<Obstacle> lightObjects) {
+        this.lightObjects = lightObjects;
+    }
+
+    /**
+     * Sets the dark objects
+     * @param darkObjects
+     */
+    public void setDarkObjects(PooledList<Obstacle> darkObjects) {
+        this.lightObjects = darkObjects;
+    }
+
+    /**
+     * Sets the shared objects
+     * @param sharedObjects
+     */
+    public void setSharedObjects(PooledList<Obstacle> sharedObjects) {
+        this.sharedObjects = sharedObjects;
+    }
+
+
+    /**
+     * Sets the currently raining platforms objects
+     * @param currRainingPlatforms
+     */
+    public void setCurrRainingPlatforms(PooledList<Obstacle> currRainingPlatforms) {
+        this.currRainingPlatforms = currRainingPlatforms;
+    }
+
+
+    /**
+     * Sets the moving objects
+     * @param movingObjects
+     */
     public void setMovingObjects(PooledList<Obstacle> movingObjects) {
         this.movingObjects = movingObjects;
     }
@@ -98,11 +146,10 @@ public class PlatformController {
             PooledList<Vector2> paths = platform.getPaths();
             Vector2 nextDestination = paths.getHead();
 
-//            System.out.println(paths);
-
             //if overshot (destination - position opposite sign as velocity), switch destination
-            if (!obstacle.getLinearVelocity().isZero() && (Math.signum(nextDestination.x - position.x) != Math.signum(platform.getLinearVelocity().x) ||
-            Math.signum(nextDestination.y - position.y) != Math.signum(platform.getLinearVelocity().y))) {
+            if (!obstacle.getLinearVelocity().isZero() && (Math.signum(nextDestination.x - position.x)
+                    != Math.signum(platform.getLinearVelocity().x) ||
+                    Math.signum(nextDestination.y - position.y) != Math.signum(platform.getLinearVelocity().y))) {
                 position.set(nextDestination);
                 platform.setVY(0);
                 platform.setVX(0);
@@ -120,6 +167,18 @@ public class PlatformController {
             if (nextPath.isZero()) platform.setVelocity(0);
             platform.setLinearVelocity(nextPath.scl(platform.getVelocity()));
 
+        }
+
+        for (Obstacle obstacle: currRainingPlatforms) {
+            PlatformModel platform = (PlatformModel) obstacle;
+            if (platform.getRainingCooldown() <= 0) {
+                lightObjects.remove(platform);
+                darkObjects.remove(platform);
+                sharedObjects.remove(platform);
+                platform.markRemoved(true);
+            } else {
+                platform.setRainingCooldown(platform.getRainingCooldown() - 1);
+            }
         }
     }
 
