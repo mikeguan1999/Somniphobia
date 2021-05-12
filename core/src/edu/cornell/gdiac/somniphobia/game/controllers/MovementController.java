@@ -496,14 +496,7 @@ public class MovementController implements ContactListener {
         combined.setMovement(0f);
         combined.setVX(0f);
         combined.setVY(0f);
-
-//        if (somni.getGround() != null) {
-//            ((PlatformModel) somni.getGround()).setTouching(null);
-//        }
-//        if (phobia.getGround() != null) {
-//            ((PlatformModel) phobia.getGround()).setTouching(null);
-//        }
-//        ((PlatformModel) somni.getGround()).setTouching(null);
+        
 
 
         somni.setActive(false);
@@ -582,11 +575,6 @@ public class MovementController implements ContactListener {
                     if (((PlatformModel) bd1).getTouching() == phobia) {
                         beginRainAnimation((PlatformModel) bd1);
 
-//                        sharedObjects.remove(bd1);
-//                        lightObjects.remove(bd1);
-//                        darkObjects.remove(bd1);
-//
-//                        bd1.markRemoved(true);
                     } else {
                         ((PlatformModel) bd1).setTouching(somni);
                     }
@@ -594,14 +582,6 @@ public class MovementController implements ContactListener {
                     if (((PlatformModel) bd2).getTouching() == phobia) {
 
                         beginRainAnimation((PlatformModel) bd2);
-
-//                        sharedObjects.remove(bd2);
-//                        lightObjects.remove(bd2);
-//                        darkObjects.remove(bd2);
-//
-//
-//
-//                        bd2.markRemoved(true);
                     } else {
                         ((PlatformModel) bd2).setTouching(somni);
                     }
@@ -616,14 +596,7 @@ public class MovementController implements ContactListener {
                 phobia.setGround(phobia == bd1 ? bd2: bd1);
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling)  {
                     if (((PlatformModel) bd1).getTouching() == somni) {
-
-
                         beginRainAnimation((PlatformModel) bd1);
-//                        sharedObjects.remove(bd1);
-//                        lightObjects.remove(bd1);
-//                        darkObjects.remove(bd1);
-//
-//                        bd1.markRemoved(true);
                     } else {
                         ((PlatformModel) bd1).setTouching(phobia);
                     }
@@ -631,11 +604,6 @@ public class MovementController implements ContactListener {
                     if (((PlatformModel) bd2).getTouching() == somni) {
 
                         beginRainAnimation((PlatformModel) bd2);
-//                        sharedObjects.remove(bd2);
-//                        lightObjects.remove(bd2);
-//                        darkObjects.remove(bd2);
-//
-//                        bd2.markRemoved(true);
                     } else {
                         ((PlatformModel) bd2).setTouching(phobia);
                     }
@@ -652,18 +620,8 @@ public class MovementController implements ContactListener {
                 combined.setGround(combined == bd1 ? bd2: bd1);
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling) {
                     beginRainAnimation((PlatformModel) bd1);
-//                    sharedObjects.remove(bd1);
-//                    lightObjects.remove(bd1);
-//                    darkObjects.remove(bd1);
-//
-//                    bd1.markRemoved(true);
                 } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
                     beginRainAnimation((PlatformModel) bd2);
-//                    sharedObjects.remove(bd2);
-//                    lightObjects.remove(bd2);
-//                    darkObjects.remove(bd2);
-//
-//                    bd2.markRemoved(true);
                 }
             }
 
