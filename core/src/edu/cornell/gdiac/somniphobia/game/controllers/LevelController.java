@@ -244,6 +244,9 @@ public class LevelController extends WorldController {
 	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
 	/** moving objects */
 	protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
+	/** Currently raining platforms */
+	protected PooledList<Obstacle> currRainingPlatforms = new PooledList<>();
+
 
 	private boolean lightclear = false;
 	private boolean darkclear = false;
@@ -1139,12 +1142,17 @@ public class LevelController extends WorldController {
 
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects,
 				lightObjects, darkObjects, this);
+		movementController.setCurrRainingPlatforms(currRainingPlatforms);
 		world.setContactListener(movementController);
 
 		movementController.setAvatar(somni);
 		movementController.setLead(somni);
 
 		platformController.setMovingObjects(movingObjects);
+		platformController.setLightObjects(lightObjects);
+		platformController.setDarkObjects(darkObjects);
+		platformController.setSharedObjects(sharedObjects);
+		platformController.setCurrRainingPlatforms(currRainingPlatforms);
 
 		maskLeader = phobia;
 		switching = false;
@@ -1339,7 +1347,7 @@ public class LevelController extends WorldController {
 		Preferences prefs = GDXRoot.getPreferences();
 		volume = prefs.contains("volume") ? prefs.getFloat("volume") : defaults.getFloat("volume",
 				1.0f);
-		System.out.println(volume);
+//		System.out.println(volume);
 
 		platformController.applyFilters(objects);
 	}
@@ -2150,6 +2158,10 @@ public class LevelController extends WorldController {
 			darkObjects.add(obj);
 			//obj.activatePhysics(world);
 		}
+	}
+
+	public void beginRaining(PlatformModel platform) {
+
 	}
 
 
