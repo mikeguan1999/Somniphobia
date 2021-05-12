@@ -88,11 +88,13 @@ public class PlatformModel extends BoxObstacle {
     private double framePixelWidth = 32;
     /** Original texture before specifying a textureRegion in LevelController */
     private Texture originalTexture;
+    /** TextureRegion for crumbling animation */
+    private TextureRegion crumbleTexture;
 
     Obstacle touching = null;
 
     public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r,
-                         Texture originalTexture){
+                         Texture originalTexture, TextureRegion crumbleTexture){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
                 bounds[2], bounds[3]);
         this.setBodyType(BodyDef.BodyType.StaticBody);
@@ -105,6 +107,7 @@ public class PlatformModel extends BoxObstacle {
         this.width = bounds[2];
         this.height = bounds[3];
         this.originalTexture = originalTexture;
+        this.crumbleTexture = crumbleTexture;
 
         this.setTexture(tr);
 
@@ -231,7 +234,6 @@ public class PlatformModel extends BoxObstacle {
 
         int actualTextureWidth = actualTexture.getWidth();
         entirePixelWidth = actualTextureWidth;
-
         if (entirePixelWidth < framePixelWidth) {
             entirePixelWidth = framePixelWidth;
         }
@@ -239,6 +241,7 @@ public class PlatformModel extends BoxObstacle {
         if (actualTexture.getHeight() > framePixelWidth*2) {
             framePixelWidth = entirePixelWidth;
         }
+
         numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
         animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
 
@@ -300,6 +303,13 @@ public class PlatformModel extends BoxObstacle {
         if (animeframe >= numAnimFrames) {
             animeframe = 0;
         }
+        // Change to crumble animation if crumbling
+        if (this.isCurrentlyRaining() && texture!=crumbleTexture) {
+            texture = crumbleTexture;
+            animator = new FilmStrip(crumbleTexture,1, numAnimFrames, numAnimFrames);
+            animeframe = 0;
+        }
+
         super.update(dt);
     }
 

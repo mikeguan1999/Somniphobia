@@ -722,6 +722,7 @@ public class MovementController implements ContactListener {
     private void beginRainAnimation(PlatformModel platform) {
         currRainingPlatforms.add(platform);
         platform.setRainingCooldown(PlatformController.rainingCooldown);
+        platform.setCurrentlyRaining(true);
     }
 
     @Override

@@ -130,6 +130,26 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:rain_crumble_all": {
+      "file": "platform/Rain_Crumble_White.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_dark": {
+      "file": "platform/Rain_Crumble_Blue.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_light": {
+      "file": "platform/Rain_Crumble_Yellow.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_purple": {
+      "file": "platform/Rain_Crumble_Purple.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "shared:rain_cloud_all_reduced": {
       "file": "platform/Rain_Idle_White_Reduced.png",
       "wrapU": "repeated",
@@ -167,6 +187,26 @@
     },
     "shared:lightning_cloud_purple_reduced": {
       "file": "platform/LightningIdle_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_all_reduced": {
+      "file": "platform/Rain_Crumble_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_dark_reduced": {
+      "file": "platform/Rain_Crumble_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_light_reduced": {
+      "file": "platform/Rain_Crumble_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_purple_reduced": {
+      "file": "platform/Rain_Crumble_Purple_Reduced.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },

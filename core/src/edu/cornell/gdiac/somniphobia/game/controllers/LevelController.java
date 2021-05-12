@@ -77,6 +77,12 @@ public class LevelController extends WorldController {
 	private TextureRegion lightningDarkTexture;
 	/** Texture asset for lightning "all" tiles*/
 	private TextureRegion lightningAllTexture;
+	/** Texture asset for crumbling light tiles*/
+	private TextureRegion crumbleLightTexture;
+	/** Texture asset for crumbliing dark tiles*/
+	private TextureRegion crumbleDarkTexture;
+	/** Texture asset for crumbling "all" tiles*/
+	private TextureRegion crumbleAllTexture;
 	/** Texture asset for reduced size raining light tiles*/
 	private TextureRegion rainLightTextureReduced;
 	/** Texture asset for reduced size raining dark tiles*/
@@ -89,6 +95,13 @@ public class LevelController extends WorldController {
 	private TextureRegion lightningDarkTextureReduced;
 	/** Texture asset for reduced size lightning "all" tiles*/
 	private TextureRegion lightningAllTextureReduced;
+	/** Texture asset for reduced crumbling light tiles*/
+	private TextureRegion crumbleLightTextureReduced;
+	/** Texture asset for reduced crumbliing dark tiles*/
+	private TextureRegion crumbleDarkTextureReduced;
+	/** Texture asset for reduced crumbling "all" tiles*/
+	private TextureRegion crumbleAllTextureReduced;
+
 	/** Texture asset for Somni*/
 	private TextureRegion somniTexture;
 	/** Texture asset for Somni's Idle animation*/
@@ -922,6 +935,9 @@ public class LevelController extends WorldController {
 		lightningLightTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light", Texture.class ));
 		lightningDarkTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark", Texture.class ));
 		lightningAllTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all", Texture.class ));
+		crumbleLightTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_light", Texture.class ));
+		crumbleDarkTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_dark", Texture.class ));
+		crumbleAllTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_all", Texture.class ));
 
 		rainLightTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_light_reduced", Texture.class ));
 		rainDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_dark_reduced", Texture.class ));
@@ -929,6 +945,9 @@ public class LevelController extends WorldController {
 		lightningLightTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light_reduced", Texture.class ));
 		lightningDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark_reduced", Texture.class ));
 		lightningAllTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all_reduced", Texture.class ));
+		crumbleLightTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_light_reduced", Texture.class ));
+		crumbleDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_dark_reduced", Texture.class ));
+		crumbleAllTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_all_reduced", Texture.class ));
 
 		// Tutorial
 		tutorial_signs = new TextureRegion[]{
@@ -1238,11 +1257,14 @@ public class LevelController extends WorldController {
 		//group platform constants together for access in following for-loop
 		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture,
 			lightningLightTexture, lightningDarkTexture, lightningAllTexture,
-			rainLightTexture, rainDarkTexture, rainAllTexture};
+			rainLightTexture, rainDarkTexture, rainAllTexture,
+				crumbleLightTexture, crumbleDarkTexture, crumbleAllTexture};
 
 		TextureRegion[] reducedXTexture = {lightTexture, darkTexture, allTexture,
 				lightningLightTextureReduced, lightningDarkTextureReduced, lightningAllTextureReduced,
-				rainLightTextureReduced, rainDarkTextureReduced, rainAllTextureReduced};
+				rainLightTextureReduced, rainDarkTextureReduced, rainAllTextureReduced,
+				crumbleLightTextureReduced, crumbleDarkTextureReduced, crumbleAllTextureReduced};
+
 
 		// Setup platforms
 		for(int i=0; i < objs.size; i++)
@@ -1259,6 +1281,7 @@ public class LevelController extends WorldController {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
 				TextureRegion newXTexture;
+				TextureRegion crumbleTexture = null;
 				Texture originalTexture = null;
 				try {
 					// temporary - need to refactor asset directory
@@ -1266,17 +1289,29 @@ public class LevelController extends WorldController {
 					int assetIndex = assetName.asInt();
 					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
-					newXTexture = new TextureRegion(xTexture[platformType-1+(property - 1)*3]);
+					int platIdx = platformType-1+(property - 1)*3;
+					int crumbleIdx = platIdx + 3;
+					newXTexture = new TextureRegion(xTexture[platIdx]);
 					originalTexture = newXTexture.getTexture();
+					// For crumble animation
+					if (platIdx > 5) {
+						crumbleTexture = new TextureRegion(xTexture[crumbleIdx]);
+						crumbleTexture.setRegion(0, 0, width, height);
+					}
+					// If the platform size is the same as the spritesheet size
 					if (originalTexture.getWidth() > 32 && width%(originalTexture.getWidth()/32) == 0) {
-						newXTexture = new TextureRegion(reducedXTexture[platformType-1+(property - 1)*3]);
+						newXTexture = new TextureRegion(reducedXTexture[platIdx]);
 						originalTexture = newXTexture.getTexture();
+						if (platIdx > 5) {
+							crumbleTexture = new TextureRegion(reducedXTexture[crumbleIdx]);
+							crumbleTexture.setRegion(0, 0, width, height);
+						}
 					}
 					newXTexture.setRegion(0, 0, width, height);
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
-						defaults.getFloat( "restitution", 0.0f ), originalTexture);
+						defaults.getFloat( "restitution", 0.0f ), originalTexture, crumbleTexture);
 				platformModel.setTag(platformType);
 				platformModel.setProperty(property);
 				addObject(platformModel);
