@@ -346,6 +346,7 @@ public class MovementController implements ContactListener {
         } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
             avatar.dashOrPropel(true, x, y);
             CharacterModel oppositeCharacter = avatar == somni? phobia: somni;
+            oppositeCharacter.setFacingRight(avatar.isFacingRight());
             if (oppositeCharacter.isGrounded()) {
                 avatar.setCanDash(true);
             }
@@ -459,19 +460,21 @@ public class MovementController implements ContactListener {
         float avatarVX = avatar.getVX();
         float avatarVY = avatar.getVY();
 
+        int directionMultiplier = combined.isFacingRight()? 1: -1;
+
         avatar = lead;
-        avatar.setPosition(avatarX, avatarY);
+        avatar.setPosition(avatarX + avatar.getWidth()*0.4f * directionMultiplier, avatarY);
         avatar.setVX(avatarVX);
         avatar.setVY(avatarVY);
         float dampeningFactor = -0.25f;
         if(lead == phobia){
 //            phobia.setCanDash(true);
-            somni.setPosition(avatarX, avatarY);
+            somni.setPosition(avatarX + somni.getWidth()*0.65f* -directionMultiplier, avatarY);
             somni.setVX(avatarVX * dampeningFactor);
             somni.setVY(0);
         }else {
 //            somni.setCanDash(true);
-            phobia.setPosition(avatarX, avatarY);
+            phobia.setPosition(avatarX + phobia.getWidth()*0.65f * -directionMultiplier, avatarY);
             phobia.setVX(avatarVX * dampeningFactor);
             phobia.setVY(0);
         }
@@ -486,6 +489,7 @@ public class MovementController implements ContactListener {
      */
     private void beginHoldHands() {
         CharacterModel follower = somni == avatar ? phobia : somni;
+        int directionMultiplier = avatar.isFacingRight()? 1: -1;
 
         if (follower.isGrounded()) {
             avatar.setCanDash(true);
@@ -496,8 +500,6 @@ public class MovementController implements ContactListener {
         combined.setMovement(0f);
         combined.setVX(0f);
         combined.setVY(0f);
-        
-
 
         somni.setActive(false);
         phobia.setActive(false);
@@ -515,8 +517,9 @@ public class MovementController implements ContactListener {
         float avatarX = follower.getX();
         float avatarY = follower.getY();
 
+        combined.setFacingRight(avatar.isFacingRight());
         avatar = combined;
-        avatar.setPosition(avatarX, avatarY);
+        avatar.setPosition(avatarX + combined.getWidth() * .55f * directionMultiplier, avatarY);
 
 
         holdingHands = true;
