@@ -51,7 +51,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private int current;
 
 	/** Level selection screen variables */
-	static public int totalNumLevels = 29;
+	static public int totalNumLevels = 36;
 	private MenuScrollable menu;
 
 	private OrthographicCamera cam;

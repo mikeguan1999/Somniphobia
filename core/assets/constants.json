@@ -1,6 +1,6 @@
 {
   "defaults": {
-    "gravity": -25,
+    "gravity": -30,
     "friction": 0.0,
     "density": 0.0,
     "restitution": 0.1,
@@ -19,7 +19,7 @@
     "damping": 10.0,
     "force": 20.0,
     "dash_damping": 5.0,
-    "jump_force": 8.6,
+    "jump_force": 9.5,
     "jump_cool": 30,
     "sensor": {
       "shrink": 0.6,
@@ -34,7 +34,7 @@
     "damping": 10.0,
     "force": 20.0,
     "dash_damping": 5.0,
-    "jump_force": 8.6,
+    "jump_force": 9.5,
     "jump_cool": 30,
     "sensor": {
       "shrink": 0.6,
@@ -49,7 +49,7 @@
     "damping": 10.0,
     "force": 20.0,
     "dash_damping": 5.0,
-    "jump_force": 8.6,
+    "jump_force": 9.5,
     "jump_cool": 30,
     "sensor": {
       "shrink": 0.6,

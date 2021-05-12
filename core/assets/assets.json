@@ -314,7 +314,14 @@
         "level26": "levels/statues_symmetry_puzzle.json",
         "level27": "levels/gear_betademo.json",
         "level28": "levels/gear_juggle.json",
-        "level29": "levels/statues_somnibros.json"
+        "level29": "levels/statues_somnibros.json",
+        "level30": "levels/jenna0.json",
+        "level31": "levels/jenna1.json",
+        "level32": "levels/jenna2.json",
+        "level33": "levels/jenna3.json",
+        "level34": "levels/jenna4.json",
+        "level35": "levels/houses.json",
+        "level36": "levels/mushroom.json"
     },
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",

@@ -42,7 +42,7 @@ public class PlatformModel extends BoxObstacle {
 
 
     /** Whether the platform is currently raining **/
-    private boolean currentlyRaining;
+    private boolean isCurrentlyRaining;
 
     /** Density position*/
     private float density;
@@ -56,6 +56,8 @@ public class PlatformModel extends BoxObstacle {
 
     /** velocity for moving platform **/
     private float velocity;
+
+    private float rainingCooldown;
 
     /** Path for a moving obstacle **/
     private PooledList<Vector2> paths;
@@ -108,7 +110,7 @@ public class PlatformModel extends BoxObstacle {
 
         this.setTag(t);
         this.property = 0;
-        this.currentlyRaining = false;
+        this.isCurrentlyRaining = false;
 
 //        texture.setRegion(0, 0, width, height);
     }
@@ -124,8 +126,33 @@ public class PlatformModel extends BoxObstacle {
     /**
      * Begins the rain animation for a raining platform
      */
-    public void beginRainAnimation() {
-        currentlyRaining = true;
+    public void setCurrentlyRaining(boolean currentlyRaining) {
+        isCurrentlyRaining = currentlyRaining;
+    }
+
+
+    /**
+     * Is the platform currently raining
+     * @return whether platform is currently raining
+     */
+    public boolean isCurrentlyRaining() {
+        return isCurrentlyRaining;
+    }
+
+    /**
+     * Sets the raining cooldown of this platform
+     * @param rainingCooldown the raining cooldown
+     */
+    public void setRainingCooldown(float rainingCooldown) {
+        this.rainingCooldown = rainingCooldown;
+    }
+
+    /**
+     * Gets the raining cooldown of this platform
+     * @return the raining cooldown
+     */
+    public float getRainingCooldown() {
+        return this.rainingCooldown;
     }
 
     /**
