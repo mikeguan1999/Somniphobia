@@ -14,6 +14,7 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelController;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
@@ -23,7 +24,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import org.lwjgl.Sys;
 
 import java.util.HashMap;
-
+import com.badlogic.gdx.scenes.scene2d.Stage;
 /**
  * Root class for a LibGDX.  
  * 
@@ -68,6 +69,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private int [] worldToNumLevels = {10, 10, 10, 10, 10};
 	private boolean [] levelsCompleted;
 	private int currentIndexController;
+	private Stage pauseMenuStage;
+	private Stage pauseButtonStage;
 
 
 	/**
@@ -123,14 +126,16 @@ public class GDXRoot extends Game implements ScreenListener {
 		}
 
 		menu = new MenuScrollable(canvas, totalNumLevels, 0, levelsCompleted);
-
 		mainMenu = new MainMenu(canvas);
 
 		// Initialize the Platformer Controller
 		// TODO
+		OrthographicCamera camera = canvas.getCamera();
+		pauseButtonStage = new Stage(new ScreenViewport(camera));
+		pauseMenuStage = new Stage(new ScreenViewport(camera));
 
 		controllers = new WorldController[2];
-		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController();
+		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController(canvas);
 		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
 
 		levelCreator = new LevelCreator();
@@ -286,7 +291,6 @@ public class GDXRoot extends Game implements ScreenListener {
 				controllers[current].reset();
 			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
-
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(controllers[current], -1, true);
 				controllers[current].reset();
