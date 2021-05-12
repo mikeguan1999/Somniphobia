@@ -130,6 +130,46 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:rain_cloud_all_reduced": {
+      "file": "platform/Rain_Idle_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_dark_reduced": {
+      "file": "platform/Rain_Idle_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_light_reduced": {
+      "file": "platform/Rain_Idle_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_purple_reduced": {
+      "file": "platform/Rain_Idle_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_all_reduced": {
+      "file": "platform/LightningIdle_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_dark_reduced": {
+      "file": "platform/LightningIdle_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_light_reduced": {
+      "file": "platform/LightningIdle_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_purple_reduced": {
+      "file": "platform/LightningIdle_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
     "shared:goalOLD": "platform/DoorOLD.png",

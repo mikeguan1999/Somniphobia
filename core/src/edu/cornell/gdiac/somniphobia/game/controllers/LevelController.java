@@ -77,6 +77,18 @@ public class LevelController extends WorldController {
 	private TextureRegion lightningDarkTexture;
 	/** Texture asset for lightning "all" tiles*/
 	private TextureRegion lightningAllTexture;
+	/** Texture asset for reduced size raining light tiles*/
+	private TextureRegion rainLightTextureReduced;
+	/** Texture asset for reduced size raining dark tiles*/
+	private TextureRegion rainDarkTextureReduced;
+	/** Texture asset for reduced size raining "all" tiles*/
+	private TextureRegion rainAllTextureReduced;
+	/** Texture asset for reduced size lightning light tiles*/
+	private TextureRegion lightningLightTextureReduced;
+	/** Texture asset for reduced size lightning dark tiles*/
+	private TextureRegion lightningDarkTextureReduced;
+	/** Texture asset for reduced size lightning "all" tiles*/
+	private TextureRegion lightningAllTextureReduced;
 	/** Texture asset for Somni*/
 	private TextureRegion somniTexture;
 	/** Texture asset for Somni's Idle animation*/
@@ -908,6 +920,13 @@ public class LevelController extends WorldController {
 		lightningDarkTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark", Texture.class ));
 		lightningAllTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all", Texture.class ));
 
+		rainLightTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_light_reduced", Texture.class ));
+		rainDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_dark_reduced", Texture.class ));
+		rainAllTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_all_reduced", Texture.class ));
+		lightningLightTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light_reduced", Texture.class ));
+		lightningDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark_reduced", Texture.class ));
+		lightningAllTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all_reduced", Texture.class ));
+
 		// Tutorial
 		tutorial_signs = new TextureRegion[]{
 				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),
@@ -1213,6 +1232,10 @@ public class LevelController extends WorldController {
 			lightningLightTexture, lightningDarkTexture, lightningAllTexture,
 			rainLightTexture, rainDarkTexture, rainAllTexture};
 
+		TextureRegion[] reducedXTexture = {lightTexture, darkTexture, allTexture,
+				lightningLightTextureReduced, lightningDarkTextureReduced, lightningAllTextureReduced,
+				rainLightTextureReduced, rainDarkTextureReduced, rainAllTextureReduced};
+
 		// Setup platforms
 		for(int i=0; i < objs.size; i++)
 		{
@@ -1228,6 +1251,7 @@ public class LevelController extends WorldController {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
 				TextureRegion newXTexture;
+				Texture originalTexture = null;
 				try {
 					// temporary - need to refactor asset directory
 					JsonValue assetName = obj.get("assetName");
@@ -1235,16 +1259,16 @@ public class LevelController extends WorldController {
 					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
 					newXTexture = new TextureRegion(xTexture[platformType-1+(property - 1)*3]);
-//					Texture actualTexture = newXTexture.getTexture();
+					originalTexture = newXTexture.getTexture();
+					if (originalTexture.getWidth() > 32 && width%(originalTexture.getWidth()/32) == 0) {
+						newXTexture = new TextureRegion(reducedXTexture[platformType-1+(property - 1)*3]);
+						originalTexture = newXTexture.getTexture();
+					}
 					newXTexture.setRegion(0, 0, width, height);
-//					int entirePixelWidth = actualTexture.getWidth();
-//					if (entirePixelWidth > 32 && entirePixelWidth == 32*width){
-//						newXTexture.setRegion(0, 0, width+1, height);;
-//					}
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
-						defaults.getFloat( "restitution", 0.0f ));
+						defaults.getFloat( "restitution", 0.0f ), originalTexture);
 				platformModel.setTag(platformType);
 				platformModel.setProperty(property);
 				addObject(platformModel);

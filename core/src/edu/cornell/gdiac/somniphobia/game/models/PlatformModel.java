@@ -84,10 +84,13 @@ public class PlatformModel extends BoxObstacle {
     private double entirePixelWidth;
     /** Pixel width of the current frame in the texture */
     private double framePixelWidth = 32;
+    /** Original texture before specifying a textureRegion in LevelController */
+    private Texture originalTexture;
 
     Obstacle touching = null;
 
-    public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r){
+    public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r,
+                         Texture originalTexture){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
                 bounds[2], bounds[3]);
         this.setBodyType(BodyDef.BodyType.StaticBody);
@@ -99,6 +102,7 @@ public class PlatformModel extends BoxObstacle {
         this.topY = bounds[1];
         this.width = bounds[2];
         this.height = bounds[3];
+        this.originalTexture = originalTexture;
 
         this.setTexture(tr);
 
@@ -106,6 +110,7 @@ public class PlatformModel extends BoxObstacle {
         this.property = 0;
         this.currentlyRaining = false;
 
+//        texture.setRegion(0, 0, width, height);
     }
 
     public float getLeftX() {
@@ -196,16 +201,20 @@ public class PlatformModel extends BoxObstacle {
     public void setTexture(TextureRegion textureRegion) {
         texture = textureRegion;
         actualTexture = textureRegion.getTexture();
-        entirePixelWidth = actualTexture.getWidth();
+
+        int actualTextureWidth = actualTexture.getWidth();
+        entirePixelWidth = actualTextureWidth;
+
         if (entirePixelWidth < framePixelWidth) {
             entirePixelWidth = framePixelWidth;
         }
-        // For something that is not a platform, make it only 1 animation frame
+//         For something that is not a platform, make it only 1 animation frame
         if (actualTexture.getHeight() > framePixelWidth*2) {
             framePixelWidth = entirePixelWidth;
         }
         numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
         animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
+
         if(animeframe > numAnimFrames) {
             animeframe -= numAnimFrames;
         }
@@ -227,7 +236,9 @@ public class PlatformModel extends BoxObstacle {
             FilmStrip tempAnimator = animator;
             tempAnimator.setFrame((int)animeframe);
 //            texture.setRegion(0, 0, 32, 32);
-//            tempAnimator.setRegion(leftX, topY, width, height);
+//            Texture tempAnimatorTexture =  tempAnimator.getTexture();
+//            TextureRegion tempAnimator2 = new TextureRegion(tempAnimatorTexture);
+//            tempAnimator2.setRegion(0,0, width, height);
             canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
@@ -248,7 +259,9 @@ public class PlatformModel extends BoxObstacle {
             FilmStrip tempAnimator = animator;
             tempAnimator.setFrame((int)animeframe);
 //            texture.setRegion(0, 0, 32, 32);
-//            tempAnimator.setRegion(0,0, width, height);
+//            Texture tempAnimatorTexture =  tempAnimator.getTexture();
+//            TextureRegion tempAnimator2 = new TextureRegion(tempAnimatorTexture);
+//            tempAnimator2.setRegion(0,0, width, height);
             canvas.draw(tempAnimator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }

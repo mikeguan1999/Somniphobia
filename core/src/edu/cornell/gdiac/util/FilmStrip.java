@@ -178,7 +178,7 @@ public class FilmStrip extends TextureRegion {
 	 * @param height	The height of the entire film strip
 	 */
 	public FilmStrip(TextureRegion texture, int rows, int cols, int size,
-					 int x, int y, int width, int height) {
+					 double x, double y, int width, int height) {
 		super(texture);
 		if (size > rows*cols) {
 			Gdx.app.error("FilmStrip", "Invalid strip size", new IllegalArgumentException());
