@@ -110,7 +110,6 @@ public class WorldSelect implements Screen {
 		worldsClicked = new boolean[numWorlds];
 		worlds = new Button[numWorlds];
 		for(i=0; i<worlds.length; i++){
-			System.out.println(i+1);
 			worlds[i] = new Button(new TextureRegionDrawable(internal.getEntry("world"+(i+1), Texture.class)));
 			worlds[i].addListener(new ClickListener() {
 				int saved_i = i;
@@ -128,13 +127,19 @@ public class WorldSelect implements Screen {
 //		world5 = new Button(world4Drawable);
 		arrow = new Button(blueArrowDrawable);
 
-		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2);
+		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2).left().top();
 		table.row();
 		table.add(titleImage).size(titleImage.getWidth()/2, titleImage.getHeight()/2).colspan(4);
 		table.row();
 		for(i=0; i<worlds.length; i++){
-			if (i==0 || i==3){
+			if (i==0){
 				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padLeft(50);
+			}
+			else if (i==4){
+				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padBottom(100);
+			}
+			else if (i==3){
+				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padLeft(50).padBottom(100);
 			}
 			else {
 				table.add(worlds[i]).size(worlds[i].getWidth() / 2, worlds[i].getHeight() / 2).space(50);
@@ -144,15 +149,20 @@ public class WorldSelect implements Screen {
 			}
 		}
 
+//		second row bottom offset
 		arrow.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				prevClicked = true;
 			}
 		});
 
-
 		stage.addActor(table);
 		table.validate();
+		arrow.setPosition(arrow.getX()-40, arrow.getY()-20);
+		worlds[3].setPosition(worlds[3].getX()+150, worlds[3].getY());
+		worlds[4].setPosition(worlds[4].getX()+150, worlds[4].getY());
+
+
 		this.canvas = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
