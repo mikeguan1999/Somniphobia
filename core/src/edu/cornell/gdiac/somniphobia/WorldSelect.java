@@ -73,6 +73,8 @@ public class WorldSelect implements Screen {
 	private final int numWorlds = 5;
 	private int i;
 	private boolean[] worldsClicked;
+	private TextureRegionDrawable upImage;
+	private TextureRegionDrawable [] overImages = new TextureRegionDrawable[numWorlds];
 
 
 	private TextureRegionDrawable titleDrawable;
@@ -110,7 +112,11 @@ public class WorldSelect implements Screen {
 		worldsClicked = new boolean[numWorlds];
 		worlds = new Button[numWorlds];
 		for(i=0; i<worlds.length; i++){
-			worlds[i] = new Button(new TextureRegionDrawable(internal.getEntry("world"+(i+1), Texture.class)));
+//			worlds[i] = new Button(new TextureRegionDrawable(internal.getEntry("world"+(i+1), Texture.class)));
+			upImage = new TextureRegionDrawable(internal.getEntry("button", Texture.class));
+			overImages[i] = new TextureRegionDrawable(internal.getEntry("phobia"+(i+1), Texture.class));
+			worlds[i] = new Button(upImage);
+			worlds[i].getStyle().over = overImages[i];
 			worlds[i].addListener(new ClickListener() {
 				int saved_i = i;
 				public void clicked(InputEvent event, float x, float y) {
@@ -158,7 +164,7 @@ public class WorldSelect implements Screen {
 
 		stage.addActor(table);
 		table.validate();
-		arrow.setPosition(arrow.getX()-40, arrow.getY()-20);
+		arrow.setPosition(arrow.getX()-30, arrow.getY()-30);
 		worlds[3].setPosition(worlds[3].getX()+150, worlds[3].getY());
 		worlds[4].setPosition(worlds[4].getX()+150, worlds[4].getY());
 
@@ -222,6 +228,9 @@ public class WorldSelect implements Screen {
 			}
 
 			for (int i=0; i<worlds.length; i++){
+//				if (worlds[i].isOver()){
+//					worlds[i].getStyle().up =
+//				}
 				if (worldsClicked[i]==true){
 					listener.exitScreen(this, i);
 				}

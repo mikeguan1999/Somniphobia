@@ -318,6 +318,7 @@ public class LevelController extends WorldController {
 
 	/** whether pauseMenu is rendered for the first time*/
 	private Boolean firstTimeRendered=true;
+	private Boolean firstTimePause=true;
 	/** the underline on pauseMenu*/
 	private Image underline;
 	private Image underlineWinMenu;
@@ -1069,6 +1070,18 @@ public class LevelController extends WorldController {
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherLevelJson(AssetDirectory directory) {
+		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+	}
+
+	/**
+	 * Gather the level JSON for this controller.
+	 *
+	 * This method extracts the asset variables from the given asset directory. It
+	 * should only be called after the asset directory is completed.
+	 *
+	 * @param directory	Reference to global asset manager.
+	 */
+	public void gatherLevelJson(AssetDirectory directory, int world) {
 		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
 	}
 
@@ -1948,7 +1961,7 @@ public class LevelController extends WorldController {
 		}
 
 		if (pauseMenuActive()) {
-			setPositionPauseMenu();
+//			setPositionPauseMenu();
 			pauseMenuStage.draw();
 			pauseMenuStage.act(dt);
 

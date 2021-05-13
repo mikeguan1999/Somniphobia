@@ -66,7 +66,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private MenuScrollable [] menus;
 	private final int numWorlds=5;
 //	in the sequence of first row then second row of buttons in the world selector
-	private int [] worldToNumLevels = {10, 10, 10, 10, 10};
+	private int [] worldToNumLevels = {7, 7, 8, 2, 4};
 	private boolean [] levelsCompleted;
 	private int currentIndexController;
 	private Stage pauseMenuStage;
@@ -98,6 +98,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		loading = new LoadingMode("assets.json",canvas,1);
 		worldSelectMenu = new WorldSelect(canvas);
 		levelsCompleted = new boolean[totalNumLevels];
+
 
 //		menuPages = new Menu[numPages];
 //		for (int i=0; i<menuPages.length; i++){
@@ -131,8 +132,6 @@ public class GDXRoot extends Game implements ScreenListener {
 		// Initialize the Platformer Controller
 		// TODO
 		OrthographicCamera camera = canvas.getCamera();
-		pauseButtonStage = new Stage(new ScreenViewport(camera));
-		pauseMenuStage = new Stage(new ScreenViewport(camera));
 
 		controllers = new WorldController[2];
 		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController(canvas);
@@ -205,6 +204,14 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
 	 *  otherwise, prepares for level `num`. */
 	public void prepareLevelJson(WorldController wc, int num, boolean increment) {
+		LevelController pc = (LevelController) wc;
+		pc.setLevel(increment ? pc.getLevel() + num : num);
+		pc.gatherLevelJson(directory);
+	}
+
+	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
+	 *  otherwise, prepares for level `num`. */
+	public void prepareLevelJson(WorldController wc, int num, boolean increment, int world) {
 		LevelController pc = (LevelController) wc;
 		pc.setLevel(increment ? pc.getLevel() + num : num);
 		pc.gatherLevelJson(directory);
