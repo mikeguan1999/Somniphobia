@@ -10,6 +10,7 @@
  */
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
+import com.badlogic.gdx.Preferences;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -243,6 +244,9 @@ public class LevelController extends WorldController {
 	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
 	/** moving objects */
 	protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
+	/** Currently raining platforms */
+	protected PooledList<Obstacle> currRainingPlatforms = new PooledList<>();
+
 
 	private boolean lightclear = false;
 	private boolean darkclear = false;
@@ -444,7 +448,7 @@ public class LevelController extends WorldController {
 		sliderSound = new Slider(0,1,0.01f,false,sliderStyle);
 		musicIcon = new Image(blueMusicNote);
 		soundIcon = new Image(blueSound);
-		sliderMusic.setValue(0.5f);
+		sliderMusic.setValue(volume);
 
 
 		exitButton = new Button(blueExit);
@@ -488,17 +492,17 @@ public class LevelController extends WorldController {
 		sliderMusic.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				float musicVolume = sliderMusic.getValue();
 				if (movementController.isHoldingHands()){
-					SoundController.getInstance().setVolume(musicVolume, "combinedTrack");
+					SoundController.getInstance().setVolume(volume, "combinedTrack");
 				}
 				else if (movementController.getAvatar()==somni){
-					SoundController.getInstance().setVolume(musicVolume, "somniTrack");
+					SoundController.getInstance().setVolume(volume, "somniTrack");
 				}
 				else if (movementController.getAvatar()==phobia){
-					SoundController.getInstance().setVolume(musicVolume, "phobiaTrack");
+					SoundController.getInstance().setVolume(volume, "phobiaTrack");
 				}
-
+				volume = sliderMusic.getValue();
+				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
 			}
 		});
 
@@ -917,18 +921,18 @@ public class LevelController extends WorldController {
 
 		// Tutorial
 		tutorial_signs = new TextureRegion[]{
-				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))
+				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),      //0
+				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),     //1
+				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),     //2
+				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),   //3
+				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),     //4
+				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),      //5
+				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),      //6
+				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),    //7
+				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),      //8
+				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),   //9
+				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)), //10
+				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))     //11
 		};
 
 		// Base models
@@ -1070,7 +1074,14 @@ public class LevelController extends WorldController {
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherLevelJson(AssetDirectory directory) {
-		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+		if(level == 0) { // Get level editor level
+			Preferences prefs = GDXRoot.getPreferences();
+			if(prefs.contains("playLevel")) {
+				levelAssets = new JsonReader().parse(prefs.getString("playLevel"));
+			}
+		} else {
+			levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+		}
 	}
 
 	/**
@@ -1159,6 +1170,7 @@ public class LevelController extends WorldController {
 
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects,
 				lightObjects, darkObjects, this);
+		movementController.setCurrRainingPlatforms(currRainingPlatforms);
 		world.setContactListener(movementController);
 
 		movementController.setAvatar(somni);
@@ -1172,6 +1184,10 @@ public class LevelController extends WorldController {
 
 
 		platformController.setMovingObjects(movingObjects);
+		platformController.setLightObjects(lightObjects);
+		platformController.setDarkObjects(darkObjects);
+		platformController.setSharedObjects(sharedObjects);
+		platformController.setCurrRainingPlatforms(currRainingPlatforms);
 
 		maskLeader = phobia;
 		switching = false;
@@ -1179,7 +1195,8 @@ public class LevelController extends WorldController {
 		maskHeight = MIN_MASK_DIMENSIONS.y;
 		alphaAmount = 0;
 
-		SoundController.getInstance().play("somniTrack", somniTrackPath, 1f, true);
+		SoundController.getInstance().play("somniTrack", somniTrackPath, volume, true);
+		SoundController.getInstance().setVolume(volume, "somniTrack");
 		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
 		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);
 	}
@@ -1362,7 +1379,11 @@ public class LevelController extends WorldController {
 
 		action = 0;
 
-		volume = constants.getFloat("volume", 1.0f);
+		Preferences prefs = GDXRoot.getPreferences();
+		volume = prefs.contains("volume") ? prefs.getFloat("volume") : defaults.getFloat("volume",
+				1.0f);
+//		System.out.println(volume);
+
 		platformController.applyFilters(objects);
 	}
 
@@ -2174,12 +2195,16 @@ public class LevelController extends WorldController {
 		}
 	}
 
-	public void disposeStages(){
+	public void disposeStages() {
 		pauseMenuStage.dispose();
 		pauseButtonStage.dispose();
 		winMenuStage.dispose();
 		failMenuStage.dispose();
 		stage.dispose();
+	}
+
+	public void beginRaining(PlatformModel platform) {
+
 	}
 
 

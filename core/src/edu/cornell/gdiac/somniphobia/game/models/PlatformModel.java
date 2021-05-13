@@ -19,7 +19,6 @@ public class PlatformModel extends BoxObstacle {
     public final static int normal = 1;
     public final static int harming = 2;
     public final static int crumbling = 3;
-    public final static int holdOnly = 4;
 
     /** Width of the platform*/
     private float width;
@@ -36,11 +35,9 @@ public class PlatformModel extends BoxObstacle {
 
     private int type;
 
-    /** Whether the platform is spiked **/
-    private boolean spiked;
 
-    /** Whether the platform is raining **/
-    private boolean raining;
+    /** Whether the platform is currently raining **/
+    private boolean isCurrentlyRaining;
 
     /** Density position*/
     private float density;
@@ -54,6 +51,8 @@ public class PlatformModel extends BoxObstacle {
 
     /** velocity for moving platform **/
     private float velocity;
+
+    private float rainingCooldown;
 
     /** Path for a moving obstacle **/
     private PooledList<Vector2> paths;
@@ -83,6 +82,8 @@ public class PlatformModel extends BoxObstacle {
     /** Pixel width of the current frame in the texture */
     private double framePixelWidth = 32;
 
+    Obstacle touching = null;
+
     public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
                 bounds[2], bounds[3]);
@@ -95,8 +96,9 @@ public class PlatformModel extends BoxObstacle {
         this.setTexture(tr);
 
         this.setTag(t);
-        this.spiked = false;
         this.property = 0;
+        this.isCurrentlyRaining = false;
+
     }
 
     public float getLeftX() {
@@ -104,6 +106,55 @@ public class PlatformModel extends BoxObstacle {
     }
     public float getBottomY() {
         return getY() - getHeight() / 2;
+    }
+
+
+    /**
+     * Begins the rain animation for a raining platform
+     */
+    public void setCurrentlyRaining(boolean currentlyRaining) {
+        isCurrentlyRaining = currentlyRaining;
+    }
+
+
+    /**
+     * Is the platform currently raining
+     * @return whether platform is currently raining
+     */
+    public boolean isCurrentlyRaining() {
+        return isCurrentlyRaining;
+    }
+
+    /**
+     * Sets the raining cooldown of this platform
+     * @param rainingCooldown the raining cooldown
+     */
+    public void setRainingCooldown(float rainingCooldown) {
+        this.rainingCooldown = rainingCooldown;
+    }
+
+    /**
+     * Gets the raining cooldown of this platform
+     * @return the raining cooldown
+     */
+    public float getRainingCooldown() {
+        return this.rainingCooldown;
+    }
+
+    /**
+     * Sets what this platform is currently touching
+     * @param o the obstacle the platform is touching
+     */
+    public void setTouching(Obstacle o) {
+        this.touching = o;
+    }
+
+    /**
+     * Returns an obstacle that is it is in contact with, otherwise returning null
+     * @return the obstacle or null of no obstacle in contact
+     */
+    public Obstacle getTouching() {
+        return touching;
     }
 
 

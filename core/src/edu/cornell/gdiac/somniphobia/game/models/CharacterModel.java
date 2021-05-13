@@ -371,9 +371,9 @@ public class CharacterModel extends CapsuleObstacle {
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
 		}
-		dashStartPos.set(getPosition());
-		isDashing = canDash;
-		if (isDashing || isPropel) {
+//		dashStartPos.set(getPosition());
+		isDashing = canDash || isPropel;
+		if (isDashing) {
 			if (!isPropel) {
 				canDash = false;
 			}
@@ -472,8 +472,21 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 
+	/**
+	 * Sets the obstacle that the character is standing on
+	 * @param ground the obstacle that the character is standing on
+	 */
 	public void setGround(Obstacle ground) {
 		this.ground = ground;
+	}
+
+
+	/**
+	 * Gets the ground that the character is standing on
+	 * @return the ground
+	 */
+	public Obstacle getGround() {
+		return ground;
 	}
 
 
