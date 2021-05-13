@@ -61,42 +61,42 @@
       "wrapV": "repeated"
     },
     "shared:rain_cloud_all": {
-      "file": "platform/Raining_White.png",
+      "file": "platform/Rain_Idle_White.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:rain_cloud_dark": {
-      "file": "platform/Raining_Blue.png",
+      "file": "platform/Rain_Idle_Blue.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:rain_cloud_light": {
-      "file": "platform/Raining_Red.png",
+      "file": "platform/Rain_Idle_Yellow.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:rain_cloud_purple": {
-      "file": "platform/Raining_Purple.png",
+      "file": "platform/Rain_Idle_Purple.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_all": {
-      "file": "platform/LightningStrike_White.png",
+      "file": "platform/LightningIdle_White.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_dark": {
-      "file": "platform/LightningStrike_Blue.png",
+      "file": "platform/LightningIdle_Blue.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_light": {
-      "file": "platform/LightningStrike_Red.png",
+      "file": "platform/LightningIdle_Yellow.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_purple": {
-      "file": "platform/LightningStrike_Purple.png",
+      "file": "platform/LightningIdle_Purple.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
@@ -127,6 +127,86 @@
     },
     "shared:lightning_cloud_light_single": {
       "file": "platform/lightning_cloud_light_single.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_all": {
+      "file": "platform/Rain_Crumble_White.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_dark": {
+      "file": "platform/Rain_Crumble_Blue.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_light": {
+      "file": "platform/Rain_Crumble_Yellow.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_purple": {
+      "file": "platform/Rain_Crumble_Purple.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_all_reduced": {
+      "file": "platform/Rain_Idle_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_dark_reduced": {
+      "file": "platform/Rain_Idle_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_light_reduced": {
+      "file": "platform/Rain_Idle_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_purple_reduced": {
+      "file": "platform/Rain_Idle_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_all_reduced": {
+      "file": "platform/LightningIdle_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_dark_reduced": {
+      "file": "platform/LightningIdle_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_light_reduced": {
+      "file": "platform/LightningIdle_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_purple_reduced": {
+      "file": "platform/LightningIdle_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_all_reduced": {
+      "file": "platform/Rain_Crumble_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_dark_reduced": {
+      "file": "platform/Rain_Crumble_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_light_reduced": {
+      "file": "platform/Rain_Crumble_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_purple_reduced": {
+      "file": "platform/Rain_Crumble_Purple_Reduced.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
@@ -208,6 +288,17 @@
     "platform:background_light_statues": "platform/BG_statues_light.png",
     "platform:background_dark_statues": "platform/BG_statues_dark.png",
 
+    "platform:animated_background_light_forest": "platform/ABG_Forest_Light.png",
+    "platform:animated_background_dark_forest": "platform/ABG_Forest_Dark.png",
+    "platform:animated_background_light_gear": "platform/BG_gear_light.png",
+    "platform:animated_background_dark_gear": "platform/BG_gear_dark.png",
+    "platform:animated_background_light_dreams": "platform/ABG_Dream_Light.png",
+    "platform:animated_background_dark_dreams": "platform/ABG_Dream_Dark.png",
+    "platform:animated_background_light_house": "platform/ABG_House_Light.png",
+    "platform:animated_background_dark_house": "platform/ABG_House_Dark.png",
+    "platform:animated_background_light_statues": "platform/ABG_Statues_Light.png",
+    "platform:animated_background_dark_statues": "platform/ABG_Statues_Dark.png",
+
     "tutorial:camera_pan": "tutorial/camera_pan.png",
     "tutorial:phobia_dash": "tutorial/phobia_dash.png",
     "tutorial:phobia_jump": "tutorial/phobia_jump.png",
@@ -242,7 +333,7 @@
     "pause_menu:nextblue": "pause_menu/nextblue.png",
     "pause_menu:nextorange": "pause_menu/nextorange.png",
     "pause_menu:pause_button_blue":  "pause_menu/pause_button.png",
-    "pause_menu:pause_button_red": "pause_menu/pause_red.png",
+    "pause_menu:pause_button_red": "pause_menu/pause_red.png"
   },
     "jsons"  : {
         "constants": "constants.json",

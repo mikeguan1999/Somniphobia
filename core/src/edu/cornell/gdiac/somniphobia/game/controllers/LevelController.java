@@ -77,6 +77,31 @@ public class LevelController extends WorldController {
 	private TextureRegion lightningDarkTexture;
 	/** Texture asset for lightning "all" tiles*/
 	private TextureRegion lightningAllTexture;
+	/** Texture asset for crumbling light tiles*/
+	private TextureRegion crumbleLightTexture;
+	/** Texture asset for crumbliing dark tiles*/
+	private TextureRegion crumbleDarkTexture;
+	/** Texture asset for crumbling "all" tiles*/
+	private TextureRegion crumbleAllTexture;
+	/** Texture asset for reduced size raining light tiles*/
+	private TextureRegion rainLightTextureReduced;
+	/** Texture asset for reduced size raining dark tiles*/
+	private TextureRegion rainDarkTextureReduced;
+	/** Texture asset for reduced size raining "all" tiles*/
+	private TextureRegion rainAllTextureReduced;
+	/** Texture asset for reduced size lightning light tiles*/
+	private TextureRegion lightningLightTextureReduced;
+	/** Texture asset for reduced size lightning dark tiles*/
+	private TextureRegion lightningDarkTextureReduced;
+	/** Texture asset for reduced size lightning "all" tiles*/
+	private TextureRegion lightningAllTextureReduced;
+	/** Texture asset for reduced crumbling light tiles*/
+	private TextureRegion crumbleLightTextureReduced;
+	/** Texture asset for reduced crumbliing dark tiles*/
+	private TextureRegion crumbleDarkTextureReduced;
+	/** Texture asset for reduced crumbling "all" tiles*/
+	private TextureRegion crumbleAllTextureReduced;
+
 	/** Texture asset for Somni*/
 	private TextureRegion somniTexture;
 	/** Texture asset for Somni's Idle animation*/
@@ -383,7 +408,23 @@ public class LevelController extends WorldController {
 	private int cameraDelay = 0;
 	private Stage stage=new Stage();
 
-
+	/// VARIABLES FOR DRAWING AND ANIMATION OF BACKGROUNDS
+	/** CURRENT image for this background. May change over time. */
+	private FilmStrip backgroundAnimator;
+	/** Reference to texture origin */
+	private Vector2 backgroundOrigin;
+	/** How fast we change frames (one frame per 10 calls to update) */
+	private float backgroundAnimationSpeed = 0.05f;
+	/** The number of animation frames in our filmstrip */
+	private int backgroundNumAnimFrames = 15;
+	/** Current animation frame for this shell */
+	private float backgroundAnimeframe = 0.0f;
+	/** Pixel width of the current texture */
+	private double backgroundEntirePixelWidth;
+	/** Pixel width of the current frame in the texture */
+	private double backgroundFramePixelWidth = 1920;
+	/** Texture for animated objects */
+	private Texture actualBackgroundTexture;
 
 	/**
 	 * Creates and initialize a new instance of the platformer game
@@ -918,6 +959,19 @@ public class LevelController extends WorldController {
 		lightningLightTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light", Texture.class ));
 		lightningDarkTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark", Texture.class ));
 		lightningAllTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all", Texture.class ));
+		crumbleLightTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_light", Texture.class ));
+		crumbleDarkTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_dark", Texture.class ));
+		crumbleAllTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_all", Texture.class ));
+
+		rainLightTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_light_reduced", Texture.class ));
+		rainDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_dark_reduced", Texture.class ));
+		rainAllTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_all_reduced", Texture.class ));
+		lightningLightTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light_reduced", Texture.class ));
+		lightningDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark_reduced", Texture.class ));
+		lightningAllTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all_reduced", Texture.class ));
+		crumbleLightTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_light_reduced", Texture.class ));
+		crumbleDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_dark_reduced", Texture.class ));
+		crumbleAllTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_all_reduced", Texture.class ));
 
 		// Tutorial
 		tutorial_signs = new TextureRegion[]{
@@ -983,6 +1037,17 @@ public class LevelController extends WorldController {
 				new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
+
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_forest", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_forest", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_gear", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_gear", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_dreams", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_dreams", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_house", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_house", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_statues", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_statues", Texture.class)),
 		};
 
 
@@ -1254,7 +1319,14 @@ public class LevelController extends WorldController {
 		//group platform constants together for access in following for-loop
 		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture,
 			lightningLightTexture, lightningDarkTexture, lightningAllTexture,
-			rainLightTexture, rainDarkTexture, rainAllTexture};
+			rainLightTexture, rainDarkTexture, rainAllTexture,
+				crumbleLightTexture, crumbleDarkTexture, crumbleAllTexture};
+
+		TextureRegion[] reducedXTexture = {lightTexture, darkTexture, allTexture,
+				lightningLightTextureReduced, lightningDarkTextureReduced, lightningAllTextureReduced,
+				rainLightTextureReduced, rainDarkTextureReduced, rainAllTextureReduced,
+				crumbleLightTextureReduced, crumbleDarkTextureReduced, crumbleAllTextureReduced};
+
 
 		// Setup platforms
 		for(int i=0; i < objs.size; i++)
@@ -1271,18 +1343,37 @@ public class LevelController extends WorldController {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
 				TextureRegion newXTexture;
+				TextureRegion crumbleTexture = null;
+				Texture originalTexture = null;
 				try {
 					// temporary - need to refactor asset directory
 					JsonValue assetName = obj.get("assetName");
 					int assetIndex = assetName.asInt();
 					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
-					newXTexture = new TextureRegion(xTexture[platformType-1+(property - 1)*3]);
-					newXTexture.setRegion(x, y, x + width, y + height);
+					int platIdx = platformType-1+(property - 1)*3;
+					int crumbleIdx = platIdx + 3;
+					newXTexture = new TextureRegion(xTexture[platIdx]);
+					originalTexture = newXTexture.getTexture();
+					// For crumble animation
+					if (platIdx > 5) {
+						crumbleTexture = new TextureRegion(xTexture[crumbleIdx]);
+						crumbleTexture.setRegion(0, 0, width, height);
+					}
+					// If the platform size is the same as the spritesheet size
+					if (originalTexture.getWidth() > 32 && width%(originalTexture.getWidth()/32) == 0) {
+						newXTexture = new TextureRegion(reducedXTexture[platIdx]);
+						originalTexture = newXTexture.getTexture();
+						if (platIdx > 5) {
+							crumbleTexture = new TextureRegion(reducedXTexture[crumbleIdx]);
+							crumbleTexture.setRegion(0, 0, width, height);
+						}
+					}
+					newXTexture.setRegion(0, 0, width, height);
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
-						defaults.getFloat( "restitution", 0.0f ));
+						defaults.getFloat( "restitution", 0.0f ), originalTexture, crumbleTexture);
 				platformModel.setTag(platformType);
 				platformModel.setProperty(property);
 				addObject(platformModel);
@@ -1322,6 +1413,15 @@ public class LevelController extends WorldController {
 		backgroundLightTexture = backgrounds[backgroundTextureIndex - 1];
 		backgroundDarkTexture = backgrounds[backgroundTextureIndex];
 		backgroundTexture = backgroundLightTexture;
+
+		// Initialize background animations
+		actualBackgroundTexture = backgroundTexture.getTexture();
+		backgroundEntirePixelWidth = actualBackgroundTexture.getWidth();
+		backgroundNumAnimFrames = (int)(backgroundEntirePixelWidth/backgroundFramePixelWidth);
+		backgroundAnimator = new FilmStrip(backgroundTexture,1, backgroundNumAnimFrames, backgroundNumAnimFrames);
+		backgroundAnimator.setFrame(0);
+		backgroundAnimeframe = 0;
+		backgroundOrigin = new Vector2(backgroundAnimator.getRegionWidth()/2.0f, backgroundAnimator.getRegionHeight()/2.0f);
 
 		// Set level bounds
 		widthUpperBound = levelAssets.get("dimensions").getInt(0);
@@ -1501,7 +1601,11 @@ public class LevelController extends WorldController {
 			switching = !switching;
 
 		}
-
+		// Increase animation frame of background
+		backgroundAnimeframe += backgroundAnimationSpeed;
+		if (backgroundAnimeframe >= backgroundNumAnimFrames) {
+			backgroundAnimeframe = 0;
+		}
 
 		if(holdingHands){
 			if(lead == somni){
@@ -1674,7 +1778,9 @@ public class LevelController extends WorldController {
 		fbo.begin();
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 		TextureRegion background = character.equals(somni) ? backgroundLightTexture : backgroundDarkTexture;
-		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(background);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 		fbo.end();
 	}
@@ -1709,7 +1815,10 @@ public class LevelController extends WorldController {
 		fbo.begin();
 		canvas.clear();
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
-		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+//		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(backgroundTexture);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 		fbo.end();
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
@@ -1825,7 +1934,10 @@ public class LevelController extends WorldController {
 
 		// Draw background
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
-		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+//		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(backgroundTexture);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 
 		// Create alpha background if uninitialized
@@ -1862,6 +1974,7 @@ public class LevelController extends WorldController {
 				maskLeader = follower;
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
+				backgroundAnimator.setRegion(backgroundTexture);
 			}
 		} else {
 			// Check if shrinking
