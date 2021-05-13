@@ -212,13 +212,7 @@ public class MovementController implements ContactListener {
 
         CharacterModel follower = somni == avatar ? phobia : somni;
 
-
-//        System.out.println(avatar.getLinearVelocity());
         if (transitioningHoldingHands) {
-//            System.out.println(avatar.getLinearVelocity());
-            System.out.println("prev: " + prevPositionVector);
-
-            System.out.println("curr: " + avatar.getPosition());
 
             if (avatar.getPosition().dst2(follower.getPosition()) < .05) {
                 beginHoldHands();
@@ -230,10 +224,8 @@ public class MovementController implements ContactListener {
             }
             else {
                 Vector2 shiftDirection = vectorCache.set(follower.getPosition()).sub(avatar.getPosition());
-//                System.out.println(shiftDirection.nor().scl(1));
                 avatar.getBody().setLinearVelocity(shiftDirection.nor().scl(20));
                 prevPositionVector.set(avatar.getPosition());
-                System.out.println(avatar.getVX());
 
             }
             handHoldTimer--;
@@ -381,18 +373,21 @@ public class MovementController implements ContactListener {
      * @param y the vertical movement
      */
     private void handleDash(float x, float y) {
+        CharacterModel oppositeCharacter = avatar == somni? phobia: somni;
+
         if (holdingHands) {
             // Check for propel
             endHoldHands();
-            avatar.dashOrPropel(true, x, y);
             CharacterModel oppositeChar = avatar == somni? phobia: somni;
+
+            avatar.dashOrPropel(true, x, y);
             if (!oppositeChar.isGrounded()) {
                 oppositeChar.setCanDash(false);
             }
 
-        } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
+        } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE
+        && oppositeCharacter.getCanDash()) {
             avatar.dashOrPropel(true, x, y);
-            CharacterModel oppositeCharacter = avatar == somni? phobia: somni;
             oppositeCharacter.setFacingRight(avatar.isFacingRight());
             if (oppositeCharacter.isGrounded()) {
                 avatar.setCanDash(true);
@@ -535,12 +530,7 @@ public class MovementController implements ContactListener {
     private void transitionHoldHands(CharacterModel leadCharacter, CharacterModel follower) {
         //Direction to move leadCharacter towards
         Vector2 shiftDirection = vectorCache.set(follower.getPosition()).sub(leadCharacter.getPosition());
-//        System.out.println(shiftDirection.nor().scl(1));
         leadCharacter.getBody().setLinearVelocity(shiftDirection.nor().scl(20));
-//        prevPositionVector = avatar.getPosition();
-//        System.out.println(leadCharacter.getBody().getLinearVelocity());
-//        leadCharacter.setLinearVelocity(new Vector2(10,10));
-//        System.out.println("linear velocity: " + leadCharacter.getLinearVelocity());
         transitioningHoldingHands = true;
     }
 
