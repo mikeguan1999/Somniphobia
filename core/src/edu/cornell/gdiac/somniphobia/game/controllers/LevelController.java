@@ -368,6 +368,7 @@ public class LevelController extends WorldController {
 	private final int UNDERLINE_OFFSETX = -5;
 	private final int UNDERLINE_OFFSETY = -40;
 	private final int PAUSE_MENU_POSITION_SCALE = 4;
+	private boolean firstPosition=false;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -435,7 +436,11 @@ public class LevelController extends WorldController {
 	/**
 	 * Creates the pauseMenu with the buttons
 	 */
-	public void createModalWindow() {
+	public void createModalWindow(float cameraX, float cameraY) {
+		camera.position.x = cameraX;
+		camera.position.y = cameraY;
+		camera.update();
+
 //		pauseMenuStage = new Stage(new ScreenViewport(camera));
 		pauseMenu = new Table();
 		pauseMenu.setBackground(blueRectangle);
@@ -506,7 +511,7 @@ public class LevelController extends WorldController {
 			}
 		});
 
-		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
+//		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
@@ -1176,7 +1181,7 @@ public class LevelController extends WorldController {
 		movementController.setAvatar(somni);
 		movementController.setLead(somni);
 
-		createModalWindow();
+		createModalWindow(camera.position.x, camera.position.y);
 		createPauseButton();
 		createSliders();
 		createFailWindow(camera.position.x, camera.position.y);
@@ -1967,22 +1972,23 @@ public class LevelController extends WorldController {
 		// Draw pauseMenu
 		canvas.begin();
 
-		if (firstTimeRendered) {
-			createModalWindow();
-			firstTimeRendered = false;
-		}
-		if (firstTimeRenderedWinMenu) {
-			createWinWindow(camera.position.x, camera.position.y);
-			firstTimeRenderedWinMenu = false;
-		}
-
-		if (firstTimeRenderedFailMenu) {
-			createFailWindow(camera.position.x, camera.position.y);
-			firstTimeRenderedFailMenu = false;
-		}
+//		if (firstTimeRendered) {
+//			createModalWindow(camera.position.x, camera.position.y);
+//			firstTimeRendered = false;
+//		}
+//		if (firstTimeRenderedWinMenu) {
+//			createWinWindow(camera.position.x, camera.position.y);
+//			firstTimeRenderedWinMenu = false;
+//		}
+//
+//		if (firstTimeRenderedFailMenu) {
+//			createFailWindow(camera.position.x, camera.position.y);
+//			firstTimeRenderedFailMenu = false;
+//		}
 
 		if (pauseMenuActive()) {
-//			setPositionPauseMenu();
+			setPositionPauseMenu();
+			firstPosition = true;
 			pauseMenuStage.draw();
 			pauseMenuStage.act(dt);
 
