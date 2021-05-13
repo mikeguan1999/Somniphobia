@@ -34,7 +34,7 @@ public class MovementController implements ContactListener {
     private BoxObstacle goalDoor;
 
     /** Timeout for attempting hand holding */
-    private final float HAND_HOLD_TIMEOUT = 10;
+    private final float HAND_HOLD_TIMEOUT = 40;
 
     private float handHoldTimer = HAND_HOLD_TIMEOUT;
 
@@ -218,7 +218,7 @@ public class MovementController implements ContactListener {
                 beginHoldHands();
                 transitioningHoldingHands = false;
             }
-            else if (avatar.getPosition().dst2(prevPositionVector) < .0001) {
+            else if (avatar.getPosition().dst2(prevPositionVector) < .0001 || handHoldTimer < 0) {
                 transitioningHoldingHands = false;
                 handHoldTimer = HAND_HOLD_TIMEOUT;
             }
