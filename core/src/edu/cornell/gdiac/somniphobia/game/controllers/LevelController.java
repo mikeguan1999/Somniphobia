@@ -413,7 +413,7 @@ public class LevelController extends WorldController {
 	/** Reference to texture origin */
 	private Vector2 backgroundOrigin;
 	/** How fast we change frames (one frame per 10 calls to update) */
-	private float backgroundAnimationSpeed = 0.1f;
+	private float backgroundAnimationSpeed = 0.05f;
 	/** The number of animation frames in our filmstrip */
 	private int backgroundNumAnimFrames = 15;
 	/** Current animation frame for this shell */
@@ -421,9 +421,9 @@ public class LevelController extends WorldController {
 	/** Pixel width of the current texture */
 	private double backgroundEntirePixelWidth;
 	/** Pixel width of the current frame in the texture */
-	private double backgroundFramePixelWidth = 32;
-
-
+	private double backgroundFramePixelWidth = 1920;
+	/** Texture for animated objects */
+	private Texture actualBackgroundTexture;
 
 	/**
 	 * Creates and initialize a new instance of the platformer game
@@ -1029,6 +1029,17 @@ public class LevelController extends WorldController {
 				new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
+
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_forest", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_forest", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_gear", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_gear", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_dreams", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_dreams", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_house", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_house", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_statues", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_statues", Texture.class)),
 		};
 
 
@@ -1367,7 +1378,14 @@ public class LevelController extends WorldController {
 		backgroundLightTexture = backgrounds[backgroundTextureIndex - 1];
 		backgroundDarkTexture = backgrounds[backgroundTextureIndex];
 		backgroundTexture = backgroundLightTexture;
+
+		// Initialize background animations
+		actualBackgroundTexture = backgroundTexture.getTexture();
+		backgroundEntirePixelWidth = actualBackgroundTexture.getWidth();
+		backgroundNumAnimFrames = (int)(backgroundEntirePixelWidth/backgroundFramePixelWidth);
 		backgroundAnimator = new FilmStrip(backgroundTexture,1, backgroundNumAnimFrames, backgroundNumAnimFrames);
+		backgroundAnimator.setFrame(0);
+		backgroundAnimeframe = 0;
 		backgroundOrigin = new Vector2(backgroundAnimator.getRegionWidth()/2.0f, backgroundAnimator.getRegionHeight()/2.0f);
 
 		// Set level bounds
@@ -1762,7 +1780,10 @@ public class LevelController extends WorldController {
 		fbo.begin();
 		canvas.clear();
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
-		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+//		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(backgroundTexture);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 		fbo.end();
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
@@ -1878,7 +1899,10 @@ public class LevelController extends WorldController {
 
 		// Draw background
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
-		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+//		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(backgroundTexture);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 
 		// Create alpha background if uninitialized
@@ -1915,6 +1939,7 @@ public class LevelController extends WorldController {
 				maskLeader = follower;
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
+				backgroundAnimator.setRegion(backgroundTexture);
 			}
 		} else {
 			// Check if shrinking
