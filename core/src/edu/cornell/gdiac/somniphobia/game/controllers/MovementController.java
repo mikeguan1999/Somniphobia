@@ -28,8 +28,15 @@ public class MovementController implements ContactListener {
     /** Reference to combined DudeModel*/
     private CharacterModel combined;
 
+    private Vector2 vectorCache;
+    private Vector2 prevPositionVector;
     /** Reference to the goalDoor (for collision detection) */
     private BoxObstacle goalDoor;
+
+    /** Timeout for attempting hand holding */
+    private final float HAND_HOLD_TIMEOUT = 10;
+
+    private float handHoldTimer = HAND_HOLD_TIMEOUT;
 
     /** shared objects */
     protected PooledList<Obstacle> sharedObjects  = new PooledList<Obstacle>();
@@ -55,6 +62,9 @@ public class MovementController implements ContactListener {
 
     /** Whether or not characters are currently holding hands */
     private boolean holdingHands;
+
+    /** Whether or not characters are transitioning to holding hands */
+    private boolean transitioningHoldingHands;
 
     /** Whether or not characters were switched */
     private boolean switchedCharacters;
@@ -99,6 +109,9 @@ public class MovementController implements ContactListener {
         combinedSensorFixtures = new ObjectSet<Fixture>();
 
         this.holdingHands = false;
+        this.transitioningHoldingHands = false;
+        vectorCache = new Vector2();
+        prevPositionVector = new Vector2();
     }
 
     public CharacterModel getLead() {
@@ -108,7 +121,6 @@ public class MovementController implements ContactListener {
     public void setLead(CharacterModel lead) {
         this.lead = lead;
     }
-
 
     public CharacterModel getSomni() {
         return somni;
@@ -197,18 +209,81 @@ public class MovementController implements ContactListener {
      * Main update loop for character movement
      */
     public int update() {
-        InputController inputController = InputController.getInstance();
-        avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
-        avatar.setJumping(inputController.didJump());
+
+        CharacterModel follower = somni == avatar ? phobia : somni;
 
 
-        if(inputController.didDash()) {
-            handleDash(inputController.getHorizontal(), inputController.getVertical());
+//        System.out.println(avatar.getLinearVelocity());
+        if (transitioningHoldingHands) {
+//            System.out.println(avatar.getLinearVelocity());
+            System.out.println("prev: " + prevPositionVector);
+
+            System.out.println("curr: " + avatar.getPosition());
+
+            if (avatar.getPosition().dst2(follower.getPosition()) < .05) {
+                beginHoldHands();
+                transitioningHoldingHands = false;
+            }
+            else if (avatar.getPosition().dst2(prevPositionVector) < .0001) {
+                transitioningHoldingHands = false;
+                handHoldTimer = HAND_HOLD_TIMEOUT;
+            }
+            else {
+                Vector2 shiftDirection = vectorCache.set(follower.getPosition()).sub(avatar.getPosition());
+//                System.out.println(shiftDirection.nor().scl(1));
+                avatar.getBody().setLinearVelocity(shiftDirection.nor().scl(20));
+                prevPositionVector.set(avatar.getPosition());
+                System.out.println(avatar.getVX());
+
+            }
+            handHoldTimer--;
+
+        } else {
+
+            InputController inputController = InputController.getInstance();
+            avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
+            avatar.setJumping(inputController.didJump());
+            if(inputController.didDash()) {
+                handleDash(inputController.getHorizontal(), inputController.getVertical());
+            }
+            // Check if switched
+            if(inputController.didSwitch()) {
+                //Switch active character
+                if (!holdingHands) {
+                    avatar.setMovement(0f);
+                    //TODO: Add combined track
+
+                    avatar = avatar == somni ? phobia : somni;
+                }else{
+//                if (lead == somni) {
+//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+//                } else {
+//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+//                }
+                    lead = lead == somni ? phobia :somni;
+                }
+                setSwitchedCharacters(true);
+            }
+            else {
+                setSwitchedCharacters(false);
+            }
+            if(avatar != combined) {
+                lead = avatar;
+            }
+            somni.applyForce();
+            phobia.applyForce();
+            combined.applyForce();
+            //Check if hand holding
+            if(inputController.didHoldHands()) {
+                handleHoldingHands();
+            }
+
         }
 
-        somni.applyForce();
-        phobia.applyForce();
-        combined.applyForce();
+
+
+
+
         //handleworldview();
 
         //TODO: Play movement sounds
@@ -244,30 +319,6 @@ public class MovementController implements ContactListener {
             }
         }
 
-        // Check if switched
-        if(inputController.didSwitch()) {
-            //Switch active character
-            if (!holdingHands) {
-                avatar.setMovement(0f);
-                //TODO: Add combined track
-
-                avatar = avatar == somni ? phobia : somni;
-            }else{
-//                if (lead == somni) {
-//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
-//                } else {
-//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
-//                }
-                lead = lead == somni ? phobia :somni;
-            }
-            setSwitchedCharacters(true);
-        }
-        else {
-            setSwitchedCharacters(false);
-        }
-        if(avatar !=combined) {
-            lead = avatar;
-        }
 
 
         int action = 0;
@@ -303,10 +354,6 @@ public class MovementController implements ContactListener {
         }
 
 
-        //Check if hand holding
-        if(inputController.didHoldHands()) {
-            handleHoldingHands();
-        }
 
         separationCoolDown = Math.max(0, separationCoolDown-1);
 
@@ -362,7 +409,9 @@ public class MovementController implements ContactListener {
         if (holdingHands) {
             endHoldHands();
         } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
-            beginHoldHands();
+            transitionHoldHands(avatar, avatar == somni? phobia: somni);
+//            avatar.setLinearVelocity(new Vector2(0,10));
+//            beginHoldHands();
         }
     }
 
@@ -483,6 +532,17 @@ public class MovementController implements ContactListener {
         holdingHands = false;
     }
 
+    private void transitionHoldHands(CharacterModel leadCharacter, CharacterModel follower) {
+        //Direction to move leadCharacter towards
+        Vector2 shiftDirection = vectorCache.set(follower.getPosition()).sub(leadCharacter.getPosition());
+//        System.out.println(shiftDirection.nor().scl(1));
+        leadCharacter.getBody().setLinearVelocity(shiftDirection.nor().scl(20));
+//        prevPositionVector = avatar.getPosition();
+//        System.out.println(leadCharacter.getBody().getLinearVelocity());
+//        leadCharacter.setLinearVelocity(new Vector2(10,10));
+//        System.out.println("linear velocity: " + leadCharacter.getLinearVelocity());
+        transitioningHoldingHands = true;
+    }
 
     /**
      * Somni and Phobia hold hands
