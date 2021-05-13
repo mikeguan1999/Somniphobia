@@ -1888,8 +1888,7 @@ public class LevelController extends WorldController {
 	private boolean riftCoversCameraBounds(float cameraX, float cameraY, float maskWidth, float maskHeight,
 										   CharacterModel character) {
 		updateMaskPosition(maskWidth, maskHeight, character);
-		if(isfullscreen){maskOffset = 2000;}
-		else{maskOffset =1000;}
+		maskOffset =1000;
 		boolean coversLeft = maskOrigin.x + maskOffset < cameraX;
 		boolean coversRight = maskOrigin.x + maskWidth - maskOffset > cameraX + canvas.getWidth();
 		boolean coversBottom = maskOrigin.y + maskOffset < cameraY;
