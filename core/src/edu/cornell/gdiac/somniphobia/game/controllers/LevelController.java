@@ -1617,8 +1617,8 @@ public class LevelController extends WorldController {
 			cam.update();*/
 			canvas = new GameCanvas();
 			camera = cam;
-			camera.viewportHeight = appHeight;
-			camera.viewportWidth = appWidth;
+			//camera.viewportHeight = appHeight;
+			//camera.viewportWidth = appWidth;
 			fbo= null;
 			alpha_background = null;
 			camera.translate(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0);
@@ -1818,7 +1818,14 @@ public class LevelController extends WorldController {
 		Texture fbo_t = fbo.getColorBufferTexture();
 		float fbo_x = camera.position.x - canvas.getWidth() / 2;
 		float fbo_y = camera.position.y - canvas.getHeight() / 2 + fbo_t.getHeight();
-		canvas.draw(fbo_t, Color.WHITE, fbo_x, fbo_y, fbo_t.getWidth(), -fbo_t.getHeight());
+		if(isfullscreen){
+			fbo_y = camera.position.y - canvas.getHeight()/2  + canvas.getHeight();
+			fbo_x = camera.position.x - canvas.getWidth()/2;
+			float ratio = 1024/ canvas.getWidth();
+			canvas.draw(fbo_t, Color.WHITE, fbo_x, fbo_y, canvas.getWidth(), -canvas.getHeight());
+		}else{
+			canvas.draw(fbo_t, Color.WHITE, fbo_x, fbo_y, fbo_t.getWidth(), -fbo_t.getHeight());
+		}
 		canvas.endCustom();
 	}
 
@@ -1913,7 +1920,10 @@ public class LevelController extends WorldController {
 
 		// Create the frame buffer if uninitialized
 		if (fbo == null) {
-			fbo = new FrameBuffer(Pixmap.Format.RGBA8888, canvas.getWidth(), canvas.getHeight(), false);
+			System.out.println("FBO");
+			System.out.println(canvas.getHeight());
+			System.out.println(canvas.getWidth());
+			fbo = new FrameBuffer(Pixmap.Format.RGBA8888, 1024, 576, false);
 		}
 
 		// Draw background
