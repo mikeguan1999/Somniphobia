@@ -316,6 +316,14 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Returns whether character can dash
+	 * @return whether character can dash
+	 */
+	public boolean getCanDash() {
+		return canDash;
+	}
+
+	/**
 	 * Sets whether character can dash
 	 * @param value whether character can dash
 	 */
