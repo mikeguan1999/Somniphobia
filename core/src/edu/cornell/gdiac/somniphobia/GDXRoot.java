@@ -14,13 +14,17 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelController;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import org.lwjgl.Sys;
 
+import java.util.HashMap;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 /**
  * Root class for a LibGDX.  
  * 
@@ -60,6 +64,16 @@ public class GDXRoot extends Game implements ScreenListener {
 	static private final int LEVEL_CONTROLLER_INDEX = 0;
 	static private final int LEVEL_CREATOR_INDEX = 1;
 
+	private WorldSelect worldSelectMenu;
+	private MenuScrollable [] menus;
+	private final int numWorlds=5;
+//	in the sequence of first row then second row of buttons in the world selector
+	private int [] worldToNumLevels = {7, 7, 8, 2, 4};
+	private boolean [] levelsCompleted;
+	private int currentIndexController;
+	private Stage pauseMenuStage;
+	private Stage pauseButtonStage;
+
 
 	/**
 	 * Creates a new game from the configuration settings.
@@ -79,16 +93,45 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas  = new GameCanvas();
 		platformController = new PlatformController();
 		loading = new LoadingMode("assets.json",canvas,1);
+		worldSelectMenu = new WorldSelect(canvas);
+		levelsCompleted = new boolean[totalNumLevels];
 
-		menu = new MenuScrollable(canvas, totalNumLevels);
 
+//		menuPages = new Menu[numPages];
+//		for (int i=0; i<menuPages.length; i++){
+//			if (i==0){
+//				Menu menu = new Menu(canvas, false, true, i*numLevelsPerPage, totalNumLevels);
+//				menuPages[i] = menu;
+//			}
+//			else if (i== menuPages.length-1){
+//				Menu menu = new Menu(canvas, true, false, i*numLevelsPerPage, totalNumLevels);
+//				menuPages[i] = menu;
+//			}
+//			else {
+//				Menu menu = new Menu(canvas, true, true, i*numLevelsPerPage, totalNumLevels);
+//				menuPages[i] = menu;
+//			}
+//		}
+//		0123
+//				4567
+//						891011
+//
+//		currentMenuIndex = 0;
+//		currentMenu = menuPages[currentMenuIndex];
+		menus = new MenuScrollable[numWorlds];
+		for (int i=0; i< menus.length; i++){
+			menus[i] = new MenuScrollable(canvas, worldToNumLevels[i], i, levelsCompleted);
+		}
+
+		menu = new MenuScrollable(canvas, totalNumLevels, 0, levelsCompleted);
 		mainMenu = new MainMenu(canvas);
 
 		// Initialize the Platformer Controller
 		// TODO
+		OrthographicCamera camera = canvas.getCamera();
 
 		controllers = new WorldController[2];
-		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController();
+		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController(canvas);
 		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
 
 		// Constructs a new OrthographicCamera, using the given viewport width and height
@@ -164,6 +207,14 @@ public class GDXRoot extends Game implements ScreenListener {
 		preferences = prefs;
 	}
 
+	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
+	 *  otherwise, prepares for level `num`. */
+	public void prepareLevelJson(WorldController wc, int num, boolean increment, int world) {
+		LevelController pc = (LevelController) wc;
+		pc.setLevel(increment ? pc.getLevel() + num : num);
+		pc.gatherLevelJson(directory);
+	}
+
 	/**
 	 * The given screen has made a request to exit its player mode.
 	 *
@@ -173,6 +224,15 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
+		LevelController pc = (LevelController) controllers[current];
+		if (pc.isComplete()){
+			levelsCompleted[pc.getLevel()-1] = true;
+		}
+//		for (int k=0; k< controllers.length; k++){
+//			if (controllers[k].isComplete()){
+//				levelsCompleted[k] = true;
+//			}
+//		}
 		if (screen == loading) {
 			for(int ii = 0; ii < controllers.length; ii++) {
 				directory = loading.getAssets();
@@ -185,7 +245,6 @@ public class GDXRoot extends Game implements ScreenListener {
 				controllers[ii].setPlatController(platformController);
 			}
 
-
 			menu.setScreenListener(this);
 
 			mainMenu.setScreenListener(this);
@@ -193,22 +252,45 @@ public class GDXRoot extends Game implements ScreenListener {
 
 			loading.dispose();
 			loading = null;
-		} else if (screen==menu){
+		} else if (exitCode==WorldController.EXIT_WORLD_SELECT){
+			worldSelectMenu = new WorldSelect(canvas);
+			worldSelectMenu.setScreenListener(this);
+			setScreen(worldSelectMenu);
+		} else if (screen==worldSelectMenu && exitCode!=WorldController.EXIT_MAIN_SCREEN){
+//			for (int j=0; j< menus.length; j++){
+//				menus[j] = new MenuScrollable(canvas, worldToNumLevels[j], j, levelsCompleted);
+//			}
+			menus[exitCode].setScreenListener(this);
+			setScreen(menus[exitCode]);
+		} else if (screen instanceof MenuScrollable){
+//			if (exitCode<0){
+//				if (exitCode==currentMenu.getLEFT_EXIT_CODE()){
+//					currentMenuIndex -= 1;
+//				}
+//				else if (exitCode==currentMenu.getRIGHT_EXIT_CODE()) {
+//					currentMenuIndex += 1;
+//				}
+//				currentMenu = menuPages[currentMenuIndex];
+//				setScreen(currentMenu);
+//			}
+//			else {
 			prepareLevelJson(exitCode+1, false);
+			currentIndexController = exitCode+1;
+			currentIndexController = exitCode+1;
 			controllers[current].reset();
 			setScreen(controllers[current]);
-
-		} else if (exitCode == WorldController.EXIT_MENU) {
-			// Resetting the menu
-			menu = new MenuScrollable(canvas, totalNumLevels);
-			menu.setScreenListener(this);
-			setScreen(menu);
-		} else if (exitCode == WorldController.EXIT_NEXT) {
+		}
+		else if (exitCode==WorldController.EXIT_MAIN_SCREEN){
+		mainMenu.setScreenListener(this);
+		setScreen(mainMenu);
+		}
+		else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(1, true);
 				controllers[current].reset();
 			}
-		} else if (exitCode == WorldController.EXIT_PREV) {
+		}
+		else if (exitCode == WorldController.EXIT_PREV) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(-1, true);
 				controllers[current].reset();

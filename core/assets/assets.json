@@ -283,6 +283,64 @@
         "level35": "levels/houses.json",
         "level36": "levels/mushroom.json"
     },
+
+    // you got this :)
+    "worlds": {
+      "world1": {
+        "worldMenuAsset": "world_selection/dream_worldselect.png",
+        "levels": [
+          "levels/dream_propel_1.json",
+          "levels/dream_propel_2.json",
+          "levels/dream_propel_3.json",
+          "levels/dream_propel_4.json",
+          "levels/dream_propel_5.json",
+          "levels/dream_propel_6.json",
+          "levels/dream_propel_7.json"
+        ]
+      },
+      "world2": {
+        "worldMenuAsset": "world_selection/houses_worldselect.png",
+        "levels": [
+          "levels/house_tutorial_0.json",
+          "levels/house_tutorial_1.json",
+          "levels/house_tutorial_2.json",
+          "levels/house_tutorial_3.json",
+          "levels/house_tutorial_4.json",
+          "levels/house_tutorial_5.json",
+          "levels/house_tutorial_6.json",
+          "levels/house_tutorial_7.json"
+        ]
+      },
+      "world3": {
+        "worldMenuAsset": "world_selection/forest_worldselect.png",
+        "levels": [
+          "levels/forest_switch_1.json",
+          "levels/forest_switch_2.json",
+          "levels/forest_switch_3.json",
+          "levels/forest_handhold_1.json",
+          "levels/forest_handhold_2.json",
+          "levels/forest_separate_1.json",
+          "levels/forest_catch_1.json",
+          "levels/forest_dash_1.json"
+        ]
+      },
+      "world4": {
+        "worldMenuAsset": "world_selection/gears_worldselect.png",
+        "levels": [
+          "levels/gear_betademo.json",
+          "levels/gear_juggle.json"
+        ]
+      },
+      "world5": {
+        "worldMenuAsset": "world_selection/statues_worldselect.png",
+        "levels": [
+          "levels/statues_old_tutorial.json",
+          "levels/statues_tower.json",
+          "levels/statues_symmetry_puzzle.json",
+          "levels/statues_somnibros.json"
+        ]
+      }
+    },
     "sounds" : {
         "platform:jump" : "platform/jump.mp3",
         "platform:pew"  : "platform/pew.mp3",

@@ -24,13 +24,8 @@ package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -55,7 +50,7 @@ import edu.cornell.gdiac.util.ScreenListener;
  * the application.  That is why we try to have as few resources as possible for this
  * loading screen.
  */
-public class MainMenu implements Screen {
+public class WorldSelect implements Screen {
 	/** Reference to GameCanvas created by the root */
 	private GameCanvas canvas;
 	/** Listener that will update the player mode when we are done */
@@ -68,29 +63,36 @@ public class MainMenu implements Screen {
 	/** Reference of the table of this screen */
 	private Table table;
 	private Image titleImage;
-	private Button startDream;
-	private Button about;
-	private Button controls;
-	private Image underline;
-	private Button exit;
-	private boolean started;
-	private boolean exitClicked;
+	private Button world1;
+	private Button world2;
+	private Button world3;
+	private Button world4;
+	private Button world5;
+	private Button arrow;
+	private Button [] worlds;
+	private final int numWorlds = 5;
+	private int i;
+	private boolean[] worldsClicked;
+	private TextureRegionDrawable upImage;
+	private TextureRegionDrawable [] overImages = new TextureRegionDrawable[numWorlds];
+
 
 	private TextureRegionDrawable titleDrawable;
-	private TextureRegionDrawable aboutDrawable;
-	private TextureRegionDrawable controlsDrawable;
-	private TextureRegionDrawable startDreamDrawable;
-	private TextureRegionDrawable underlineDrawable;
 	private TextureRegionDrawable backgroundDrawable;
-	private TextureRegionDrawable exitDrawable;
-	private TextureRegionDrawable underlineOrangeDrawable;
+	private TextureRegionDrawable world1Drawable;
+	private TextureRegionDrawable world2Drawable;
+	private TextureRegionDrawable world3Drawable;
+	private TextureRegionDrawable world4Drawable;
+	private TextureRegionDrawable blueArrowDrawable;
+
+	private boolean prevClicked;
 
 	public Stage getStage(){
 		return stage;
 	}
 
-	public MainMenu(GameCanvas canvas) {
-		internal = new AssetDirectory( "main_screen.json" );
+	public WorldSelect(GameCanvas canvas) {
+		internal = new AssetDirectory( "world_select.json" );
 		internal.loadAssets();
 		internal.finishLoading();
 
@@ -98,69 +100,78 @@ public class MainMenu implements Screen {
 		table = new Table();
 		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("background", Texture.class));
 		titleDrawable = new TextureRegionDrawable(internal.getEntry("title", Texture.class));
-		aboutDrawable = new TextureRegionDrawable(internal.getEntry("about", Texture.class));
-		controlsDrawable = new TextureRegionDrawable(internal.getEntry("controls", Texture.class));
-		startDreamDrawable = new TextureRegionDrawable(internal.getEntry("start_dream", Texture.class));
-		underlineDrawable = new TextureRegionDrawable(internal.getEntry("underline", Texture.class));
-		exitDrawable = new TextureRegionDrawable(internal.getEntry("exit", Texture.class));
-		underlineOrangeDrawable = new TextureRegionDrawable(internal.getEntry("orange_underline", Texture.class));
+//		world1Drawable = new TextureRegionDrawable(internal.getEntry("world1", Texture.class));
+//		world2Drawable = new TextureRegionDrawable(internal.getEntry("world2", Texture.class));
+//		world3Drawable = new TextureRegionDrawable(internal.getEntry("world3", Texture.class));
+//		world4Drawable = new TextureRegionDrawable(internal.getEntry("world4", Texture.class));
+		blueArrowDrawable = new TextureRegionDrawable(internal.getEntry("blue_arrow", Texture.class));
 
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
 
+		worldsClicked = new boolean[numWorlds];
+		worlds = new Button[numWorlds];
+		for(i=0; i<worlds.length; i++){
+//			worlds[i] = new Button(new TextureRegionDrawable(internal.getEntry("world"+(i+1), Texture.class)));
+			upImage = new TextureRegionDrawable(internal.getEntry("button", Texture.class));
+			overImages[i] = new TextureRegionDrawable(internal.getEntry("phobia"+(i+1), Texture.class));
+			worlds[i] = new Button(upImage);
+			worlds[i].getStyle().over = overImages[i];
+			worlds[i].addListener(new ClickListener() {
+				int saved_i = i;
+				public void clicked(InputEvent event, float x, float y) {
+					worldsClicked[saved_i] = true;
+				}
+			});
+		}
+
 		titleImage = new Image(titleDrawable);
-		about = new Button(aboutDrawable);
-		controls = new Button(controlsDrawable);
-		startDream = new Button(startDreamDrawable);
-		underline = new Image(underlineDrawable);
-		exit = new Button(exitDrawable);
-    
-		table.add(titleImage).colspan(4).height(100).padTop(50).padLeft(150).padRight(150).width(500);
-		table.row().padBottom(300);
-		table.add(startDream).padTop(30).size(startDream.getWidth()/2, startDream.getHeight()/2).expand().fillX();
-		table.add(controls).padTop(30).size(controls.getWidth()/2, controls.getHeight()/2).expand().fillX();
-		table.add(about).padTop(30).size(about.getWidth()/2, about.getHeight()/2).expand().fillX();
-		table.add(exit).padTop(30).size(exit.getWidth()/2, exit.getHeight()/2).expand().fillX();
+//		world1 = new Button(world1Drawable);
+//		world2 = new Button(world2Drawable);
+//		world3 = new Button(world3Drawable);
+//		world4 = new Button(world4Drawable);
+//		world5 = new Button(world4Drawable);
+		arrow = new Button(blueArrowDrawable);
+
+		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2).left().top();
 		table.row();
-		table.add(underline);
-//		underline.setVisible(false);
-
-		startDream.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				started = true;
+		table.add(titleImage).size(titleImage.getWidth()/2, titleImage.getHeight()/2).colspan(4);
+		table.row();
+		for(i=0; i<worlds.length; i++){
+			if (i==0){
+				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padLeft(50);
 			}
-		});
+			else if (i==4){
+				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padBottom(100);
+			}
+			else if (i==3){
+				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padLeft(50).padBottom(100);
+			}
+			else {
+				table.add(worlds[i]).size(worlds[i].getWidth() / 2, worlds[i].getHeight() / 2).space(50);
+			}
+			if (i==2){
+				table.row();
+			}
+		}
 
-		exit.addListener(new ClickListener() {
+//		second row bottom offset
+		arrow.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				exitClicked = true;
+				prevClicked = true;
 			}
 		});
 
 		stage.addActor(table);
 		table.validate();
-		startDream.setX(50);
-		controls.setX(startDream.getX()+startDream.getWidth()+80);
-		about.setX(canvas.getWidth()/2+50);
-		exit.setX(about.getWidth()+about.getX()+200);
-		this.canvas  = canvas;
+		arrow.setPosition(arrow.getX()-30, arrow.getY()-30);
+		worlds[3].setPosition(worlds[3].getX()+150, worlds[3].getY());
+		worlds[4].setPosition(worlds[4].getX()+150, worlds[4].getY());
+
+
+		this.canvas = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
-	}
-
-	/**
-	 * Creating an image button that appears as an image with upFilepath.
-	 */
-	private Button createImageButton(String upFilepath){
-		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
-		Button imgButton= new Button(buttonDrawable);
-		return imgButton;
-	}
-
-	private Image createImage(String upFilepath){
-		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
-		Image image = new Image(drawable);
-		return image;
 	}
 
 
@@ -211,45 +222,18 @@ public class MainMenu implements Screen {
 			stage.act(delta);
 			stage.draw();
 
-			if (startDream.isOver()){
-				underline.setSize(startDream.getWidth()+10, startDream.getHeight());
-				underline.setPosition(startDream.getX()-5, startDream.getY()-20);
-				underline.setVisible(true);
+			if (prevClicked){
+				listener.exitScreen(this, WorldController.EXIT_MAIN_SCREEN);
+				prevClicked = false;
 			}
 
-			else if (controls.isOver()){
-				underline.setSize(controls.getWidth()+10, controls.getHeight());
-				underline.setPosition(controls.getX()-5, controls.getY()-20);
-				underline.setVisible(true);
-			}
-
-			else if (about.isOver()){
-				underline.setSize(about.getWidth()+10, about.getHeight());
-				underline.setPosition(about.getX()-5, about.getY()-20);
-//				underline.setDrawable(underlineOrangeDrawable);
-				underline.setVisible(true);
-			}
-			else if (exit.isOver()){
-				underline.setSize(exit.getWidth()+10, exit.getHeight());
-				underline.setPosition(exit.getX()-5, exit.getY()-20);
-//				underline.setDrawable(underlineOrangeDrawable);
-				underline.setVisible(true);
-			}
-
-			else{
-				underline.setZIndex(0);
-				underline.setVisible(false);
-
-			}
-
-			if (started){
-				started = false;
-				listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT);
-			}
-
-			if (exitClicked){
-				exitClicked = false;
-				listener.exitScreen(this, WorldController.EXIT_QUIT);
+			for (int i=0; i<worlds.length; i++){
+//				if (worlds[i].isOver()){
+//					worlds[i].getStyle().up =
+//				}
+				if (worldsClicked[i]==true){
+					listener.exitScreen(this, i);
+				}
 			}
 		}
 	}

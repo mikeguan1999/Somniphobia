@@ -1,0 +1,19 @@
+{
+	"textures": {
+        "title": "world_selection/world selection_text.png",
+        "background": "world_selection/bg.png",
+		"world1": "world_selection/forest_worldselect.png",
+        "world2": "world_selection/world2_worldselect.png",
+        "world3": "world_selection/world3_world selection.png",
+        "world4": "world_selection/world4_worldselection.png",
+        "world5": "world_selection/world4_worldselection.png",
+        "button": "world_selection/button.png",
+        "blue_arrow": "world_selection/backwitharrow_blue.png",
+        "phobia1": "world_selection/acro_phobia.png",
+        "phobia5": "world_selection/phobia_phobia.png",
+        "phobia3": "world_selection/claustrophobia.png",
+        "phobia4": "world_selection/megalo_phobia.png",
+        "phobia2": "world_selection/automatono_phobia.png"
+    }
+}
+

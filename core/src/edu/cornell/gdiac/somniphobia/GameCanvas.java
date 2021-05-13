@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
 
 /**
  * Primary view class for the game, abstracting the basic graphics calls.
