@@ -11,6 +11,7 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -498,7 +499,6 @@ public class LevelController extends WorldController {
 				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
 			}
 		});
-
 		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
@@ -513,12 +513,8 @@ public class LevelController extends WorldController {
 	 * Resets the position of the pauseMenu relative to the camera's position
 	 */
 	public void setPositionPauseMenu(){
-		if (isfullscreen) {
-			float ratio = 1024/ canvas.getWidth();
-			pauseMenu.setPosition(camera.position.x- canvas.getWidth()*ratio/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
-		}else {
-			pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
-		}
+		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
+
 
 	}
 
@@ -618,6 +614,12 @@ public class LevelController extends WorldController {
 	}
 
 	public void setPositionMenu(Table menu){
+		if (isfullscreen) {
+			float ratio = 1024/ canvas.getWidth();
+			menu.setPosition(camera.position.x- canvas.getWidth()*ratio/4, camera.position.y-canvas.getHeight()*ratio/4);
+		}else {
+			menu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
+		}
 		menu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
 	}
 
@@ -891,7 +893,13 @@ public class LevelController extends WorldController {
 	 */
 	public void drawPauseButton(){
 		Batch b = canvas.getBatch();
-		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
+		if(isfullscreen){
+			float xOffSet = Gdx.graphics.getWidth() * .347f;
+			float yOffSet = Gdx.graphics.getHeight() *.3906f;
+			pauseButton.setPosition(camera.position.x+xOffSet, camera.position.y+yOffSet);
+		}else {
+			pauseButton.setPosition(camera.position.x + PAUSE_BUTTON_OFFSETX, camera.position.y + PAUSE_BUTTON_OFFSETY);
+		}
 		pauseButton.draw(b, 1);
 	}
 
@@ -1559,19 +1567,85 @@ public class LevelController extends WorldController {
 			movementController.setJustPropelled(false);
 		}
 		//fullscreen
+		if(camera!=null){
+			//System.out.println(camera.position);
+		}
 		if(InputController.getInstance().didFullscreen() && !isfullscreen){
 			System.out.println("Before fullscreen:");
 			System.out.println(Gdx.graphics.getHeight());
 			System.out.println(Gdx.graphics.getWidth());
-			System.out.println(somni.getPosition());
+			System.out.println("Canvas Camera");
+			System.out.println(canvas.getCamera().viewportHeight);
+			System.out.println(canvas.getCamera().viewportWidth);
+			System.out.println(canvas.getCamera().position);
+			System.out.println("Levelcontroller Camera");
+			System.out.println(camera.viewportHeight);
+			System.out.println(camera.viewportWidth);
+			System.out.println(camera.position);
+			//System.out.println(canvas.getHeight());
+			//System.out.println(canvas.getWidth());
+			//System.out.println(canvas.getViewPort().getScreenHeight());
+			//System.out.println(canvas.getViewPort().getScreenWidth());
+			//System.out.println(canvas.getViewPort().getScreenX());
+			//System.out.println(canvas.getViewPort().getScreenY());
+			System.out.println(maskWidth);
+			System.out.println(maskHeight);
+			System.out.println(alpha_background.getHeight());
+			System.out.println(alpha_background.getWidth());
+
 			Gdx.graphics.setFullscreenMode((Gdx.graphics.getDisplayMode()));
+			OrthographicCamera cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+			//alpha_background = createRectangularTexture(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+			//cam.viewportHeight = appHeight;
+			//cam.viewportWidth = appWidth;
+			//cam.translate(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 0);
+			//cam.update();
+			//canvas.setViewPort(new FitViewport(cam.viewportWidth, cam.viewportHeight, cam));
+			//canvas.setCamera(cam);
+			//camera = cam;
+			//canvas.getViewPort().setScreenSize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+			//canvas.getViewPort().setScreenPosition(Gdx.graphics.getWidth()/2,Gdx.goraphics.getHeight()/2);
+			float xOffSet = Gdx.graphics.getWidth() * .347f;
+			float yOffSet = Gdx.graphics.getHeight() *.3906f;
+			//pauseButton.setPosition(camera.position.x+xOffSet, camera.position.y+yOffSet);
+			//drawPauseButton();
+			/*
+			camera = cam;
+			cam.viewportHeight = appHeight;
+			cam.viewportWidth = appWidth;
+			cam.translate(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 0);
+			cam.update();*/
+			canvas = new GameCanvas();
+			camera = cam;
+			camera.viewportHeight = appHeight;
+			camera.viewportWidth = appWidth;
+			fbo= null;
+			alpha_background = null;
+			camera.translate(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0);
+			camera.combined.scale(Gdx.graphics.getWidth()/1024,Gdx.graphics.getHeight()/576,1);
+			camera.update();
+			canvas.setCamera(camera);
+
+
 			System.out.println("After fullscreen:");
 			System.out.println(Gdx.graphics.getHeight());
 			System.out.println(Gdx.graphics.getWidth());
-			System.out.println(somni.getPosition());
-			int h = Gdx.graphics.getHeight();
-			int w = Gdx.graphics.getWidth();
-			canvas.setSize(w,h);
+			System.out.println("Canvas Camera");
+			System.out.println(canvas.getCamera().viewportHeight);
+			System.out.println(canvas.getCamera().viewportWidth);
+			System.out.println(canvas.getCamera().position);
+			System.out.println("Levelcontroller Camera");
+			System.out.println(camera.viewportHeight);
+			System.out.println(camera.viewportWidth);
+			System.out.println(camera.position);
+			//System.out.println(canvas.getHeight());
+			//System.out.println(canvas.getWidth());
+			//System.out.println(canvas.getViewPort().getScreenHeight());
+			//System.out.println(canvas.getViewPort().getScreenWidth());
+			//System.out.println(canvas.getViewPort().getScreenX());
+			//System.out.println(canvas.getViewPort().getScreenY());
+			System.out.println(maskWidth);
+			System.out.println(maskHeight);
 			//canvas.setFullscreen(true,true);
 			isfullscreen = true;
 		}
@@ -1579,6 +1653,13 @@ public class LevelController extends WorldController {
 			System.out.println(Gdx.graphics.getHeight());
 			System.out.println(Gdx.graphics.getWidth());
 			Gdx.graphics.setWindowedMode(appWidth,appHeight);
+			canvas = new GameCanvas();
+			fbo= null;
+			alpha_background = null;
+			//canvas.getViewPort().setScreenSize(appWidth,appHeight);
+			//canvas.getCamera().viewportHeight = appHeight;
+			//canvas.getCamera().viewportWidth = appWidth;
+			//canvas.getViewPort().setScreenPosition(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2);
 			//canvas.setFullscreen(false,true);
 			isfullscreen = false;
 		}
@@ -1621,9 +1702,9 @@ public class LevelController extends WorldController {
 			newX = Math.max(canvas.getWidth() / 2, newX);
 		}
 		float displacementX = newX - camera.position.x;
-		System.out.println(newX);
-		System.out.println(String.format("panMovement: %s", panMovement.x));
-		System.out.println(String.format("displacementX: %s", displacementX));
+		//System.out.println(newX);
+		//System.out.println(String.format("panMovement: %s", panMovement.x));
+		//System.out.println(String.format("displacementX: %s", displacementX));
 		float lerpDisplacementX = Math.abs(displacementX + panMovement.x) < PAN_DISTANCE * canvas.PPM ?
 				displacementX + panMovement.x : displacementX;
 		camera.position.x += lerpDisplacementX * LERP * dt;
@@ -1642,7 +1723,7 @@ public class LevelController extends WorldController {
 		float lerpDisplacementY = Math.abs(displacementY + panMovement.y) < PAN_DISTANCE * canvas.PPM ?
 				displacementY + panMovement.y : displacementY;
 		camera.position.y += lerpDisplacementY * LERP * dt;
-		System.out.println(PAN_DISTANCE * canvas.PPM);
+		//System.out.println(PAN_DISTANCE * canvas.PPM);
 		camera.update();
 
 	}
@@ -1807,6 +1888,8 @@ public class LevelController extends WorldController {
 	private boolean riftCoversCameraBounds(float cameraX, float cameraY, float maskWidth, float maskHeight,
 										   CharacterModel character) {
 		updateMaskPosition(maskWidth, maskHeight, character);
+		if(isfullscreen){maskOffset = 2000;}
+		else{maskOffset =1000;}
 		boolean coversLeft = maskOrigin.x + maskOffset < cameraX;
 		boolean coversRight = maskOrigin.x + maskWidth - maskOffset > cameraX + canvas.getWidth();
 		boolean coversBottom = maskOrigin.y + maskOffset < cameraY;
@@ -1825,7 +1908,7 @@ public class LevelController extends WorldController {
 
 		CharacterModel lead = movementController.getLead();
 		canvas.clear();
-
+		Camera camera = canvas.getCamera();
 		float cameraX = camera.position.x - canvas.getWidth() / 2;
 		float cameraY = camera.position.y - canvas.getHeight() / 2;
 

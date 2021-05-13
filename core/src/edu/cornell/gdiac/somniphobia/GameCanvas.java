@@ -23,7 +23,9 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 /**
  * Primary view class for the game, abstracting the basic graphics calls.
@@ -54,6 +56,8 @@ public class GameCanvas {
 	public OrthographicCamera getCamera() {
 		return camera;
 	}
+
+
 
 	public void setCamera(OrthographicCamera value) {
 		camera = value;
@@ -135,7 +139,7 @@ public class GameCanvas {
 	 */
 	private OrthographicCamera camera;
 
-	private FitViewport viewport;
+	private ExtendViewport viewport;
 
 	public final float PPM = 32;
 
@@ -183,8 +187,7 @@ public class GameCanvas {
 		camera.update();
 		spriteBatch.setProjectionMatrix(camera.combined);
 		debugRender.setProjectionMatrix(camera.combined);
-		viewport = new FitViewport(camera.viewportWidth, camera.viewportHeight, camera);
-
+		viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight, camera);
 		// Initialize the cache objects
 		holder = new TextureRegion();
 		local = new Affine2();
@@ -223,8 +226,17 @@ public class GameCanvas {
 	 *
 	 * @return the viewport
 	 */
-	public FitViewport getViewPort() {
+	public ExtendViewport getViewPort() {
 		return viewport;
+	}
+
+	/**
+	 * changes the view port
+	 *
+	 *
+	 */
+	public void setViewPort(ExtendViewport f) {
+		viewport = f;
 	}
 
 	/**
