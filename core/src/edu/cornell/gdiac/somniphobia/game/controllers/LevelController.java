@@ -407,6 +407,22 @@ public class LevelController extends WorldController {
 	private int cameraDelay = 0;
 	private Stage stage;
 
+	/// VARIABLES FOR DRAWING AND ANIMATION OF BACKGROUNDS
+	/** CURRENT image for this background. May change over time. */
+	private FilmStrip backgroundAnimator;
+	/** Reference to texture origin */
+	private Vector2 backgroundOrigin;
+	/** How fast we change frames (one frame per 10 calls to update) */
+	private float backgroundAnimationSpeed = 0.1f;
+	/** The number of animation frames in our filmstrip */
+	private int backgroundNumAnimFrames = 15;
+	/** Current animation frame for this shell */
+	private float backgroundAnimeframe = 0.0f;
+	/** Pixel width of the current texture */
+	private double backgroundEntirePixelWidth;
+	/** Pixel width of the current frame in the texture */
+	private double backgroundFramePixelWidth = 32;
+
 
 
 	/**
@@ -1351,6 +1367,8 @@ public class LevelController extends WorldController {
 		backgroundLightTexture = backgrounds[backgroundTextureIndex - 1];
 		backgroundDarkTexture = backgrounds[backgroundTextureIndex];
 		backgroundTexture = backgroundLightTexture;
+		backgroundAnimator = new FilmStrip(backgroundTexture,1, backgroundNumAnimFrames, backgroundNumAnimFrames);
+		backgroundOrigin = new Vector2(backgroundAnimator.getRegionWidth()/2.0f, backgroundAnimator.getRegionHeight()/2.0f);
 
 		// Set level bounds
 		widthUpperBound = levelAssets.get("dimensions").getInt(0);
@@ -1530,7 +1548,11 @@ public class LevelController extends WorldController {
 			switching = !switching;
 
 		}
-
+		// Increase animation frame of background
+		backgroundAnimeframe += backgroundAnimationSpeed;
+		if (backgroundAnimeframe >= backgroundNumAnimFrames) {
+			backgroundAnimeframe = 0;
+		}
 
 		if(holdingHands){
 			if(lead == somni){
@@ -1703,7 +1725,9 @@ public class LevelController extends WorldController {
 		fbo.begin();
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 		TextureRegion background = character.equals(somni) ? backgroundLightTexture : backgroundDarkTexture;
-		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(background);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 		fbo.end();
 	}

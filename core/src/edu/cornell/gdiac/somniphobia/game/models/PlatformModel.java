@@ -265,10 +265,6 @@ public class PlatformModel extends BoxObstacle {
             }
             FilmStrip tempAnimator = animator;
             tempAnimator.setFrame((int)animeframe);
-//            texture.setRegion(0, 0, 32, 32);
-//            Texture tempAnimatorTexture =  tempAnimator.getTexture();
-//            TextureRegion tempAnimator2 = new TextureRegion(tempAnimatorTexture);
-//            tempAnimator2.setRegion(0,0, width, height);
             canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
@@ -288,10 +284,6 @@ public class PlatformModel extends BoxObstacle {
             }
             FilmStrip tempAnimator = animator;
             tempAnimator.setFrame((int)animeframe);
-//            texture.setRegion(0, 0, 32, 32);
-//            Texture tempAnimatorTexture =  tempAnimator.getTexture();
-//            TextureRegion tempAnimator2 = new TextureRegion(tempAnimatorTexture);
-//            tempAnimator2.setRegion(0,0, width, height);
             canvas.draw(tempAnimator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
