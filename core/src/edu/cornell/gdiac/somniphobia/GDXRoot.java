@@ -14,6 +14,10 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelController;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
@@ -51,9 +55,11 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 
+	/** World selection screen variables */
+	static public int totalNumWorlds = 5;
+
 	/** Level selection screen variables */
 	static public int totalNumLevels = 36;
-	private MenuScrollable menu;
 
 	private OrthographicCamera cam;
 	private MainMenu mainMenu;
@@ -61,9 +67,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	static private final int LEVEL_CONTROLLER_INDEX = 0;
 	static private final int LEVEL_CREATOR_INDEX = 1;
 
-	private WorldSelect worldSelectMenu;
-	private MenuScrollable [] menus;
-	private final int numWorlds=5;
+	static private WorldSelect worldSelectMenu;
+	static private MenuScrollable [] menus;
+	static private String[][] levels;
 //	in the sequence of first row then second row of buttons in the world selector
 	private int [] worldToNumLevels = {5, 7, 8, 2, 4};
 	private boolean [] levelsCompleted;
@@ -93,38 +99,9 @@ public class GDXRoot extends Game implements ScreenListener {
 		worldSelectMenu = new WorldSelect(canvas);
 		levelsCompleted = new boolean[totalNumLevels];
 
-//		for (int k=0; k< totalNumLevels; k++){
-//			levelsCompleted[k] = true;
-//		}
+		menus = new MenuScrollable[totalNumWorlds];
+		levels = new String[totalNumWorlds][];
 
-
-//		menuPages = new Menu[numPages];
-//		for (int i=0; i<menuPages.length; i++){
-//			if (i==0){
-//				Menu menu = new Menu(canvas, false, true, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//			else if (i== menuPages.length-1){
-//				Menu menu = new Menu(canvas, true, false, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//			else {
-//				Menu menu = new Menu(canvas, true, true, i*numLevelsPerPage, totalNumLevels);
-//				menuPages[i] = menu;
-//			}
-//		}
-//		0123
-//				4567
-//						891011
-//
-//		currentMenuIndex = 0;
-//		currentMenu = menuPages[currentMenuIndex];
-		menus = new MenuScrollable[numWorlds];
-		for (int i=0; i< menus.length; i++){
-			menus[i] = new MenuScrollable(canvas, worldToNumLevels[i], i, levelsCompleted);
-		}
-
-		menu = new MenuScrollable(canvas, totalNumLevels, 0, levelsCompleted);
 		mainMenu = new MainMenu(canvas);
 
 		// Initialize the Platformer Controller
@@ -164,7 +141,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			controllers[ii].dispose();
 		}
 
-		menu.dispose();
 		canvas.dispose();
 		mainMenu.dispose();
 		canvas = null;
@@ -196,8 +172,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	 *  otherwise, prepares for level `num`. */
 	static public void prepareLevelJson(int num, boolean increment) {
 		LevelController lc = (LevelController) controllers[LEVEL_CONTROLLER_INDEX];
-		lc.setLevel(increment ? lc.getLevel() + num : num);
-		lc.gatherLevelJson(directory);
+		int newLevel = increment ? lc.getLevel() + num : num;
+		lc.setLevel(newLevel);
+		lc.gatherLevelJson(levels[worldSelectMenu.currentWorld][newLevel-1]);
 	}
 
 	static public Preferences getPreferences() {
@@ -230,18 +207,31 @@ public class GDXRoot extends Game implements ScreenListener {
 			for (int ii = 0; ii < controllers.length; ii++) {
 				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
-				if (ii == LEVEL_CONTROLLER_INDEX) {
-					prepareLevelJson(1, false);
-				}
+				//if (ii == LEVEL_CONTROLLER_INDEX) {
+				//	prepareLevelJson(1, false);
+				//}
 				controllers[ii].setScreenListener(this);
 				controllers[ii].setCanvas(canvas);
 				controllers[ii].setPlatController(platformController);
 			}
 
-			menu.setScreenListener(this);
-
 			mainMenu.setScreenListener(this);
 			setScreen(mainMenu);
+
+			// Set up World Select menu
+			JsonValue worlds = directory.getEntry("worlds", JsonValue.class);
+			for(int i = 1; i <= menus.length; i++) {
+				JsonValue world = worlds.get("world" + i);
+				String[] levels = world.get("levels").asStringArray();
+				menus[i-1] = new MenuScrollable(canvas, levels.length);
+				this.levels[i-1] = levels;
+				TextureRegion background = new TextureRegion(directory.getEntry(
+						world.get("worldMenuBackground").asString(), Texture.class ));
+				menus[i-1].setBackground(background);
+				TextureRegionDrawable door = new TextureRegionDrawable(directory.getEntry(
+						world.get("worldMenuDoor").asString(), Texture.class ));
+				menus[i-1].setDoorImages(door);
+			}
 
 			loading.dispose();
 			loading = null;
@@ -256,10 +246,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			setScreen(worldSelectMenu);
 		} else if(exitCode==WorldController.EXIT_LEVEL_SELECT_ENTER) {
 			menus[worldSelectMenu.currentWorld].setScreenListener(this);
-			setScreen(menu);
+			setScreen(menus[worldSelectMenu.currentWorld]);
 		} else if(exitCode==WorldController.EXIT_NEW_LEVEL) {
-			prepareLevelJson(menu.currentLevel, false);
-			currentIndexController = menu.currentLevel;
+			prepareLevelJson(menus[worldSelectMenu.currentWorld].currentLevel, false);
+			currentIndexController = menus[worldSelectMenu.currentWorld].currentLevel;
 			controllers[current].reset();
 			setScreen(controllers[current]);
 		} else if (exitCode == WorldController.EXIT_NEXT) {

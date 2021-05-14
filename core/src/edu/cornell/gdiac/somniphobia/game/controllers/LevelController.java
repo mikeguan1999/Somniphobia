@@ -11,6 +11,7 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.files.FileHandle;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -1139,19 +1140,20 @@ public class LevelController extends WorldController {
 	/**
 	 * Gather the level JSON for this controller.
 	 *
-	 * This method extracts the asset variables from the given asset directory. It
-	 * should only be called after the asset directory is completed.
+	 * This method extracts the asset variables from the given JSON.
 	 *
-	 * @param directory	Reference to global asset manager.
+	 * @param filename	Reference to the level JSON.
 	 */
-	public void gatherLevelJson(AssetDirectory directory) {
+	public void gatherLevelJson(String filename) {
 		if(level == 0) { // Get level editor level
 			Preferences prefs = GDXRoot.getPreferences();
 			if(prefs.contains("playLevel")) {
 				levelAssets = new JsonReader().parse(prefs.getString("playLevel"));
 			}
 		} else {
-			levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
+			FileHandle file = Gdx.files.internal(filename);
+			String text = file.readString();
+			levelAssets = new JsonReader().parse(text);//directory.getEntry( String.format("level%d", level), JsonValue.class);
 		}
 	}
 
@@ -1174,9 +1176,7 @@ public class LevelController extends WorldController {
 
 	/** Sets the current level */
 	public void setLevel(int level) {
-		int newLevel = Math.min(level, GDXRoot.totalNumLevels); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
-		newLevel = Math.max(0, newLevel);
-		this.level = newLevel;
+		this.level = Math.max(0, level);
 	}
 	/**
 	 * Resets the status of the game so that we can play again.
