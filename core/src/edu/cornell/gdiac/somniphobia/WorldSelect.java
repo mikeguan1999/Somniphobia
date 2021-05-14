@@ -26,11 +26,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -71,7 +71,7 @@ public class WorldSelect implements Screen {
 	private Button arrow;
 	private Button [] worlds;
 	private final int numWorlds = 5;
-	private int i;
+	public int currentWorld;
 	private boolean[] worldsClicked;
 	private TextureRegionDrawable upImage;
 	private TextureRegionDrawable [] overImages = new TextureRegionDrawable[numWorlds];
@@ -111,14 +111,14 @@ public class WorldSelect implements Screen {
 
 		worldsClicked = new boolean[numWorlds];
 		worlds = new Button[numWorlds];
-		for(i=0; i<worlds.length; i++){
+		for(currentWorld =0; currentWorld <worlds.length; currentWorld++){
 //			worlds[i] = new Button(new TextureRegionDrawable(internal.getEntry("world"+(i+1), Texture.class)));
 			upImage = new TextureRegionDrawable(internal.getEntry("button", Texture.class));
-			overImages[i] = new TextureRegionDrawable(internal.getEntry("phobia"+(i+1), Texture.class));
-			worlds[i] = new Button(upImage);
-			worlds[i].getStyle().over = overImages[i];
-			worlds[i].addListener(new ClickListener() {
-				int saved_i = i;
+			overImages[currentWorld] = new TextureRegionDrawable(internal.getEntry("phobia"+(currentWorld +1), Texture.class));
+			worlds[currentWorld] = new Button(upImage);
+			worlds[currentWorld].getStyle().over = overImages[currentWorld];
+			worlds[currentWorld].addListener(new ClickListener() {
+				int saved_i = currentWorld;
 				public void clicked(InputEvent event, float x, float y) {
 					worldsClicked[saved_i] = true;
 				}
@@ -137,20 +137,20 @@ public class WorldSelect implements Screen {
 		table.row();
 		table.add(titleImage).size(titleImage.getWidth()/2, titleImage.getHeight()/2).colspan(4);
 		table.row();
-		for(i=0; i<worlds.length; i++){
-			if (i==0){
-				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padLeft(50);
+		for(currentWorld =0; currentWorld <worlds.length; currentWorld++){
+			if (currentWorld ==0){
+				table.add(worlds[currentWorld]).size(worlds[currentWorld].getWidth()/2, worlds[currentWorld].getHeight()/2).space(50).padLeft(50);
 			}
-			else if (i==4){
-				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padBottom(100);
+			else if (currentWorld ==4){
+				table.add(worlds[currentWorld]).size(worlds[currentWorld].getWidth()/2, worlds[currentWorld].getHeight()/2).space(50).padBottom(100);
 			}
-			else if (i==3){
-				table.add(worlds[i]).size(worlds[i].getWidth()/2, worlds[i].getHeight()/2).space(50).padLeft(50).padBottom(100);
+			else if (currentWorld ==3){
+				table.add(worlds[currentWorld]).size(worlds[currentWorld].getWidth()/2, worlds[currentWorld].getHeight()/2).space(50).padLeft(50).padBottom(100);
 			}
 			else {
-				table.add(worlds[i]).size(worlds[i].getWidth() / 2, worlds[i].getHeight() / 2).space(50);
+				table.add(worlds[currentWorld]).size(worlds[currentWorld].getWidth() / 2, worlds[currentWorld].getHeight() / 2).space(50);
 			}
-			if (i==2){
+			if (currentWorld ==2){
 				table.row();
 			}
 		}
@@ -223,7 +223,7 @@ public class WorldSelect implements Screen {
 			stage.draw();
 
 			if (prevClicked){
-				listener.exitScreen(this, WorldController.EXIT_MAIN_SCREEN);
+				listener.exitScreen(this, WorldController.EXIT_MAIN_MENU_ENTER);
 				prevClicked = false;
 			}
 
@@ -232,7 +232,8 @@ public class WorldSelect implements Screen {
 //					worlds[i].getStyle().up =
 //				}
 				if (worldsClicked[i]==true){
-					listener.exitScreen(this, i);
+					currentWorld = i;
+					listener.exitScreen(this, WorldController.EXIT_LEVEL_SELECT_ENTER);
 				}
 			}
 		}

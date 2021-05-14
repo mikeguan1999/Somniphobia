@@ -55,14 +55,18 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_NEXT = 1;
 	/** Exit code for jumping back to previous level */
 	public static final int EXIT_PREV = 2;
-	/** Exit code for jumping back to level selection menu */
-	public static final int EXIT_MENU = 3;
+	/** Exit code for entering main menu */
+	public static final int EXIT_MAIN_MENU_ENTER = 3;
+	/** Exit code for entering world select */
+	public static final int EXIT_WORLD_SELECT_ENTER = 4;
+	/** Exit code for entering level select */
+	public static final int EXIT_LEVEL_SELECT_ENTER = 5;
+	/** Exit code for preparing new level */
+	public static final int EXIT_NEW_LEVEL = 6;
 	/** Exit code for jumping between play and edit mode */
-	public static final int EXIT_SWITCH = 4;
+	public static final int EXIT_SWITCH = 7;
     /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
-	public static final int EXIT_WORLD_SELECT = 5;
-	public static final int EXIT_MAIN_SCREEN = 6;
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;

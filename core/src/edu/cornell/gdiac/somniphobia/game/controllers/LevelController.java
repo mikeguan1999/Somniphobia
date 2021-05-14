@@ -1544,7 +1544,7 @@ public class LevelController extends WorldController {
 			setPause(false);
 			setFailure(false);
 			firstTimeRendered = true;
-			listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT);
+			listener.exitScreen(this, WorldController.EXIT_LEVEL_SELECT_ENTER);
 			setComplete(false);
 			exitClicked = false;
 			return false;
