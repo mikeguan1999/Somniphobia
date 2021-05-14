@@ -229,13 +229,36 @@
     "platform:barrier": "platform/barrier.png",
     "platform:bullet": "platform/bullet.png",
     "platform:vertex": "platform/vertex.png",
-    "platform:vertex1": "platform/vertex1.png",
-    "platform:vertex2": "platform/vertex2.png",
-    "platform:vertex3": "platform/vertex3.png",
-    "platform:vertex4": "platform/vertex4.png",
-    "platform:vertex5": "platform/vertex5.png",
-    "platform:vertex6": "platform/vertex6.png",
-
+    "platform:vertex1": {
+      "file": "platform/vertex1.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex2": {
+      "file": "platform/vertex2.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex3": {
+      "file": "platform/vertex3.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex4": {
+      "file": "platform/vertex4.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex5": {
+      "file": "platform/vertex5.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex6": {
+      "file": "platform/vertex6.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "platform:somni_stand": "platform/SomniStand.png",
     "platform:Somni_Idle": "platform/Somni_Idle.png",
     "platform:somni_walk": "platform/SomniWalk.png",
