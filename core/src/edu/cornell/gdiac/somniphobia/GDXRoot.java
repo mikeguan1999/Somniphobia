@@ -96,6 +96,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		worldSelectMenu = new WorldSelect(canvas);
 		levelsCompleted = new boolean[totalNumLevels];
 
+//		for (int k=0; k< totalNumLevels; k++){
+//			levelsCompleted[k] = true;
+//		}
+
 
 //		menuPages = new Menu[numPages];
 //		for (int i=0; i<menuPages.length; i++){
@@ -224,10 +228,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
-		LevelController pc = (LevelController) controllers[current];
-		if (pc.isComplete()){
-			levelsCompleted[pc.getLevel()-1] = true;
-		}
+//		LevelController pc = controllers[current];
+//		if (pc.isComplete()){
+//			levelsCompleted[pc.getLevel()-1] = true;
+//		}
 //		for (int k=0; k< controllers.length; k++){
 //			if (controllers[k].isComplete()){
 //				levelsCompleted[k] = true;

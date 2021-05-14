@@ -396,7 +396,7 @@ public class MenuScrollable implements Screen {
 	 * @param delta Number of seconds since last animation frame
 	 */
 	private void update(float delta) {
-		for (int i=0; i<buttons.length; i++){
+//		for (int i=0; i<buttons.length; i++){
 //			29 is how many levels we currently have, each world now have 10 levels (5*10=50>29)
 //			if ((startIndex*totalActualLevels+i)<29 && i!=0 && !levelsCompleted[startIndex*totalActualLevels+i-1]){
 //				buttons[i].setTouchable(Touchable.disabled);
@@ -405,8 +405,7 @@ public class MenuScrollable implements Screen {
 //			else{
 //				buttons[i].setColor(buttons[0].getColor());
 //				buttons[i].setTouchable(Touchable.enabled);
-//			}
-		}
+//		}
 		stage.getBatch().begin();
 		stage.getBatch().draw(background, camera.position.x-canvas.getWidth()/2, camera.position.y-canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight());
 		stage.getBatch().draw(titleTexture, camera.position.x-canvas.getWidth()/4+40, camera.position.y+canvas.getHeight()/4, TITLE_WIDTH, TITLE_HEIGHT);
