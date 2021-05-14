@@ -71,7 +71,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	static private MenuScrollable [] menus;
 	static private String[][] levels;
 //	in the sequence of first row then second row of buttons in the world selector
-	private int [] worldToNumLevels = {7, 7, 8, 2, 4};
+	private int [] worldToNumLevels = {5, 7, 8, 2, 4};
 	private boolean [] levelsCompleted;
 	private int currentIndexController;
 	private Stage pauseMenuStage;
@@ -235,10 +235,12 @@ public class GDXRoot extends Game implements ScreenListener {
 
 			loading.dispose();
 			loading = null;
+
 		} else if (exitCode==WorldController.EXIT_MAIN_MENU_ENTER) {
 			mainMenu.setScreenListener(this);
 			setScreen(mainMenu);
 		} else if (exitCode==WorldController.EXIT_WORLD_SELECT_ENTER){
+
 			worldSelectMenu = new WorldSelect(canvas);
 			worldSelectMenu.setScreenListener(this);
 			setScreen(worldSelectMenu);

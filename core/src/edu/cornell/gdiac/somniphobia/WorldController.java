@@ -67,6 +67,9 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_SWITCH = 7;
     /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
+	public static final int EXIT_WORLD_SELECT = -1;
+	public static final int EXIT_MAIN_SCREEN = -2;
+
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;

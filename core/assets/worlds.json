@@ -3,59 +3,61 @@
     "worldMenuBackground": "platform:background_dark_dreams",
     "worldMenuDoor": "platform:dreams_door",
     "levels": [
-      "levels/dream_propel_1.json",
-      "levels/dream_propel_2.json",
-      "levels/dream_propel_3.json",
-      "levels/dream_propel_4.json",
-      "levels/dream_propel_5.json",
-      "levels/dream_propel_6.json",
-      "levels/dream_propel_7.json"
+      "levels/dream_1.json",
+      "levels/dream_2.json",
+      "levels/dream_3.json",
+      "levels/dream_4.json",
+      "levels/dream_5.json"
     ]
     },
     "world2": {
       "worldMenuBackground": "platform:background_dark_house",
       "worldMenuDoor": "platform:house_door",
       "levels": [
-        "levels/house_tutorial_0.json",
-        "levels/house_tutorial_1.json",
-        "levels/house_tutorial_2.json",
-        "levels/house_tutorial_3.json",
-        "levels/house_tutorial_4.json",
-        "levels/house_tutorial_5.json",
-        "levels/house_tutorial_6.json",
-        "levels/house_tutorial_7.json"
+        "levels/houses_1.json",
+        "levels/houses_2.json",
+        "levels/houses_3.json",
+        "levels/houses_4.json",
+        "levels/houses_5.json",
+        "levels/houses_6.json"
       ]
     },
     "world3": {
       "worldMenuBackground": "platform:background_dark_forest",
       "worldMenuDoor": "platform:forest_door",
       "levels": [
-        "levels/forest_switch_1.json",
-        "levels/forest_switch_2.json",
-        "levels/forest_switch_3.json",
-        "levels/forest_handhold_1.json",
-        "levels/forest_handhold_2.json",
-        "levels/forest_separate_1.json",
-        "levels/forest_catch_1.json",
-        "levels/forest_dash_1.json"
+        "levels/forest_1.json",
+        "levels/forest_2.json",
+        "levels/forest_3.json",
+        "levels/forest_4.json",
+        "levels/forest_5.json",
+        "levels/forest_6.json",
+        "levels/forest_7.json",
+        "levels/forest_8.json",
+        "levels/forest_9.json"
       ]
     },
     "world4": {
       "worldMenuBackground": "platform:background_dark_gear",
       "worldMenuDoor": "platform:gear_door",
       "levels": [
-        "levels/gear_betademo.json",
-        "levels/gear_juggle.json"
+        "levels/gears_1.json",
+        "levels/gears_2.json",
+        "levels/gears_3.json",
+        "levels/gears_4.json",
+        "levels/gears_5.json"
       ]
     },
   "world5": {
     "worldMenuBackground": "platform:background_dark_statues",
     "worldMenuDoor": "platform:statues_door",
     "levels": [
-      "levels/statues_old_tutorial.json",
-      "levels/statues_tower.json",
-      "levels/statues_symmetry_puzzle.json",
-      "levels/statues_somnibros.json"
+      "levels/statues_1.json",
+      "levels/statues_2.json",
+      "levels/statues_3.json",
+      "levels/statues_4.json",
+      "levels/statues_5.json",
+      "levels/statues_6.json"
     ]
   }
 }
