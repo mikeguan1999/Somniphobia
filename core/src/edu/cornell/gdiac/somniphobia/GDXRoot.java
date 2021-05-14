@@ -262,7 +262,7 @@ public class GDXRoot extends Game implements ScreenListener {
 //			}
 			menus[exitCode].setScreenListener(this);
 			setScreen(menus[exitCode]);
-		} else if (screen instanceof MenuScrollable){
+		} else if (screen instanceof MenuScrollable && exitCode>=0){
 //			if (exitCode<0){
 //				if (exitCode==currentMenu.getLEFT_EXIT_CODE()){
 //					currentMenuIndex -= 1;
