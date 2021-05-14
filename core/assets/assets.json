@@ -310,6 +310,12 @@
     "platform:background_dark_house": "platform/BG_house_dark.png",
     "platform:background_light_statues": "platform/BG_statues_light.png",
     "platform:background_dark_statues": "platform/BG_statues_dark.png",
+
+    "platform:dreams_door": "menu/door3light.png",
+    "platform:house_door": "menu/door4light.png",
+    "platform:forest_door": "menu/door1light.png",
+    "platform:gear_door": "menu/door4light.png",
+    "platform:statues_door": "menu/door2light.png",
     /*
     "platform:animated_background_light_forest": "platform/ABG_Forest_Light.png",
     "platform:animated_background_dark_forest": "platform/ABG_Forest_Dark.png",
@@ -358,115 +364,58 @@
     "pause_menu:pause_button_blue":  "pause_menu/pause_button.png",
     "pause_menu:pause_button_red": "pause_menu/pause_red.png"
   },
-    "jsons"  : {
-        "constants": "constants.json",
-        "level1": "levels/house_tutorial_0.json",
-        "level2": "levels/house_tutorial_1.json",
-        "level3": "levels/house_tutorial_2.json",
-        "level4": "levels/house_tutorial_3.json",
-        "level5": "levels/house_tutorial_4.json",
-        "level6": "levels/house_tutorial_5.json",
-        "level7": "levels/house_tutorial_6.json",
-        "level8": "levels/house_tutorial_7.json",
-        "level9": "levels/forest_switch_1.json",
-        "level10": "levels/forest_switch_2.json",
-        "level11": "levels/forest_switch_3.json",
-        "level12": "levels/forest_handhold_1.json",
-        "level13": "levels/forest_handhold_2.json",
-        "level14": "levels/forest_separate_1.json",
-        "level15": "levels/forest_catch_1.json",
-        "level16": "levels/forest_dash_1.json",
-        "level17": "levels/dream_propel_1.json",
-        "level18": "levels/dream_propel_2.json",
-        "level19": "levels/dream_propel_3.json",
-        "level20": "levels/dream_propel_4.json",
-        "level21": "levels/dream_propel_5.json",
-        "level22": "levels/dream_propel_6.json",
-        "level23": "levels/dream_propel_7.json",
-        "level24": "levels/statues_old_tutorial.json",
-        "level25": "levels/statues_tower.json",
-        "level26": "levels/statues_symmetry_puzzle.json",
-        "level27": "levels/gear_betademo.json",
-        "level28": "levels/gear_juggle.json",
-        "level29": "levels/statues_somnibros.json",
-        "level30": "levels/jenna0.json",
-        "level31": "levels/jenna1.json",
-        "level32": "levels/jenna2.json",
-        "level33": "levels/jenna3.json",
-        "level34": "levels/jenna4.json",
-        "level35": "levels/houses.json",
-        "level36": "levels/mushroom.json"
-    },
-
-    // you got this :)
-    "worlds": {
-      "world1": {
-        "worldMenuAsset": "world_selection/dream_worldselect.png",
-        "levels": [
-          "levels/dream_propel_1.json",
-          "levels/dream_propel_2.json",
-          "levels/dream_propel_3.json",
-          "levels/dream_propel_4.json",
-          "levels/dream_propel_5.json",
-          "levels/dream_propel_6.json",
-          "levels/dream_propel_7.json"
-        ]
-      },
-      "world2": {
-        "worldMenuAsset": "world_selection/houses_worldselect.png",
-        "levels": [
-          "levels/house_tutorial_0.json",
-          "levels/house_tutorial_1.json",
-          "levels/house_tutorial_2.json",
-          "levels/house_tutorial_3.json",
-          "levels/house_tutorial_4.json",
-          "levels/house_tutorial_5.json",
-          "levels/house_tutorial_6.json",
-          "levels/house_tutorial_7.json"
-        ]
-      },
-      "world3": {
-        "worldMenuAsset": "world_selection/forest_worldselect.png",
-        "levels": [
-          "levels/forest_switch_1.json",
-          "levels/forest_switch_2.json",
-          "levels/forest_switch_3.json",
-          "levels/forest_handhold_1.json",
-          "levels/forest_handhold_2.json",
-          "levels/forest_separate_1.json",
-          "levels/forest_catch_1.json",
-          "levels/forest_dash_1.json"
-        ]
-      },
-      "world4": {
-        "worldMenuAsset": "world_selection/gears_worldselect.png",
-        "levels": [
-          "levels/gear_betademo.json",
-          "levels/gear_juggle.json"
-        ]
-      },
-      "world5": {
-        "worldMenuAsset": "world_selection/statues_worldselect.png",
-        "levels": [
-          "levels/statues_old_tutorial.json",
-          "levels/statues_tower.json",
-          "levels/statues_symmetry_puzzle.json",
-          "levels/statues_somnibros.json"
-        ]
+  "jsons"  : {
+      "constants": "constants.json",
+      "worlds": "worlds.json",
+      "level1": "levels/house_tutorial_0.json",
+      "level2": "levels/house_tutorial_1.json",
+      "level3": "levels/house_tutorial_2.json",
+      "level4": "levels/house_tutorial_3.json",
+      "level5": "levels/house_tutorial_4.json",
+      "level6": "levels/house_tutorial_5.json",
+      "level7": "levels/house_tutorial_6.json",
+      "level8": "levels/house_tutorial_7.json",
+      "level9": "levels/forest_switch_1.json",
+      "level10": "levels/forest_switch_2.json",
+      "level11": "levels/forest_switch_3.json",
+      "level12": "levels/forest_handhold_1.json",
+      "level13": "levels/forest_handhold_2.json",
+      "level14": "levels/forest_separate_1.json",
+      "level15": "levels/forest_catch_1.json",
+      "level16": "levels/forest_dash_1.json",
+      "level17": "levels/dream_propel_1.json",
+      "level18": "levels/dream_propel_2.json",
+      "level19": "levels/dream_propel_3.json",
+      "level20": "levels/dream_propel_4.json",
+      "level21": "levels/dream_propel_5.json",
+      "level22": "levels/dream_propel_6.json",
+      "level23": "levels/dream_propel_7.json",
+      "level24": "levels/statues_old_tutorial.json",
+      "level25": "levels/statues_tower.json",
+      "level26": "levels/statues_symmetry_puzzle.json",
+      "level27": "levels/gear_betademo.json",
+      "level28": "levels/gear_juggle.json",
+      "level29": "levels/statues_somnibros.json",
+      "level30": "levels/jenna0.json",
+      "level31": "levels/jenna1.json",
+      "level32": "levels/jenna2.json",
+      "level33": "levels/jenna3.json",
+      "level34": "levels/jenna4.json",
+      "level35": "levels/houses.json",
+      "level36": "levels/mushroom.json"
+  },
+  "sounds" : {
+      "platform:jump" : "platform/jump.mp3",
+      "platform:pew"  : "platform/pew.mp3",
+      "platform:plop" : "platform/plop.mp3",
+      "somniTrack": "audio/SomniTrack.mp3",
+      "phobiaTrack": "audio/PhobiaTrack.mp3",
+      "combinedTrack": "audio/CombinedTrack.mp3"
+  },
+  "fonts": {
+      "shared:retro": {
+          "file": "shared/RetroGame.ttf",
+          "size": 64
       }
-    },
-    "sounds" : {
-        "platform:jump" : "platform/jump.mp3",
-        "platform:pew"  : "platform/pew.mp3",
-        "platform:plop" : "platform/plop.mp3",
-        "somniTrack": "audio/SomniTrack.mp3",
-        "phobiaTrack": "audio/PhobiaTrack.mp3",
-        "combinedTrack": "audio/CombinedTrack.mp3"
-    },
-    "fonts": {
-        "shared:retro": {
-            "file": "shared/RetroGame.ttf",
-            "size": 64
-        }
-    }
+  }
 }

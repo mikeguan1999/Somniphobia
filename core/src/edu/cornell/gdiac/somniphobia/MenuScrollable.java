@@ -67,7 +67,6 @@ public class MenuScrollable implements Screen {
 	private Table table;
 	/** All buttons*/
 	private Button[] buttons;
-	private int totalActualLevels;
 	private int totalNumLevels;
 	private int numLevels = 4;
 	private final int FONT_SIZE = 60;
@@ -141,7 +140,7 @@ public class MenuScrollable implements Screen {
 		return stage;
 	}
 
-	public MenuScrollable(GameCanvas canvas, int totalLevels, int index, boolean [] levels) {
+	public MenuScrollable(GameCanvas canvas, int totalNumLevels) {
 		internal = new AssetDirectory( "level_select.json" );
 		internal.loadAssets();
 		internal.finishLoading();
@@ -154,6 +153,7 @@ public class MenuScrollable implements Screen {
 		cloudDrawable = new TextureRegionDrawable(internal.getEntry("cloud", Texture.class));
 		arrowTexture = internal.getEntry("back_arrow", Texture.class);
 		arrowDrawable = new TextureRegionDrawable(arrowTexture);
+		/*
 		if (index==0){
 			background = new TextureRegion(internal.getEntry("background_forest", Texture.class));
 		}
@@ -168,7 +168,7 @@ public class MenuScrollable implements Screen {
 		}
 		else {
 			background = new TextureRegion(internal.getEntry( "background_gears", Texture.class));
-		}
+		}*/
 
 		arrow = new Button(arrowDrawable);
 
@@ -177,18 +177,13 @@ public class MenuScrollable implements Screen {
 		}
 
 		this.canvas = canvas;
-		int numPages = totalNumLevels/numLevels;
-		if (totalNumLevels%numLevels != 0){
-			numPages += 1;
-		}
 
 		camera = new OrthographicCamera(canvas.getWidth(), canvas.getHeight());
 //		camera.translate(0, camera.viewportHeight / 2, 0);
 		stage = new Stage(new ScreenViewport(camera));
-		totalActualLevels = totalLevels;
-		startIndex = index;
-		levelsCompleted = levels;
-		totalNumLevels = 10;
+		//startIndex = index;
+		//levelsCompleted = levels;
+		this.totalNumLevels = totalNumLevels;
 		buttonsClicked = new boolean[totalNumLevels];
 		positionsX = new float[totalNumLevels];
 		zIndices = new int[totalNumLevels];
@@ -217,11 +212,6 @@ public class MenuScrollable implements Screen {
 					buttonsClicked[saved_i] = true;
 				}
 			});
-
-//			if ((startIndex*totalActualLevels+i)<totalActualLevels && i!=0 && !levelsCompleted[startIndex*totalActualLevels+i]){
-//				buttons[i].setDisabled(true);
-//				buttons[i].setColor(Color.GRAY);
-//			}
 			overImages[currentLevel %numLevels] = cloudDrawable;
 		}
 
@@ -239,6 +229,19 @@ public class MenuScrollable implements Screen {
 		resize(canvas.getWidth(),canvas.getHeight());
 	}
 
+	public void setBackground(TextureRegion tr) {
+		background = tr;
+	}
+
+	public void setDoorImages(TextureRegionDrawable door) {
+		for (int i=0; i<numLevels; i++){
+			upImages[i] = door;
+		}
+	}
+
+	public void setLevels(String[] levels) {
+
+	}
 
 	private void placeButtons(){
 		table = new Table();
@@ -250,18 +253,6 @@ public class MenuScrollable implements Screen {
 		table.add(titleImage).colspan(numLevels+4).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
 		titleImage.setVisible(false);
 		table.row();
-//
-//		for (int i=startIndex; i<startIndex+numLevels; i++) {
-//			if (i%numLevels==0){
-//				table.add(buttons[i]).padLeft(SIDE_PADDING).padTop(TOP_PADDING).size(DOOR_WIDTH, DOOR_HEIGHT).expandX();
-//			}
-//			else if (i%numLevels==3){
-//				table.add(buttons[i]).padRight(SIDE_PADDING).padTop(TOP_PADDING).size(DOOR_WIDTH, DOOR_HEIGHT).expandX();
-//			}
-//			else {
-//				table.add(buttons[i]).padTop(TOP_PADDING).size(DOOR_WIDTH, DOOR_HEIGHT).expandX();
-//			}
-//		}
 
 		for (int i=0; i<totalNumLevels;i++){
 			if (i==0){
@@ -274,17 +265,7 @@ public class MenuScrollable implements Screen {
 
 		leftButton = new ImageButton(leftButtonDrawable);
 		rightButton = new ImageButton(rightButtonDrawable);
-//
-//		table.add(leftButton).size(ARROW_SIZE, ARROW_SIZE);
-//		leftButton.addListener(new ClickListener() {
-//			public void clicked(InputEvent event, float x, float y) {
-//				toLeft = true;
-//			}
-//		});
-//
 
-
-//		table.add(rightButton).size(ARROW_SIZE, ARROW_SIZE);
 		Button[] cloudLineImages = new Button[totalNumLevels/numLevels+1];
 		for (int i=0; i<cloudLineImages.length; i++){
 			cloudLineImages[i] = new Button(cloudLineDrawable);
@@ -320,9 +301,6 @@ public class MenuScrollable implements Screen {
 		}
 
 		for (int i=0; i<totalNumLevels; i++){
-			if (i>=totalActualLevels){
-				buttons[i].setVisible(false);
-			}
 			buttons[i].getStyle().up = upImages[i%numLevels];
 		}
 
@@ -350,11 +328,6 @@ public class MenuScrollable implements Screen {
 		camera.position.y = 288;
 		camera.update();
 
-
-
-//		leftButton.setX(LEFT_BUTTON_POSITION);
-//		rightButton.setX(canvas.getWidth()-RIGHT_BUTTON_POSITION);
-//
 	}
 
 	/**
@@ -392,16 +365,6 @@ public class MenuScrollable implements Screen {
 	 * @param delta Number of seconds since last animation frame
 	 */
 	private void update(float delta) {
-//		for (int i=0; i<buttons.length; i++){
-//			29 is how many levels we currently have, each world now have 10 levels (5*10=50>29)
-//			if ((startIndex*totalActualLevels+i)<29 && i!=0 && !levelsCompleted[startIndex*totalActualLevels+i-1]){
-//				buttons[i].setTouchable(Touchable.disabled);
-//				buttons[i].setColor(Color.GRAY);
-//			}
-//			else{
-//				buttons[i].setColor(buttons[0].getColor());
-//				buttons[i].setTouchable(Touchable.enabled);
-//		}
 		stage.getBatch().begin();
 		stage.getBatch().draw(background, camera.position.x-canvas.getWidth()/2, camera.position.y-canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight());
 		stage.getBatch().draw(titleTexture, camera.position.x-canvas.getWidth()/4+40, camera.position.y+canvas.getHeight()/4, TITLE_WIDTH, TITLE_HEIGHT);
@@ -411,14 +374,10 @@ public class MenuScrollable implements Screen {
 			for (int i=0; i<totalNumLevels;i++){
 				zIndices[i] = buttons[i].getZIndex();
 			}
-//			initialCameraX = -canvas.getWidth()+canvas.getWidth()/2 + 100;
-//			System.out.println(initialCameraX);
-//			camera.position.x = initialCameraX;
-//			camera.position.y = 288;
 		}
 		else{
 			if (rightButton.isOver()){
-				if (camera.position.x<(buttons[totalNumLevels-3].getX())) {
+				if (camera.position.x<(buttons[totalNumLevels-1].getX())) {
 					leftButton.setVisible(true);
 					camera.translate(7, 0);
 					rightButton.setPosition(rightButton.getX() + 7, rightButton.getY());
@@ -440,13 +399,6 @@ public class MenuScrollable implements Screen {
 //
 		}
 		camera.update();
-
-
-		for (int i=0; i<totalNumLevels; i++){
-			if (i>=totalActualLevels){
-				buttons[i].setVisible(false);
-			}
-		}
 
 		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
 			if (buttons[currentLevel].isOver()){
@@ -513,7 +465,7 @@ public class MenuScrollable implements Screen {
 		for (int i=0; i<totalNumLevels; i++){
 			if (buttonsClicked[i]==true){
 				buttonsClicked = new boolean[totalNumLevels];
-				currentLevel = startIndex*totalActualLevels+i+1;
+				currentLevel = i+1;
 				listener.exitScreen(this, WorldController.EXIT_NEW_LEVEL);
 			}
 		}
