@@ -256,10 +256,6 @@ public class GDXRoot extends Game implements ScreenListener {
 
 			loading.dispose();
 			loading = null;
-		} else if (exitCode==WorldController.EXIT_WORLD_SELECT){
-			worldSelectMenu = new WorldSelect(canvas);
-			worldSelectMenu.setScreenListener(this);
-			setScreen(worldSelectMenu);
 		} else if (screen==worldSelectMenu && exitCode!=WorldController.EXIT_MAIN_SCREEN){
 //			for (int j=0; j< menus.length; j++){
 //				menus[j] = new MenuScrollable(canvas, worldToNumLevels[j], j, levelsCompleted);
@@ -283,6 +279,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			currentIndexController = exitCode+1;
 			controllers[current].reset();
 			setScreen(controllers[current]);
+		} else if (exitCode==WorldController.EXIT_WORLD_SELECT){
+			worldSelectMenu = new WorldSelect(canvas);
+			worldSelectMenu.setScreenListener(this);
+			setScreen(worldSelectMenu);
 		}
 		else if (exitCode==WorldController.EXIT_MAIN_SCREEN){
 		mainMenu.setScreenListener(this);
