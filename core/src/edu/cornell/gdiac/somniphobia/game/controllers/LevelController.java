@@ -1596,6 +1596,10 @@ public class LevelController extends WorldController {
 		action = movementController.update();
 		platformController.update(dt);
 
+		if (InputController.getInstance().didPressEscape()) {
+			setPause(true);
+		}
+
 		CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
 //		phobia = movementController.getPhobia();
