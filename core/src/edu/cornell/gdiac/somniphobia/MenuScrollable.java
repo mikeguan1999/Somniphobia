@@ -222,10 +222,10 @@ public class MenuScrollable implements Screen {
 				}
 			});
 
-			if ((startIndex*totalActualLevels+i)<totalActualLevels && i!=0 && !levelsCompleted[startIndex*totalActualLevels+i]){
-				buttons[i].setDisabled(true);
-				buttons[i].setColor(Color.GRAY);
-			}
+//			if ((startIndex*totalActualLevels+i)<totalActualLevels && i!=0 && !levelsCompleted[startIndex*totalActualLevels+i]){
+//				buttons[i].setDisabled(true);
+//				buttons[i].setColor(Color.GRAY);
+//			}
 			overImages[i%numLevels] = cloudDrawable;
 		}
 
@@ -398,14 +398,14 @@ public class MenuScrollable implements Screen {
 	private void update(float delta) {
 		for (int i=0; i<buttons.length; i++){
 //			29 is how many levels we currently have, each world now have 10 levels (5*10=50>29)
-			if ((startIndex*totalActualLevels+i)<29 && i!=0 && !levelsCompleted[startIndex*totalActualLevels+i-1]){
-				buttons[i].setTouchable(Touchable.disabled);
-				buttons[i].setColor(Color.GRAY);
-			}
-			else{
-				buttons[i].setColor(buttons[0].getColor());
-				buttons[i].setTouchable(Touchable.enabled);
-			}
+//			if ((startIndex*totalActualLevels+i)<29 && i!=0 && !levelsCompleted[startIndex*totalActualLevels+i-1]){
+//				buttons[i].setTouchable(Touchable.disabled);
+//				buttons[i].setColor(Color.GRAY);
+//			}
+//			else{
+//				buttons[i].setColor(buttons[0].getColor());
+//				buttons[i].setTouchable(Touchable.enabled);
+//			}
 		}
 		stage.getBatch().begin();
 		stage.getBatch().draw(background, camera.position.x-canvas.getWidth()/2, camera.position.y-canvas.getHeight()/2, canvas.getWidth(), canvas.getHeight());
