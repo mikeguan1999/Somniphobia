@@ -57,7 +57,7 @@ public class PlatformModel extends BoxObstacle {
     /** velocity for moving platform **/
     private float velocity;
 
-    private float rainingCooldown;
+    private float rainingCooldown = 0;
 
     /** Path for a moving obstacle **/
     private PooledList<Vector2> paths;
@@ -114,8 +114,6 @@ public class PlatformModel extends BoxObstacle {
         this.setTag(t);
         this.property = 0;
         this.isCurrentlyRaining = false;
-
-//        texture.setRegion(0, 0, width, height);
     }
 
     public float getLeftX() {
@@ -259,7 +257,7 @@ public class PlatformModel extends BoxObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        if (texture != null) {
+        if (texture != null && !(rainingCooldown < 0)) {
             if (animeframe >= numAnimFrames) {
                 animeframe = 0;
             }
@@ -278,7 +276,7 @@ public class PlatformModel extends BoxObstacle {
      * @param tint Tint to apply
      */
     public void drawWithTint(GameCanvas canvas, Color tint) {
-        if (texture != null) {
+        if (texture != null && !(rainingCooldown < 0)) {
             if (animeframe >= numAnimFrames) {
                 animeframe = 0;
             }

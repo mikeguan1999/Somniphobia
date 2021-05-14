@@ -171,10 +171,12 @@ public class PlatformController {
 
         for (Obstacle obstacle: currRainingPlatforms) {
             PlatformModel platform = (PlatformModel) obstacle;
-            if (platform.getRainingCooldown() <= 0) {
+            if (platform.getRainingCooldown() < 0) {
                 lightObjects.remove(platform);
                 darkObjects.remove(platform);
                 sharedObjects.remove(platform);
+//                movingObjects.remove(platform);
+//                currRainingPlatforms.remove(platform);
                 platform.markRemoved(true);
             } else {
                 platform.setRainingCooldown(platform.getRainingCooldown() - 1);
