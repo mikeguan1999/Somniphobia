@@ -472,6 +472,7 @@ public class LevelController extends WorldController {
 //		TextureRegionDrawable upButtonDrawable = createDrawable(upFilepath);
 //		Button imgButton= new Button(upButtonDrawable);
 //		return imgButton;
+//		return imgButton;
 //	}
 
 	/**
@@ -510,8 +511,8 @@ public class LevelController extends WorldController {
 		sliderSound.setDisabled(true);
 		pauseMenu.row();
 		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,70).padLeft(110).padTop(50);
-		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,80).padTop(50).padLeft(20);
-		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,70).padRight(110).padTop(50);
+		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,70).padTop(50).padLeft(20);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,80).padRight(110).padTop(50);
 		pauseMenu.row();
 		pauseMenu.add(underline);
 		underline.setVisible(false);
