@@ -177,6 +177,7 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setCharacterForce(float f){
 		force = f;
 	}
+	public void resetRingAnimation() {animeframeRing = 0;}
 	/**
 	 * Creates a new dude avatar with the given physics data
 	 *
