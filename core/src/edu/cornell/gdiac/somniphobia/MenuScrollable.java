@@ -68,7 +68,6 @@ public class MenuScrollable implements Screen {
 	/** All buttons*/
 	private Button[] buttons;
 	private int totalNumLevels;
-	private int numLevels = 4;
 	private final int FONT_SIZE = 60;
 	/** Setting the font color to the rgb values of black & visible, ie a=1*/
 	private final Color FONT_COLOR = Color.WHITE;
@@ -120,8 +119,8 @@ public class MenuScrollable implements Screen {
 	/** Whether this is the initial(first) iteration */
 	private boolean first=true;
 
-	private TextureRegionDrawable[] upImages = new TextureRegionDrawable[numLevels];
-	private TextureRegionDrawable[] overImages = new TextureRegionDrawable[numLevels];
+	private TextureRegionDrawable[] upImages;
+	private TextureRegionDrawable[] overImages;
 	private TextureRegion background;
 	private TextureRegionDrawable titleDrawable;
 	private Texture titleTexture;
@@ -172,10 +171,6 @@ public class MenuScrollable implements Screen {
 
 		arrow = new Button(arrowDrawable);
 
-		for (int i=0; i<numLevels; i++){
-			upImages[i] = new TextureRegionDrawable(internal.getEntry("door"+(i%numLevels+1), Texture.class));
-		}
-
 		this.canvas = canvas;
 
 		camera = new OrthographicCamera(canvas.getWidth(), canvas.getHeight());
@@ -188,6 +183,8 @@ public class MenuScrollable implements Screen {
 		positionsX = new float[totalNumLevels];
 		zIndices = new int[totalNumLevels];
 		zIndices = new int[totalNumLevels];
+		upImages = new TextureRegionDrawable[totalNumLevels];
+		overImages = new TextureRegionDrawable[totalNumLevels];
 
 //		Creating bmp font from ttf
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));
@@ -204,15 +201,15 @@ public class MenuScrollable implements Screen {
 //		System.out.println(font.getColor());
 
 		buttons = new ImageTextButton[totalNumLevels];
-		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
-			buttons[currentLevel] = createImageTextButton(upImages[currentLevel %numLevels], font, currentLevel +1);
+		for (currentLevel = 0; currentLevel <totalNumLevels; currentLevel++) {
+			buttons[currentLevel] = createImageTextButton(upImages[currentLevel], font, currentLevel +1);
 			buttons[currentLevel].addListener(new ClickListener() {
 				int saved_i = currentLevel;
 				public void clicked(InputEvent event, float x, float y) {
 					buttonsClicked[saved_i] = true;
 				}
 			});
-			overImages[currentLevel %numLevels] = cloudDrawable;
+			overImages[currentLevel] = cloudDrawable;
 		}
 
 
@@ -234,7 +231,7 @@ public class MenuScrollable implements Screen {
 	}
 
 	public void setDoorImages(TextureRegionDrawable door) {
-		for (int i=0; i<numLevels; i++){
+		for (int i=0; i< totalNumLevels; i++){
 			upImages[i] = door;
 		}
 	}
@@ -250,7 +247,7 @@ public class MenuScrollable implements Screen {
 		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2);;
 		table.row();
 		Image titleImage = new Image(titleDrawable);
-		table.add(titleImage).colspan(numLevels+4).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
+		table.add(titleImage).colspan(totalNumLevels+4).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
 		titleImage.setVisible(false);
 		table.row();
 
@@ -266,7 +263,7 @@ public class MenuScrollable implements Screen {
 		leftButton = new ImageButton(leftButtonDrawable);
 		rightButton = new ImageButton(rightButtonDrawable);
 
-		Button[] cloudLineImages = new Button[totalNumLevels/numLevels+1];
+		Button[] cloudLineImages = new Button[totalNumLevels];
 		for (int i=0; i<cloudLineImages.length; i++){
 			cloudLineImages[i] = new Button(cloudLineDrawable);
 			cloudLineImages[i].setDisabled(true);
@@ -301,7 +298,7 @@ public class MenuScrollable implements Screen {
 		}
 
 		for (int i=0; i<totalNumLevels; i++){
-			buttons[i].getStyle().up = upImages[i%numLevels];
+			buttons[i].getStyle().up = upImages[i];
 		}
 
 
@@ -317,12 +314,15 @@ public class MenuScrollable implements Screen {
 			cloudLineImages[i].setTouchable(Touchable.disabled);
 		}
 
-		arrow.setPosition(-362-canvas.getWidth()/2+10, canvas.getHeight()-arrow.getHeight()-10);
-		rightButton.setPosition(-362+canvas.getWidth()/2-200,120);
-		leftButton.setPosition(-362-canvas.getWidth()/2+90, 120);
+		int arrowButtonSidePadding = 15;
+		arrow.setPosition(-canvas.getWidth() / 2 + arrowButtonSidePadding,
+				canvas.getHeight() - arrow.getHeight() - arrowButtonSidePadding);
+		rightButton.setPosition(canvas.getWidth() / 2 - rightButton.getWidth(),canvas.getHeight() / 2 -
+				rightButton.getHeight() / 2);
+		leftButton.setPosition(-canvas.getWidth() / 2, canvas.getHeight() / 2 - rightButton.getHeight() / 2);
 		leftButton.setVisible(false);
 
-		initialCameraX = -362;
+		initialCameraX = 0;
 		System.out.println(initialCameraX);
 		camera.position.x = initialCameraX;
 		camera.position.y = 288;
@@ -404,7 +404,7 @@ public class MenuScrollable implements Screen {
 			if (buttons[currentLevel].isOver()){
 				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
 				btn.getStyle().fontColor = FONT_COLOR;
-				buttons[currentLevel].getStyle().up = overImages[currentLevel %numLevels];
+				buttons[currentLevel].getStyle().up = overImages[currentLevel];
 				buttons[currentLevel].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
 				buttons[currentLevel].setZIndex(buttons[buttons.length-1].getZIndex());
 
@@ -415,7 +415,7 @@ public class MenuScrollable implements Screen {
 			else{
 				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
 				btn.getStyle().fontColor = FONT_COLOR_TRANSPARENT;
-				buttons[currentLevel].getStyle().up = upImages[currentLevel %numLevels];
+				buttons[currentLevel].getStyle().up = upImages[currentLevel];
 				buttons[currentLevel].setZIndex(zIndices[currentLevel]);
 				buttons[currentLevel].setSize(DOOR_WIDTH, DOOR_HEIGHT);
 				Actor actor = (Actor) buttons[currentLevel];
