@@ -24,9 +24,9 @@ package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import edu.cornell.gdiac.util.*;
@@ -34,14 +34,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-
-import org.lwjgl.Sys;
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Class that provides a level selection screen.
@@ -66,7 +58,7 @@ public class Menu implements Screen {
 	/** The buttons in one row */
 	private Button[] buttons;
 	/** The global variable for access inside an inner class during an iteration */
-	private int i;
+	private int currentLevel;
 	/** Number of levels we have in one row */
 	private int numLevels=4;
 	/** Whether each individual button is clicked */
@@ -171,17 +163,17 @@ public class Menu implements Screen {
 
 
 		buttons = new ImageTextButton[totalNumLevels];
-		for (i=0; i<totalNumLevels; i++) {
+		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
 //			buttons[i] = createImageButton("menu\\door"+(i%numLevels+1)+".png");
-			buttons[i] = createImageTextButton("menu\\door"+(i%numLevels+1)+".png", font, i+1);
-			buttons[i].addListener(new ClickListener() {
-				int saved_i = i;
+			buttons[currentLevel] = createImageTextButton("menu\\door"+(currentLevel %numLevels+1)+".png", font, currentLevel +1);
+			buttons[currentLevel].addListener(new ClickListener() {
+				int saved_i = currentLevel;
 				public void clicked(InputEvent event, float x, float y) {
 					buttonsClicked[saved_i%numLevels] = true;
 				}
 			});
-			upImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(i%numLevels+1)+".png")));
-			overImages[i%numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloud"+(i%numLevels+1)+".png")));
+			upImages[currentLevel %numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\door"+(currentLevel %numLevels+1)+".png")));
+			overImages[currentLevel %numLevels] = new TextureRegionDrawable(new Texture(Gdx.files.internal("menu\\cloud"+(currentLevel %numLevels+1)+".png")));
 		}
 
 		leftButton = createImageButton("menu\\left_arrow.png");
@@ -314,23 +306,23 @@ public class Menu implements Screen {
 //			forestImage.setVisible(true);
 //			forestImageButton.setVisible(false);
 //		}
-		for (i=startIndex; i<startIndex+numLevels; i++) {
-			if (buttons[i].isOver()){
-				ImageTextButton btn = (ImageTextButton) buttons[i];
+		for (currentLevel =startIndex; currentLevel <startIndex+numLevels; currentLevel++) {
+			if (buttons[currentLevel].isOver()){
+				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
 				btn.getStyle().fontColor = FONT_COLOR;
-				buttons[i].getStyle().up = overImages[i%numLevels];
-				buttons[i].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
-				Actor actor = (Actor) buttons[i];
-				actor.setX(positionsX[i%numLevels]-CLOUD_OFFSETX);
+				buttons[currentLevel].getStyle().up = overImages[currentLevel %numLevels];
+				buttons[currentLevel].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
+				Actor actor = (Actor) buttons[currentLevel];
+				actor.setX(positionsX[currentLevel %numLevels]-CLOUD_OFFSETX);
 				actor.setY(initialButtonY-CLOUD_OFFSETY);
 			}
 			else{
-				ImageTextButton btn = (ImageTextButton) buttons[i];
+				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
 				btn.getStyle().fontColor = FONT_COLOR_TRANSPARENT;
-				buttons[i].getStyle().up = upImages[i%numLevels];
-				buttons[i].setSize(DOOR_WIDTH, DOOR_HEIGHT);
-				Actor actor = (Actor) buttons[i];
-				actor.setX(positionsX[i%numLevels]);
+				buttons[currentLevel].getStyle().up = upImages[currentLevel %numLevels];
+				buttons[currentLevel].setSize(DOOR_WIDTH, DOOR_HEIGHT);
+				Actor actor = (Actor) buttons[currentLevel];
+				actor.setX(positionsX[currentLevel %numLevels]);
 				actor.setY(initialButtonY);
 			}
 		}
@@ -379,7 +371,8 @@ public class Menu implements Screen {
 		for (int i=startIndex; i<startIndex+numLevels; i++){
 			if (buttonsClicked[i%numLevels]==true){
 				buttonsClicked = new boolean[numLevels];
-				listener.exitScreen(this, i);
+				currentLevel = i;
+				listener.exitScreen(this, WorldController.EXIT_NEW_LEVEL);
 			}
 		}
 		if (toRight){

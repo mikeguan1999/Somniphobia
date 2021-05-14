@@ -244,7 +244,7 @@ public class MainMenu implements Screen {
 
 			if (started){
 				started = false;
-				listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT);
+				listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT_ENTER);
 			}
 
 			if (exitClicked){

@@ -14,16 +14,13 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelController;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import org.lwjgl.Sys;
 
-import java.util.HashMap;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 /**
  * Root class for a LibGDX.  
@@ -211,14 +208,6 @@ public class GDXRoot extends Game implements ScreenListener {
 		preferences = prefs;
 	}
 
-	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
-	 *  otherwise, prepares for level `num`. */
-	public void prepareLevelJson(WorldController wc, int num, boolean increment, int world) {
-		LevelController pc = (LevelController) wc;
-		pc.setLevel(increment ? pc.getLevel() + num : num);
-		pc.gatherLevelJson(directory);
-	}
-
 	/**
 	 * The given screen has made a request to exit its player mode.
 	 *
@@ -238,14 +227,14 @@ public class GDXRoot extends Game implements ScreenListener {
 //			}
 //		}
 		if (screen == loading) {
-			for(int ii = 0; ii < controllers.length; ii++) {
+			for (int ii = 0; ii < controllers.length; ii++) {
 				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
 				if (ii == LEVEL_CONTROLLER_INDEX) {
 					prepareLevelJson(1, false);
 				}
 				controllers[ii].setScreenListener(this);
-				controllers [ii].setCanvas(canvas);
+				controllers[ii].setCanvas(canvas);
 				controllers[ii].setPlatController(platformController);
 			}
 
@@ -256,45 +245,29 @@ public class GDXRoot extends Game implements ScreenListener {
 
 			loading.dispose();
 			loading = null;
-		} else if (screen==worldSelectMenu && exitCode!=WorldController.EXIT_MAIN_SCREEN){
-//			for (int j=0; j< menus.length; j++){
-//				menus[j] = new MenuScrollable(canvas, worldToNumLevels[j], j, levelsCompleted);
-//			}
-			menus[exitCode].setScreenListener(this);
-			setScreen(menus[exitCode]);
-		} else if (screen instanceof MenuScrollable && exitCode>=0){
-//			if (exitCode<0){
-//				if (exitCode==currentMenu.getLEFT_EXIT_CODE()){
-//					currentMenuIndex -= 1;
-//				}
-//				else if (exitCode==currentMenu.getRIGHT_EXIT_CODE()) {
-//					currentMenuIndex += 1;
-//				}
-//				currentMenu = menuPages[currentMenuIndex];
-//				setScreen(currentMenu);
-//			}
-//			else {
-			prepareLevelJson(exitCode+1, false);
-			currentIndexController = exitCode+1;
-			currentIndexController = exitCode+1;
-			controllers[current].reset();
-			setScreen(controllers[current]);
-		} else if (exitCode==WorldController.EXIT_WORLD_SELECT){
+
+		} else if (exitCode==WorldController.EXIT_MAIN_MENU_ENTER) {
+			mainMenu.setScreenListener(this);
+			setScreen(mainMenu);
+		} else if (exitCode==WorldController.EXIT_WORLD_SELECT_ENTER){
+
 			worldSelectMenu = new WorldSelect(canvas);
 			worldSelectMenu.setScreenListener(this);
 			setScreen(worldSelectMenu);
-		}
-		else if (exitCode==WorldController.EXIT_MAIN_SCREEN){
-		mainMenu.setScreenListener(this);
-		setScreen(mainMenu);
-		}
-		else if (exitCode == WorldController.EXIT_NEXT) {
+		} else if(exitCode==WorldController.EXIT_LEVEL_SELECT_ENTER) {
+			menus[worldSelectMenu.currentWorld].setScreenListener(this);
+			setScreen(menu);
+		} else if(exitCode==WorldController.EXIT_NEW_LEVEL) {
+			prepareLevelJson(menu.currentLevel, false);
+			currentIndexController = menu.currentLevel;
+			controllers[current].reset();
+			setScreen(controllers[current]);
+		} else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(1, true);
 				controllers[current].reset();
 			}
-		}
-		else if (exitCode == WorldController.EXIT_PREV) {
+		} else if (exitCode == WorldController.EXIT_PREV) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
 				prepareLevelJson(-1, true);
 				controllers[current].reset();

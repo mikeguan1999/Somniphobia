@@ -41,10 +41,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.util.ScreenListener;
-import org.lwjgl.Sys;
-import org.w3c.dom.Text;
-
-import java.util.Arrays;
 
 /**
  * Class that provides a loading screen for the state of the game.
@@ -83,7 +79,7 @@ public class MenuScrollable implements Screen {
 	private final Color FONT_COLOR_TRANSPARENT = new Color(0,0,0,0);
 	private BitmapFont font;
 	/** The global variable for access inside an inner class during an iteration */
-	private int i;
+	public int currentLevel;
 	/** Whether each individual button is clicked */
 	private boolean[] buttonsClicked;
 	private float[] positionsX;
@@ -213,10 +209,10 @@ public class MenuScrollable implements Screen {
 //		System.out.println(font.getColor());
 
 		buttons = new ImageTextButton[totalNumLevels];
-		for (i=0; i<totalNumLevels; i++) {
-			buttons[i] = createImageTextButton(upImages[i%numLevels], font, i+1);
-			buttons[i].addListener(new ClickListener() {
-				int saved_i = i;
+		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
+			buttons[currentLevel] = createImageTextButton(upImages[currentLevel %numLevels], font, currentLevel +1);
+			buttons[currentLevel].addListener(new ClickListener() {
+				int saved_i = currentLevel;
 				public void clicked(InputEvent event, float x, float y) {
 					buttonsClicked[saved_i] = true;
 				}
@@ -226,7 +222,7 @@ public class MenuScrollable implements Screen {
 //				buttons[i].setDisabled(true);
 //				buttons[i].setColor(Color.GRAY);
 //			}
-			overImages[i%numLevels] = cloudDrawable;
+			overImages[currentLevel %numLevels] = cloudDrawable;
 		}
 
 
@@ -452,26 +448,26 @@ public class MenuScrollable implements Screen {
 			}
 		}
 
-		for (i=0; i<totalNumLevels; i++) {
-			if (buttons[i].isOver()){
-				ImageTextButton btn = (ImageTextButton) buttons[i];
+		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
+			if (buttons[currentLevel].isOver()){
+				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
 				btn.getStyle().fontColor = FONT_COLOR;
-				buttons[i].getStyle().up = overImages[i%numLevels];
-				buttons[i].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
-				buttons[i].setZIndex(buttons[buttons.length-1].getZIndex());
+				buttons[currentLevel].getStyle().up = overImages[currentLevel %numLevels];
+				buttons[currentLevel].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
+				buttons[currentLevel].setZIndex(buttons[buttons.length-1].getZIndex());
 
-				Actor actor = (Actor) buttons[i];
-				actor.setX(positionsX[i]-CLOUD_OFFSETX);
+				Actor actor = (Actor) buttons[currentLevel];
+				actor.setX(positionsX[currentLevel]-CLOUD_OFFSETX);
 				actor.setY(initialButtonY-CLOUD_OFFSETY);
 			}
 			else{
-				ImageTextButton btn = (ImageTextButton) buttons[i];
+				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
 				btn.getStyle().fontColor = FONT_COLOR_TRANSPARENT;
-				buttons[i].getStyle().up = upImages[i%numLevels];
-				buttons[i].setZIndex(zIndices[i]);
-				buttons[i].setSize(DOOR_WIDTH, DOOR_HEIGHT);
-				Actor actor = (Actor) buttons[i];
-				actor.setX(positionsX[i]);
+				buttons[currentLevel].getStyle().up = upImages[currentLevel %numLevels];
+				buttons[currentLevel].setZIndex(zIndices[currentLevel]);
+				buttons[currentLevel].setSize(DOOR_WIDTH, DOOR_HEIGHT);
+				Actor actor = (Actor) buttons[currentLevel];
+				actor.setX(positionsX[currentLevel]);
 				actor.setY(initialButtonY);
 			}
 		}
@@ -517,11 +513,12 @@ public class MenuScrollable implements Screen {
 		for (int i=0; i<totalNumLevels; i++){
 			if (buttonsClicked[i]==true){
 				buttonsClicked = new boolean[totalNumLevels];
-				listener.exitScreen(this, startIndex*totalActualLevels+i);
+				currentLevel = startIndex*totalActualLevels+i+1;
+				listener.exitScreen(this, WorldController.EXIT_NEW_LEVEL);
 			}
 		}
 		if (prevClicked){
-			listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT);
+			listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT_ENTER);
 			prevClicked = false;
 		}
 	}
