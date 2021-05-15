@@ -475,7 +475,9 @@ public class LevelController extends WorldController {
 //		return imgButton;
 //		return imgButton;
 //	}
-
+	public void setGameScreenActive(boolean x){
+		gameScreenActive = x;
+	}
 	/**
 	 * Creates the pauseMenu with the buttons
 	 */
