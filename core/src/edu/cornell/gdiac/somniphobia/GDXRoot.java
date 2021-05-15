@@ -170,11 +170,15 @@ public class GDXRoot extends Game implements ScreenListener {
 
 	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
 	 *  otherwise, prepares for level `num`. */
-	static public void prepareLevelJson(int num, boolean increment) {
+	static public boolean prepareLevelJson(int num, boolean increment) {
 		LevelController lc = (LevelController) controllers[LEVEL_CONTROLLER_INDEX];
 		int newLevel = increment ? lc.getLevel() + num : num;
+		if(newLevel <= 0 || newLevel > levels[worldSelectMenu.currentWorld].length) {
+			return false;
+		}
 		lc.setLevel(newLevel);
-		lc.gatherLevelJson(levels[worldSelectMenu.currentWorld][newLevel-1]);
+		lc.gatherLevelJson(newLevel == 0 ? "playLevel" : levels[worldSelectMenu.currentWorld][newLevel-1]);
+		return true;
 	}
 
 	static public Preferences getPreferences() {
@@ -240,7 +244,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			mainMenu.setScreenListener(this);
 			setScreen(mainMenu);
 		} else if (exitCode==WorldController.EXIT_WORLD_SELECT_ENTER){
-
 			worldSelectMenu = new WorldSelect(canvas);
 			worldSelectMenu.setScreenListener(this);
 			setScreen(worldSelectMenu);
@@ -248,19 +251,24 @@ public class GDXRoot extends Game implements ScreenListener {
 			menus[worldSelectMenu.currentWorld].setScreenListener(this);
 			setScreen(menus[worldSelectMenu.currentWorld]);
 		} else if(exitCode==WorldController.EXIT_NEW_LEVEL) {
-			prepareLevelJson(menus[worldSelectMenu.currentWorld].currentLevel, false);
-			currentIndexController = menus[worldSelectMenu.currentWorld].currentLevel;
-			controllers[current].reset();
-			setScreen(controllers[current]);
+			if(prepareLevelJson(menus[worldSelectMenu.currentWorld].currentLevel, false)) {
+				controllers[current].reset();
+				setScreen(controllers[current]);
+			}
 		} else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
-				prepareLevelJson(1, true);
-				controllers[current].reset();
+				if(prepareLevelJson(1, true)) {
+					controllers[current].reset();
+				} else {
+					menus[worldSelectMenu.currentWorld].setScreenListener(this);
+					setScreen(menus[worldSelectMenu.currentWorld]);
+				}
 			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
-				prepareLevelJson(-1, true);
-				controllers[current].reset();
+				if(prepareLevelJson(-1, true)) {
+					controllers[current].reset();
+				}
 			}
 		} else if (exitCode == WorldController.EXIT_SWITCH) {;
 			current = (current + 1 ) % controllers.length;
