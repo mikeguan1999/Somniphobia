@@ -1147,8 +1147,8 @@ public class LevelController extends WorldController {
 	public void gatherLevelJson(String filename) {
 		if(level == 0) { // Get level editor level
 			Preferences prefs = GDXRoot.getPreferences();
-			if(prefs.contains("playLevel")) {
-				levelAssets = new JsonReader().parse(prefs.getString("playLevel"));
+			if(prefs.contains(filename)) {
+				levelAssets = new JsonReader().parse(prefs.getString(filename));
 			}
 		} else {
 			FileHandle file = Gdx.files.internal(filename);
