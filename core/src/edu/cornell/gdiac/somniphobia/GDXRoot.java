@@ -260,6 +260,8 @@ public class GDXRoot extends Game implements ScreenListener {
 				if(prepareLevelJson(1, true)) {
 					controllers[current].reset();
 				} else {
+					LevelController lc = (LevelController) controllers[current];
+					lc.setGameScreenActive(false);
 					menus[worldSelectMenu.currentWorld].setScreenListener(this);
 					setScreen(menus[worldSelectMenu.currentWorld]);
 				}
