@@ -65,6 +65,10 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_NEW_LEVEL = 6;
 	/** Exit code for jumping between play and edit mode */
 	public static final int EXIT_SWITCH = 7;
+	/** Exit code for controls screen */
+	public static final int EXIT_CONTROLS = 8;
+	/** Exit code for about screen */
+	public static final int EXIT_ABOUT = 9;
     /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 	public static final int EXIT_WORLD_SELECT = -1;

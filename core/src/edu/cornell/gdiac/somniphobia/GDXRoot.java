@@ -76,6 +76,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private int currentIndexController;
 	private Stage pauseMenuStage;
 	private Stage pauseButtonStage;
+	private Controls controlsPage;
+	private About aboutPage;
 
 
 	/**
@@ -126,6 +128,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		setScreen(loading);
 
 		preferences = Gdx.app.getPreferences("save_data.json");
+		controlsPage = new Controls(canvas);
+		aboutPage = new About(canvas);
 	}
 
 	/** 
@@ -276,7 +280,15 @@ public class GDXRoot extends Game implements ScreenListener {
 			current = (current + 1 ) % controllers.length;
 			controllers[current].reset();
 			setScreen(controllers[current]);
-		} else if (exitCode == WorldController.EXIT_QUIT) {
+		} else if (exitCode==WorldController.EXIT_CONTROLS){
+			controlsPage.setScreenListener(this);
+			setScreen(controlsPage);
+		}
+		else if (exitCode==WorldController.EXIT_ABOUT){
+			aboutPage.setScreenListener(this);
+			setScreen(aboutPage);
+		}
+		else if (exitCode == WorldController.EXIT_QUIT) {
 			preferences.flush(); // Persist user save data
 			Gdx.app.exit(); // We quit the main application
 		}

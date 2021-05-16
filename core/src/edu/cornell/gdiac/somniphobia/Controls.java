@@ -24,18 +24,12 @@ package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -55,7 +49,7 @@ import edu.cornell.gdiac.util.ScreenListener;
  * the application.  That is why we try to have as few resources as possible for this
  * loading screen.
  */
-public class MainMenu implements Screen {
+public class Controls implements Screen {
 	/** Reference to GameCanvas created by the root */
 	private GameCanvas canvas;
 	/** Listener that will update the player mode when we are done */
@@ -67,114 +61,47 @@ public class MainMenu implements Screen {
 	private Stage stage;
 	/** Reference of the table of this screen */
 	private Table table;
-	private Image titleImage;
-	private Button startDream;
-	private Button about;
-	private Button controls;
-	private Image underline;
-	private Button exit;
-	private boolean started;
-	private boolean exitClicked;
-	private boolean controlsClicked;
-	private boolean aboutClicked;
-
-	private TextureRegionDrawable titleDrawable;
-	private TextureRegionDrawable aboutDrawable;
-	private TextureRegionDrawable controlsDrawable;
-	private TextureRegionDrawable startDreamDrawable;
-	private TextureRegionDrawable underlineDrawable;
 	private TextureRegionDrawable backgroundDrawable;
-	private TextureRegionDrawable exitDrawable;
-	private TextureRegionDrawable underlineOrangeDrawable;
+	private TextureRegionDrawable arrowDrawable;
+	private Button arrow;
+	private boolean prevClicked;
 
 	public Stage getStage(){
 		return stage;
 	}
 
-	public MainMenu(GameCanvas canvas) {
-		internal = new AssetDirectory( "main_screen.json" );
+	public Controls(GameCanvas canvas) {
+		internal = new AssetDirectory( "controls.json" );
 		internal.loadAssets();
 		internal.finishLoading();
 
 		stage = new Stage();
 		table = new Table();
 		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("background", Texture.class));
-		titleDrawable = new TextureRegionDrawable(internal.getEntry("title", Texture.class));
-		aboutDrawable = new TextureRegionDrawable(internal.getEntry("about", Texture.class));
-		controlsDrawable = new TextureRegionDrawable(internal.getEntry("controls", Texture.class));
-		startDreamDrawable = new TextureRegionDrawable(internal.getEntry("start_dream", Texture.class));
-		underlineDrawable = new TextureRegionDrawable(internal.getEntry("underline", Texture.class));
-		exitDrawable = new TextureRegionDrawable(internal.getEntry("exit", Texture.class));
-		underlineOrangeDrawable = new TextureRegionDrawable(internal.getEntry("orange_underline", Texture.class));
+		arrowDrawable = new TextureRegionDrawable(internal.getEntry("blue_arrow", Texture.class));
 
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
+		arrow = new Button(arrowDrawable);
 
-		titleImage = new Image(titleDrawable);
-		about = new Button(aboutDrawable);
-		controls = new Button(controlsDrawable);
-		startDream = new Button(startDreamDrawable);
-		underline = new Image(underlineDrawable);
-		exit = new Button(exitDrawable);
-    
-		table.add(titleImage).colspan(4).height(100).padTop(50).padLeft(150).padRight(150).width(500);
-		table.row().padBottom(300);
-		table.add(startDream).padTop(30).size(startDream.getWidth()/2, startDream.getHeight()/2).expand().fillX();
-		table.add(controls).padTop(30).size(controls.getWidth()/2, controls.getHeight()/2).expand().fillX();
-		table.add(about).padTop(30).size(about.getWidth()/2, about.getHeight()/2).expand().fillX();
-		table.add(exit).padTop(30).size(exit.getWidth()/2, exit.getHeight()/2).expand().fillX();
-		table.row();
-		table.add(underline);
+		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2);
 //		underline.setVisible(false);
-
-		startDream.addListener(new ClickListener() {
+		arrow.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				started = true;
+				prevClicked = true;
 			}
 		});
 
-		exit.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				exitClicked = true;
-			}
-		});
 
-		controls.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				controlsClicked = true;
-			}
-		});
-
-		about.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				aboutClicked = true;
-			}
-		});
 
 		stage.addActor(table);
 		table.validate();
-		startDream.setX(50);
-		controls.setX(startDream.getX()+startDream.getWidth()+80);
-		about.setX(canvas.getWidth()/2+50);
-		exit.setX(about.getWidth()+about.getX()+200);
+		int ARROW_OFFSET = 10;
+		arrow.setPosition(arrow.getX()-canvas.getWidth()/2+arrow.getWidth()/2+ARROW_OFFSET, arrow.getY()+ canvas.getHeight()/2- arrow.getHeight()/2-ARROW_OFFSET);
+
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
-	}
-
-	/**
-	 * Creating an image button that appears as an image with upFilepath.
-	 */
-	private Button createImageButton(String upFilepath){
-		TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
-		Button imgButton= new Button(buttonDrawable);
-		return imgButton;
-	}
-
-	private Image createImage(String upFilepath){
-		TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(Gdx.files.internal(upFilepath)));
-		Image image = new Image(drawable);
-		return image;
 	}
 
 
@@ -225,55 +152,9 @@ public class MainMenu implements Screen {
 			stage.act(delta);
 			stage.draw();
 
-			if (startDream.isOver()){
-				underline.setSize(startDream.getWidth()+10, startDream.getHeight());
-				underline.setPosition(startDream.getX()-5, startDream.getY()-20);
-				underline.setVisible(true);
-			}
-
-			else if (controls.isOver()){
-				underline.setSize(controls.getWidth()+10, controls.getHeight());
-				underline.setPosition(controls.getX()-5, controls.getY()-20);
-				underline.setVisible(true);
-			}
-
-			else if (about.isOver()){
-				underline.setSize(about.getWidth()+10, about.getHeight());
-				underline.setPosition(about.getX()-5, about.getY()-20);
-//				underline.setDrawable(underlineOrangeDrawable);
-				underline.setVisible(true);
-			}
-			else if (exit.isOver()){
-				underline.setSize(exit.getWidth()+10, exit.getHeight());
-				underline.setPosition(exit.getX()-5, exit.getY()-20);
-//				underline.setDrawable(underlineOrangeDrawable);
-				underline.setVisible(true);
-			}
-
-			else{
-				underline.setZIndex(0);
-				underline.setVisible(false);
-
-			}
-
-			if (started){
-				started = false;
-				listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT_ENTER);
-			}
-
-			if (exitClicked){
-				exitClicked = false;
-				listener.exitScreen(this, WorldController.EXIT_QUIT);
-			}
-
-			if (controlsClicked){
-				controlsClicked = false;
-				listener.exitScreen(this, WorldController.EXIT_CONTROLS);
-			}
-
-			if (aboutClicked){
-				aboutClicked = false;
-				listener.exitScreen(this, WorldController.EXIT_ABOUT);
+			if (prevClicked){
+				prevClicked = false;
+				listener.exitScreen(this, WorldController.EXIT_MAIN_MENU_ENTER);
 			}
 		}
 	}
