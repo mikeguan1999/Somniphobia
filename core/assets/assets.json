@@ -288,17 +288,6 @@
     "platform:background_light_statues": "platform/BG_statues_light.png",
     "platform:background_dark_statues": "platform/BG_statues_dark.png",
 
-    "platform:animated_background_light_forest": "platform/ABG_Forest_Light.png",
-    "platform:animated_background_dark_forest": "platform/ABG_Forest_Dark.png",
-    "platform:animated_background_light_gear": "platform/BG_gear_light.png",
-    "platform:animated_background_dark_gear": "platform/BG_gear_dark.png",
-    "platform:animated_background_light_dreams": "platform/ABG_Dream_Light.png",
-    "platform:animated_background_dark_dreams": "platform/ABG_Dream_Dark.png",
-    "platform:animated_background_light_house": "platform/ABG_House_Light.png",
-    "platform:animated_background_dark_house": "platform/ABG_House_Dark.png",
-    "platform:animated_background_light_statues": "platform/ABG_Statues_Light.png",
-    "platform:animated_background_dark_statues": "platform/ABG_Statues_Dark.png",
-
     "tutorial:camera_pan": "tutorial/camera_pan.png",
     "tutorial:phobia_dash": "tutorial/phobia_dash.png",
     "tutorial:phobia_jump": "tutorial/phobia_jump.png",
