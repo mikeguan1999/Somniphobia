@@ -58,7 +58,8 @@
       "levels/statues_3.json",
       "levels/statues_4.json",
       "levels/statues_5.json",
-      "levels/statues_6.json"
+      "levels/statues_6.json",
+      "levels/robot.json"
     ]
   }
 }
