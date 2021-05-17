@@ -177,6 +177,7 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setCharacterForce(float f){
 		force = f;
 	}
+	public void resetRingAnimation() {animeframeRing = 0;}
 	/**
 	 * Creates a new dude avatar with the given physics data
 	 *
@@ -313,6 +314,14 @@ public class CharacterModel extends CapsuleObstacle {
 	 */
 	public boolean isDashingDown() {
 		return (isDashing && dashDirection.y <= 0 && dashDirection.x==0);
+	}
+
+	/**
+	 * Returns whether character can dash
+	 * @return whether character can dash
+	 */
+	public boolean getCanDash() {
+		return canDash;
 	}
 
 	/**

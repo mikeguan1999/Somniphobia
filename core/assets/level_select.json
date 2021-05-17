@@ -1,6 +1,11 @@
 {
 	"textures": {
         "title": "menu/dream_selection.png",
+        "background_forest": "menu/selection_background1.png",
+        "background_statues": "menu/selection_background2.png",
+        "background_houses": "menu/selection_background4.png",
+        "background_eyes": "menu/selection_background3.png",
+        "background_gears": "menu/BG_gear_dark.JPG",
 		"left_button": "menu/arrow_left.png",
         "right_button": "menu/arrow_right.png",
         "cloudline": "menu/cloudline_dreamselection.png",
@@ -8,7 +13,8 @@
         "door1": "menu/door1light.png",
         "door2": "menu/door2light.png",
         "door3": "menu/door3light.png",
-        "door4": "menu/door4light.png"
+        "door4": "menu/door4light.png",
+        "back_arrow": "menu/backwitharrow_orange.png"
     }
 }
 

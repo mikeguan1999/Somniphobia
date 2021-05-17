@@ -14,6 +14,10 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelController;
 import edu.cornell.gdiac.somniphobia.game.controllers.LevelCreator;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
@@ -21,6 +25,7 @@ import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
+import com.badlogic.gdx.scenes.scene2d.Stage;
 /**
  * Root class for a LibGDX.  
  * 
@@ -50,15 +55,29 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 
+	/** World selection screen variables */
+	static public int totalNumWorlds = 5;
+
 	/** Level selection screen variables */
 	static public int totalNumLevels = 36;
-	private MenuScrollable menu;
 
 	private OrthographicCamera cam;
 	private MainMenu mainMenu;
 
 	static private final int LEVEL_CONTROLLER_INDEX = 0;
 	static private final int LEVEL_CREATOR_INDEX = 1;
+
+	static private WorldSelect worldSelectMenu;
+	static private MenuScrollable [] menus;
+	static private String[][] levels;
+//	in the sequence of first row then second row of buttons in the world selector
+	private int [] worldToNumLevels = {5, 7, 8, 2, 4};
+	private boolean [] levelsCompleted;
+	private int currentIndexController;
+	private Stage pauseMenuStage;
+	private Stage pauseButtonStage;
+	private Controls controlsPage;
+	private About aboutPage;
 
 
 	/**
@@ -79,16 +98,20 @@ public class GDXRoot extends Game implements ScreenListener {
 		canvas  = new GameCanvas();
 		platformController = new PlatformController();
 		loading = new LoadingMode("assets.json",canvas,1);
+		worldSelectMenu = new WorldSelect(canvas);
+		levelsCompleted = new boolean[totalNumLevels];
 
-		menu = new MenuScrollable(canvas, totalNumLevels);
+		menus = new MenuScrollable[totalNumWorlds];
+		levels = new String[totalNumWorlds][];
 
 		mainMenu = new MainMenu(canvas);
 
 		// Initialize the Platformer Controller
 		// TODO
+		OrthographicCamera camera = canvas.getCamera();
 
 		controllers = new WorldController[2];
-		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController();
+		controllers[LEVEL_CONTROLLER_INDEX] = new LevelController(canvas);
 		controllers[LEVEL_CREATOR_INDEX] = new LevelCreator();
 
 		// Constructs a new OrthographicCamera, using the given viewport width and height
@@ -105,6 +128,8 @@ public class GDXRoot extends Game implements ScreenListener {
 		setScreen(loading);
 
 		preferences = Gdx.app.getPreferences("save_data.json");
+		controlsPage = new Controls(canvas);
+		aboutPage = new About(canvas);
 	}
 
 	/** 
@@ -120,7 +145,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			controllers[ii].dispose();
 		}
 
-		menu.dispose();
 		canvas.dispose();
 		mainMenu.dispose();
 		canvas = null;
@@ -150,10 +174,15 @@ public class GDXRoot extends Game implements ScreenListener {
 
 	/** Prepares the level JSON in LevelController for the current level plus `num` if `increment`;
 	 *  otherwise, prepares for level `num`. */
-	static public void prepareLevelJson(int num, boolean increment) {
+	static public boolean prepareLevelJson(int num, boolean increment) {
 		LevelController lc = (LevelController) controllers[LEVEL_CONTROLLER_INDEX];
-		lc.setLevel(increment ? lc.getLevel() + num : num);
-		lc.gatherLevelJson(directory);
+		int newLevel = increment ? lc.getLevel() + num : num;
+		if(newLevel <= 0 || newLevel > levels[worldSelectMenu.currentWorld].length) {
+			return false;
+		}
+		lc.setLevel(newLevel);
+		lc.gatherLevelJson(newLevel == 0 ? "playLevel" : levels[worldSelectMenu.currentWorld][newLevel-1]);
+		return true;
 	}
 
 	static public Preferences getPreferences() {
@@ -173,51 +202,93 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
+//		LevelController pc = controllers[current];
+//		if (pc.isComplete()){
+//			levelsCompleted[pc.getLevel()-1] = true;
+//		}
+//		for (int k=0; k< controllers.length; k++){
+//			if (controllers[k].isComplete()){
+//				levelsCompleted[k] = true;
+//			}
+//		}
 		if (screen == loading) {
-			for(int ii = 0; ii < controllers.length; ii++) {
+			for (int ii = 0; ii < controllers.length; ii++) {
 				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
-				if (ii == LEVEL_CONTROLLER_INDEX) {
-					prepareLevelJson(1, false);
-				}
+				//if (ii == LEVEL_CONTROLLER_INDEX) {
+				//	prepareLevelJson(1, false);
+				//}
 				controllers[ii].setScreenListener(this);
-				controllers [ii].setCanvas(canvas);
+				controllers[ii].setCanvas(canvas);
 				controllers[ii].setPlatController(platformController);
 			}
-
-
-			menu.setScreenListener(this);
 
 			mainMenu.setScreenListener(this);
 			setScreen(mainMenu);
 
+			// Set up World Select menu
+			JsonValue worlds = directory.getEntry("worlds", JsonValue.class);
+			for(int i = 1; i <= menus.length; i++) {
+				JsonValue world = worlds.get("world" + i);
+				String[] levels = world.get("levels").asStringArray();
+				menus[i-1] = new MenuScrollable(canvas, levels.length);
+				this.levels[i-1] = levels;
+				TextureRegion background = new TextureRegion(directory.getEntry(
+						world.get("worldMenuBackground").asString(), Texture.class ));
+				menus[i-1].setBackground(background);
+				TextureRegionDrawable door = new TextureRegionDrawable(directory.getEntry(
+						world.get("worldMenuDoor").asString(), Texture.class ));
+				menus[i-1].setDoorImages(door);
+			}
+
 			loading.dispose();
 			loading = null;
-		} else if (screen==menu){
-			prepareLevelJson(exitCode+1, false);
-			controllers[current].reset();
-			setScreen(controllers[current]);
 
-		} else if (exitCode == WorldController.EXIT_MENU) {
-			// Resetting the menu
-			menu = new MenuScrollable(canvas, totalNumLevels);
-			menu.setScreenListener(this);
-			setScreen(menu);
+		} else if (exitCode==WorldController.EXIT_MAIN_MENU_ENTER) {
+			mainMenu.setScreenListener(this);
+			setScreen(mainMenu);
+		} else if (exitCode==WorldController.EXIT_WORLD_SELECT_ENTER){
+			worldSelectMenu = new WorldSelect(canvas);
+			worldSelectMenu.setScreenListener(this);
+			setScreen(worldSelectMenu);
+		} else if(exitCode==WorldController.EXIT_LEVEL_SELECT_ENTER) {
+			menus[worldSelectMenu.currentWorld].setScreenListener(this);
+			setScreen(menus[worldSelectMenu.currentWorld]);
+		} else if(exitCode==WorldController.EXIT_NEW_LEVEL) {
+			if(prepareLevelJson(menus[worldSelectMenu.currentWorld].currentLevel, false)) {
+				controllers[current].reset();
+				setScreen(controllers[current]);
+			}
 		} else if (exitCode == WorldController.EXIT_NEXT) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
-				prepareLevelJson(1, true);
-				controllers[current].reset();
+				if(prepareLevelJson(1, true)) {
+					controllers[current].reset();
+				} else {
+					LevelController lc = (LevelController) controllers[current];
+					lc.setGameScreenActive(false);
+					menus[worldSelectMenu.currentWorld].setScreenListener(this);
+					setScreen(menus[worldSelectMenu.currentWorld]);
+				}
 			}
 		} else if (exitCode == WorldController.EXIT_PREV) {
 			if(current == LEVEL_CONTROLLER_INDEX) {
-				prepareLevelJson(-1, true);
-				controllers[current].reset();
+				if(prepareLevelJson(-1, true)) {
+					controllers[current].reset();
+				}
 			}
 		} else if (exitCode == WorldController.EXIT_SWITCH) {;
 			current = (current + 1 ) % controllers.length;
 			controllers[current].reset();
 			setScreen(controllers[current]);
-		} else if (exitCode == WorldController.EXIT_QUIT) {
+		} else if (exitCode==WorldController.EXIT_CONTROLS){
+			controlsPage.setScreenListener(this);
+			setScreen(controlsPage);
+		}
+		else if (exitCode==WorldController.EXIT_ABOUT){
+			aboutPage.setScreenListener(this);
+			setScreen(aboutPage);
+		}
+		else if (exitCode == WorldController.EXIT_QUIT) {
 			preferences.flush(); // Persist user save data
 			Gdx.app.exit(); // We quit the main application
 		}

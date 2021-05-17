@@ -1,0 +1,8 @@
+{
+	"textures": {
+            "background": "controls/controls.png",
+            "blue_arrow": "controls/backwitharrow_blue.png",
+            "about_background": "controls/about.png"
+    }
+}
+
