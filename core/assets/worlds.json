@@ -34,7 +34,9 @@
         "levels/forest_6.json",
         "levels/forest_7.json",
         "levels/forest_8.json",
-        "levels/forest_9.json"
+        "levels/forest_9.1.json",
+        "levels/forest_9.2.json",
+        "levels/forest_9.3.json"
       ]
     },
     "world4": {
@@ -56,8 +58,11 @@
       "levels/statues_2.json",
       "levels/statues_3.json",
       "levels/statues_4.json",
-      "levels/statues_5.json",
-      "levels/statues_6.json"
+      "levels/statues_5.1.json",
+      "levels/statues_5.2.json",
+      "levels/statues_6.json",
+      "levels/jennanew.json",
+      "levels/level20.json"
     ]
   }
 }
