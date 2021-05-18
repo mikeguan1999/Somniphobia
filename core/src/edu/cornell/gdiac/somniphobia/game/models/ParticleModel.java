@@ -58,8 +58,8 @@ public class ParticleModel {
         batch = new SpriteBatch();
 
         effect = new ParticleEffect();
-        effect.load(Gdx.files.internal("effects/explosion.p"),
-                Gdx.files.internal("img"));
+        effect.load(Gdx.files.internal("platform/particleEmitter"),
+                Gdx.files.internal("platform/"));
     }
 
     /**
