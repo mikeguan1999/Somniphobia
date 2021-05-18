@@ -252,7 +252,9 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 			this.progress = assets.getProgress();
 			if (progress >= 1.0f) {
 				this.progress = 1.0f;
-				playButton = new Texture(Gdx.files.internal("menu\\NewDream.png"));
+				listener.exitScreen(this, 0);
+
+//				playButton = new Texture(Gdx.files.internal("menu\\NewDream.png"));
 //				this is the old playbutton
 //				playButton = internal.getEntry("play",Texture.class);
 			}
@@ -268,7 +270,8 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	 */
 	private void draw() {
 		canvas.begin();
-		canvas.draw(background, 0, 0);
+//		Texture image, Color tint, float x, float y, float width, float height
+		canvas.draw(background, Color.WHITE, 0, 0, canvas.getWidth(), canvas.getHeight());
 		if (playButton == null) {
 			drawProgress(canvas);
 		} else {

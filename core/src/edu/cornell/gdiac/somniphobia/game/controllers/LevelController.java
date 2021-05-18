@@ -11,6 +11,7 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.files.FileHandle;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -337,16 +338,17 @@ public class LevelController extends WorldController {
 	private boolean resumeClicked;
 	private boolean restartClicked;
 	private boolean advanceClicked;
-	private Stage pauseMenuStage;
-	private Stage failMenuStage;
-	private Stage winMenuStage;
-	private Stage pauseButtonStage;
+	private Stage pauseMenuStage = new Stage();
+	private Stage failMenuStage = new Stage();
+	private Stage winMenuStage = new Stage();
+	private Stage pauseButtonStage = new Stage();
 	private boolean gameScreenActive = true;
 
 	//END JENNA
 
 	/** whether pauseMenu is rendered for the first time*/
 	private Boolean firstTimeRendered=true;
+	private Boolean firstTimePause=true;
 	/** the underline on pauseMenu*/
 	private Image underline;
 	private Image underlineWinMenu;
@@ -392,6 +394,7 @@ public class LevelController extends WorldController {
 	private final int UNDERLINE_OFFSETX = -5;
 	private final int UNDERLINE_OFFSETY = -40;
 	private final int PAUSE_MENU_POSITION_SCALE = 4;
+	private boolean firstPosition=false;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -405,7 +408,7 @@ public class LevelController extends WorldController {
 
 	private Vector2 cameraCenter;
 	private int cameraDelay = 0;
-	private Stage stage;
+	private Stage stage=new Stage();
 
 	/// VARIABLES FOR DRAWING AND ANIMATION OF BACKGROUNDS
 	/** CURRENT image for this background. May change over time. */
@@ -430,8 +433,7 @@ public class LevelController extends WorldController {
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public LevelController() {
-
+	public LevelController(GameCanvas gameCanvas) {
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
 		setDebug(false);
 		setComplete(false);
@@ -443,6 +445,16 @@ public class LevelController extends WorldController {
 		holdingHands = false;
 		widthUpperBound = 0;
 		heightUpperBound = 0;
+		canvas = gameCanvas;
+
+	}
+
+	public Stage getPauseButtonStage(){
+		return pauseButtonStage;
+	}
+
+	public Stage getPauseMenuStage(){
+		return pauseMenuStage;
 	}
 
 //	/**
@@ -461,14 +473,22 @@ public class LevelController extends WorldController {
 //		TextureRegionDrawable upButtonDrawable = createDrawable(upFilepath);
 //		Button imgButton= new Button(upButtonDrawable);
 //		return imgButton;
+//		return imgButton;
 //	}
+
+	public void setGameScreenActive(boolean active){
+		gameScreenActive = active;
+	}
 
 	/**
 	 * Creates the pauseMenu with the buttons
 	 */
-	public void createModalWindow() {
-		Viewport viewport = canvas.getViewPort();
-		pauseMenuStage = new Stage(viewport);
+	public void createModalWindow(float cameraX, float cameraY) {
+		camera.position.x = cameraX;
+		camera.position.y = cameraY;
+		camera.update();
+
+//		pauseMenuStage = new Stage(new ScreenViewport(camera));
 		pauseMenu = new Table();
 		pauseMenu.setBackground(blueRectangle);
 		pauseMenu.setFillParent(true);
@@ -496,8 +516,8 @@ public class LevelController extends WorldController {
 		sliderSound.setDisabled(true);
 		pauseMenu.row();
 		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,70).padLeft(110).padTop(50);
-		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,80).padTop(50).padLeft(20);
-		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,70).padRight(110).padTop(50);
+		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,70).padTop(50).padLeft(20);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,80).padRight(110).padTop(50);
 		pauseMenu.row();
 		pauseMenu.add(underline);
 		underline.setVisible(false);
@@ -538,7 +558,7 @@ public class LevelController extends WorldController {
 			}
 		});
 
-		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
+//		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
@@ -556,7 +576,7 @@ public class LevelController extends WorldController {
 	}
 
 	public void createFailWindow(float cameraX, float cameraY) {
-		failMenuStage = new Stage(new ScreenViewport(camera));
+//		failMenuStage = new Stage();
 		camera.position.x = cameraX;
 		camera.position.y = cameraY;
 		failMenu = new Table();
@@ -601,7 +621,7 @@ public class LevelController extends WorldController {
 	}
 
 	public void createWinWindow(float cameraX, float cameraY) {
-		winMenuStage= new Stage(new ScreenViewport(camera));
+//		winMenuStage = new Stage();
 		camera.position.x = cameraX;
 		camera.position.y = cameraY;
 		camera.update();
@@ -670,8 +690,6 @@ public class LevelController extends WorldController {
 		labels = new Label[7];
 		CharacterModel avatar = movementController.getAvatar();
 
-
-		stage = new Stage(new ScreenViewport(camera));
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
 			@Override
@@ -685,6 +703,7 @@ public class LevelController extends WorldController {
 		float current = 0;
 		float max = 0;
 		float min = 0;
+//		stage = new Stage();
 
 		Slider.SliderStyle style =
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
@@ -906,7 +925,7 @@ public class LevelController extends WorldController {
 	public void createPauseButton(){
 		Table table = new Table();
 		gameScreenActive = true;
-		pauseButtonStage = new Stage(new ScreenViewport(camera));
+//		pauseButtonStage = new Stage(new ScreenViewport(camera));
 		pauseButton = new Button(bluePauseButton);
 		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.addListener(new ClickListener() {
@@ -1125,20 +1144,33 @@ public class LevelController extends WorldController {
 	/**
 	 * Gather the level JSON for this controller.
 	 *
+	 * This method extracts the asset variables from the given JSON.
+	 *
+	 * @param filename	Reference to the level JSON.
+	 */
+	public void gatherLevelJson(String filename) {
+		if(level == 0) { // Get level editor level
+			Preferences prefs = GDXRoot.getPreferences();
+			if(prefs.contains(filename)) {
+				levelAssets = new JsonReader().parse(prefs.getString(filename));
+			}
+		} else {
+			FileHandle file = Gdx.files.internal(filename);
+			String text = file.readString();
+			levelAssets = new JsonReader().parse(text);//directory.getEntry( String.format("level%d", level), JsonValue.class);
+		}
+	}
+
+	/**
+	 * Gather the level JSON for this controller.
+	 *
 	 * This method extracts the asset variables from the given asset directory. It
 	 * should only be called after the asset directory is completed.
 	 *
 	 * @param directory	Reference to global asset manager.
 	 */
-	public void gatherLevelJson(AssetDirectory directory) {
-		if(level == 0) { // Get level editor level
-			Preferences prefs = GDXRoot.getPreferences();
-			if(prefs.contains("playLevel")) {
-				levelAssets = new JsonReader().parse(prefs.getString("playLevel"));
-			}
-		} else {
-			levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
-		}
+	public void gatherLevelJson(AssetDirectory directory, int world) {
+		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
 	}
 
 	/** Returns the current level */
@@ -1148,9 +1180,7 @@ public class LevelController extends WorldController {
 
 	/** Sets the current level */
 	public void setLevel(int level) {
-		int newLevel = Math.min(level, GDXRoot.totalNumLevels); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
-		newLevel = Math.max(0, newLevel);
-		this.level = newLevel;
+		this.level = Math.max(0, level);
 	}
 	/**
 	 * Resets the status of the game so that we can play again.
@@ -1182,12 +1212,20 @@ public class LevelController extends WorldController {
 		movingObjects.clear();
 		addQueue.clear();
 		world.dispose();
+		disposeStages();
 
 		world = new World(gravity,false);
 		setComplete(false);
 		setFailure(false);
 		firstTimeRendered=true;
 		populateLevel();
+
+		camera = canvas.getCamera();
+		pauseButtonStage = new Stage(new ScreenViewport(camera));
+		pauseMenuStage = new Stage(new ScreenViewport(camera));
+		stage = new Stage(new ScreenViewport(camera));
+		winMenuStage = new Stage(new ScreenViewport(camera));
+		failMenuStage = new Stage(new ScreenViewport(camera));
 
 		Camera camera = canvas.getCamera();
 		Vector2 leadPos = somni.getPosition();
@@ -1212,6 +1250,13 @@ public class LevelController extends WorldController {
 
 		movementController.setAvatar(somni);
 		movementController.setLead(somni);
+
+		createModalWindow(camera.position.x, camera.position.y);
+		createPauseButton();
+		createSliders();
+		createFailWindow(camera.position.x, camera.position.y);
+		createWinWindow(camera.position.x, camera.position.y);
+
 
 		platformController.setMovingObjects(movingObjects);
 		platformController.setLightObjects(lightObjects);
@@ -1502,9 +1547,9 @@ public class LevelController extends WorldController {
 			gameScreenActive = false;
 			setPause(false);
 			setFailure(false);
-			setComplete(false);
 			firstTimeRendered = true;
-			listener.exitScreen(this, WorldController.EXIT_MENU);
+			listener.exitScreen(this, WorldController.EXIT_LEVEL_SELECT_ENTER);
+			setComplete(false);
 			exitClicked = false;
 			return false;
 		}
@@ -1516,8 +1561,8 @@ public class LevelController extends WorldController {
 			gameScreenActive = false;
 			setPause(false);
 			setFailure(false);
-			setComplete(false);
 			listener.exitScreen(this, WorldController.EXIT_NEXT);
+			setComplete(false);
 			advanceClicked = false;
 		}
 
@@ -1555,6 +1600,10 @@ public class LevelController extends WorldController {
 		// fix pause ^^^
 		action = movementController.update();
 		platformController.update(dt);
+
+		if (InputController.getInstance().didPressEscape()) {
+			setPause(true);
+		}
 
 		CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
@@ -2045,22 +2094,23 @@ public class LevelController extends WorldController {
 		// Draw pauseMenu
 		canvas.begin();
 
-		if (firstTimeRendered) {
-			createModalWindow();
-			firstTimeRendered = false;
-		}
-		if (firstTimeRenderedWinMenu) {
-			createWinWindow(camera.position.x, camera.position.y);
-			firstTimeRenderedWinMenu = false;
-		}
-
-		if (firstTimeRenderedFailMenu) {
-			createFailWindow(camera.position.x, camera.position.y);
-			firstTimeRenderedFailMenu = false;
-		}
+//		if (firstTimeRendered) {
+//			createModalWindow(camera.position.x, camera.position.y);
+//			firstTimeRendered = false;
+//		}
+//		if (firstTimeRenderedWinMenu) {
+//			createWinWindow(camera.position.x, camera.position.y);
+//			firstTimeRenderedWinMenu = false;
+//		}
+//
+//		if (firstTimeRenderedFailMenu) {
+//			createFailWindow(camera.position.x, camera.position.y);
+//			firstTimeRenderedFailMenu = false;
+//		}
 
 		if (pauseMenuActive()) {
 			setPositionPauseMenu();
+			firstPosition = true;
 			pauseMenuStage.draw();
 			pauseMenuStage.act(dt);
 
@@ -2271,6 +2321,14 @@ public class LevelController extends WorldController {
 			darkObjects.add(obj);
 			//obj.activatePhysics(world);
 		}
+	}
+
+	public void disposeStages() {
+		pauseMenuStage.dispose();
+		pauseButtonStage.dispose();
+		winMenuStage.dispose();
+		failMenuStage.dispose();
+		stage.dispose();
 	}
 
 	public void beginRaining(PlatformModel platform) {

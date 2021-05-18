@@ -5,11 +5,11 @@ Left/Right arrow keys: Move left/right
 
 Up arrow key: Jump
 
-arrow keys + Space (or Z): Dash in direction of arrow keys (8 directions)
+arrow keys + Shift (or Space): Dash in direction of arrow keys (8 directions)
 
-E (or X): Toggle holding hands
+Z (or E): Toggle holding hands
 
-Q (or C): Switch between our two characters Somni and Phobia
+X (or Q): Switch between our two characters Somni and Phobia
 
 WASD: Camera panning
 
@@ -24,4 +24,3 @@ The goal of this game is to get both Somni and Phobia to the red exit door while
 
 You can navigate between the levels using 'N' and 'P'
 
-A secondary set of controls (using Z,X,C) is available to resolve the keyboard issue where the Spacebar isn't responsive when holding down two arrow keys
