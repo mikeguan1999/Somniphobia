@@ -68,6 +68,15 @@ public class ParticleModel {
         effect.start();
     }
 
+    /**
+     * Change size of particles
+     *
+     * @param scaleFactor the factor to scale particles  by
+     *
+     */
+    public void scaleParticles(float scaleFactor) {
+        effect.scaleEffect(scaleFactor);
+    }
 
 
 }

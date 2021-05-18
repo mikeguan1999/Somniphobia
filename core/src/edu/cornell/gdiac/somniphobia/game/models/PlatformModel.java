@@ -96,6 +96,7 @@ public class PlatformModel extends BoxObstacle {
     private TextureRegion crumbleTexture;
     /** List for coordinates of individual tiles in this platform */
     private ArrayList<Vector2> platformCoordinates = new ArrayList<>();
+    private ParticleModel flame;
 
     Obstacle touching = null;
 
@@ -121,6 +122,9 @@ public class PlatformModel extends BoxObstacle {
         this.property = 0;
         this.isCurrentlyRaining = false;
 
+        this.flame = new ParticleModel();
+        flame.create();
+        flame.scaleParticles(20);
     }
 
     public float getLeftX() {
@@ -300,6 +304,8 @@ public class PlatformModel extends BoxObstacle {
             }
 //            canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 //                    1.0f, 1.0f);
+            flame.startParticles();
+            flame.render(getX()*drawScale.x, getY()*drawScale.y, canvas.getBatch());
         }
     }
 
@@ -331,6 +337,8 @@ public class PlatformModel extends BoxObstacle {
             }
 //            canvas.draw(tempAnimator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 //                    1.0f, 1.0f);
+            flame.startParticles();
+            flame.render(getX()*drawScale.x, getY()*drawScale.y, canvas.getBatch());
         }
     }
 
