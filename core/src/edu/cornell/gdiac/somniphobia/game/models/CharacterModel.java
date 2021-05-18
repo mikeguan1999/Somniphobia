@@ -890,7 +890,12 @@ public class CharacterModel extends CapsuleObstacle {
 			canvas.draw(textureThree, Color.WHITE, origin.x+ xOffset3, origin.y+ yOffset3, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 					effect, 1.0f);
 		}
-//		dust.render(getX()*drawScale.x, getY()*drawScale.y);
+
+		// Particle effects
+		dust.render(getX()*drawScale.x, (getY() - 0.5f*this.getHeight())*drawScale.y, canvas.getBatch());
+		if (this.isGrounded() && getMovement() != 0) {
+			dust.startParticles();
+		}
 	}
 
 	/**

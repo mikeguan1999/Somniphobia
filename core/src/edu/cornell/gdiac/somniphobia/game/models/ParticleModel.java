@@ -1,10 +1,7 @@
 package edu.cornell.gdiac.somniphobia.game.models;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -40,15 +37,11 @@ public class ParticleModel {
      * @param y the y coordinate for the particle origin
      *
      */
-    public void render(float x, float y) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        batch.begin();
+    public void render(float x, float y, Batch batch) {
         effect.setPosition(x, y);
-        effect.start();
+        effect.update(Gdx.graphics.getDeltaTime());
+
         effect.draw(batch);
-        batch.end();
     }
 
     /**
@@ -67,6 +60,14 @@ public class ParticleModel {
      */
     public void hide() {
     }
+
+    /**
+     * Starts a particle effect
+     */
+    public void startParticles() {
+        effect.start();
+    }
+
 
 
 }
