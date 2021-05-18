@@ -1323,7 +1323,7 @@ public class LevelController extends WorldController {
 					// For crumble animation
 					if (platIdx > 5) {
 						crumbleTexture = new TextureRegion(xTexture[crumbleIdx]);
-						crumbleTexture.setRegion(0, 0, width, height);
+//						crumbleTexture.setRegion(0, 0, width, height);
 					}
 					// If the platform size is the same as the spritesheet size
 					if (originalTexture.getWidth() > 32 && width%(originalTexture.getWidth()/32) == 0) {
@@ -1331,10 +1331,10 @@ public class LevelController extends WorldController {
 						originalTexture = newXTexture.getTexture();
 						if (platIdx > 5) {
 							crumbleTexture = new TextureRegion(reducedXTexture[crumbleIdx]);
-							crumbleTexture.setRegion(0, 0, width, height);
+//							crumbleTexture.setRegion(0, 0, width, height);
 						}
 					}
-					newXTexture.setRegion(0, 0, width, height);
+//					newXTexture.setRegion(0, 0, width, height);
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
