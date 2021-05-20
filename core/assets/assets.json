@@ -371,7 +371,9 @@
         "level28": "levels/statues_3.json",
         "level29": "levels/statues_4.json",
         "level30": "levels/statues_5.json",
-        "level31": "levels/statues_6.json"
+        "level31": "levels/statues_6.json",
+        "level32": "levels/statues_7.json",
+        "level33": "levels/statues_8.json"
     },
   "sounds" : {
       "platform:jump" : "platform/jump.mp3",
