@@ -97,10 +97,11 @@ public class PlatformModel extends BoxObstacle {
     /** List for coordinates of individual tiles in this platform */
     private ArrayList<Vector2> platformCoordinates = new ArrayList<>();
     private ParticleModel flame;
+    private float dt = 0;
 
     Obstacle touching = null;
 
-    public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r,
+    public PlatformModel(float [] bounds, int type, int property, TextureRegion tr, Vector2 s, float d, float f , float r,
                          Texture originalTexture, TextureRegion crumbleTexture){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
                 bounds[2], bounds[3]);
@@ -118,13 +119,15 @@ public class PlatformModel extends BoxObstacle {
 
         this.setTexture(tr);
 
-        this.setTag(t);
-        this.property = 0;
+        this.setTag(type);
+        this.property = property;
         this.isCurrentlyRaining = false;
 
         this.flame = new ParticleModel();
         flame.create();
-        flame.scaleParticles(20);
+        flame.setDuration(30000);
+        flame.scaleParticles(2);
+        flame.startParticles();
     }
 
     public float getLeftX() {
@@ -301,11 +304,10 @@ public class PlatformModel extends BoxObstacle {
             for (Vector2 coordinate : platformCoordinates) {
                 canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,coordinate.x*drawScale.x,coordinate.y*drawScale.y,getAngle(),
                         1.0f, 1.0f);
+//                if (this.property == 2) {
+//                    flame.render(coordinate.x*drawScale.x, coordinate.y*drawScale.y, canvas.getBatch(), 0.016f);
+//                }
             }
-//            canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
-//                    1.0f, 1.0f);
-            flame.startParticles();
-            flame.render(getX()*drawScale.x, getY()*drawScale.y, canvas.getBatch());
         }
     }
 
@@ -334,11 +336,10 @@ public class PlatformModel extends BoxObstacle {
             for (Vector2 coordinate : platformCoordinates) {
                 canvas.draw(tempAnimator, tint, origin.x, origin.y,coordinate.x*drawScale.x,coordinate.y*drawScale.y,getAngle(),
                         1.0f, 1.0f);
+//                if (this.property == 2) {
+//                    flame.render(coordinate.x*drawScale.x, coordinate.y*drawScale.y, canvas.getBatch(), 0.016f);
+//                }
             }
-//            canvas.draw(tempAnimator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
-//                    1.0f, 1.0f);
-            flame.startParticles();
-            flame.render(getX()*drawScale.x, getY()*drawScale.y, canvas.getBatch());
         }
     }
 

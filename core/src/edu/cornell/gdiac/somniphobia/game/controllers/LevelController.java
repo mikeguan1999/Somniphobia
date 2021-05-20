@@ -1381,7 +1381,7 @@ public class LevelController extends WorldController {
 					}
 //					newXTexture.setRegion(0, 0, width, height);
 				}
-				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
+				PlatformModel platformModel  = new PlatformModel(bounds, platformType, property, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
 						defaults.getFloat( "restitution", 0.0f ), originalTexture, crumbleTexture);
 				platformModel.setTag(platformType);

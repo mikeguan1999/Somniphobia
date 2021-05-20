@@ -40,6 +40,22 @@ public class ParticleModel {
     public void render(float x, float y, Batch batch) {
         effect.setPosition(x, y);
         effect.update(Gdx.graphics.getDeltaTime());
+//        System.out.println(Gdx.graphics.getDeltaTime());
+
+        effect.draw(batch);
+    }
+
+    /**
+     * Draws the particles onto the screen but you can add your own dt
+     *
+     * @param x the x coordinate for the particle origin
+     * @param y the y coordinate for the particle origin
+     * @param dt the time change
+     *
+     */
+    public void render(float x, float y, Batch batch, float dt) {
+        effect.setPosition(x, y);
+        effect.update(dt);
 
         effect.draw(batch);
     }
@@ -76,6 +92,16 @@ public class ParticleModel {
      */
     public void scaleParticles(float scaleFactor) {
         effect.scaleEffect(scaleFactor);
+    }
+
+    /**
+     * Change size of particles
+     *
+     * @param duration the duration that the flame exists for
+     *
+     */
+    public void setDuration(int duration) {
+        effect.setDuration(duration);
     }
 
 
