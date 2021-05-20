@@ -45,7 +45,8 @@
         "levels/gears_2.json",
         "levels/gears_3.json",
         "levels/gears_4.json",
-        "levels/gears_5.json"
+        "levels/gears_5.json",
+        "levels/chase.json"
       ]
     },
   "world5": {
@@ -57,7 +58,8 @@
       "levels/statues_3.json",
       "levels/statues_4.json",
       "levels/statues_5.json",
-      "levels/statues_6.json"
+      "levels/statues_6.json",
+      "levels/robot.json"
     ]
   }
 }

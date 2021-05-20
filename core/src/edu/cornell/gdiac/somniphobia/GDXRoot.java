@@ -177,7 +177,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	static public boolean prepareLevelJson(int num, boolean increment) {
 		LevelController lc = (LevelController) controllers[LEVEL_CONTROLLER_INDEX];
 		int newLevel = increment ? lc.getLevel() + num : num;
-		if(newLevel <= 0 || newLevel > levels[worldSelectMenu.currentWorld].length) {
+		if(newLevel < 0 || newLevel > levels[worldSelectMenu.currentWorld].length) {
 			return false;
 		}
 		lc.setLevel(newLevel);
