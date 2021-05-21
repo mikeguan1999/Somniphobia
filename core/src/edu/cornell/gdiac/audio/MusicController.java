@@ -128,6 +128,34 @@ public class MusicController {
         musicsrc.put(music,filename);
     }
 
+//
+//    /**
+//     * Shifts from one background music to another
+//     * @param currentMusicTag the current playing music
+//     * @param newMusicTag the new music to play
+//     */
+//    public void shiftMusic(String currentMusicTag, String newMusicTag) {
+//        if (!actives.isEmpty()) {
+//            MusicBuffer currentMusic = actives.get(currentMusicTag).music;
+//            MusicBuffer newMusic = actives.get(newMusicTag).music;
+//
+//            float crossFade = .05f;
+//
+////            currentMusic.sound.setVolume(currentMusic.id, 1);
+//            //TODO: CrossFade
+//            currentMusic.setVolume(Math.max(0,
+//                    currentMusic.getVolume() - crossFade) );
+//
+////            currentMusic.sound.setVolume(currentMusic.id, 0f * volume);
+//
+//            newMusic.setVolume(Math.min(volume,
+//                    newMusic.getVolume() + crossFade) );
+//
+////            newMusic.sound.setVolume(newMusic.id, 1f * volume);
+//        }
+//    }
+
+
     /**Deallocate all sounds*/
     public void deallocate(AssetManager manager, String filename) {
         MusicBuffer music = (MusicBuffer) manager.get(filename,Music.class);
@@ -269,28 +297,49 @@ public class MusicController {
      */
     public void shiftMusic(String currentMusicTag, String newMusicTag) {
         if (!actives.isEmpty()) {
-            MusicController.ActiveMusic currentMusic = actives.get(currentMusicTag);
-            MusicController.ActiveMusic newMusic = actives.get(newMusicTag);
+            MusicBuffer currentMusic = actives.get(currentMusicTag).music;
+            MusicBuffer newMusic = actives.get(newMusicTag).music;
 
 //            System.out.println(currentMusic.sound.getVolume(currentMusic.id, 0));
-            float crossFade = .2f;
+            float crossFade = .05f;
 
-//            currentMusic.sound.setVolume(currentMusic.id, 1);
+            //TODO: CrossFade
+//            currentMusic.setVolume(Math.max(0,
+//                    currentMusic.getVolume() - crossFade) );
 
-            currentMusic.music.setVolume(1);
+//            currentMusic.sound.setVolume(currentMusic.id, 0f * volume);
 
-            currentMusic.music.setVolume(0f);
-            newMusic.music.setVolume(1f);
+//            newMusic.setVolume(Math.min(volume,
+//                    newMusic.getVolume() + crossFade) );
+
+            float presVol = currentMusic.getVolume();
+            float pastVol = newMusic.getVolume();
+            currentMusic.setVolume(presVol * volume);
+            newMusic.setVolume(pastVol * volume);
+            presVol = currentMusic.getVolume();
+            pastVol = newMusic.getVolume();
+
+
+            if (presVol > 0) {
+                currentMusic.setVolume(Math.max(0, presVol - crossFade) * volume);
+            }
+            if (pastVol < volume) {
+                newMusic.setVolume(Math.min(1, pastVol + crossFade) * volume);
+            }
+            System.out.println();
+
+//            currentMusic.music.setVolume(0f);
+//            newMusic.music.setVolume(1f);
         }
 
-        for(String key : actives.keys()) {
-            MusicController.ActiveMusic snd = actives.get(key);
-            snd.lifespan++;
-        }
-        for(String key : collection) {
-            actives.remove(key);
-        }
-        collection.clear();
+//        for(String key : actives.keys()) {
+//            MusicController.ActiveMusic snd = actives.get(key);
+//            snd.lifespan++;
+//        }
+//        for(String key : collection) {
+//            actives.remove(key);
+//        }
+//        collection.clear();
 
     }
 }

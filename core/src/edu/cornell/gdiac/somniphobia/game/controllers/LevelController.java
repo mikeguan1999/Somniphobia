@@ -12,6 +12,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -55,6 +56,9 @@ import edu.cornell.gdiac.somniphobia.obstacle.*;
  */
 public class LevelController extends WorldController {
 	private OrthographicCamera camera;
+
+
+	private AssetDirectory assets;
 
 	/** Texture asset for character avatar */
 	private TextureRegion avatarTexture;
@@ -234,9 +238,12 @@ public class LevelController extends WorldController {
 	/** The weapon pop sound.  We only want to play once. */
 	private SoundBuffer plopSound;
 
-	private SoundBuffer somniTrackPath;
-	private SoundBuffer phobiaTrackPath;
-	private SoundBuffer combinedTrackPath;
+//	private SoundBuffer somniTrackPath;
+//	private SoundBuffer phobiaTrackPath;
+//	private SoundBuffer combinedTrackPath;
+	private String somniTrackPath;
+	private String phobiaTrackPath;
+	private String combinedTrackPath;
 
 
 	private long plopId = -1;
@@ -957,6 +964,7 @@ public class LevelController extends WorldController {
 	 */
 	public void gatherAssets(AssetDirectory directory) {
 
+		assets = directory;
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:Somni_Idle",Texture.class));
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 
@@ -1104,9 +1112,14 @@ public class LevelController extends WorldController {
 		constants = directory.getEntry( "constants", JsonValue.class );
 
 
-		somniTrackPath = directory.getEntry("somniTrack", SoundBuffer.class);
-		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
-		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
+
+
+
+
+
+//		somniTrackPath = directory.getEntry("somniTrack", SoundBuffer.class);
+//		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
+//		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
 
 
 //		menu drawables
@@ -1188,6 +1201,20 @@ public class LevelController extends WorldController {
 	 * This method disposes of the world and creates a new one.
 	 */
 	public void reset() {
+
+		assets.allocateMusic("audio/SomniTrack.mp3");
+		assets.allocateMusic("audio/PhobiaTrack.mp3");
+		assets.allocateMusic("audio/CombinedTrack.mp3");
+
+//		JsonValue sounds = assets.get("sounds");
+//		somniTrackPath = sounds.get("somniTrack").asString();
+//		phobiaTrackPath = sounds.get("phobiaTrack").asString();
+//		combinedTrackPath = sounds.get("combinedTrack").asString();
+
+		somniTrackPath = "audio/SomniTrack.mp3";
+		phobiaTrackPath = "audio/PhobiaTrack.mp3";
+		combinedTrackPath = "audio/CombinedTrack.mp3";
+
 		gameScreenActive = true;
 		Vector2 gravity = new Vector2(world.getGravity() );
 		for(Obstacle obj : objects) {
@@ -1270,10 +1297,15 @@ public class LevelController extends WorldController {
 		maskHeight = MIN_MASK_DIMENSIONS.y;
 		alphaAmount = 0;
 
-		SoundController.getInstance().play("somniTrack", somniTrackPath, volume, true);
-		SoundController.getInstance().setVolume(volume, "somniTrack");
-		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
-		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);
+		MusicController.getInstance().play("somniTrack", somniTrackPath, volume, true);
+		MusicController.getInstance().play("phobiaTrack", phobiaTrackPath, 0, true);
+		MusicController.getInstance().play("combinedTrack", combinedTrackPath, 0, true);
+
+
+
+//		SoundController.getInstance().setVolume(volume, "somniTrack");
+//		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
+//		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);
 	}
 
 //	public void playMusic() {

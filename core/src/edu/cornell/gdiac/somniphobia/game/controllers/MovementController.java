@@ -3,6 +3,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ObjectSet;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
@@ -299,15 +300,15 @@ public class MovementController implements ContactListener {
         }
 
         if (holdingHands) {
-            SoundController.getInstance().shiftMusic("phobiaTrack", "combinedTrack");
-            SoundController.getInstance().shiftMusic("somniTrack", "combinedTrack");
+            MusicController.getInstance().shiftMusic("phobiaTrack", "combinedTrack");
+            MusicController.getInstance().shiftMusic("somniTrack", "combinedTrack");
         } else {
             if (avatar == somni) {
-                SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
-                SoundController.getInstance().shiftMusic("combinedTrack", "somniTrack");
+                MusicController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+//                MusicController.getInstance().shiftMusic("combinedTrack", "somniTrack");
             } else {
-                SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
-                SoundController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
+                MusicController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+//                MusicController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
             }
         }
 

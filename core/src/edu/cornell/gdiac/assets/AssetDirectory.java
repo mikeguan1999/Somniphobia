@@ -203,7 +203,17 @@ public class AssetDirectory extends AssetManager {
         load( filename, Index.class, params );
     }
 
-    
+
+    public void allocateMusic(String file) {
+        Music music = get(file, Music.class);
+        MusicController controller = MusicController.getInstance();
+        controller.allocate(this, file);
+//        this.music.put(json.name(),music);
+//        return music;
+    }
+
+
+
     /**
      * Unloads all assets previously loaded by {@link #loadAssets}.
      *
