@@ -289,6 +289,12 @@ public class MusicController {
         return actives.containsKey(key);
     }
 
+    public void setVolume(float value, String key){
+        volume = value;
+        MusicBuffer snd = actives.get(key).music;
+        snd.setVolume(volume);
+    }
+
 
     /**
      * Shifts from one background music to another
@@ -304,42 +310,22 @@ public class MusicController {
             float crossFade = .05f;
 
             //TODO: CrossFade
-//            currentMusic.setVolume(Math.max(0,
-//                    currentMusic.getVolume() - crossFade) );
+            currentMusic.setVolume(Math.max(0,
+                    currentMusic.getVolume() - crossFade));
 
-//            currentMusic.sound.setVolume(currentMusic.id, 0f * volume);
+            newMusic.setVolume(Math.min(1,
+                    newMusic.getVolume() + crossFade));
 
-//            newMusic.setVolume(Math.min(volume,
-//                    newMusic.getVolume() + crossFade) );
-
-            float presVol = currentMusic.getVolume();
-            float pastVol = newMusic.getVolume();
-            currentMusic.setVolume(presVol * volume);
-            newMusic.setVolume(pastVol * volume);
-            presVol = currentMusic.getVolume();
-            pastVol = newMusic.getVolume();
-
-
-            if (presVol > 0) {
-                currentMusic.setVolume(Math.max(0, presVol - crossFade) * volume);
-            }
-            if (pastVol < volume) {
-                newMusic.setVolume(Math.min(1, pastVol + crossFade) * volume);
-            }
-            System.out.println();
-
-//            currentMusic.music.setVolume(0f);
-//            newMusic.music.setVolume(1f);
         }
 
-//        for(String key : actives.keys()) {
-//            MusicController.ActiveMusic snd = actives.get(key);
-//            snd.lifespan++;
-//        }
-//        for(String key : collection) {
-//            actives.remove(key);
-//        }
-//        collection.clear();
+        for(String key : actives.keys()) {
+            MusicController.ActiveMusic snd = actives.get(key);
+            snd.lifespan++;
+        }
+        for(String key : collection) {
+            actives.remove(key);
+        }
+        collection.clear();
 
     }
 }

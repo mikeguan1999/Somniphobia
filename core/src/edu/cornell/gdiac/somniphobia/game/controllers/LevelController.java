@@ -552,13 +552,13 @@ public class LevelController extends WorldController {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				if (movementController.isHoldingHands()){
-					SoundController.getInstance().setVolume(volume, "combinedTrack");
+					MusicController.getInstance().setVolume(volume, "combinedTrack");
 				}
 				else if (movementController.getAvatar()==somni){
-					SoundController.getInstance().setVolume(volume, "somniTrack");
+					MusicController.getInstance().setVolume(volume, "somniTrack");
 				}
 				else if (movementController.getAvatar()==phobia){
-					SoundController.getInstance().setVolume(volume, "phobiaTrack");
+					MusicController.getInstance().setVolume(volume, "phobiaTrack");
 				}
 				volume = sliderMusic.getValue();
 				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
@@ -1297,15 +1297,19 @@ public class LevelController extends WorldController {
 		maskHeight = MIN_MASK_DIMENSIONS.y;
 		alphaAmount = 0;
 
-		MusicController.getInstance().play("somniTrack", somniTrackPath, volume, true);
-		MusicController.getInstance().play("phobiaTrack", phobiaTrackPath, 0, true);
-		MusicController.getInstance().play("combinedTrack", combinedTrackPath, 0, true);
+
+		if(!MusicController.getInstance().isActive("somniTrack")) {
+			MusicController.getInstance().play("somniTrack", somniTrackPath, volume, true);
+			MusicController.getInstance().play("phobiaTrack", phobiaTrackPath, 0, true);
+			MusicController.getInstance().play("combinedTrack", combinedTrackPath, 0, true);
+		}
+
+		MusicController.getInstance().setVolume(volume, "somniTrack");
+		MusicController.getInstance().setVolume(0, "phobiaTrack");
+		MusicController.getInstance().setVolume(0, "combinedTrack");
 
 
 
-//		SoundController.getInstance().setVolume(volume, "somniTrack");
-//		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
-//		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);
 	}
 
 //	public void playMusic() {

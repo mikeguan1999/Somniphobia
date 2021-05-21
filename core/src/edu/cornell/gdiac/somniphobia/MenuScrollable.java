@@ -323,7 +323,6 @@ public class MenuScrollable implements Screen {
 		leftButton.setVisible(false);
 
 		initialCameraX = -362;
-		System.out.println(initialCameraX);
 		camera.position.x = initialCameraX;
 		camera.position.y = 288;
 		camera.update();

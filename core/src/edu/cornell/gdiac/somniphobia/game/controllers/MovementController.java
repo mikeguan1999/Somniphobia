@@ -287,6 +287,7 @@ public class MovementController implements ContactListener {
 //        }
 
 
+
         if (somni.isDashing()) {
             somni.setGravityScale(0f);
         } else {
@@ -305,10 +306,10 @@ public class MovementController implements ContactListener {
         } else {
             if (avatar == somni) {
                 MusicController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
-//                MusicController.getInstance().shiftMusic("combinedTrack", "somniTrack");
+                MusicController.getInstance().shiftMusic("combinedTrack", "somniTrack");
             } else {
                 MusicController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
-//                MusicController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
+                MusicController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
             }
         }
 

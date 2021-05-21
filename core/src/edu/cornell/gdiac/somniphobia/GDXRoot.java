@@ -214,16 +214,12 @@ public class GDXRoot extends Game implements ScreenListener {
 //		}
 		if (screen == loading) {
 			directory = loading.getAssets();
-//			System.out.println("hi");
-//			System.out.println(directory.getEntry("somniTrack"));
 			directory.unload("audio/SomniTrack.mp3");
 			directory.load("audio/SomniTrack.mp3", Music.class);
 			directory.unload("audio/PhobiaTrack.mp3");
 			directory.load("audio/PhobiaTrack.mp3", Music.class);
 			directory.unload("audio/CombinedTrack.mp3");
 			directory.load("audio/CombinedTrack.mp3", Music.class);
-//			directory.load("phobiaTrack", Music.class);
-//			directory.load("combinedTrack", Music.class);
 			directory.finishLoading();
 			for (int ii = 0; ii < controllers.length; ii++) {
 				controllers[ii].gatherAssets(directory);
