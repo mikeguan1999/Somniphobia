@@ -14,12 +14,12 @@
       "worldMenuBackground": "platform:background_dark_house",
       "worldMenuDoor": "platform:house_door",
       "levels": [
-        "levels/houses_1.json",
-        "levels/houses_2.json",
-        "levels/houses_3.json",
-        "levels/houses_4.json",
-        "levels/houses_5.json",
-        "levels/houses_6.json"
+        "levels/blue_tutorial.json",
+        "levels/blue_surprise.json",
+        "levels/yellow_tutorial.json",
+        "levels/small_house.json",
+        "levels/big_house.json",
+        "levels/rotating_houses.json"
       ]
     },
     "world3": {
