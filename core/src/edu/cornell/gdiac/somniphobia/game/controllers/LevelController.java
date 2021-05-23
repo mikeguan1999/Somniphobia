@@ -1397,7 +1397,7 @@ public class LevelController extends WorldController {
 
 
 		// Setup platforms
-		for(int i=0; i < objs.size; i++)
+		for(int i=0; i < (objs != null ? objs.size : 0); i++)
 		{
 			JsonValue obj = objs.get(i);
 
