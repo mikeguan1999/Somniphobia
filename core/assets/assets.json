@@ -378,7 +378,10 @@
       "platform:plop" : "platform/plop.mp3",
       "somniTrack": "audio/SomniTrack.mp3",
       "phobiaTrack": "audio/PhobiaTrack.mp3",
-      "combinedTrack": "audio/CombinedTrack.mp3"
+      "combinedTrack": "audio/CombinedTrack.mp3",
+      "winTrack": "audio/WinTrack.mp3",
+      "failTrack": "audio/FailTrack.mp3"
+
   },
   "fonts": {
       "shared:retro": {

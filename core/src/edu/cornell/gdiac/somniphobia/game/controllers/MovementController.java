@@ -269,6 +269,7 @@ public class MovementController implements ContactListener {
             //Check if hand holding
             if(inputController.didHoldHands()) {
                 handleHoldingHands();
+
             }
 
         }
@@ -684,7 +685,12 @@ public class MovementController implements ContactListener {
             // Check for win condition
             if ((bd1 == combined  && bd2 == goalDoor) ||
                     (bd1 == goalDoor && bd2 == combined)) {
+                MusicController.getInstance().stopAll();
+                SoundController.getInstance().play("winTrack",
+                        SoundController.getInstance().getWinTrack(), 1, false);
+
                 worldController.setComplete(true);
+
             }
         } catch (Exception e) {
             e.printStackTrace();

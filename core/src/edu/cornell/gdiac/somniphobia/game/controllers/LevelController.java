@@ -36,7 +36,6 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
@@ -238,7 +237,7 @@ public class LevelController extends WorldController {
 	/** The weapon pop sound.  We only want to play once. */
 	private SoundBuffer plopSound;
 
-//	private SoundBuffer somniTrackPath;
+	private SoundBuffer somniTrack;
 //	private SoundBuffer phobiaTrackPath;
 //	private SoundBuffer combinedTrackPath;
 	private String somniTrackPath;
@@ -249,6 +248,11 @@ public class LevelController extends WorldController {
 	private long plopId = -1;
 	/** The default sound volume */
 	private float volume;
+
+	/** Audio tracks */
+	private SoundBuffer winTrack;
+	private SoundBuffer failTrack;
+
 
 	private MovementController movementController;
 
@@ -409,7 +413,8 @@ public class LevelController extends WorldController {
 
 	public Widget sliderMenu;
 
-	public int tes = 0; // <-- enoch please don't do this
+
+	private boolean createdSliders = false;
 
 	// WASD Camera Variables
 
@@ -954,6 +959,10 @@ public class LevelController extends WorldController {
 		pauseButton.draw(b, 1);
 	}
 
+	public SoundBuffer getWinTrack() {
+		return winTrack;
+	}
+
 	/**
 	 * Gather the assets for this controller.
 	 *
@@ -1115,9 +1124,16 @@ public class LevelController extends WorldController {
 
 
 
+//Gather sound assets
+		winTrack = directory.getEntry("winTrack", SoundBuffer.class);
+		SoundController.getInstance().setWinTrack(winTrack);
+
+		failTrack = directory.getEntry("failTrack", SoundBuffer.class);
+		SoundController.getInstance().setFailTrack(failTrack);
 
 
-//		somniTrackPath = directory.getEntry("somniTrack", SoundBuffer.class);
+
+		somniTrack = directory.getEntry("somniTrack", SoundBuffer.class);
 //		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
 //		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
 
@@ -1148,6 +1164,8 @@ public class LevelController extends WorldController {
 
 		bluePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_blue", Texture.class));
 		orangePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_red", Texture.class));
+
+
 
 		super.gatherAssets(directory);
 
@@ -1205,7 +1223,6 @@ public class LevelController extends WorldController {
 		assets.allocateMusic("audio/SomniTrack.mp3");
 		assets.allocateMusic("audio/PhobiaTrack.mp3");
 		assets.allocateMusic("audio/CombinedTrack.mp3");
-
 //		JsonValue sounds = assets.get("sounds");
 //		somniTrackPath = sounds.get("somniTrack").asString();
 //		phobiaTrackPath = sounds.get("phobiaTrack").asString();
@@ -1299,15 +1316,20 @@ public class LevelController extends WorldController {
 
 
 		if(!MusicController.getInstance().isActive("somniTrack")) {
+			MusicController.getInstance().stopAll();
+			SoundController.getInstance().stop("failTrack");
+			SoundController.getInstance().stop("winTrack");
 			MusicController.getInstance().play("somniTrack", somniTrackPath, volume, true);
 			MusicController.getInstance().play("phobiaTrack", phobiaTrackPath, 0, true);
 			MusicController.getInstance().play("combinedTrack", combinedTrackPath, 0, true);
-		}
 
+		}
+//
 		MusicController.getInstance().setVolume(volume, "somniTrack");
 		MusicController.getInstance().setVolume(0, "phobiaTrack");
 		MusicController.getInstance().setVolume(0, "combinedTrack");
 
+//		SoundController.getInstance().play("WinTrack", winTrack, 1, true);
 
 
 	}
@@ -1576,6 +1598,9 @@ public class LevelController extends WorldController {
 			setFailure(true);
 			return false;
 		}
+
+
+
 
 		if (exitClicked){
 			pause();
@@ -2112,9 +2137,9 @@ public class LevelController extends WorldController {
 
 		// Draw sliders if active
 		canvas.begin();
-		if (tes == 0) {
+		if (!createdSliders) {
 			createSliders();
-			tes = 1;
+			createdSliders = true;
 		}
 
 		if (slidersActive()) {
@@ -2237,8 +2262,11 @@ public class LevelController extends WorldController {
 		// Draw final message when level ends
 		//JENNA
 		if (isComplete() && !isFailure()) {
+
+
 			canvas.begin();
 			if (isComplete()) {
+
 				setPositionMenu(winMenu);
 				winMenuStage.draw();
 				winMenuStage.act(dt);

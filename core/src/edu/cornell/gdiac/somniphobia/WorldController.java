@@ -24,7 +24,9 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundBuffer;
+import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
@@ -209,6 +211,11 @@ public abstract class WorldController implements Screen {
 //		if (value) {
 //			countdown = EXIT_COUNT;
 //		}
+		if (value) {
+			MusicController.getInstance().stopAll();
+			SoundController.getInstance().play("failTrack",
+					SoundController.getInstance().getFailTrack(), 1, false);
+		}
 		failed = value;
 	}
 
