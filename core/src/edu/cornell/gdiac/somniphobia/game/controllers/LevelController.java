@@ -11,6 +11,7 @@
 package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import edu.cornell.gdiac.audio.SoundController;
 
@@ -200,6 +201,10 @@ public class LevelController extends WorldController {
 	/** Texture asset int for action*/
 	private int action;
 
+	private int vpWidth = 1024;
+	private int vpHeight = 576;
+	private boolean fullscreenhappened = false;
+
 	private int appWidth;
 	private int appHeight;
 
@@ -295,6 +300,12 @@ public class LevelController extends WorldController {
 	private int PHOBIA_TAG = 0;
 	private int COMBINED_TAG = 0;
 
+	private Boolean firstTimeRenderedPauseMenuFull=true;
+	private Boolean firstTimeRenderedFailMenuFull=true;
+	private Boolean firstTimeRenderedWinMenuFull=true;
+	private Boolean firstTimeRenderedPauseButtonFull = true;
+	private Boolean firstTimeRenderedPauseFullButtonFull = true;
+
 	//JENNA SETUP
 	private Table pauseMenu;
 	private Table failMenu;
@@ -303,6 +314,7 @@ public class LevelController extends WorldController {
 	private Boolean firstTimeRenderedFailMenu=true;
 	private Boolean firstTimeRenderedWinMenu=true;
 	private Boolean firstTimeRenderedPauseButton = true;
+	private Boolean firstTimeRenderedPauseFullButton = false;
 	private Button exitButton;
 	private Button exitButtonFail;
 	private Button exitButtonWin;
@@ -311,6 +323,7 @@ public class LevelController extends WorldController {
 	private Button restartButtonFail;
 	private Button advanceButton;
 	private Button pauseButton;
+	private Button pauseFullButton;
 	private boolean exitClicked;
 	private boolean resumeClicked;
 	private boolean restartClicked;
@@ -319,12 +332,14 @@ public class LevelController extends WorldController {
 	private Stage failMenuStage;
 	private Stage winMenuStage;
 	private Stage pauseButtonStage;
+	private Stage pauseButtonFullStage;
 	private boolean gameScreenActive = true;
 
 	//END JENNA
 
 	/** whether pauseMenu is rendered for the first time*/
 	private Boolean firstTimeRendered=true;
+	private Boolean firstTimeRenderedFull=true;
 	/** the underline on pauseMenu*/
 	private Image underline;
 	private Image underlineWinMenu;
@@ -513,8 +528,16 @@ public class LevelController extends WorldController {
 	 * Resets the position of the pauseMenu relative to the camera's position
 	 */
 	public void setPositionPauseMenu(){
-		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
-
+		if (isfullscreen){
+			pauseMenu.setPosition(canvas.getWidth() / PAUSE_MENU_POSITION_SCALE,canvas.getHeight() / PAUSE_MENU_POSITION_SCALE);
+		}
+		else if(fullscreenhappened){
+			pauseMenu.setPosition(canvas.getWidth() / PAUSE_MENU_POSITION_SCALE,canvas.getHeight() / PAUSE_MENU_POSITION_SCALE);
+		}
+		else {
+			pauseMenu.setPosition(camera.position.x - canvas.getWidth() / PAUSE_MENU_POSITION_SCALE,
+					camera.position.y - canvas.getHeight() / PAUSE_MENU_POSITION_SCALE);
+		}
 
 	}
 
@@ -614,12 +637,6 @@ public class LevelController extends WorldController {
 	}
 
 	public void setPositionMenu(Table menu){
-		if (isfullscreen) {
-			float ratio = 1024/ canvas.getWidth();
-			menu.setPosition(camera.position.x- canvas.getWidth()*ratio/4, camera.position.y-canvas.getHeight()*ratio/4);
-		}else {
-			menu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
-		}
 		menu.setPosition(camera.position.x- canvas.getWidth()/4, camera.position.y-canvas.getHeight()/4);
 	}
 
@@ -889,17 +906,42 @@ public class LevelController extends WorldController {
 	}
 
 	/**
+	 * full screen pause buttton
+	 */
+	public void createPauseFullButton(){
+		Table table = new Table();
+		gameScreenActive = true;
+		pauseButtonFullStage = new Stage(new ScreenViewport(camera));
+		pauseFullButton = new Button(bluePauseButton);
+		pauseFullButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
+		pauseFullButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				setPause(true);
+				System.out.println(camera.position);
+				System.out.println(somni.getPosition().x *32 + ", " + somni.getPosition().y *32);
+				System.out.println(pauseMenu.getX() + ", " + pauseButton.getY());
+				System.out.println(pauseMenu.getOriginX() + ", " + pauseButton.getOriginY());
+			}
+		});
+		pauseFullButton.setSize(PAUSE_BUTTON_WIDTH,PAUSE_BUTTON_HEIGHT);
+		table.add(pauseFullButton);
+		pauseButtonFullStage.addActor(table);
+	}
+
+	public void drawPauseFullButton(){
+		Batch b = canvas.getBatch();
+		float xOffSet = Gdx.graphics.getWidth() * .347f;
+		float yOffSet = Gdx.graphics.getHeight() *.3906f;
+		pauseFullButton.setPosition(camera.position.x+xOffSet, camera.position.y+yOffSet);
+		pauseFullButton.draw(b, 1);
+	}
+
+	/**
 	 * Draws the pauseButton and resets the position relative to the camera position
 	 */
 	public void drawPauseButton(){
 		Batch b = canvas.getBatch();
-		if(isfullscreen){
-			float xOffSet = Gdx.graphics.getWidth() * .347f;
-			float yOffSet = Gdx.graphics.getHeight() *.3906f;
-			pauseButton.setPosition(camera.position.x+xOffSet, camera.position.y+yOffSet);
-		}else {
-			pauseButton.setPosition(camera.position.x + PAUSE_BUTTON_OFFSETX, camera.position.y + PAUSE_BUTTON_OFFSETY);
-		}
+		pauseButton.setPosition(camera.position.x + PAUSE_BUTTON_OFFSETX, camera.position.y + PAUSE_BUTTON_OFFSETY);
 		pauseButton.draw(b, 1);
 	}
 
@@ -1138,6 +1180,7 @@ public class LevelController extends WorldController {
 		setComplete(false);
 		setFailure(false);
 		firstTimeRendered=true;
+		firstTimeRenderedFull = true;
 		populateLevel();
 
 		Camera camera = canvas.getCamera();
@@ -1417,6 +1460,18 @@ public class LevelController extends WorldController {
 			setFailure(false);
 			setComplete(false);
 			firstTimeRendered = true;
+			firstTimeRenderedFull = true;
+			fullscreenhappened = false;
+			if(isfullscreen){
+				Gdx.graphics.setWindowedMode(appWidth,appHeight);
+				OrthographicCamera cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+				canvas = new GameCanvas();
+				camera = cam;
+				fbo= null;
+				alpha_background = null;
+				isfullscreen = false;
+				canvas.setCamera(camera);
+			}
 			listener.exitScreen(this, WorldController.EXIT_MENU);
 			exitClicked = false;
 			return false;
@@ -1571,97 +1626,32 @@ public class LevelController extends WorldController {
 			//System.out.println(camera.position);
 		}
 		if(InputController.getInstance().didFullscreen() && !isfullscreen){
-			System.out.println("Before fullscreen:");
-			System.out.println(Gdx.graphics.getHeight());
-			System.out.println(Gdx.graphics.getWidth());
-			System.out.println("Canvas Camera");
-			System.out.println(canvas.getCamera().viewportHeight);
-			System.out.println(canvas.getCamera().viewportWidth);
-			System.out.println(canvas.getCamera().position);
-			System.out.println("Levelcontroller Camera");
-			System.out.println(camera.viewportHeight);
-			System.out.println(camera.viewportWidth);
-			System.out.println(camera.position);
-			//System.out.println(canvas.getHeight());
-			//System.out.println(canvas.getWidth());
-			//System.out.println(canvas.getViewPort().getScreenHeight());
-			//System.out.println(canvas.getViewPort().getScreenWidth());
-			//System.out.println(canvas.getViewPort().getScreenX());
-			//System.out.println(canvas.getViewPort().getScreenY());
-			System.out.println(maskWidth);
-			System.out.println(maskHeight);
-			System.out.println(alpha_background.getHeight());
-			System.out.println(alpha_background.getWidth());
-
 			Gdx.graphics.setFullscreenMode((Gdx.graphics.getDisplayMode()));
 			OrthographicCamera cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-			//alpha_background = createRectangularTexture(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-			//cam.viewportHeight = appHeight;
-			//cam.viewportWidth = appWidth;
-			//cam.translate(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 0);
-			//cam.update();
-			//canvas.setViewPort(new FitViewport(cam.viewportWidth, cam.viewportHeight, cam));
-			//canvas.setCamera(cam);
-			//camera = cam;
-			//canvas.getViewPort().setScreenSize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-			//canvas.getViewPort().setScreenPosition(Gdx.graphics.getWidth()/2,Gdx.goraphics.getHeight()/2);
-			float xOffSet = Gdx.graphics.getWidth() * .347f;
-			float yOffSet = Gdx.graphics.getHeight() *.3906f;
-			//pauseButton.setPosition(camera.position.x+xOffSet, camera.position.y+yOffSet);
-			//drawPauseButton();
-			/*
-			camera = cam;
-			cam.viewportHeight = appHeight;
-			cam.viewportWidth = appWidth;
-			cam.translate(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 0);
-			cam.update();*/
 			canvas = new GameCanvas();
 			camera = cam;
-			//camera.viewportHeight = appHeight;
-			//camera.viewportWidth = appWidth;
 			fbo= null;
 			alpha_background = null;
 			camera.translate(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0);
 			camera.combined.scale(Gdx.graphics.getWidth()/1024,Gdx.graphics.getHeight()/576,1);
 			camera.update();
 			canvas.setCamera(camera);
-
-
-			System.out.println("After fullscreen:");
-			System.out.println(Gdx.graphics.getHeight());
-			System.out.println(Gdx.graphics.getWidth());
-			System.out.println("Canvas Camera");
-			System.out.println(canvas.getCamera().viewportHeight);
-			System.out.println(canvas.getCamera().viewportWidth);
-			System.out.println(canvas.getCamera().position);
-			System.out.println("Levelcontroller Camera");
-			System.out.println(camera.viewportHeight);
-			System.out.println(camera.viewportWidth);
-			System.out.println(camera.position);
-			//System.out.println(canvas.getHeight());
-			//System.out.println(canvas.getWidth());
-			//System.out.println(canvas.getViewPort().getScreenHeight());
-			//System.out.println(canvas.getViewPort().getScreenWidth());
-			//System.out.println(canvas.getViewPort().getScreenX());
-			//System.out.println(canvas.getViewPort().getScreenY());
-			System.out.println(maskWidth);
-			System.out.println(maskHeight);
-			//canvas.setFullscreen(true,true);
 			isfullscreen = true;
+			fullscreenhappened = true;
 		}
 		else if(InputController.getInstance().didFullscreen() && isfullscreen){
-			System.out.println(Gdx.graphics.getHeight());
-			System.out.println(Gdx.graphics.getWidth());
 			Gdx.graphics.setWindowedMode(appWidth,appHeight);
+			OrthographicCamera cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 			canvas = new GameCanvas();
+			camera = cam;
 			fbo= null;
 			alpha_background = null;
-			//canvas.getViewPort().setScreenSize(appWidth,appHeight);
-			//canvas.getCamera().viewportHeight = appHeight;
-			//canvas.getCamera().viewportWidth = appWidth;
-			//canvas.getViewPort().setScreenPosition(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2);
-			//canvas.setFullscreen(false,true);
 			isfullscreen = false;
+			camera.translate(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0);
+			camera.combined.scale(Gdx.graphics.getWidth()/1024,Gdx.graphics.getHeight()/576,1);
+			camera.update();
+			canvas.setCamera(camera);
+			Gdx.input.setInputProcessor(pauseButtonStage);
 		}
 
 		// Set camera position bounded by the canvas size
@@ -2069,21 +2059,41 @@ public class LevelController extends WorldController {
 
 		// Draw pauseMenu
 		canvas.begin();
+		if(isfullscreen){
+			if (firstTimeRenderedFull) {
+				createModalWindow();
+				firstTimeRenderedFull = false;
+				firstTimeRendered = true;
+			}
+			if (firstTimeRenderedWinMenuFull) {
+				createWinWindow(camera.position.x, camera.position.y);
+				firstTimeRenderedWinMenuFull = false;
+				firstTimeRenderedWinMenu = false;
+			}
 
-		if (firstTimeRendered) {
-			createModalWindow();
-			firstTimeRendered = false;
-		}
-		if (firstTimeRenderedWinMenu) {
-			createWinWindow(camera.position.x, camera.position.y);
-			firstTimeRenderedWinMenu = false;
-		}
+			if (firstTimeRenderedFailMenuFull) {
+				createFailWindow(camera.position.x, camera.position.y);
+				firstTimeRenderedFailMenuFull = false;
+				firstTimeRenderedFailMenu = false;
+			}
+		}else {
+			if (firstTimeRendered) {
+				createModalWindow();
+				firstTimeRendered = false;
+				firstTimeRenderedFull = true;
+			}
+			if (firstTimeRenderedWinMenu) {
+				createWinWindow(camera.position.x, camera.position.y);
+				firstTimeRenderedWinMenu = false;
+				firstTimeRenderedWinMenuFull = true;
+			}
 
-		if (firstTimeRenderedFailMenu) {
-			createFailWindow(camera.position.x, camera.position.y);
-			firstTimeRenderedFailMenu = false;
+			if (firstTimeRenderedFailMenu) {
+				createFailWindow(camera.position.x, camera.position.y);
+				firstTimeRenderedFailMenu = false;
+				firstTimeRenderedFailMenuFull = true;
+			}
 		}
-
 		if (pauseMenuActive()) {
 			setPositionPauseMenu();
 			pauseMenuStage.draw();
@@ -2132,23 +2142,45 @@ public class LevelController extends WorldController {
 
 			Gdx.input.setInputProcessor(pauseMenuStage);
 		}
+
 		canvas.end();
 
 		canvas.begin();
-		if (firstTimeRenderedPauseButton) {
-			createPauseButton();
-			firstTimeRenderedPauseButton = false;
-		} else {
-			if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
-				pauseButton.getStyle().up = bluePauseButton;
-			} else {
-				pauseButton.getStyle().up = orangePauseButton;
+		if(isfullscreen){
+			if (firstTimeRenderedPauseFullButtonFull){
+				firstTimeRenderedPauseFullButtonFull = false;
+				firstTimeRenderedPauseButton =true;
+				createPauseFullButton();
 			}
-			drawPauseButton();
-		}
+			else {
+				if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
+					pauseFullButton.getStyle().up = bluePauseButton;
+				} else {
+					pauseFullButton.getStyle().up = orangePauseButton;
+				}
+				drawPauseFullButton();
+			}
 
-		if (!pauseMenuActive() && gameScreenActive && !slidersActive()) {
-			Gdx.input.setInputProcessor(pauseButtonStage);
+			if (!pauseMenuActive() && gameScreenActive && !slidersActive()) {
+				Gdx.input.setInputProcessor(pauseButtonFullStage);
+			}
+		}else {
+			if (firstTimeRenderedPauseButton) {
+				createPauseButton();
+				firstTimeRenderedPauseButton = false;
+				firstTimeRenderedPauseFullButtonFull = true;
+			} else {
+				if (movementController.getAvatar() == somni || movementController.getLead() == somni) {
+					pauseButton.getStyle().up = bluePauseButton;
+				} else {
+					pauseButton.getStyle().up = orangePauseButton;
+				}
+				drawPauseButton();
+			}
+
+			if (!pauseMenuActive() && gameScreenActive && !slidersActive()) {
+				Gdx.input.setInputProcessor(pauseButtonStage);
+			}
 		}
 		canvas.end();
 
