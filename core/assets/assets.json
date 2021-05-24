@@ -313,6 +313,7 @@
     "tutorial:spirit_switch": "tutorial/spirit_switch.png",
     "tutorial:spirit_separate": "tutorial/spirit_separate.png",
     "tutorial:spirit_unify": "tutorial/spirit_unify.png",
+    "tutorial:dash_catch": "tutorial/dash_catch.png",
 
     "pause_menu:pausemenu_underline_red": "pause_menu/pausemenu_underline_red.png",
     "pause_menu:pausemenu_underline": "pause_menu/pausemenu_underline.png",

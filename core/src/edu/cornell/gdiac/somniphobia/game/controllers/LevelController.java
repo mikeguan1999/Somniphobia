@@ -997,7 +997,8 @@ public class LevelController extends WorldController {
 				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),      //8
 				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),   //9
 				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)), //10
-				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))     //11
+				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class)),    //11
+				new TextureRegion(directory.getEntry("tutorial:dash_catch", Texture.class))	   //12
 		};
 
 		// Base models

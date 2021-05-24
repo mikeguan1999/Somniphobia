@@ -19,6 +19,8 @@
         "levels/yellow_tutorial.json",
         "levels/small_house.json",
         "levels/big_house.json",
+        "levels/dash_catch_tutorial.json",
+        "levels/catch_tutorial.json",
         "levels/rotating_houses.json"
       ]
     },
