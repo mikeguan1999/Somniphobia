@@ -78,6 +78,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private Stage pauseButtonStage;
 	private Controls controlsPage;
 	private About aboutPage;
+	private ControlsTable controlsPageTwo;
 
 
 	/**
@@ -130,6 +131,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		preferences = Gdx.app.getPreferences("save_data.json");
 		controlsPage = new Controls(canvas);
 		aboutPage = new About(canvas);
+		controlsPageTwo = new ControlsTable(canvas);
 	}
 
 	/** 
@@ -291,10 +293,15 @@ public class GDXRoot extends Game implements ScreenListener {
 			aboutPage.setScreenListener(this);
 			setScreen(aboutPage);
 		}
+		else if (exitCode == WorldController.EXIT_CONTROLS_PAGE_TWO){
+			controlsPageTwo.setScreenListener(this);
+			setScreen(controlsPageTwo);
+		}
 		else if (exitCode == WorldController.EXIT_QUIT) {
 			preferences.flush(); // Persist user save data
 			Gdx.app.exit(); // We quit the main application
 		}
+
 	}
 
 }
