@@ -687,7 +687,8 @@ public class MovementController implements ContactListener {
                     (bd1 == goalDoor && bd2 == combined)) {
                 MusicController.getInstance().stopAll();
                 SoundController.getInstance().play("winTrack",
-                        SoundController.getInstance().getWinTrack(), 1, false);
+                        SoundController.getInstance().getWinTrack(),
+                        MusicController.getInstance().getVolume(), false);
 
                 worldController.setComplete(true);
 

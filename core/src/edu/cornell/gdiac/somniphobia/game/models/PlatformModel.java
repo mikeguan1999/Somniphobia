@@ -20,6 +20,11 @@ public class PlatformModel extends BoxObstacle {
     public final static int harming = 2;
     public final static int crumbling = 3;
 
+    /** Color tag constants */
+    public final static int light = 1;
+    public final static int dark = 2;
+    public final static int shared = 3;
+
     /** Width of the platform*/
     private float width;
     /** Height of the platform*/
@@ -43,6 +48,8 @@ public class PlatformModel extends BoxObstacle {
 
     /** Whether the platform is currently raining **/
     private boolean isCurrentlyRaining;
+    /** Whether the platform is currently respawning **/
+    private boolean isCurrentlyRespawning;
 
     /** Density position*/
     private float density;
@@ -58,6 +65,7 @@ public class PlatformModel extends BoxObstacle {
     private float velocity;
 
     private float rainingCooldown;
+    private float respawnCooldown;
 
     /** Path for a moving obstacle **/
     private PooledList<Vector2> paths;
@@ -90,6 +98,8 @@ public class PlatformModel extends BoxObstacle {
     private Texture originalTexture;
     /** TextureRegion for crumbling animation */
     private TextureRegion crumbleTexture;
+    /** Original TextureRegion */
+    private TextureRegion normalTexture;
 
     Obstacle touching = null;
 
@@ -108,6 +118,7 @@ public class PlatformModel extends BoxObstacle {
         this.height = bounds[3];
         this.originalTexture = originalTexture;
         this.crumbleTexture = crumbleTexture;
+        this.normalTexture = tr;
 
         this.setTexture(tr);
 
@@ -127,7 +138,7 @@ public class PlatformModel extends BoxObstacle {
 
 
     /**
-     * Begins the rain animation for a raining platform
+     * Sets whether platform is raining
      */
     public void setCurrentlyRaining(boolean currentlyRaining) {
         isCurrentlyRaining = currentlyRaining;
@@ -140,6 +151,22 @@ public class PlatformModel extends BoxObstacle {
      */
     public boolean isCurrentlyRaining() {
         return isCurrentlyRaining;
+    }
+
+    /**
+     * Sets whether platform is respawning
+     */
+    public void setCurrentlyRespawning(boolean currentlyRespawning) {
+        isCurrentlyRespawning = currentlyRespawning;
+    }
+
+
+    /**
+     * Is the platform currently respawning
+     * @return whether platform is currently respawning
+     */
+    public boolean isCurrentlyRespawning() {
+        return isCurrentlyRespawning;
     }
 
     /**
@@ -156,6 +183,22 @@ public class PlatformModel extends BoxObstacle {
      */
     public float getRainingCooldown() {
         return this.rainingCooldown;
+    }
+
+    /**
+     * Sets the respawn cooldown of this platform
+     * @param respawnCooldown the raining cooldown
+     */
+    public void setRespawnCooldown(float respawnCooldown) {
+        this.respawnCooldown = respawnCooldown;
+    }
+
+    /**
+     * Gets the respawn cooldown of this platform
+     * @return the respawn cooldown
+     */
+    public float getRespawnCooldown() {
+        return this.respawnCooldown;
     }
 
     /**
@@ -300,6 +343,9 @@ public class PlatformModel extends BoxObstacle {
             texture = crumbleTexture;
             animator = new FilmStrip(crumbleTexture,1, numAnimFrames, numAnimFrames);
             animeframe = 0;
+        } else if (!this.isCurrentlyRaining && texture!=normalTexture) {
+            texture = normalTexture;
+            setTexture(normalTexture);
         }
 
         super.update(dt);

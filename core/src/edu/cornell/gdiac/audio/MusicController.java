@@ -313,7 +313,7 @@ public class MusicController {
             currentMusic.setVolume(Math.max(0,
                     currentMusic.getVolume() - crossFade));
 
-            newMusic.setVolume(Math.min(1,
+            newMusic.setVolume(Math.min(volume,
                     newMusic.getVolume() + crossFade));
 
         }

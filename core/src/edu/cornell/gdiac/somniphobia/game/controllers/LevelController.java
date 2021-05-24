@@ -565,7 +565,9 @@ public class LevelController extends WorldController {
 				else if (movementController.getAvatar()==phobia){
 					MusicController.getInstance().setVolume(volume, "phobiaTrack");
 				}
+				MusicController.getInstance().setVolume(volume);
 				volume = sliderMusic.getValue();
+
 				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
 			}
 		});
@@ -1246,14 +1248,13 @@ public class LevelController extends WorldController {
 		for(Obstacle obj : lightObjects) {
 			obj.deactivatePhysics(world);
 		}
-//		for (Obstacle obj: movingObjects) {
-//			obj.deactivatePhysics(world);
-//		}
 		objects.clear();
 		sharedObjects.clear();
 		lightObjects.clear();
 		darkObjects.clear();
 		movingObjects.clear();
+		platformController.currRainingPlatforms.clear();
+		platformController.respawningPlatforms.clear();
 		addQueue.clear();
 		world.dispose();
 		disposeStages();

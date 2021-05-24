@@ -214,7 +214,8 @@ public abstract class WorldController implements Screen {
 		if (value) {
 			MusicController.getInstance().stopAll();
 			SoundController.getInstance().play("failTrack",
-					SoundController.getInstance().getFailTrack(), 1, false);
+					SoundController.getInstance().getFailTrack(),
+					MusicController.getInstance().getVolume(), false);
 		}
 		failed = value;
 	}
@@ -281,6 +282,7 @@ public abstract class WorldController implements Screen {
 	 */
 	public void setPlatController(PlatformController plat) {
 		this.platformController = plat;
+		platformController.setWorldController(this);
 	}
 	
 	/**
@@ -382,7 +384,7 @@ public abstract class WorldController implements Screen {
 	 *
 	 * param obj The object to add
 	 */
-	protected void addObject(Obstacle obj) {
+	public void addObject(Obstacle obj) {
 		assert inBounds(obj) : "Object is not in bounds";
 		objects.add(obj);
 		obj.activatePhysics(world);
