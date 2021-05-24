@@ -2396,9 +2396,5 @@ public class LevelController extends WorldController {
 		stage.dispose();
 	}
 
-	public void beginRaining(PlatformModel platform) {
-
-	}
-
 
 }
