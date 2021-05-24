@@ -1,0 +1,95 @@
+{
+"background": 1,
+"dimensions": [ 1400, 1400 ],
+"somni": {
+	"pos": [ 5, 5 ]
+},
+"phobia": {
+	"pos": [ 7, 5 ]
+},
+"goal": {
+	"pos": [ 9, 41 ]
+},
+"objects": [
+	{
+		"type": 2,
+		"assetName": "shared:dark",
+		"positions": [
+			[ 7, 10, 5, 1 ]
+		],
+		"property": 1,
+		"paths": [
+			[ 2, 10, 12, 10 ]
+		]
+	},
+	{
+		"type": 3,
+		"assetName": "shared:all",
+		"positions": [
+			[ 9, 5, 1, 5 ],
+			[ 4, 3, 12, 2 ],
+			[ 9, 26, 1, 14 ]
+		],
+		"property": 1,
+		"paths": [
+			[ 9, 5 ],
+			[ 4, 3 ],
+			[ 9, 26 ]
+		]
+	},
+	{
+		"type": 3,
+		"assetName": "shared:all",
+		"positions": [
+			[ 15, 14, 3, 1 ],
+			[ 8, 23, 3, 1 ],
+			[ 12, 18, 3, 1 ],
+			[ 8, 40, 4, 1 ]
+		],
+		"property": 3,
+		"paths": [
+			[ 15, 14 ],
+			[ 8, 23 ],
+			[ 12, 18 ],
+			[ 8, 40 ]
+		]
+	},
+	{
+		"type": 1,
+		"assetName": "shared:light",
+		"positions": [
+			[ 1, 12, 3, 1 ],
+			[ 2, 29, 3, 1 ],
+			[ 4, 34, 3, 1 ]
+		],
+		"property": 3,
+		"paths": [
+			[ 1, 11, 1, 18 ],
+			[ 2, 29 ],
+			[ 4, 34 ]
+		]
+	},
+	{
+		"type": 2,
+		"assetName": "shared:dark",
+		"positions": [
+			[ 14, 27, 3, 1 ]
+		],
+		"property": 3,
+		"paths": [
+			[ 14, 26, 14, 32 ]
+		]
+	},
+	{
+		"type": 1,
+		"assetName": "shared:light",
+		"positions": [
+			[ 9, 11, 1, 12 ]
+		],
+		"property": 1,
+		"paths": [
+			[ 9, 11 ]
+		]
+	}
+]
+}

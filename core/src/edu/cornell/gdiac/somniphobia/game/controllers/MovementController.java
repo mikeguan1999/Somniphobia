@@ -28,8 +28,15 @@ public class MovementController implements ContactListener {
     /** Reference to combined DudeModel*/
     private CharacterModel combined;
 
+    private Vector2 vectorCache;
+    private Vector2 prevPositionVector;
     /** Reference to the goalDoor (for collision detection) */
     private BoxObstacle goalDoor;
+
+    /** Timeout for attempting hand holding */
+    private final float HAND_HOLD_TIMEOUT = 40;
+
+    private float handHoldTimer = HAND_HOLD_TIMEOUT;
 
     /** shared objects */
     protected PooledList<Obstacle> sharedObjects  = new PooledList<Obstacle>();
@@ -40,6 +47,9 @@ public class MovementController implements ContactListener {
     protected PooledList<Obstacle> lightObjects  = new PooledList<Obstacle>();
     /** All the objects in the light world. */
     protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
+
+    /** Currently raining platforms */
+    protected PooledList<Obstacle> currRainingPlatforms = new PooledList<>();
 
     /** Mark set to handle more sophisticated collision callbacks */
 //	protected ObjectSet<Fixture> sensorFixtures;
@@ -52,6 +62,9 @@ public class MovementController implements ContactListener {
 
     /** Whether or not characters are currently holding hands */
     private boolean holdingHands;
+
+    /** Whether or not characters are transitioning to holding hands */
+    private boolean transitioningHoldingHands;
 
     /** Whether or not characters were switched */
     private boolean switchedCharacters;
@@ -96,6 +109,9 @@ public class MovementController implements ContactListener {
         combinedSensorFixtures = new ObjectSet<Fixture>();
 
         this.holdingHands = false;
+        this.transitioningHoldingHands = false;
+        vectorCache = new Vector2();
+        prevPositionVector = new Vector2();
     }
 
     public CharacterModel getLead() {
@@ -105,7 +121,6 @@ public class MovementController implements ContactListener {
     public void setLead(CharacterModel lead) {
         this.lead = lead;
     }
-
 
     public CharacterModel getSomni() {
         return somni;
@@ -194,18 +209,73 @@ public class MovementController implements ContactListener {
      * Main update loop for character movement
      */
     public int update() {
-        InputController inputController = InputController.getInstance();
-        avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
-        avatar.setJumping(inputController.didJump());
 
+        CharacterModel follower = somni == avatar ? phobia : somni;
 
-        if(inputController.didDash()) {
-            handleDash(inputController.getHorizontal(), inputController.getVertical());
+        if (transitioningHoldingHands) {
+
+            if (avatar.getPosition().dst2(follower.getPosition()) < .05) {
+                beginHoldHands();
+                transitioningHoldingHands = false;
+            }
+            else if (avatar.getPosition().dst2(prevPositionVector) < .0001 || handHoldTimer < 0) {
+                transitioningHoldingHands = false;
+                handHoldTimer = HAND_HOLD_TIMEOUT;
+            }
+            else {
+                Vector2 shiftDirection = vectorCache.set(follower.getPosition()).sub(avatar.getPosition());
+                avatar.getBody().setLinearVelocity(shiftDirection.nor().scl(20));
+                prevPositionVector.set(avatar.getPosition());
+
+            }
+            handHoldTimer--;
+
+        } else {
+
+            InputController inputController = InputController.getInstance();
+            avatar.setMovement(inputController.getHorizontal() * avatar.getForce());
+            avatar.setJumping(inputController.didJump());
+            if(inputController.didDash()) {
+                handleDash(inputController.getHorizontal(), inputController.getVertical());
+            }
+            // Check if switched
+            if(inputController.didSwitch()) {
+                //Switch active character
+                if (!holdingHands) {
+                    avatar.setMovement(0f);
+                    //TODO: Add combined track
+
+                    avatar = avatar == somni ? phobia : somni;
+                }else{
+//                if (lead == somni) {
+//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+//                } else {
+//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+//                }
+                    lead = lead == somni ? phobia :somni;
+                }
+                setSwitchedCharacters(true);
+            }
+            else {
+                setSwitchedCharacters(false);
+            }
+            if(avatar != combined) {
+                lead = avatar;
+            }
+            somni.applyForce();
+            phobia.applyForce();
+            combined.applyForce();
+            //Check if hand holding
+            if(inputController.didHoldHands()) {
+                handleHoldingHands();
+            }
+
         }
 
-        somni.applyForce();
-        phobia.applyForce();
-        combined.applyForce();
+
+
+
+
         //handleworldview();
 
         //TODO: Play movement sounds
@@ -241,30 +311,6 @@ public class MovementController implements ContactListener {
             }
         }
 
-        // Check if switched
-        if(inputController.didSwitch()) {
-            //Switch active character
-            if (!holdingHands) {
-                avatar.setMovement(0f);
-                //TODO: Add combined track
-
-                avatar = avatar == somni ? phobia : somni;
-            }else{
-//                if (lead == somni) {
-//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
-//                } else {
-//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
-//                }
-                lead = lead == somni ? phobia :somni;
-            }
-            setSwitchedCharacters(true);
-        }
-        else {
-            setSwitchedCharacters(false);
-        }
-        if(avatar !=combined) {
-            lead = avatar;
-        }
 
 
         int action = 0;
@@ -300,10 +346,6 @@ public class MovementController implements ContactListener {
         }
 
 
-        //Check if hand holding
-        if(inputController.didHoldHands()) {
-            handleHoldingHands();
-        }
 
         separationCoolDown = Math.max(0, separationCoolDown-1);
 
@@ -331,17 +373,25 @@ public class MovementController implements ContactListener {
      * @param y the vertical movement
      */
     private void handleDash(float x, float y) {
+        CharacterModel oppositeCharacter = avatar == somni? phobia: somni;
+
         if (holdingHands) {
             // Check for propel
             endHoldHands();
-            avatar.dashOrPropel(true, x, y);
+            CharacterModel oppositeChar = avatar == somni? phobia: somni;
 
-        } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
-//            beginHoldHands();
-//            endHoldHands();
-            avatar.setCanDash(true);
             avatar.dashOrPropel(true, x, y);
-//            handleDash(x,y);
+            if (!oppositeChar.isGrounded()) {
+                oppositeChar.setCanDash(false);
+            }
+
+        } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE
+        && oppositeCharacter.getCanDash()) {
+            avatar.dashOrPropel(true, x, y);
+            oppositeCharacter.setFacingRight(avatar.isFacingRight());
+            if (oppositeCharacter.isGrounded()) {
+                avatar.setCanDash(true);
+            }
         } else {
             avatar.dashOrPropel(false, x, y);
         }
@@ -354,7 +404,9 @@ public class MovementController implements ContactListener {
         if (holdingHands) {
             endHoldHands();
         } else if (Math.abs(somni.getPosition().dst2(phobia.getPosition())) < HAND_HOLDING_DISTANCE * HAND_HOLDING_DISTANCE) {
-            beginHoldHands();
+            transitionHoldHands(avatar, avatar == somni? phobia: somni);
+//            avatar.setLinearVelocity(new Vector2(0,10));
+//            beginHoldHands();
         }
     }
 
@@ -452,19 +504,21 @@ public class MovementController implements ContactListener {
         float avatarVX = avatar.getVX();
         float avatarVY = avatar.getVY();
 
+        int directionMultiplier = combined.isFacingRight()? 1: -1;
+
         avatar = lead;
-        avatar.setPosition(avatarX, avatarY);
+        avatar.setPosition(avatarX + avatar.getWidth()*0.4f * directionMultiplier, avatarY);
         avatar.setVX(avatarVX);
         avatar.setVY(avatarVY);
         float dampeningFactor = -0.25f;
         if(lead == phobia){
 //            phobia.setCanDash(true);
-            somni.setPosition(avatarX, avatarY);
+            somni.setPosition(avatarX + somni.getWidth()*0.65f* -directionMultiplier, avatarY);
             somni.setVX(avatarVX * dampeningFactor);
             somni.setVY(0);
         }else {
 //            somni.setCanDash(true);
-            phobia.setPosition(avatarX, avatarY);
+            phobia.setPosition(avatarX + phobia.getWidth()*0.65f * -directionMultiplier, avatarY);
             phobia.setVX(avatarVX * dampeningFactor);
             phobia.setVY(0);
         }
@@ -473,12 +527,19 @@ public class MovementController implements ContactListener {
         holdingHands = false;
     }
 
+    private void transitionHoldHands(CharacterModel leadCharacter, CharacterModel follower) {
+        //Direction to move leadCharacter towards
+        Vector2 shiftDirection = vectorCache.set(follower.getPosition()).sub(leadCharacter.getPosition());
+        leadCharacter.getBody().setLinearVelocity(shiftDirection.nor().scl(20));
+        transitioningHoldingHands = true;
+    }
 
     /**
      * Somni and Phobia hold hands
      */
     private void beginHoldHands() {
         CharacterModel follower = somni == avatar ? phobia : somni;
+        int directionMultiplier = avatar.isFacingRight()? 1: -1;
 
         if (follower.isGrounded()) {
             avatar.setCanDash(true);
@@ -506,8 +567,9 @@ public class MovementController implements ContactListener {
         float avatarX = follower.getX();
         float avatarY = follower.getY();
 
+        combined.setFacingRight(avatar.isFacingRight());
         avatar = combined;
-        avatar.setPosition(avatarX, avatarY);
+        avatar.setPosition(avatarX + combined.getWidth() * .55f * directionMultiplier, avatarY);
 
 
         holdingHands = true;
@@ -543,12 +605,14 @@ public class MovementController implements ContactListener {
 
             if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.harming) {
                 if (somni.getCore().equals(fix2) || somni.getCap1().equals(fix2) || somni.getCap2().equals(fix2) ||
-                        phobia.getCore().equals(fix2) || phobia.getCap1().equals(fix2) || phobia.getCap2().equals(fix2) ) {
+                        phobia.getCore().equals(fix2) || phobia.getCap1().equals(fix2) || phobia.getCap2().equals(fix2) ||
+                            combined.getCore().equals(fix2) || combined.getCap1().equals(fix2) || combined.getCap2().equals(fix2)) {
                     worldController.setFailure(true);
                 }
             } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.harming) {
                 if (somni.getCore().equals(fix1) || somni.getCap1().equals(fix1) || somni.getCap2().equals(fix1) ||
-                        phobia.getCore().equals(fix1) || phobia.getCap1().equals(fix1) || phobia.getCap2().equals(fix1) ) {
+                        phobia.getCore().equals(fix1) || phobia.getCap1().equals(fix1) || phobia.getCap2().equals(fix1) ||
+                        combined.getCore().equals(fix1) || combined.getCap1().equals(fix1) || combined.getCap2().equals(fix1)) {
                     worldController.setFailure(true);
                 }
             }
@@ -560,7 +624,21 @@ public class MovementController implements ContactListener {
                 lightSensorFixtures.add(somni == bd1 ? fix2 : fix1); // Could have more than one ground
 //				somni.canJump = true;
                 somni.setGround(somni == bd1 ? bd2: bd1);
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling)  {
+                    if (((PlatformModel) bd1).getTouching() == phobia) {
+                        beginRainAnimation((PlatformModel) bd1);
 
+                    } else {
+                        ((PlatformModel) bd1).setTouching(somni);
+                    }
+                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
+                    if (((PlatformModel) bd2).getTouching() == phobia) {
+
+                        beginRainAnimation((PlatformModel) bd2);
+                    } else {
+                        ((PlatformModel) bd2).setTouching(somni);
+                    }
+                }
 
             }
             if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
@@ -569,10 +647,24 @@ public class MovementController implements ContactListener {
                 darkSensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
 //				phobia.canJump = true;
                 phobia.setGround(phobia == bd1 ? bd2: bd1);
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling)  {
+                    if (((PlatformModel) bd1).getTouching() == somni) {
+                        beginRainAnimation((PlatformModel) bd1);
+                    } else {
+                        ((PlatformModel) bd1).setTouching(phobia);
+                    }
+                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
+                    if (((PlatformModel) bd2).getTouching() == somni) {
+
+                        beginRainAnimation((PlatformModel) bd2);
+                    } else {
+                        ((PlatformModel) bd2).setTouching(phobia);
+                    }
+                }
 
             }
-            if (avatar == combined && (avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
-                    (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2)) {
+            if (avatar == combined && ((avatar.getSensorName().equals(fd2) && avatar != bd1 && goalDoor != bd1) ||
+                    (avatar.getSensorName().equals(fd1) && avatar != bd2 && goalDoor != bd2))) {
                 avatar.setGrounded(true);
                 somni.setCanDash(true);
                 phobia.setCanDash(true);
@@ -580,19 +672,9 @@ public class MovementController implements ContactListener {
 //				combined.canJump = true;
                 combined.setGround(combined == bd1 ? bd2: bd1);
                 if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling) {
-
-                    sharedObjects.remove(bd1);
-                    lightObjects.remove(bd1);
-                    darkObjects.remove(bd1);
-
-                    bd1.markRemoved(true);
+                    beginRainAnimation((PlatformModel) bd1);
                 } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
-
-                    sharedObjects.remove(bd2);
-                    lightObjects.remove(bd2);
-                    darkObjects.remove(bd2);
-
-                    bd2.markRemoved(true);
+                    beginRainAnimation((PlatformModel) bd2);
                 }
             }
 
@@ -641,6 +723,15 @@ public class MovementController implements ContactListener {
                 somni.setGrounded(false);
                 somni.setGround(null);
             }
+
+            if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling &&
+                    ((PlatformModel) bd1).getTouching() == somni)  {
+                ((PlatformModel) bd1).setTouching(null);
+            } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling &&
+                    ((PlatformModel) bd2).getTouching() == somni) {
+                ((PlatformModel) bd2).setTouching(null);
+
+            }
         }
         if ((phobia.getSensorName().equals(fd2) && phobia != bd1 && goalDoor != bd1) ||
                 (phobia.getSensorName().equals(fd1) && phobia != bd2 && goalDoor != bd2)) {
@@ -650,6 +741,14 @@ public class MovementController implements ContactListener {
             if (darkSensorFixtures.size == 0) {
                 phobia.setGrounded(false);
                 phobia.setGround(null);
+
+            }
+            if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling &&
+                    ((PlatformModel) bd1).getTouching() == phobia)  {
+                ((PlatformModel) bd1).setTouching(null);
+            } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling &&
+                    ((PlatformModel) bd2).getTouching() == phobia) {
+                ((PlatformModel) bd2).setTouching(null);
 
             }
         }
@@ -662,6 +761,21 @@ public class MovementController implements ContactListener {
                 combined.setGround(null);
             }
         }
+    }
+
+
+    /**
+     * Sets the currently raining platforms objects
+     * @param currRainingPlatforms
+     */
+    public void setCurrRainingPlatforms(PooledList<Obstacle> currRainingPlatforms) {
+        this.currRainingPlatforms = currRainingPlatforms;
+    }
+
+    private void beginRainAnimation(PlatformModel platform) {
+        currRainingPlatforms.add(platform);
+        platform.setRainingCooldown(PlatformController.rainingCooldown);
+        platform.setCurrentlyRaining(true);
     }
 
     @Override

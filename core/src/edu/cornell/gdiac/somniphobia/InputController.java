@@ -96,9 +96,9 @@ public class InputController {
 	private boolean sliderToggled;
 	private boolean sliderToggledPrevious;
 
-	/** Whether the exit button was pressed. */
-	private boolean exitPressed;
-	private boolean exitPrevious;
+	/** Whether the escape button was pressed. */
+	private boolean escapePressed;
+	private boolean escapePrevious;
 
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
@@ -270,12 +270,12 @@ public class InputController {
 	}
 	
 	/**
-	 * Returns true if the exit button was pressed.
+	 * Returns true if the escape button was pressed.
 	 *
-	 * @return true if the exit button was pressed.
+	 * @return true if the escape button was pressed.
 	 */
-	public boolean didExit() {
-		return exitPressed && !exitPrevious;
+	public boolean didPressEscape() {
+		return escapePressed && !escapePrevious;
 	}
 
 	/**
@@ -320,7 +320,7 @@ public class InputController {
 		resetPrevious  			= resetPressed;
 		debugPrevious  			= debugPressed;
 		sliderToggledPrevious 	= sliderToggled;
-		exitPrevious 			= exitPressed;
+		escapePrevious 			= escapePressed;
 		switchToCreatorPrevious = switchToCreatorPressed;
 		nextPrevious 			= nextPressed;
 		prevPrevious 			= prevPressed;
@@ -342,7 +342,7 @@ public class InputController {
 		handHoldingPressed 		= Gdx.input.isKeyPressed(handHoldingKey) || Gdx.input.isKeyPressed(handHoldingKey2);
 		fullscreenPressed       = Gdx.input.isKeyPressed(fullscreenKey);
 		switchPressed 			= Gdx.input.isKeyPressed(switchKey) || Gdx.input.isKeyPressed(switchKey2);
-		exitPressed   			= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
+		escapePressed   		= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
 		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
 		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);

@@ -177,6 +177,7 @@ public class CharacterModel extends CapsuleObstacle {
 	public void setCharacterForce(float f){
 		force = f;
 	}
+	public void resetRingAnimation() {animeframeRing = 0;}
 	/**
 	 * Creates a new dude avatar with the given physics data
 	 *
@@ -316,6 +317,14 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Returns whether character can dash
+	 * @return whether character can dash
+	 */
+	public boolean getCanDash() {
+		return canDash;
+	}
+
+	/**
 	 * Sets whether character can dash
 	 * @param value whether character can dash
 	 */
@@ -371,9 +380,9 @@ public class CharacterModel extends CapsuleObstacle {
 		} else {
 			dashDirection.set(dir_X, dir_Y).nor();
 		}
-		dashStartPos.set(getPosition());
-		isDashing = canDash;
-		if (isDashing || isPropel) {
+//		dashStartPos.set(getPosition());
+		isDashing = canDash || isPropel;
+		if (isDashing) {
 			if (!isPropel) {
 				canDash = false;
 			}
@@ -472,8 +481,21 @@ public class CharacterModel extends CapsuleObstacle {
 	}
 
 
+	/**
+	 * Sets the obstacle that the character is standing on
+	 * @param ground the obstacle that the character is standing on
+	 */
 	public void setGround(Obstacle ground) {
 		this.ground = ground;
+	}
+
+
+	/**
+	 * Gets the ground that the character is standing on
+	 * @return the ground
+	 */
+	public Obstacle getGround() {
+		return ground;
 	}
 
 

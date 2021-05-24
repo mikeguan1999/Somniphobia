@@ -13,6 +13,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.files.FileHandle;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -79,6 +80,31 @@ public class LevelController extends WorldController {
 	private TextureRegion lightningDarkTexture;
 	/** Texture asset for lightning "all" tiles*/
 	private TextureRegion lightningAllTexture;
+	/** Texture asset for crumbling light tiles*/
+	private TextureRegion crumbleLightTexture;
+	/** Texture asset for crumbliing dark tiles*/
+	private TextureRegion crumbleDarkTexture;
+	/** Texture asset for crumbling "all" tiles*/
+	private TextureRegion crumbleAllTexture;
+	/** Texture asset for reduced size raining light tiles*/
+	private TextureRegion rainLightTextureReduced;
+	/** Texture asset for reduced size raining dark tiles*/
+	private TextureRegion rainDarkTextureReduced;
+	/** Texture asset for reduced size raining "all" tiles*/
+	private TextureRegion rainAllTextureReduced;
+	/** Texture asset for reduced size lightning light tiles*/
+	private TextureRegion lightningLightTextureReduced;
+	/** Texture asset for reduced size lightning dark tiles*/
+	private TextureRegion lightningDarkTextureReduced;
+	/** Texture asset for reduced size lightning "all" tiles*/
+	private TextureRegion lightningAllTextureReduced;
+	/** Texture asset for reduced crumbling light tiles*/
+	private TextureRegion crumbleLightTextureReduced;
+	/** Texture asset for reduced crumbliing dark tiles*/
+	private TextureRegion crumbleDarkTextureReduced;
+	/** Texture asset for reduced crumbling "all" tiles*/
+	private TextureRegion crumbleAllTextureReduced;
+
 	/** Texture asset for Somni*/
 	private TextureRegion somniTexture;
 	/** Texture asset for Somni's Idle animation*/
@@ -253,6 +279,9 @@ public class LevelController extends WorldController {
 	protected PooledList<Obstacle> darkObjects  = new PooledList<Obstacle>();
 	/** moving objects */
 	protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
+	/** Currently raining platforms */
+	protected PooledList<Obstacle> currRainingPlatforms = new PooledList<>();
+
 
 	private boolean lightclear = false;
 	private boolean darkclear = false;
@@ -328,11 +357,11 @@ public class LevelController extends WorldController {
 	private boolean resumeClicked;
 	private boolean restartClicked;
 	private boolean advanceClicked;
-	private Stage pauseMenuStage;
-	private Stage failMenuStage;
-	private Stage winMenuStage;
-	private Stage pauseButtonStage;
 	private Stage pauseButtonFullStage;
+	private Stage pauseMenuStage = new Stage();
+	private Stage failMenuStage = new Stage();
+	private Stage winMenuStage = new Stage();
+	private Stage pauseButtonStage = new Stage();
 	private boolean gameScreenActive = true;
 
 	//END JENNA
@@ -340,6 +369,7 @@ public class LevelController extends WorldController {
 	/** whether pauseMenu is rendered for the first time*/
 	private Boolean firstTimeRendered=true;
 	private Boolean firstTimeRenderedFull=true;
+	private Boolean firstTimePause=true;
 	/** the underline on pauseMenu*/
 	private Image underline;
 	private Image underlineWinMenu;
@@ -385,6 +415,7 @@ public class LevelController extends WorldController {
 	private final int UNDERLINE_OFFSETX = -5;
 	private final int UNDERLINE_OFFSETY = -40;
 	private final int PAUSE_MENU_POSITION_SCALE = 4;
+	private boolean firstPosition=false;
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -398,17 +429,32 @@ public class LevelController extends WorldController {
 
 	private Vector2 cameraCenter;
 	private int cameraDelay = 0;
-	private Stage stage;
+	private Stage stage=new Stage();
 
-
+	/// VARIABLES FOR DRAWING AND ANIMATION OF BACKGROUNDS
+	/** CURRENT image for this background. May change over time. */
+	private FilmStrip backgroundAnimator;
+	/** Reference to texture origin */
+	private Vector2 backgroundOrigin;
+	/** How fast we change frames (one frame per 10 calls to update) */
+	private float backgroundAnimationSpeed = 0.05f;
+	/** The number of animation frames in our filmstrip */
+	private int backgroundNumAnimFrames = 15;
+	/** Current animation frame for this shell */
+	private float backgroundAnimeframe = 0.0f;
+	/** Pixel width of the current texture */
+	private double backgroundEntirePixelWidth;
+	/** Pixel width of the current frame in the texture */
+	private double backgroundFramePixelWidth = 1920;
+	/** Texture for animated objects */
+	private Texture actualBackgroundTexture;
 
 	/**
 	 * Creates and initialize a new instance of the platformer game
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public LevelController() {
-
+	public LevelController(GameCanvas gameCanvas) {
 		super(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_GRAVITY);
 		setDebug(false);
 		setComplete(false);
@@ -420,6 +466,16 @@ public class LevelController extends WorldController {
 		holdingHands = false;
 		widthUpperBound = 0;
 		heightUpperBound = 0;
+		canvas = gameCanvas;
+
+	}
+
+	public Stage getPauseButtonStage(){
+		return pauseButtonStage;
+	}
+
+	public Stage getPauseMenuStage(){
+		return pauseMenuStage;
 	}
 
 //	/**
@@ -438,14 +494,22 @@ public class LevelController extends WorldController {
 //		TextureRegionDrawable upButtonDrawable = createDrawable(upFilepath);
 //		Button imgButton= new Button(upButtonDrawable);
 //		return imgButton;
+//		return imgButton;
 //	}
+
+	public void setGameScreenActive(boolean active){
+		gameScreenActive = active;
+	}
 
 	/**
 	 * Creates the pauseMenu with the buttons
 	 */
-	public void createModalWindow() {
-		Viewport viewport = canvas.getViewPort();
-		pauseMenuStage = new Stage(viewport);
+	public void createModalWindow(float cameraX, float cameraY) {
+		camera.position.x = cameraX;
+		camera.position.y = cameraY;
+		camera.update();
+
+//		pauseMenuStage = new Stage(new ScreenViewport(camera));
 		pauseMenu = new Table();
 		pauseMenu.setBackground(blueRectangle);
 		pauseMenu.setFillParent(true);
@@ -473,8 +537,8 @@ public class LevelController extends WorldController {
 		sliderSound.setDisabled(true);
 		pauseMenu.row();
 		pauseMenu.add(exitButton).space(PAUSE_MENU_BUTTON_SPACE).size(150,70).padLeft(110).padTop(50);
-		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,80).padTop(50).padLeft(20);
-		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,70).padRight(110).padTop(50);
+		pauseMenu.add(restartButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,70).padTop(50).padLeft(20);
+		pauseMenu.add(resumeButton).space(PAUSE_MENU_BUTTON_SPACE).size(200,80).padRight(110).padTop(50);
 		pauseMenu.row();
 		pauseMenu.add(underline);
 		underline.setVisible(false);
@@ -514,7 +578,7 @@ public class LevelController extends WorldController {
 				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
 			}
 		});
-		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
+//		pauseMenu.setPosition(camera.position.x- canvas.getWidth()/PAUSE_MENU_POSITION_SCALE , camera.position.y-canvas.getHeight()/PAUSE_MENU_POSITION_SCALE );
 		pauseMenuStage.addActor(pauseMenu);
 		pauseMenu.validate();
 		pauseMenu.setTransform(true);
@@ -542,7 +606,7 @@ public class LevelController extends WorldController {
 	}
 
 	public void createFailWindow(float cameraX, float cameraY) {
-		failMenuStage = new Stage(new ScreenViewport(camera));
+//		failMenuStage = new Stage();
 		camera.position.x = cameraX;
 		camera.position.y = cameraY;
 		failMenu = new Table();
@@ -587,7 +651,7 @@ public class LevelController extends WorldController {
 	}
 
 	public void createWinWindow(float cameraX, float cameraY) {
-		winMenuStage= new Stage(new ScreenViewport(camera));
+//		winMenuStage = new Stage();
 		camera.position.x = cameraX;
 		camera.position.y = cameraY;
 		camera.update();
@@ -656,8 +720,6 @@ public class LevelController extends WorldController {
 		labels = new Label[7];
 		CharacterModel avatar = movementController.getAvatar();
 
-
-		stage = new Stage(new ScreenViewport(camera));
 		Batch b = canvas.getBatch();
 		ChangeListener slide = new ChangeListener() {
 			@Override
@@ -671,6 +733,7 @@ public class LevelController extends WorldController {
 		float current = 0;
 		float max = 0;
 		float min = 0;
+//		stage = new Stage();
 
 		Slider.SliderStyle style =
 				new Slider.SliderStyle(new TextureRegionDrawable(sliderBarTexture), new TextureRegionDrawable(sliderKnobTexture));
@@ -892,7 +955,7 @@ public class LevelController extends WorldController {
 	public void createPauseButton(){
 		Table table = new Table();
 		gameScreenActive = true;
-		pauseButtonStage = new Stage(new ScreenViewport(camera));
+//		pauseButtonStage = new Stage(new ScreenViewport(camera));
 		pauseButton = new Button(bluePauseButton);
 		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.addListener(new ClickListener() {
@@ -968,21 +1031,34 @@ public class LevelController extends WorldController {
 		lightningLightTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light", Texture.class ));
 		lightningDarkTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark", Texture.class ));
 		lightningAllTexture = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all", Texture.class ));
+		crumbleLightTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_light", Texture.class ));
+		crumbleDarkTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_dark", Texture.class ));
+		crumbleAllTexture = new TextureRegion(directory.getEntry( "shared:rain_crumble_all", Texture.class ));
+
+		rainLightTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_light_reduced", Texture.class ));
+		rainDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_dark_reduced", Texture.class ));
+		rainAllTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_cloud_all_reduced", Texture.class ));
+		lightningLightTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_light_reduced", Texture.class ));
+		lightningDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_dark_reduced", Texture.class ));
+		lightningAllTextureReduced = new TextureRegion(directory.getEntry( "shared:lightning_cloud_all_reduced", Texture.class ));
+		crumbleLightTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_light_reduced", Texture.class ));
+		crumbleDarkTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_dark_reduced", Texture.class ));
+		crumbleAllTextureReduced = new TextureRegion(directory.getEntry( "shared:rain_crumble_all_reduced", Texture.class ));
 
 		// Tutorial
 		tutorial_signs = new TextureRegion[]{
-				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)),
-				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))
+				new TextureRegion(directory.getEntry("tutorial:camera_pan", Texture.class)),      //0
+				new TextureRegion(directory.getEntry("tutorial:phobia_dash", Texture.class)),     //1
+				new TextureRegion(directory.getEntry("tutorial:phobia_jump", Texture.class)),     //2
+				new TextureRegion(directory.getEntry("tutorial:phobia_propel", Texture.class)),   //3
+				new TextureRegion(directory.getEntry("tutorial:phobia_walk", Texture.class)),     //4
+				new TextureRegion(directory.getEntry("tutorial:somni_dash", Texture.class)),      //5
+				new TextureRegion(directory.getEntry("tutorial:somni_jump", Texture.class)),      //6
+				new TextureRegion(directory.getEntry("tutorial:somni_propel", Texture.class)),    //7
+				new TextureRegion(directory.getEntry("tutorial:somni_walk", Texture.class)),      //8
+				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),   //9
+				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)), //10
+				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class))     //11
 		};
 
 		// Base models
@@ -1033,6 +1109,17 @@ public class LevelController extends WorldController {
 				new TextureRegion(directory.getEntry("platform:background_dark_house", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
+
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_forest", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_forest", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_gear", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_gear", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_dreams", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_dreams", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_house", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_house", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_light_statues", Texture.class)),
+//				new TextureRegion(directory.getEntry("platform:animated_background_dark_statues", Texture.class)),
 		};
 
 
@@ -1118,20 +1205,33 @@ public class LevelController extends WorldController {
 	/**
 	 * Gather the level JSON for this controller.
 	 *
+	 * This method extracts the asset variables from the given JSON.
+	 *
+	 * @param filename	Reference to the level JSON.
+	 */
+	public void gatherLevelJson(String filename) {
+		if(level == 0) { // Get level editor level
+			Preferences prefs = GDXRoot.getPreferences();
+			if(prefs.contains(filename)) {
+				levelAssets = new JsonReader().parse(prefs.getString(filename));
+			}
+		} else {
+			FileHandle file = Gdx.files.internal(filename);
+			String text = file.readString();
+			levelAssets = new JsonReader().parse(text);//directory.getEntry( String.format("level%d", level), JsonValue.class);
+		}
+	}
+
+	/**
+	 * Gather the level JSON for this controller.
+	 *
 	 * This method extracts the asset variables from the given asset directory. It
 	 * should only be called after the asset directory is completed.
 	 *
 	 * @param directory	Reference to global asset manager.
 	 */
-	public void gatherLevelJson(AssetDirectory directory) {
-		if(level == 0) { // Get level editor level
-			Preferences prefs = GDXRoot.getPreferences();
-			if(prefs.contains("playLevel")) {
-				levelAssets = new JsonReader().parse(prefs.getString("playLevel"));
-			}
-		} else {
-			levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
-		}
+	public void gatherLevelJson(AssetDirectory directory, int world) {
+		levelAssets = directory.getEntry( String.format("level%d", level), JsonValue.class);
 	}
 
 	/** Returns the current level */
@@ -1141,9 +1241,7 @@ public class LevelController extends WorldController {
 
 	/** Sets the current level */
 	public void setLevel(int level) {
-		int newLevel = Math.min(level, GDXRoot.totalNumLevels); // TODO: Figure out how to retrieve MAX_LEVEL from `jsons` size in assets
-		newLevel = Math.max(0, newLevel);
-		this.level = newLevel;
+		this.level = Math.max(0, level);
 	}
 	/**
 	 * Resets the status of the game so that we can play again.
@@ -1175,6 +1273,7 @@ public class LevelController extends WorldController {
 		movingObjects.clear();
 		addQueue.clear();
 		world.dispose();
+		disposeStages();
 
 		world = new World(gravity,false);
 		setComplete(false);
@@ -1182,6 +1281,13 @@ public class LevelController extends WorldController {
 		firstTimeRendered=true;
 		firstTimeRenderedFull = true;
 		populateLevel();
+
+		camera = canvas.getCamera();
+		pauseButtonStage = new Stage(new ScreenViewport(camera));
+		pauseMenuStage = new Stage(new ScreenViewport(camera));
+		stage = new Stage(new ScreenViewport(camera));
+		winMenuStage = new Stage(new ScreenViewport(camera));
+		failMenuStage = new Stage(new ScreenViewport(camera));
 
 		Camera camera = canvas.getCamera();
 		Vector2 leadPos = somni.getPosition();
@@ -1203,12 +1309,24 @@ public class LevelController extends WorldController {
 
 		movementController = new MovementController(somni, phobia, combined, goalDoor, objects, sharedObjects,
 				lightObjects, darkObjects, this);
+		movementController.setCurrRainingPlatforms(currRainingPlatforms);
 		world.setContactListener(movementController);
 
 		movementController.setAvatar(somni);
 		movementController.setLead(somni);
 
+		createModalWindow(camera.position.x, camera.position.y);
+		createPauseButton();
+		createSliders();
+		createFailWindow(camera.position.x, camera.position.y);
+		createWinWindow(camera.position.x, camera.position.y);
+
+
 		platformController.setMovingObjects(movingObjects);
+		platformController.setLightObjects(lightObjects);
+		platformController.setDarkObjects(darkObjects);
+		platformController.setSharedObjects(sharedObjects);
+		platformController.setCurrRainingPlatforms(currRainingPlatforms);
 
 		maskLeader = phobia;
 		switching = false;
@@ -1275,10 +1393,17 @@ public class LevelController extends WorldController {
 		//group platform constants together for access in following for-loop
 		TextureRegion[] xTexture = {lightTexture, darkTexture, allTexture,
 			lightningLightTexture, lightningDarkTexture, lightningAllTexture,
-			rainLightTexture, rainDarkTexture, rainAllTexture};
+			rainLightTexture, rainDarkTexture, rainAllTexture,
+				crumbleLightTexture, crumbleDarkTexture, crumbleAllTexture};
+
+		TextureRegion[] reducedXTexture = {lightTexture, darkTexture, allTexture,
+				lightningLightTextureReduced, lightningDarkTextureReduced, lightningAllTextureReduced,
+				rainLightTextureReduced, rainDarkTextureReduced, rainAllTextureReduced,
+				crumbleLightTextureReduced, crumbleDarkTextureReduced, crumbleAllTextureReduced};
+
 
 		// Setup platforms
-		for(int i=0; i < objs.size; i++)
+		for(int i=0; i < (objs != null ? objs.size : 0); i++)
 		{
 			JsonValue obj = objs.get(i);
 
@@ -1292,18 +1417,37 @@ public class LevelController extends WorldController {
 				float[] bounds = platformArgs.get(j).asFloatArray();
 				float x = bounds[0], y = bounds[1], width = bounds[2], height = bounds[3];
 				TextureRegion newXTexture;
+				TextureRegion crumbleTexture = null;
+				Texture originalTexture = null;
 				try {
 					// temporary - need to refactor asset directory
 					JsonValue assetName = obj.get("assetName");
 					int assetIndex = assetName.asInt();
 					newXTexture = new TextureRegion(tutorial_signs[assetIndex]);
 				} catch(Exception e) {
-					newXTexture = new TextureRegion(xTexture[platformType-1+(property - 1)*3]);
-					newXTexture.setRegion(x, y, x + width, y + height);
+					int platIdx = platformType-1+(property - 1)*3;
+					int crumbleIdx = platIdx + 3;
+					newXTexture = new TextureRegion(xTexture[platIdx]);
+					originalTexture = newXTexture.getTexture();
+					// For crumble animation
+					if (platIdx > 5) {
+						crumbleTexture = new TextureRegion(xTexture[crumbleIdx]);
+						crumbleTexture.setRegion(0, 0, width, height);
+					}
+					// If the platform size is the same as the spritesheet size
+					if (originalTexture.getWidth() > 32 && width%(originalTexture.getWidth()/32) == 0) {
+						newXTexture = new TextureRegion(reducedXTexture[platIdx]);
+						originalTexture = newXTexture.getTexture();
+						if (platIdx > 5) {
+							crumbleTexture = new TextureRegion(reducedXTexture[crumbleIdx]);
+							crumbleTexture.setRegion(0, 0, width, height);
+						}
+					}
+					newXTexture.setRegion(0, 0, width, height);
 				}
 				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
-						defaults.getFloat( "restitution", 0.0f ));
+						defaults.getFloat( "restitution", 0.0f ), originalTexture, crumbleTexture);
 				platformModel.setTag(platformType);
 				platformModel.setProperty(property);
 				addObject(platformModel);
@@ -1343,6 +1487,15 @@ public class LevelController extends WorldController {
 		backgroundLightTexture = backgrounds[backgroundTextureIndex - 1];
 		backgroundDarkTexture = backgrounds[backgroundTextureIndex];
 		backgroundTexture = backgroundLightTexture;
+
+		// Initialize background animations
+		actualBackgroundTexture = backgroundTexture.getTexture();
+		backgroundEntirePixelWidth = actualBackgroundTexture.getWidth();
+		backgroundNumAnimFrames = (int)(backgroundEntirePixelWidth/backgroundFramePixelWidth);
+		backgroundAnimator = new FilmStrip(backgroundTexture,1, backgroundNumAnimFrames, backgroundNumAnimFrames);
+		backgroundAnimator.setFrame(0);
+		backgroundAnimeframe = 0;
+		backgroundOrigin = new Vector2(backgroundAnimator.getRegionWidth()/2.0f, backgroundAnimator.getRegionHeight()/2.0f);
 
 		// Set level bounds
 		widthUpperBound = levelAssets.get("dimensions").getInt(0);
@@ -1403,7 +1556,7 @@ public class LevelController extends WorldController {
 		Preferences prefs = GDXRoot.getPreferences();
 		volume = prefs.contains("volume") ? prefs.getFloat("volume") : defaults.getFloat("volume",
 				1.0f);
-		System.out.println(volume);
+//		System.out.println(volume);
 
 		platformController.applyFilters(objects);
 	}
@@ -1458,7 +1611,6 @@ public class LevelController extends WorldController {
 			gameScreenActive = false;
 			setPause(false);
 			setFailure(false);
-			setComplete(false);
 			firstTimeRendered = true;
 			firstTimeRenderedFull = true;
 			fullscreenhappened = false;
@@ -1472,7 +1624,8 @@ public class LevelController extends WorldController {
 				isfullscreen = false;
 				canvas.setCamera(camera);
 			}
-			listener.exitScreen(this, WorldController.EXIT_MENU);
+			listener.exitScreen(this, WorldController.EXIT_LEVEL_SELECT_ENTER);
+			setComplete(false);
 			exitClicked = false;
 			return false;
 		}
@@ -1484,8 +1637,8 @@ public class LevelController extends WorldController {
 			gameScreenActive = false;
 			setPause(false);
 			setFailure(false);
-			setComplete(false);
 			listener.exitScreen(this, WorldController.EXIT_NEXT);
+			setComplete(false);
 			advanceClicked = false;
 		}
 
@@ -1524,6 +1677,10 @@ public class LevelController extends WorldController {
 		action = movementController.update();
 		platformController.update(dt);
 
+		if (InputController.getInstance().didPressEscape()) {
+			setPause(true);
+		}
+
 		CharacterModel lead = movementController.getLead();
 //		somni = movementController.getSomni();
 //		phobia = movementController.getPhobia();
@@ -1534,7 +1691,11 @@ public class LevelController extends WorldController {
 			switching = !switching;
 
 		}
-
+		// Increase animation frame of background
+		backgroundAnimeframe += backgroundAnimationSpeed;
+		if (backgroundAnimeframe >= backgroundNumAnimFrames) {
+			backgroundAnimeframe = 0;
+		}
 
 		if(holdingHands){
 			if(lead == somni){
@@ -1756,7 +1917,9 @@ public class LevelController extends WorldController {
 		fbo.begin();
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
 		TextureRegion background = character.equals(somni) ? backgroundLightTexture : backgroundDarkTexture;
-		canvas.draw(background, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(background);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 		fbo.end();
 	}
@@ -1791,7 +1954,10 @@ public class LevelController extends WorldController {
 		fbo.begin();
 		canvas.clear();
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
-		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+//		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(backgroundTexture);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 		fbo.end();
 		drawMask(circle_mask, alpha_background, cameraX, cameraY, maskWidth, maskHeight, maskLeader);
@@ -1918,7 +2084,10 @@ public class LevelController extends WorldController {
 
 		// Draw background
 		canvas.beginCustom(GameCanvas.BlendState.NO_PREMULT, GameCanvas.ChannelState.ALL);
-		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+//		canvas.draw(backgroundTexture, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+		backgroundAnimator.setRegion(backgroundTexture);
+		backgroundAnimator.setFrame((int)backgroundAnimeframe);
+		canvas.draw(backgroundAnimator, Color.WHITE, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
 		canvas.endCustom();
 
 		// Create alpha background if uninitialized
@@ -1955,6 +2124,7 @@ public class LevelController extends WorldController {
 				maskLeader = follower;
 				backgroundTexture = backgroundTexture.equals(backgroundLightTexture) ? backgroundDarkTexture :
 						backgroundLightTexture;
+				backgroundAnimator.setRegion(backgroundTexture);
 			}
 		} else {
 			// Check if shrinking
@@ -2061,7 +2231,7 @@ public class LevelController extends WorldController {
 		canvas.begin();
 		if(isfullscreen){
 			if (firstTimeRenderedFull) {
-				createModalWindow();
+				createModalWindow(camera.position.x, camera.position.y);
 				firstTimeRenderedFull = false;
 				firstTimeRendered = true;
 			}
@@ -2078,7 +2248,7 @@ public class LevelController extends WorldController {
 			}
 		}else {
 			if (firstTimeRendered) {
-				createModalWindow();
+				createModalWindow(camera.position.x, camera.position.y);
 				firstTimeRendered = false;
 				firstTimeRenderedFull = true;
 			}
@@ -2094,8 +2264,22 @@ public class LevelController extends WorldController {
 				firstTimeRenderedFailMenuFull = true;
 			}
 		}
+//		if (firstTimeRendered) {
+//			createModalWindow(camera.position.x, camera.position.y);
+//			firstTimeRendered = false;
+//		}
+//		if (firstTimeRenderedWinMenu) {
+//			createWinWindow(camera.position.x, camera.position.y);
+//			firstTimeRenderedWinMenu = false;
+//		}
+//
+//		if (firstTimeRenderedFailMenu) {
+//			createFailWindow(camera.position.x, camera.position.y);
+//			firstTimeRenderedFailMenu = false;
+//		}
 		if (pauseMenuActive()) {
 			setPositionPauseMenu();
+			firstPosition = true;
 			pauseMenuStage.draw();
 			pauseMenuStage.act(dt);
 
@@ -2139,7 +2323,6 @@ public class LevelController extends WorldController {
 				sliderSound.getStyle().background = orangeSlider;
 				sliderSound.getStyle().knob = orangeKnob;
 			}
-
 			Gdx.input.setInputProcessor(pauseMenuStage);
 		}
 
@@ -2328,6 +2511,18 @@ public class LevelController extends WorldController {
 			darkObjects.add(obj);
 			//obj.activatePhysics(world);
 		}
+	}
+
+	public void disposeStages() {
+		pauseMenuStage.dispose();
+		pauseButtonStage.dispose();
+		winMenuStage.dispose();
+		failMenuStage.dispose();
+		stage.dispose();
+	}
+
+	public void beginRaining(PlatformModel platform) {
+
 	}
 
 

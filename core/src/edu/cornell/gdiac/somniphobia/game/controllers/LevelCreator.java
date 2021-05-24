@@ -197,7 +197,9 @@ public class LevelCreator extends WorldController {
             newXTexture = platTexture[platform.type-1];
         }
         if(platform.type == vertexPlatformTag){
-            newXTexture = vertices[(platform.reference.path.size()-1)%6];
+            newXTexture = new TextureRegion(vertices[(platform.reference.path.size()-1)%6]);
+            float posX = platform.pos[0], posY = platform.pos[1], width = platform.pos[2], height = platform.pos[3];
+            newXTexture.setRegion(platform.pos[0], posY, posX + width, posY + height);
         }
         obj.setTexture(newXTexture);
         addObject(obj);
@@ -911,7 +913,7 @@ public class LevelCreator extends WorldController {
         somniTexture = new TextureRegion(directory.getEntry("platform:somni_stand", Texture.class));
         phobiaTexture = new TextureRegion(directory.getEntry("platform:phobia_stand", Texture.class));
         goalTexture = new TextureRegion(directory.getEntry("shared:goal", Texture.class));
-        vertexTexture =  new TextureRegion(directory.getEntry("platform:vertex", Texture.class));
+        vertexTexture =  new TextureRegion(directory.getEntry("shared:all", Texture.class));
         vertices = new TextureRegion[] {
                 new TextureRegion(directory.getEntry("platform:vertex1", Texture.class)),
                 new TextureRegion(directory.getEntry("platform:vertex2", Texture.class)),

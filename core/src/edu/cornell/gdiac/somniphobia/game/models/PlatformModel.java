@@ -19,16 +19,20 @@ public class PlatformModel extends BoxObstacle {
     public final static int normal = 1;
     public final static int harming = 2;
     public final static int crumbling = 3;
-    public final static int holdOnly = 4;
 
     /** Width of the platform*/
     private float width;
     /** Height of the platform*/
     private float height;
 
-    /** X position based on lower left corner*/
+    /** X position based on top left corner*/
     private float leftX;
-    /** Y position based on lower left corner*/
+    /** Y position based on top left corner*/
+    private float topY;
+
+    /** X position based on bottom right corner*/
+    private float rightX;
+    /** Y position based on bottom right corner*/
     private float bottomY;
 
     /** Filter*/
@@ -36,11 +40,9 @@ public class PlatformModel extends BoxObstacle {
 
     private int type;
 
-    /** Whether the platform is spiked **/
-    private boolean spiked;
 
-    /** Whether the platform is raining **/
-    private boolean raining;
+    /** Whether the platform is currently raining **/
+    private boolean isCurrentlyRaining;
 
     /** Density position*/
     private float density;
@@ -54,6 +56,8 @@ public class PlatformModel extends BoxObstacle {
 
     /** velocity for moving platform **/
     private float velocity;
+
+    private float rainingCooldown;
 
     /** Path for a moving obstacle **/
     private PooledList<Vector2> paths;
@@ -82,8 +86,15 @@ public class PlatformModel extends BoxObstacle {
     private double entirePixelWidth;
     /** Pixel width of the current frame in the texture */
     private double framePixelWidth = 32;
+    /** Original texture before specifying a textureRegion in LevelController */
+    private Texture originalTexture;
+    /** TextureRegion for crumbling animation */
+    private TextureRegion crumbleTexture;
 
-    public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r){
+    Obstacle touching = null;
+
+    public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r,
+                         Texture originalTexture, TextureRegion crumbleTexture){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
                 bounds[2], bounds[3]);
         this.setBodyType(BodyDef.BodyType.StaticBody);
@@ -91,12 +102,20 @@ public class PlatformModel extends BoxObstacle {
         this.setFriction(f);
         this.setRestitution(r);
         this.setDrawScale(s);
+        this.leftX = bounds[0];
+        this.topY = bounds[1];
+        this.width = bounds[2];
+        this.height = bounds[3];
+        this.originalTexture = originalTexture;
+        this.crumbleTexture = crumbleTexture;
 
         this.setTexture(tr);
 
         this.setTag(t);
-        this.spiked = false;
         this.property = 0;
+        this.isCurrentlyRaining = false;
+
+//        texture.setRegion(0, 0, width, height);
     }
 
     public float getLeftX() {
@@ -104,6 +123,55 @@ public class PlatformModel extends BoxObstacle {
     }
     public float getBottomY() {
         return getY() - getHeight() / 2;
+    }
+
+
+    /**
+     * Begins the rain animation for a raining platform
+     */
+    public void setCurrentlyRaining(boolean currentlyRaining) {
+        isCurrentlyRaining = currentlyRaining;
+    }
+
+
+    /**
+     * Is the platform currently raining
+     * @return whether platform is currently raining
+     */
+    public boolean isCurrentlyRaining() {
+        return isCurrentlyRaining;
+    }
+
+    /**
+     * Sets the raining cooldown of this platform
+     * @param rainingCooldown the raining cooldown
+     */
+    public void setRainingCooldown(float rainingCooldown) {
+        this.rainingCooldown = rainingCooldown;
+    }
+
+    /**
+     * Gets the raining cooldown of this platform
+     * @return the raining cooldown
+     */
+    public float getRainingCooldown() {
+        return this.rainingCooldown;
+    }
+
+    /**
+     * Sets what this platform is currently touching
+     * @param o the obstacle the platform is touching
+     */
+    public void setTouching(Obstacle o) {
+        this.touching = o;
+    }
+
+    /**
+     * Returns an obstacle that is it is in contact with, otherwise returning null
+     * @return the obstacle or null of no obstacle in contact
+     */
+    public Obstacle getTouching() {
+        return touching;
     }
 
 
@@ -163,17 +231,20 @@ public class PlatformModel extends BoxObstacle {
     public void setTexture(TextureRegion textureRegion) {
         texture = textureRegion;
         actualTexture = textureRegion.getTexture();
-        entirePixelWidth = actualTexture.getWidth();
+
+        int actualTextureWidth = actualTexture.getWidth();
+        entirePixelWidth = actualTextureWidth;
         if (entirePixelWidth < framePixelWidth) {
             entirePixelWidth = framePixelWidth;
         }
-        // For something that is not a platform, make it only 1 animation frame
+//         For something that is not a platform, make it only 1 animation frame
         if (actualTexture.getHeight() > framePixelWidth*2) {
             framePixelWidth = entirePixelWidth;
         }
-        numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
 
+        numAnimFrames = (int)(entirePixelWidth/framePixelWidth);
         animator = new FilmStrip(texture,1, numAnimFrames, numAnimFrames);
+
         if(animeframe > numAnimFrames) {
             animeframe -= numAnimFrames;
         }
@@ -189,8 +260,12 @@ public class PlatformModel extends BoxObstacle {
      */
     public void draw(GameCanvas canvas) {
         if (texture != null) {
-            animator.setFrame((int)animeframe);
-            canvas.draw(animator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+            if (animeframe >= numAnimFrames) {
+                animeframe = 0;
+            }
+            FilmStrip tempAnimator = animator;
+            tempAnimator.setFrame((int)animeframe);
+            canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
     }
@@ -204,8 +279,12 @@ public class PlatformModel extends BoxObstacle {
      */
     public void drawWithTint(GameCanvas canvas, Color tint) {
         if (texture != null) {
-            animator.setFrame((int)animeframe);
-            canvas.draw(animator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
+            if (animeframe >= numAnimFrames) {
+                animeframe = 0;
+            }
+            FilmStrip tempAnimator = animator;
+            tempAnimator.setFrame((int)animeframe);
+            canvas.draw(tempAnimator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
                     1.0f, 1.0f);
         }
     }
@@ -216,6 +295,13 @@ public class PlatformModel extends BoxObstacle {
         if (animeframe >= numAnimFrames) {
             animeframe = 0;
         }
+        // Change to crumble animation if crumbling
+        if (this.isCurrentlyRaining() && texture!=crumbleTexture) {
+            texture = crumbleTexture;
+            animator = new FilmStrip(crumbleTexture,1, numAnimFrames, numAnimFrames);
+            animeframe = 0;
+        }
+
         super.update(dt);
     }
 

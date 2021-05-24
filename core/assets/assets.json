@@ -15,21 +15,6 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
-    "shared:placeholder_all": {
-      "file": "platform/T_placeholder_all.png",
-      "wrapU": "repeated",
-      "wrapV": "repeated"
-    },
-    "shared:placeholder_dark": {
-      "file": "platform/T_placeholder_dark.png",
-      "wrapU": "repeated",
-      "wrapV": "repeated"
-    },
-    "shared:placeholder_light": {
-      "file": "platform/T_placeholder_light.png",
-      "wrapU": "repeated",
-      "wrapV": "repeated"
-    },
     "shared:cloud_all": {
       "file": "platform/T_cloud_all.png",
       "wrapU": "repeated",
@@ -61,42 +46,42 @@
       "wrapV": "repeated"
     },
     "shared:rain_cloud_all": {
-      "file": "platform/Raining_White.png",
+      "file": "platform/Rain_Idle_White.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:rain_cloud_dark": {
-      "file": "platform/Raining_Blue.png",
+      "file": "platform/Rain_Idle_Blue.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:rain_cloud_light": {
-      "file": "platform/Raining_Red.png",
+      "file": "platform/Rain_Idle_Yellow.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:rain_cloud_purple": {
-      "file": "platform/Raining_Purple.png",
+      "file": "platform/Rain_Idle_Purple.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_all": {
-      "file": "platform/LightningStrike_White.png",
+      "file": "platform/LightningIdle_White.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_dark": {
-      "file": "platform/LightningStrike_Blue.png",
+      "file": "platform/LightningIdle_Blue.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_light": {
-      "file": "platform/LightningStrike_Red.png",
+      "file": "platform/LightningIdle_Yellow.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
     "shared:lightning_cloud_purple": {
-      "file": "platform/LightningStrike_Purple.png",
+      "file": "platform/LightningIdle_Purple.png",
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
@@ -130,6 +115,86 @@
       "wrapU": "repeated",
       "wrapV": "repeated"
     },
+    "shared:rain_crumble_all": {
+      "file": "platform/Rain_Crumble_White.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_dark": {
+      "file": "platform/Rain_Crumble_Blue.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_light": {
+      "file": "platform/Rain_Crumble_Yellow.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_purple": {
+      "file": "platform/Rain_Crumble_Purple.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_all_reduced": {
+      "file": "platform/Rain_Idle_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_dark_reduced": {
+      "file": "platform/Rain_Idle_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_light_reduced": {
+      "file": "platform/Rain_Idle_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_cloud_purple_reduced": {
+      "file": "platform/Rain_Idle_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_all_reduced": {
+      "file": "platform/LightningIdle_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_dark_reduced": {
+      "file": "platform/LightningIdle_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_light_reduced": {
+      "file": "platform/LightningIdle_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:lightning_cloud_purple_reduced": {
+      "file": "platform/LightningIdle_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_all_reduced": {
+      "file": "platform/Rain_Crumble_White_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_dark_reduced": {
+      "file": "platform/Rain_Crumble_Blue_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_light_reduced": {
+      "file": "platform/Rain_Crumble_Yellow_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "shared:rain_crumble_purple_reduced": {
+      "file": "platform/Rain_Crumble_Purple_Reduced.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "circle_mask": "platform/circle_mask.png",
     "shared:goal": "platform/Door.png",
     "shared:goalOLD": "platform/DoorOLD.png",
@@ -149,13 +214,36 @@
     "platform:barrier": "platform/barrier.png",
     "platform:bullet": "platform/bullet.png",
     "platform:vertex": "platform/vertex.png",
-    "platform:vertex1": "platform/vertex1.png",
-    "platform:vertex2": "platform/vertex2.png",
-    "platform:vertex3": "platform/vertex3.png",
-    "platform:vertex4": "platform/vertex4.png",
-    "platform:vertex5": "platform/vertex5.png",
-    "platform:vertex6": "platform/vertex6.png",
-
+    "platform:vertex1": {
+      "file": "platform/vertex1.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex2": {
+      "file": "platform/vertex2.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex3": {
+      "file": "platform/vertex3.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex4": {
+      "file": "platform/vertex4.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex5": {
+      "file": "platform/vertex5.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
+    "platform:vertex6": {
+      "file": "platform/vertex6.png",
+      "wrapU": "repeated",
+      "wrapV": "repeated"
+    },
     "platform:somni_stand": "platform/SomniStand.png",
     "platform:Somni_Idle": "platform/Somni_Idle.png",
     "platform:somni_walk": "platform/SomniWalk.png",
@@ -208,6 +296,11 @@
     "platform:background_light_statues": "platform/BG_statues_light.png",
     "platform:background_dark_statues": "platform/BG_statues_dark.png",
 
+    "platform:dreams_door": "menu/door3light.png",
+    "platform:house_door": "menu/door4light.png",
+    "platform:forest_door": "menu/door1light.png",
+    "platform:gear_door": "menu/door4light.png",
+    "platform:statues_door": "menu/door2light.png",
     "tutorial:camera_pan": "tutorial/camera_pan.png",
     "tutorial:phobia_dash": "tutorial/phobia_dash.png",
     "tutorial:phobia_jump": "tutorial/phobia_jump.png",
@@ -242,52 +335,55 @@
     "pause_menu:nextblue": "pause_menu/nextblue.png",
     "pause_menu:nextorange": "pause_menu/nextorange.png",
     "pause_menu:pause_button_blue":  "pause_menu/pause_button.png",
-    "pause_menu:pause_button_red": "pause_menu/pause_red.png",
+    "pause_menu:pause_button_red": "pause_menu/pause_red.png"
   },
     "jsons"  : {
         "constants": "constants.json",
-        "level1": "levels/house_tutorial_0.json",
-        "level2": "levels/house_tutorial_1.json",
-        "level3": "levels/house_tutorial_2.json",
-        "level4": "levels/house_tutorial_3.json",
-        "level5": "levels/house_tutorial_4.json",
-        "level6": "levels/house_tutorial_5.json",
-        "level7": "levels/house_tutorial_6.json",
-        "level8": "levels/house_tutorial_7.json",
-        "level9": "levels/forest_switch_1.json",
-        "level10": "levels/forest_switch_2.json",
-        "level11": "levels/forest_switch_3.json",
-        "level12": "levels/forest_handhold_1.json",
-        "level13": "levels/forest_handhold_2.json",
-        "level14": "levels/forest_separate_1.json",
-        "level15": "levels/forest_catch_1.json",
-        "level16": "levels/forest_dash_1.json",
-        "level17": "levels/dream_propel_1.json",
-        "level18": "levels/dream_propel_2.json",
-        "level19": "levels/dream_propel_3.json",
-        "level20": "levels/dream_propel_4.json",
-        "level21": "levels/dream_propel_5.json",
-        "level22": "levels/dream_propel_6.json",
-        "level23": "levels/dream_propel_7.json",
-        "level24": "levels/statues_old_tutorial.json",
-        "level25": "levels/statues_tower.json",
-        "level26": "levels/statues_symmetry_puzzle.json",
-        "level27": "levels/gear_betademo.json",
-        "level28": "levels/gear_juggle.json",
-        "level29": "levels/statues_somnibros.json"
+        "worlds": "worlds.json",
+        "level1": "levels/dream_1.json",
+        "level2": "levels/dream_2.json",
+        "level3": "levels/dream_3.json",
+        "level4": "levels/dream_4.json",
+        "level5": "levels/dream_5.json",
+        "level6": "levels/houses_1.json",
+        "level7": "levels/houses_2.json",
+        "level8": "levels/houses_3.json",
+        "level9": "levels/houses_4.json",
+        "level10": "levels/houses_5.json",
+        "level11": "levels/houses_6.json",
+        "level12": "levels/forest_1.json",
+        "level13": "levels/forest_2.json",
+        "level14": "levels/forest_3.json",
+        "level15": "levels/forest_4.json",
+        "level16": "levels/forest_5.json",
+        "level17": "levels/forest_6.json",
+        "level18": "levels/forest_7.json",
+        "level19": "levels/forest_8.json",
+        "level20": "levels/forest_9.json",
+        "level21": "levels/gears_1.json",
+        "level22": "levels/gears_2.json",
+        "level23": "levels/gears_3.json",
+        "level24": "levels/gears_4.json",
+        "level25": "levels/gears_5.json",
+        "level26": "levels/statues_1.json",
+        "level27": "levels/statues_2.json",
+        "level28": "levels/statues_3.json",
+        "level29": "levels/statues_4.json",
+        "level30": "levels/statues_5.json",
+        "level31": "levels/statues_6.json"
     },
-    "sounds" : {
-        "platform:jump" : "platform/jump.mp3",
-        "platform:pew"  : "platform/pew.mp3",
-        "platform:plop" : "platform/plop.mp3",
-        "somniTrack": "audio/SomniTrack.mp3",
-        "phobiaTrack": "audio/PhobiaTrack.mp3",
-        "combinedTrack": "audio/CombinedTrack.mp3"
-    },
-    "fonts": {
-        "shared:retro": {
-            "file": "shared/RetroGame.ttf",
-            "size": 64
-        }
-    }
+  "sounds" : {
+      "platform:jump" : "platform/jump.mp3",
+      "platform:pew"  : "platform/pew.mp3",
+      "platform:plop" : "platform/plop.mp3",
+      "somniTrack": "audio/SomniTrack.mp3",
+      "phobiaTrack": "audio/PhobiaTrack.mp3",
+      "combinedTrack": "audio/CombinedTrack.mp3"
+  },
+  "fonts": {
+      "shared:retro": {
+          "file": "shared/RetroGame.ttf",
+          "size": 64
+      }
+  }
 }
