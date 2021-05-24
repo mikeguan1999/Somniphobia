@@ -72,6 +72,18 @@ public class ParticleModel {
     }
 
     /**
+     * Initializes the effect for particles by specifying the emitter
+     * and particle paths
+     */
+    public void create(String emitterPath, String particlePath) {
+        batch = new SpriteBatch();
+
+        effect = new ParticleEffect();
+        effect.load(Gdx.files.internal(emitterPath),
+                Gdx.files.internal(particlePath));
+    }
+
+    /**
      * Removes the particles from the screen
      */
     public void hide() {
