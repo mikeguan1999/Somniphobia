@@ -19,7 +19,8 @@
         "levels/houses_3.json",
         "levels/houses_4.json",
         "levels/houses_5.json",
-        "levels/houses_6.json"
+        "levels/houses_6.json",
+        "levels/houses_7.json"
       ]
     },
     "world3": {
@@ -59,7 +60,11 @@
       "levels/statues_4.json",
       "levels/statues_5.json",
       "levels/statues_6.json",
+      "levels/statues_7.json",
+      "levels/statues_8.json",
       "levels/robot.json"
     ]
   }
 }
+
+

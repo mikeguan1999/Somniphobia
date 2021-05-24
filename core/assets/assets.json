@@ -296,7 +296,6 @@
     "platform:background_light_statues": "platform/BG_statues_light.png",
     "platform:background_dark_statues": "platform/BG_statues_dark.png",
 
-
     "platform:dreams_door": "menu/door3light.png",
     "platform:house_door": "menu/door4light.png",
     "platform:forest_door": "menu/door1light.png",
@@ -371,7 +370,9 @@
         "level28": "levels/statues_3.json",
         "level29": "levels/statues_4.json",
         "level30": "levels/statues_5.json",
-        "level31": "levels/statues_6.json"
+        "level31": "levels/statues_6.json",
+        "level32": "levels/statues_7.json",
+        "level33": "levels/statues_8.json"
     },
   "sounds" : {
       "platform:jump" : "platform/jump.mp3",

@@ -27,7 +27,7 @@ public class PlatformController {
     private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
     private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
-    public static final float rainingCooldown = 100;
+    public static final float rainingCooldown = 50;
     public static final float respawnCooldown = 300;
 
     /** Filters for objects*/
@@ -124,7 +124,7 @@ public class PlatformController {
      * @param darkObjects
      */
     public void setDarkObjects(PooledList<Obstacle> darkObjects) {
-        this.lightObjects = darkObjects;
+        this.darkObjects = darkObjects;
     }
 
     /**
@@ -195,6 +195,7 @@ public class PlatformController {
                 platform.setActive(false);
 //                platform.deactivatePhysics(worldController.getWorld());
 
+
                 lightObjects.remove(platform);
                 darkObjects.remove(platform);
                 sharedObjects.remove(platform);
@@ -230,6 +231,7 @@ public class PlatformController {
                 }
                 platform.setActive(true);
                 platform.setCurrentlyRaining(false);
+                platform.setRainingCooldown(rainingCooldown);
             } else {
                 platform.setRespawnCooldown(platform.getRespawnCooldown() - 1);
             }

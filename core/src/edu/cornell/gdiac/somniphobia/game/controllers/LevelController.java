@@ -39,6 +39,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
+import edu.cornell.gdiac.somniphobia.game.models.DoorModel;
 import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
@@ -1369,7 +1370,7 @@ public class LevelController extends WorldController {
 		float gHeight = goalTile.getRegionHeight()/scale.y;
 		float gX = goalVal.get("pos").getFloat(0) + gWidth / 2;
 		float gY = goalVal.get("pos").getFloat(1) + gHeight / 2;
-		goalDoor = new BoxObstacle(gX, gY, gWidth, gHeight);
+		goalDoor = new DoorModel(gX, gY, gWidth, gHeight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
 		goalDoor.setDensity(constants.get("goal").getFloat("density", 0));
 		goalDoor.setFriction(constants.get("goal").getFloat("friction", 0));
@@ -1427,7 +1428,7 @@ public class LevelController extends WorldController {
 					// For crumble animation
 					if (platIdx > 5) {
 						crumbleTexture = new TextureRegion(xTexture[crumbleIdx]);
-						crumbleTexture.setRegion(0, 0, width, height);
+//						crumbleTexture.setRegion(0, 0, width, height);
 					}
 					// If the platform size is the same as the spritesheet size
 					if (originalTexture.getWidth() > 32 && width%(originalTexture.getWidth()/32) == 0) {
@@ -1435,12 +1436,12 @@ public class LevelController extends WorldController {
 						originalTexture = newXTexture.getTexture();
 						if (platIdx > 5) {
 							crumbleTexture = new TextureRegion(reducedXTexture[crumbleIdx]);
-							crumbleTexture.setRegion(0, 0, width, height);
+//							crumbleTexture.setRegion(0, 0, width, height);
 						}
 					}
-					newXTexture.setRegion(0, 0, width, height);
+//					newXTexture.setRegion(0, 0, width, height);
 				}
-				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
+				PlatformModel platformModel  = new PlatformModel(bounds, platformType, property, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
 						defaults.getFloat( "restitution", 0.0f ), originalTexture, crumbleTexture);
 				platformModel.setTag(platformType);

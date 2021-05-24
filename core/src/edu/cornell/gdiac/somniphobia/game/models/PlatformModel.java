@@ -1,6 +1,7 @@
 package edu.cornell.gdiac.somniphobia.game.models;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.somniphobia.obstacle.BoxObstacle;
 
 import com.badlogic.gdx.math.*;
@@ -12,6 +13,9 @@ import edu.cornell.gdiac.somniphobia.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 import edu.cornell.gdiac.util.FilmStrip;
 import edu.cornell.gdiac.util.PooledList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlatformModel extends BoxObstacle {
 
@@ -64,8 +68,10 @@ public class PlatformModel extends BoxObstacle {
     /** velocity for moving platform **/
     private float velocity;
 
+
     private float respawnCooldown;
-    private float rainingCooldown = 0;
+    private float initialRainingCooldown;
+    private float rainingCooldown = PlatformController.rainingCooldown;
 
 
     /** Path for a moving obstacle **/
@@ -101,10 +107,14 @@ public class PlatformModel extends BoxObstacle {
     private TextureRegion crumbleTexture;
     /** Original TextureRegion */
     private TextureRegion normalTexture;
+    /** List for coordinates of individual tiles in this platform */
+    private ArrayList<Vector2> platformCoordinates = new ArrayList<>();
+    private ParticleModel flame;
+    private float dt = 0;
 
     Obstacle touching = null;
 
-    public PlatformModel(float [] bounds, int t, TextureRegion tr, Vector2 s, float d, float f , float r,
+    public PlatformModel(float [] bounds, int type, int property, TextureRegion tr, Vector2 s, float d, float f , float r,
                          Texture originalTexture, TextureRegion crumbleTexture){
         super(bounds[0]+bounds[2]/2, bounds[1] + bounds[3]/2,
                 bounds[2], bounds[3]);
@@ -123,9 +133,15 @@ public class PlatformModel extends BoxObstacle {
 
         this.setTexture(tr);
 
-        this.setTag(t);
-        this.property = 0;
+        this.setTag(type);
+        this.property = property;
         this.isCurrentlyRaining = false;
+
+        this.flame = new ParticleModel();
+        flame.create();
+        flame.setDuration(30000);
+        flame.scaleParticles(2);
+        flame.startParticles();
     }
 
     public float getLeftX() {
@@ -198,6 +214,21 @@ public class PlatformModel extends BoxObstacle {
      */
     public float getRespawnCooldown() {
         return this.respawnCooldown;
+    }
+    /**
+     * Sets the initial raining cooldown of this platform
+     * @param initialRainingCooldown the raining cooldown
+     */
+    public void setInitialRainingCooldown(float initialRainingCooldown) {
+        this.initialRainingCooldown = initialRainingCooldown;
+    }
+
+    /**
+     * Gets the initial raining cooldown of this platform
+     * @return the initial raining cooldown
+     */
+    public float getInitialRainingCooldown() {
+        return this.initialRainingCooldown;
     }
 
     /**
@@ -301,15 +332,28 @@ public class PlatformModel extends BoxObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        if (texture != null && !(rainingCooldown < 0)) {
+//        if (texture != null && !(rainingCooldown <= 0)) {
             if (animeframe >= numAnimFrames) {
                 animeframe = 0;
             }
             FilmStrip tempAnimator = animator;
             tempAnimator.setFrame((int)animeframe);
-            canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
-                    1.0f, 1.0f);
-        }
+            platformCoordinates.clear();
+            float startX = getX() - 0.5f*(width-1);
+            float startY = getY() - 0.5f*(height-1);
+            for (float x = startX; x < startX+width; x++) {
+                for (float y = startY; y < startY+height; y++) {
+                    platformCoordinates.add(new Vector2(x, y));
+                }
+            }
+            for (Vector2 coordinate : platformCoordinates) {
+                canvas.draw(tempAnimator, Color.WHITE, origin.x, origin.y,coordinate.x*drawScale.x,coordinate.y*drawScale.y,getAngle(),
+                        1.0f, 1.0f);
+//                if (this.property == 2) {
+//                    flame.render(coordinate.x*drawScale.x, coordinate.y*drawScale.y, canvas.getBatch(), 0.016f);
+//                }
+            }
+//        }
     }
 
     /**
@@ -320,14 +364,27 @@ public class PlatformModel extends BoxObstacle {
      * @param tint Tint to apply
      */
     public void drawWithTint(GameCanvas canvas, Color tint) {
-        if (texture != null && !(rainingCooldown < 0)) {
+        if (texture != null && !(rainingCooldown <= 0)) {
             if (animeframe >= numAnimFrames) {
                 animeframe = 0;
             }
             FilmStrip tempAnimator = animator;
             tempAnimator.setFrame((int)animeframe);
-            canvas.draw(tempAnimator, tint, origin.x, origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),
-                    1.0f, 1.0f);
+            platformCoordinates.clear();
+            float startX = getX() - 0.5f*(width-1);
+            float startY = getY() - 0.5f*(height-1);
+            for (float x = startX; x < startX+width; x++) {
+                for (float y = startY; y < startY+height; y++) {
+                    platformCoordinates.add(new Vector2(x, y));
+                }
+            }
+            for (Vector2 coordinate : platformCoordinates) {
+                canvas.draw(tempAnimator, tint, origin.x, origin.y,coordinate.x*drawScale.x,coordinate.y*drawScale.y,getAngle(),
+                        1.0f, 1.0f);
+//                if (this.property == 2) {
+//                    flame.render(coordinate.x*drawScale.x, coordinate.y*drawScale.y, canvas.getBatch(), 0.016f);
+//                }
+            }
         }
     }
 
@@ -340,6 +397,7 @@ public class PlatformModel extends BoxObstacle {
         // Change to crumble animation if crumbling
         if (this.isCurrentlyRaining() && texture!=crumbleTexture) {
             texture = crumbleTexture;
+            animationSpeed = numAnimFrames/initialRainingCooldown;
             animator = new FilmStrip(crumbleTexture,1, numAnimFrames, numAnimFrames);
             animeframe = 0;
         } else if (!this.isCurrentlyRaining && texture!=normalTexture) {

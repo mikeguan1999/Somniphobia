@@ -153,6 +153,9 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Offset in x direction */
 	private float yOffset3;
 
+	/// VARIABLES FOR PARTICLE EFFECTS
+	private ParticleModel dust;
+
 	/** Getters and setters*/
 	public float getDashEndVelocity() { return dashEndVelocity; }
 	public void setDashEndVelocity(float f) { dashEndVelocity = f; }
@@ -232,6 +235,9 @@ public class CharacterModel extends CapsuleObstacle {
 		jumpCooldown = 0;
 //		dashCooldown = 0;
 		setName("dude");
+
+		dust = new ParticleModel();
+		dust.create();
 	}
 
 	/**
@@ -883,6 +889,12 @@ public class CharacterModel extends CapsuleObstacle {
 			// draw the reaching out hand (can-hold-hand indicator)
 			canvas.draw(textureThree, Color.WHITE, origin.x+ xOffset3, origin.y+ yOffset3, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 					effect, 1.0f);
+		}
+
+		// Particle effects
+		dust.render(getX()*drawScale.x, (getY() - 0.5f*this.getHeight())*drawScale.y, canvas.getBatch());
+		if (this.isGrounded() && getMovement() != 0) {
+			dust.startParticles();
 		}
 	}
 
