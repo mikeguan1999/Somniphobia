@@ -239,6 +239,9 @@ public class GDXRoot extends Game implements ScreenListener {
 				TextureRegionDrawable door = new TextureRegionDrawable(directory.getEntry(
 						world.get("worldMenuDoor").asString(), Texture.class ));
 				menus[i-1].setDoorImages(door);
+				TextureRegionDrawable doorLocked = new TextureRegionDrawable(directory.getEntry(
+						world.get("worldMenuDoorLocked").asString(), Texture.class));
+				menus[i-1].setDoorLockedImage(doorLocked);
 			}
 
 			loading.dispose();

@@ -94,7 +94,7 @@ public class MenuScrollable implements Screen {
 	private boolean toRight = false;
 	private boolean toLeft = false;
 	/** Setting the Y position of the cloudline to overlap with the doors*/
-	private final float CLOUDLINE_YPOSITION = 80;
+	private final float CLOUDLINE_YPOSITION = 20;
 	private final float CLOUD_OFFSETX = 80;
 	private final float CLOUD_OFFSETY = 30;
 
@@ -121,7 +121,9 @@ public class MenuScrollable implements Screen {
 	private boolean first=true;
 
 	private TextureRegionDrawable[] upImages = new TextureRegionDrawable[numLevels];
-	private TextureRegionDrawable[] overImages = new TextureRegionDrawable[numLevels];
+	private TextureRegion [] overImages;
+	private TextureRegionDrawable doorLockedImage;
+	private TextureRegionDrawable upImage;
 	private TextureRegion background;
 	private TextureRegionDrawable titleDrawable;
 	private Texture titleTexture;
@@ -135,6 +137,8 @@ public class MenuScrollable implements Screen {
 	private int startIndex;
 	private boolean prevClicked;
 	private boolean [] levelsCompleted;
+	private Button cloudLine;
+	private int totalLevels = 9;
 
 	public Stage getStage(){
 		return stage;
@@ -153,6 +157,8 @@ public class MenuScrollable implements Screen {
 		cloudDrawable = new TextureRegionDrawable(internal.getEntry("cloud", Texture.class));
 		arrowTexture = internal.getEntry("back_arrow", Texture.class);
 		arrowDrawable = new TextureRegionDrawable(arrowTexture);
+//		upImage = new TextureRegionDrawable(internal.getEntry("door", Texture.class));
+
 		/*
 		if (index==0){
 			background = new TextureRegion(internal.getEntry("background_forest", Texture.class));
@@ -184,10 +190,10 @@ public class MenuScrollable implements Screen {
 		//startIndex = index;
 		//levelsCompleted = levels;
 		this.totalNumLevels = totalNumLevels;
-		buttonsClicked = new boolean[totalNumLevels];
+		buttonsClicked = new boolean[totalLevels];
 		positionsX = new float[totalNumLevels];
 		zIndices = new int[totalNumLevels];
-		zIndices = new int[totalNumLevels];
+		overImages = new TextureRegion[totalLevels];
 
 //		Creating bmp font from ttf
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));
@@ -202,17 +208,19 @@ public class MenuScrollable implements Screen {
 //		font.setColor(BORDER_COLOR);
 //		System.out.println(BORDER_COLOR.toString());
 //		System.out.println(font.getColor());
+		upImage = new TextureRegionDrawable(internal.getEntry("door", Texture.class));
 
-		buttons = new ImageTextButton[totalNumLevels];
-		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
-			buttons[currentLevel] = createImageTextButton(upImages[currentLevel %numLevels], font, currentLevel +1);
+		buttons = new Button[totalLevels];
+		for (currentLevel =0; currentLevel <buttons.length; currentLevel++) {
+			buttons[currentLevel] = new Button(upImage);
 			buttons[currentLevel].addListener(new ClickListener() {
 				int saved_i = currentLevel;
 				public void clicked(InputEvent event, float x, float y) {
 					buttonsClicked[saved_i] = true;
 				}
 			});
-			overImages[currentLevel %numLevels] = cloudDrawable;
+			System.out.println(currentLevel+1);
+			overImages[currentLevel] = new TextureRegion(internal.getEntry("number_"+(currentLevel+1), Texture.class));;
 		}
 
 
@@ -234,9 +242,14 @@ public class MenuScrollable implements Screen {
 	}
 
 	public void setDoorImages(TextureRegionDrawable door) {
-		for (int i=0; i<numLevels; i++){
-			upImages[i] = door;
-		}
+//		for (int i=0; i<numLevels; i++){
+//			upImages[i] = door;
+//		}
+		upImage = door;
+	}
+
+	public void setDoorLockedImage(TextureRegionDrawable door){
+		doorLockedImage = door;
 	}
 
 	public void setLevels(String[] levels) {
@@ -250,38 +263,40 @@ public class MenuScrollable implements Screen {
 		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2);;
 		table.row();
 		Image titleImage = new Image(titleDrawable);
-		table.add(titleImage).colspan(numLevels+4).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
+		table.add(titleImage).colspan(6).expandX().height(TITLE_HEIGHT).width(TITLE_WIDTH).padTop(TOP_PADDING);
 		titleImage.setVisible(false);
 		table.row();
 
-		for (int i=0; i<totalNumLevels;i++){
+		for (int i=0; i<buttons.length;i++){
 			if (i==0){
-				table.add(buttons[i]).padTop(TOP_PADDING).size(DOOR_WIDTH, DOOR_HEIGHT).expandX().padLeft(SIDE_PADDING+200);
+				table.add(buttons[i]).padTop(TOP_PADDING).size(buttons[i].getWidth() * 2/3, buttons[i].getHeight() * 2/3);
 			}
 			else{
-				table.add(buttons[i]).padTop(TOP_PADDING).size(DOOR_WIDTH, DOOR_HEIGHT).expandX();
+				table.add(buttons[i]).padTop(TOP_PADDING).size(buttons[i].getWidth() * 2/3, buttons[i].getHeight() * 2/3);
 			}
 		}
 
 		leftButton = new ImageButton(leftButtonDrawable);
 		rightButton = new ImageButton(rightButtonDrawable);
 
-		Button[] cloudLineImages = new Button[totalNumLevels/numLevels+1];
-		for (int i=0; i<cloudLineImages.length; i++){
-			cloudLineImages[i] = new Button(cloudLineDrawable);
-			cloudLineImages[i].setDisabled(true);
-		}
+//		Button[] cloudLineImages = new Button[totalNumLevels/numLevels+1];
+//		for (int i=0; i<cloudLineImages.length; i++){
+//			cloudLineImages[i] = new Button(cloudLineDrawable);
+//			cloudLineImages[i].setDisabled(true);
+//		}
 
 		table.row();
+		cloudLine = new Button(cloudLineDrawable);
+		table.add(cloudLine).size(canvas.getWidth()+100, cloudLine.getHeight()/2).colspan(4);
 
-		for (int i=0; i<cloudLineImages.length; i++){
-			if (i==0){
-				table.add(cloudLineImages[i]).size(CLOUDLINE_WIDTH+100, CLOUDLINE_HEIGHT).padLeft(SIDE_PADDING+200).colspan(6);
-			}
-			else {
-				table.add(cloudLineImages[i]).height(CLOUDLINE_HEIGHT).width(CLOUDLINE_WIDTH+100).colspan(6);
-			}
-		}
+//		for (int i=0; i<cloudLineImages.length; i++){
+//			if (i==0){
+//				table.add(cloudLineImages[i]).size(CLOUDLINE_WIDTH+100, CLOUDLINE_HEIGHT).padLeft(SIDE_PADDING+200).colspan(6);
+//			}
+//			else {
+//				table.add(cloudLineImages[i]).height(CLOUDLINE_HEIGHT).width(CLOUDLINE_WIDTH+100).colspan(6);
+//			}
+//		}
 
 
 		table.add(rightButton).size(ARROW_SIZE+30, ARROW_SIZE);
@@ -300,22 +315,30 @@ public class MenuScrollable implements Screen {
 			positionsX[j] = buttonActor.getX();
 		}
 
-		for (int i=0; i<totalNumLevels; i++){
-			buttons[i].getStyle().up = upImages[i%numLevels];
+		for (int i=0; i<totalLevels; i++){
+			buttons[i].getStyle().up = upImage;
+			if (i>=totalNumLevels){
+				buttons[i].setVisible(false);
+			}
 		}
 
 
-		for (int i=0; i<cloudLineImages.length; i++){
-			cloudLineImages[i].setY(CLOUDLINE_YPOSITION);
-			if (i!=0) {
-				cloudLineImages[i].setX(cloudLineImages[i].getX() - 400*i);
-			}
-			else{
-				cloudLineImages[i].setX(cloudLineImages[i].getX() - 200);
-			}
-			cloudLineImages[i].setDisabled(true);
-			cloudLineImages[i].setTouchable(Touchable.disabled);
-		}
+//		for (int i=0; i<cloudLineImages.length; i++){
+//			cloudLineImages[i].setY(CLOUDLINE_YPOSITION);
+//			if (i!=0) {
+//				cloudLineImages[i].setX(cloudLineImages[i].getX() - 400*i);
+//			}
+//			else{
+//				cloudLineImages[i].setX(cloudLineImages[i].getX() - 200);
+//			}
+//			cloudLineImages[i].setDisabled(true);
+//			cloudLineImages[i].setTouchable(Touchable.disabled);
+//		}
+
+		cloudLine.setY(CLOUDLINE_YPOSITION);
+		cloudLine.setX(-362-canvas.getWidth()/2-80);
+		cloudLine.setDisabled(true);
+		cloudLine.setTouchable(Touchable.disabled);
 
 		arrow.setPosition(-362-canvas.getWidth()/2+10, canvas.getHeight()-arrow.getHeight()-10);
 		rightButton.setPosition(-362+canvas.getWidth()/2-200,120);
@@ -383,6 +406,7 @@ public class MenuScrollable implements Screen {
 					rightButton.setPosition(rightButton.getX() + 7, rightButton.getY());
 					leftButton.setPosition(leftButton.getX() + 7, leftButton.getY());
 					arrow.setPosition(arrow.getX()+7, arrow.getY());
+					cloudLine.setPosition(cloudLine.getX()+7, cloudLine.getY());
 				}
 			}
 			if (leftButton.isOver()){
@@ -391,6 +415,7 @@ public class MenuScrollable implements Screen {
 					leftButton.setPosition(leftButton.getX() - 7, leftButton.getY());
 					rightButton.setPosition(rightButton.getX() - 7, rightButton.getY());
 					arrow.setPosition(arrow.getX()-7, arrow.getY());
+					cloudLine.setPosition(cloudLine.getX()-7, cloudLine.getY());
 				}
 				else{
 					leftButton.setVisible(false);
@@ -400,27 +425,29 @@ public class MenuScrollable implements Screen {
 		}
 		camera.update();
 
-		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
+		for (currentLevel =0; currentLevel <buttons.length; currentLevel++) {
 			if (buttons[currentLevel].isOver()){
-				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
-				btn.getStyle().fontColor = FONT_COLOR;
-				buttons[currentLevel].getStyle().up = overImages[currentLevel %numLevels];
-				buttons[currentLevel].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
-				buttons[currentLevel].setZIndex(buttons[buttons.length-1].getZIndex());
+				buttons[currentLevel].getStyle().up = upImage;
+				stage.getBatch().begin();
+				Actor btnActor = (Actor) buttons[currentLevel];
+				stage.getBatch().draw(overImages[currentLevel], btnActor.getX(), btnActor.getY(), buttons[currentLevel].getWidth(),  buttons[currentLevel].getHeight());
+				stage.getBatch().end();
 
-				Actor actor = (Actor) buttons[currentLevel];
-				actor.setX(positionsX[currentLevel]-CLOUD_OFFSETX);
-				actor.setY(initialButtonY-CLOUD_OFFSETY);
+//				buttons[currentLevel].getStyle().up = upImage;
+//				buttons[currentLevel].setSize(CLOUD_WIDTH,CLOUD_HEIGHT);
+//				buttons[currentLevel].setZIndex(buttons[buttons.length-1].getZIndex());
+//				Actor actor = (Actor) buttons[currentLevel];
+//				actor.setX(positionsX[currentLevel]-CLOUD_OFFSETX);
+//				actor.setY(initialButtonY-CLOUD_OFFSETY);
 			}
 			else{
-				ImageTextButton btn = (ImageTextButton) buttons[currentLevel];
-				btn.getStyle().fontColor = FONT_COLOR_TRANSPARENT;
-				buttons[currentLevel].getStyle().up = upImages[currentLevel %numLevels];
-				buttons[currentLevel].setZIndex(zIndices[currentLevel]);
-				buttons[currentLevel].setSize(DOOR_WIDTH, DOOR_HEIGHT);
-				Actor actor = (Actor) buttons[currentLevel];
-				actor.setX(positionsX[currentLevel]);
-				actor.setY(initialButtonY);
+				buttons[currentLevel].getStyle().up = upImage;
+//				buttons[currentLevel].getStyle().up = upImage;
+//				buttons[currentLevel].setZIndex(zIndices[currentLevel]);
+//				buttons[currentLevel].setSize(buttons[currentLevel].getWidth(), buttons[currentLevel].getHeight());
+//				Actor actor = (Actor) buttons[currentLevel];
+//				actor.setX(positionsX[currentLevel]);
+//				actor.setY(initialButtonY);
 			}
 		}
 	}
@@ -451,6 +478,16 @@ public class MenuScrollable implements Screen {
 			update(delta);
 			stage.act(delta);
 			stage.draw();
+
+			for (currentLevel =0; currentLevel <buttons.length; currentLevel++) {
+				if (buttons[currentLevel].isOver()) {
+					buttons[currentLevel].getStyle().up = upImage;
+					stage.getBatch().begin();
+					Actor btnActor = (Actor) buttons[currentLevel];
+					stage.getBatch().draw(overImages[currentLevel], btnActor.getX(), btnActor.getY(), buttons[currentLevel].getWidth(), buttons[currentLevel].getHeight());
+					stage.getBatch().end();
+				}
+			}
 
 			if (first) {
 				for (int j = 0; j < totalNumLevels; j++) {
