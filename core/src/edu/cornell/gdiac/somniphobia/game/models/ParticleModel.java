@@ -46,6 +46,22 @@ public class ParticleModel {
     }
 
     /**
+     * Draws the particles onto the screen with tint
+     *
+     * @param x the x coordinate for the particle origin
+     * @param y the y coordinate for the particle origin
+     *
+     */
+    public void renderTint(float x, float y, Batch batch, Color tint) {
+        batch.setColor(tint);
+        effect.setPosition(x, y);
+        effect.update(Gdx.graphics.getDeltaTime());
+
+        effect.draw(batch);
+        batch.setColor(Color.WHITE);
+    }
+
+    /**
      * Draws the particles onto the screen but you can add your own dt
      *
      * @param x the x coordinate for the particle origin

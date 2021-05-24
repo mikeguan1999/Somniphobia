@@ -88,6 +88,9 @@ public class CharacterModel extends CapsuleObstacle {
 	public static final boolean LIGHT = true;
 	public static final boolean DARK = false;
 
+	// True for somni, false for phobia
+	private boolean type = true;
+
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache;
 
@@ -154,7 +157,8 @@ public class CharacterModel extends CapsuleObstacle {
 	private float yOffset3;
 
 	/// VARIABLES FOR PARTICLE EFFECTS
-	private ParticleModel dust;
+	private ParticleModel somniDust;
+	private ParticleModel phobiaDust;
 
 	/** Getters and setters*/
 	public float getDashEndVelocity() { return dashEndVelocity; }
@@ -212,6 +216,7 @@ public class CharacterModel extends CapsuleObstacle {
 		jumpForce = data.getFloat( "jump_force", 0 );
 		jumpLimit = data.getInt( "jump_cool", 0 );
 		sensorName = type == LIGHT ? "SomniSensor" : "PhobiaSensor";
+		this.type = type;
 		this.data = data;
 		filter = f;
 
@@ -236,8 +241,10 @@ public class CharacterModel extends CapsuleObstacle {
 //		dashCooldown = 0;
 		setName("dude");
 
-		dust = new ParticleModel();
-		dust.create();
+		somniDust = new ParticleModel();
+		somniDust.create();
+		phobiaDust = new ParticleModel();
+		phobiaDust.create("platform/phobiaDustEmitter", "platform/");
 	}
 
 	/**
@@ -892,9 +899,15 @@ public class CharacterModel extends CapsuleObstacle {
 		}
 
 		// Particle effects
-		dust.render(getX()*drawScale.x, (getY() - 0.5f*this.getHeight())*drawScale.y, canvas.getBatch());
+		if (type) {
+			somniDust.render(getX()*drawScale.x, (getY() - 0.5f*this.getHeight())*drawScale.y, canvas.getBatch());
+		}
+		else {
+			phobiaDust.render(getX()*drawScale.x, (getY() - 0.5f*this.getHeight())*drawScale.y, canvas.getBatch());
+		}
 		if (this.isGrounded() && getMovement() != 0) {
-			dust.startParticles();
+			somniDust.startParticles();
+			phobiaDust.startParticles();
 		}
 	}
 
