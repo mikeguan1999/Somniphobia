@@ -570,6 +570,9 @@ public class LevelController extends WorldController {
 				volume = sliderMusic.getValue();
 
 				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
+				System.out.println("current: " + GDXRoot.getPreferences().getFloat("volume"));
+				System.out.println("new: " + volume);
+
 			}
 		});
 
@@ -1326,12 +1329,16 @@ public class LevelController extends WorldController {
 			MusicController.getInstance().play("combinedTrack", combinedTrackPath, 0, true);
 
 		}
-//
-		MusicController.getInstance().setVolume(volume, "somniTrack");
-		MusicController.getInstance().setVolume(0, "phobiaTrack");
-		MusicController.getInstance().setVolume(0, "combinedTrack");
 
-//		SoundController.getInstance().play("WinTrack", winTrack, 1, true);
+		if (movementController.isHoldingHands()){
+			MusicController.getInstance().setVolume(volume, "combinedTrack");
+		}
+		else if (movementController.getAvatar()==somni){
+			MusicController.getInstance().setVolume(volume, "somniTrack");
+		}
+		else if (movementController.getAvatar()==phobia){
+			MusicController.getInstance().setVolume(volume, "phobiaTrack");
+		}
 
 
 	}

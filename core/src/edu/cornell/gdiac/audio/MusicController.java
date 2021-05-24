@@ -290,6 +290,7 @@ public class MusicController {
     }
 
     public void setVolume(float value, String key){
+        System.out.println(key + " " + value);
         volume = value;
         MusicBuffer snd = actives.get(key).music;
         snd.setVolume(volume);
