@@ -1,4 +1,5 @@
 # Somniphobia
+![image](core/assets/main_screen/background.png)
 Welcome to Somniphobia! Control the characters using the following control scheme:
 
 Left/Right arrow keys: Move left/right
