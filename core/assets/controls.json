@@ -1,8 +1,14 @@
 {
 	"textures": {
-            "background": "controls/controls.png",
+            "background": "controls/background.png",
             "blue_arrow": "controls/backwitharrow_blue.png",
-            "about_background": "controls/about.png"
+            "about_background": "controls/about.png",
+            "backward_arrow": "controls/backarrowcontrols.png",
+            "forward_arrow": "controls/forwardarrowcontrols.png",
+            "controls_page_1": "controls/controls_no_arrow.png",
+            "table_blue": "controls/table_blue.png",
+            "table_white": "controls/table_white.png",
+            "title": "main_screen/controls_txt.png"
     }
 }
 

@@ -393,6 +393,7 @@ public class LevelController extends WorldController {
 	private TextureRegionDrawable orangeSound;
 	private TextureRegionDrawable bluePauseButton;
 	private TextureRegionDrawable orangePauseButton;
+	private TextureRegion blurBackground;
 
 	/** constants for positioning pause menu and pause button */
 	private final int PAUSE_BUTTON_OFFSETX = 400;
@@ -1170,8 +1171,7 @@ public class LevelController extends WorldController {
 
 		bluePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_blue", Texture.class));
 		orangePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_red", Texture.class));
-
-
+		blurBackground = new TextureRegion(directory.getEntry("pause_menu:blur", Texture.class));
 
 		super.gatherAssets(directory);
 
@@ -2005,6 +2005,7 @@ public class LevelController extends WorldController {
 	 */
 	public void draw(float dt) {
 
+
 		CharacterModel lead = movementController.getLead();
 		canvas.clear();
 
@@ -2179,6 +2180,7 @@ public class LevelController extends WorldController {
 //		}
 
 		if (pauseMenuActive()) {
+			canvas.draw(blurBackground, Color.BLACK, cameraX, cameraY, canvas.getWidth(), canvas.getWidth());
 			setPositionPauseMenu();
 			firstPosition = true;
 			pauseMenuStage.draw();

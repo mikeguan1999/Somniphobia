@@ -26,6 +26,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -49,7 +50,7 @@ import edu.cornell.gdiac.util.ScreenListener;
  * the application.  That is why we try to have as few resources as possible for this
  * loading screen.
  */
-public class Controls implements Screen {
+public class ControlsTable implements Screen {
 	/** Reference to GameCanvas created by the root */
 	private GameCanvas canvas;
 	/** Listener that will update the player mode when we are done */
@@ -63,54 +64,99 @@ public class Controls implements Screen {
 	private Table table;
 	private TextureRegionDrawable backgroundDrawable;
 	private TextureRegionDrawable arrowDrawable;
-	private TextureRegionDrawable forwardArrowDrawable;
+	private TextureRegionDrawable backwardArrowDrawable;
+	private TextureRegionDrawable column1;
+	private TextureRegionDrawable column2;
+	private TextureRegionDrawable column3;
+	private TextureRegionDrawable column2_blue;
+	private TextureRegionDrawable column3_blue;
+	private TextureRegionDrawable titleDrawable;
+	private Image title;
 	private Button arrow;
-	private Button forwardArrow;
+	private Button backwardArrow;
 	private boolean prevClicked;
-	private boolean forwardClicked;
+	private boolean backwardClicked;
+	private boolean defaultSelected;
+	private boolean alternativeSelected;
+	private TextureRegion whiteTable;
+	private TextureRegion blueTable;
+	private Image col1;
+	private Button col2;
+	private Button col3;
 
 	public Stage getStage(){
 		return stage;
 	}
 
-	public Controls(GameCanvas canvas) {
+	public ControlsTable(GameCanvas canvas) {
 		internal = new AssetDirectory( "controls.json" );
 		internal.loadAssets();
 		internal.finishLoading();
 
 		stage = new Stage();
 		table = new Table();
-		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("controls_page_1", Texture.class));
+		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("background", Texture.class));
 		arrowDrawable = new TextureRegionDrawable(internal.getEntry("blue_arrow", Texture.class));
-		forwardArrowDrawable = new TextureRegionDrawable(internal.getEntry("forward_arrow", Texture.class));
+		backwardArrowDrawable = new TextureRegionDrawable(internal.getEntry("backward_arrow", Texture.class));
+		whiteTable = new TextureRegion(internal.getEntry("table_white", Texture.class));
+		blueTable = new TextureRegion(internal.getEntry("table_blue", Texture.class));
+		titleDrawable = new TextureRegionDrawable(internal.getEntry("title", Texture.class));
+
+		column1 = new TextureRegionDrawable(new TextureRegion(whiteTable, 0,0, 525, 526));
+		column2 = new TextureRegionDrawable(new TextureRegion(whiteTable, 526,0, 525, 526));
+		column3 = new TextureRegionDrawable(new TextureRegion(whiteTable, 1051,0, 525, 526));
+
+		column2_blue = new TextureRegionDrawable(new TextureRegion(blueTable, 526,0, 526, 527));
+		column3_blue = new TextureRegionDrawable(new TextureRegion(blueTable, 1052,0, 526, 527));
+
+		col1 = new Image(column1);
+		col2 = new Button(column2);
+		col3 = new Button(column3);
+		title = new Image(titleDrawable);
 
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
-		arrow = new Button(arrowDrawable);
-		forwardArrow = new Button(forwardArrowDrawable);
+//		arrow = new Button(arrowDrawable);
+		backwardArrow = new Button(backwardArrowDrawable);
 
-		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2);
+		int TITLE_OFFSET = 40;
+		table.add(title).colspan(3).padBottom(TITLE_OFFSET);
 		table.row();
-		table.add(forwardArrow).size(forwardArrow.getWidth()/2, forwardArrow.getHeight()/2);
-//		underline.setVisible(false);
-		arrow.addListener(new ClickListener() {
+		table.add(col1).size(col1.getWidth()/2, col1.getHeight()/2);
+		table.add(col2).size(col2.getWidth()/2, col2.getWidth()/2);
+		table.add(col3).size(col3.getWidth()/2, col3.getHeight()/2);
+		table.row();
+		table.add(backwardArrow).size(backwardArrow.getWidth()/2, backwardArrow.getHeight()/2);
+
+//		arrow.addListener(new ClickListener() {
+//			public void clicked(InputEvent event, float x, float y) {
+//				prevClicked = true;
+//			}
+//		});
+
+		backwardArrow.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				prevClicked = true;
+				backwardClicked = true;
 			}
 		});
 
-		forwardArrow.addListener(new ClickListener() {
+		col2.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				forwardClicked = true;
+				defaultSelected = true;
+			}
+		});
+
+		col3.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				alternativeSelected = true;
 			}
 		});
 
 		stage.addActor(table);
 		table.validate();
 		int ARROW_OFFSET = 10;
-		arrow.setPosition(ARROW_OFFSET, canvas.getHeight()- arrow.getHeight()-ARROW_OFFSET/2);
-//		arrow.setPosition(canvas.getWidth()/2+arrow.getWidth()/2+ARROW_OFFSET, canvas.getHeight()/2- arrow.getHeight()/2-ARROW_OFFSET);
-		forwardArrow.setPosition(canvas.getWidth()-forwardArrow.getWidth()-ARROW_OFFSET, canvas.getHeight()/2- forwardArrow.getHeight()/2);
+//		arrow.setPosition(ARROW_OFFSET, canvas.getHeight()- arrow.getHeight()-ARROW_OFFSET/2);
+		backwardArrow.setPosition(ARROW_OFFSET, canvas.getHeight()/2- backwardArrow.getHeight()/2);
 
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
@@ -165,14 +211,23 @@ public class Controls implements Screen {
 			stage.act(delta);
 			stage.draw();
 
-			if (prevClicked){
-				prevClicked = false;
-				listener.exitScreen(this, WorldController.EXIT_MAIN_MENU_ENTER);
+			if (backwardClicked){
+				backwardClicked = false;
+				listener.exitScreen(this, WorldController.EXIT_CONTROLS);
 			}
 
-			if (forwardClicked){
-				forwardClicked = false;
-				listener.exitScreen(this, WorldController.EXIT_CONTROLS_PAGE_TWO);
+			if (col2.isOver()){
+				col2.getStyle().up = column2_blue;
+			}
+			else {
+				col2.getStyle().up = column2;
+			}
+
+			if (col3.isOver()){
+				col3.getStyle().up = column3_blue;
+			}
+			else {
+				col3.getStyle().up = column3;
 			}
 		}
 	}

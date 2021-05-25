@@ -71,6 +71,9 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_CONTROLS = 8;
 	/** Exit code for about screen */
 	public static final int EXIT_ABOUT = 9;
+	/** Exit code for second controls screen */
+	public static final int EXIT_CONTROLS_PAGE_TWO = 10;
+
     /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 	public static final int EXIT_WORLD_SELECT = -1;
