@@ -14,6 +14,7 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -78,6 +79,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	private Stage pauseButtonStage;
 	private Controls controlsPage;
 	private About aboutPage;
+	private ControlsTable controlsPageTwo;
 
 
 	/**
@@ -130,6 +132,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		preferences = Gdx.app.getPreferences("save_data.json");
 		controlsPage = new Controls(canvas);
 		aboutPage = new About(canvas);
+		controlsPageTwo = new ControlsTable(canvas);
 	}
 
 	/** 
@@ -212,8 +215,15 @@ public class GDXRoot extends Game implements ScreenListener {
 //			}
 //		}
 		if (screen == loading) {
+			directory = loading.getAssets();
+			directory.unload("audio/SomniTrack.mp3");
+			directory.load("audio/SomniTrack.mp3", Music.class);
+			directory.unload("audio/PhobiaTrack.mp3");
+			directory.load("audio/PhobiaTrack.mp3", Music.class);
+			directory.unload("audio/CombinedTrack.mp3");
+			directory.load("audio/CombinedTrack.mp3", Music.class);
+			directory.finishLoading();
 			for (int ii = 0; ii < controllers.length; ii++) {
-				directory = loading.getAssets();
 				controllers[ii].gatherAssets(directory);
 				//if (ii == LEVEL_CONTROLLER_INDEX) {
 				//	prepareLevelJson(1, false);
@@ -222,6 +232,9 @@ public class GDXRoot extends Game implements ScreenListener {
 				controllers[ii].setCanvas(canvas);
 				controllers[ii].setPlatController(platformController);
 			}
+
+			//load music
+
 
 			mainMenu.setScreenListener(this);
 			setScreen(mainMenu);
@@ -239,6 +252,9 @@ public class GDXRoot extends Game implements ScreenListener {
 				TextureRegionDrawable door = new TextureRegionDrawable(directory.getEntry(
 						world.get("worldMenuDoor").asString(), Texture.class ));
 				menus[i-1].setDoorImages(door);
+				TextureRegionDrawable doorLocked = new TextureRegionDrawable(directory.getEntry(
+						world.get("worldMenuDoorLocked").asString(), Texture.class));
+				menus[i-1].setDoorLockedImage(doorLocked);
 			}
 
 			loading.dispose();
@@ -288,10 +304,15 @@ public class GDXRoot extends Game implements ScreenListener {
 			aboutPage.setScreenListener(this);
 			setScreen(aboutPage);
 		}
+		else if (exitCode == WorldController.EXIT_CONTROLS_PAGE_TWO){
+			controlsPageTwo.setScreenListener(this);
+			setScreen(controlsPageTwo);
+		}
 		else if (exitCode == WorldController.EXIT_QUIT) {
 			preferences.flush(); // Persist user save data
 			Gdx.app.exit(); // We quit the main application
 		}
+
 	}
 
 }

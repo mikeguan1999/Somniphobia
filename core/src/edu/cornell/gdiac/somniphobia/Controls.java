@@ -63,8 +63,11 @@ public class Controls implements Screen {
 	private Table table;
 	private TextureRegionDrawable backgroundDrawable;
 	private TextureRegionDrawable arrowDrawable;
+	private TextureRegionDrawable forwardArrowDrawable;
 	private Button arrow;
+	private Button forwardArrow;
 	private boolean prevClicked;
+	private boolean forwardClicked;
 
 	public Stage getStage(){
 		return stage;
@@ -77,14 +80,18 @@ public class Controls implements Screen {
 
 		stage = new Stage();
 		table = new Table();
-		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("background", Texture.class));
+		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("controls_page_1", Texture.class));
 		arrowDrawable = new TextureRegionDrawable(internal.getEntry("blue_arrow", Texture.class));
+		forwardArrowDrawable = new TextureRegionDrawable(internal.getEntry("forward_arrow", Texture.class));
 
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
 		arrow = new Button(arrowDrawable);
+		forwardArrow = new Button(forwardArrowDrawable);
 
 		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2);
+		table.row();
+		table.add(forwardArrow).size(forwardArrow.getWidth()/2, forwardArrow.getHeight()/2);
 //		underline.setVisible(false);
 		arrow.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
@@ -92,12 +99,18 @@ public class Controls implements Screen {
 			}
 		});
 
-
+		forwardArrow.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				forwardClicked = true;
+			}
+		});
 
 		stage.addActor(table);
 		table.validate();
 		int ARROW_OFFSET = 10;
-		arrow.setPosition(arrow.getX()-canvas.getWidth()/2+arrow.getWidth()/2+ARROW_OFFSET, arrow.getY()+ canvas.getHeight()/2- arrow.getHeight()/2-ARROW_OFFSET);
+		arrow.setPosition(ARROW_OFFSET, canvas.getHeight()- arrow.getHeight()-ARROW_OFFSET/2);
+//		arrow.setPosition(canvas.getWidth()/2+arrow.getWidth()/2+ARROW_OFFSET, canvas.getHeight()/2- arrow.getHeight()/2-ARROW_OFFSET);
+		forwardArrow.setPosition(canvas.getWidth()-forwardArrow.getWidth()-ARROW_OFFSET, canvas.getHeight()/2- forwardArrow.getHeight()/2);
 
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
@@ -155,6 +168,11 @@ public class Controls implements Screen {
 			if (prevClicked){
 				prevClicked = false;
 				listener.exitScreen(this, WorldController.EXIT_MAIN_MENU_ENTER);
+			}
+
+			if (forwardClicked){
+				forwardClicked = false;
+				listener.exitScreen(this, WorldController.EXIT_CONTROLS_PAGE_TWO);
 			}
 		}
 	}

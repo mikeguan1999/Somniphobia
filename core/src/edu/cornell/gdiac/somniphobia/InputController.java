@@ -38,6 +38,8 @@ public class InputController {
 	private int nextKey = Input.Keys.N;
 	private int leftKey = Input.Keys.LEFT;
 	private int rightKey = Input.Keys.RIGHT;
+
+	private int controlScheme;
 	
 	/** 
 	 * Return the singleton instance of the input controller
@@ -47,6 +49,7 @@ public class InputController {
 	public static InputController getInstance() {
 		if (theController == null) {
 			theController = new InputController();
+			theController.controlScheme = 0;
 		}
 		return theController;
 	}
@@ -117,7 +120,15 @@ public class InputController {
 
 	private boolean pauseClicked;
 	private boolean pauseClickedPrevious;
-	
+
+	/**
+	 * Sets the controlScheme
+	 * @param controlScheme the controlScheme
+	 */
+	public void setControlScheme(int controlScheme) {
+		this.controlScheme = controlScheme;
+	}
+
 	/**
 	 * Returns the amount of sideways movement. 
 	 *
@@ -321,15 +332,24 @@ public class InputController {
 		debugPressed  			= Gdx.input.isKeyPressed(Input.Keys.G);
 		sliderToggled  			= Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET);
 		jumpPressed  			= Gdx.input.isKeyPressed(jumpKey);
-		dashPressed 			= Gdx.input.isKeyPressed(dashKey) || Gdx.input.isKeyPressed(dashKey2);
-		handHoldingPressed 		= Gdx.input.isKeyPressed(handHoldingKey) || Gdx.input.isKeyPressed(handHoldingKey2);
-		switchPressed 			= Gdx.input.isKeyPressed(switchKey) || Gdx.input.isKeyPressed(switchKey2);
+
 		escapePressed   		= Gdx.input.isKeyPressed(Input.Keys.ESCAPE);
 		switchToCreatorPressed 	= Gdx.input.isKeyPressed(Input.Keys.BACKSLASH);
 		prevPressed 			= Gdx.input.isKeyPressed(Input.Keys.P);
 		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
 		walkPressed 			= Gdx.input.isKeyPressed(leftKey) || Gdx.input.isKeyPressed(rightKey);
 		pauseClicked			= Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET);
+
+		//Set inputs based on control scheme
+		if (controlScheme == 0) {
+			dashPressed = Gdx.input.isKeyPressed(dashKey);
+			handHoldingPressed = Gdx.input.isKeyPressed(handHoldingKey);
+			switchPressed = Gdx.input.isKeyPressed(switchKey);
+		} else {
+			dashPressed = Gdx.input.isKeyPressed(dashKey2);
+			handHoldingPressed = Gdx.input.isKeyPressed(handHoldingKey2);
+			switchPressed = Gdx.input.isKeyPressed(switchKey2);
+		}
 
 		wPressed = (Gdx.input.isKeyPressed(Input.Keys.W));
 		aPressed = (Gdx.input.isKeyPressed(Input.Keys.A));

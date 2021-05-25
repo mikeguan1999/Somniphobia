@@ -105,7 +105,8 @@ public class MainMenu implements Screen {
 		startDreamDrawable = new TextureRegionDrawable(internal.getEntry("start_dream", Texture.class));
 		underlineDrawable = new TextureRegionDrawable(internal.getEntry("underline", Texture.class));
 		exitDrawable = new TextureRegionDrawable(internal.getEntry("exit", Texture.class));
-		underlineOrangeDrawable = new TextureRegionDrawable(internal.getEntry("orange_underline", Texture.class));
+		underlineOrangeDrawable = new TextureRegionDrawable(
+				new TextureRegion(internal.getEntry("orange_underline", Texture.class), 0,0,380, 42));
 
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
@@ -154,9 +155,9 @@ public class MainMenu implements Screen {
 		stage.addActor(table);
 		table.validate();
 		startDream.setX(50);
-		controls.setX(startDream.getX()+startDream.getWidth()+80);
+		controls.setX(startDream.getX()+startDream.getWidth()+30);
 		about.setX(canvas.getWidth()/2+50);
-		exit.setX(about.getWidth()+about.getX()+200);
+		exit.setX(about.getWidth()+about.getX()+100);
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
@@ -228,25 +229,27 @@ public class MainMenu implements Screen {
 			if (startDream.isOver()){
 				underline.setSize(startDream.getWidth()+10, startDream.getHeight());
 				underline.setPosition(startDream.getX()-5, startDream.getY()-20);
+				underline.setDrawable(underlineDrawable);
 				underline.setVisible(true);
 			}
 
 			else if (controls.isOver()){
 				underline.setSize(controls.getWidth()+10, controls.getHeight());
 				underline.setPosition(controls.getX()-5, controls.getY()-20);
+				underline.setDrawable(underlineDrawable);
 				underline.setVisible(true);
 			}
 
 			else if (about.isOver()){
 				underline.setSize(about.getWidth()+10, about.getHeight());
 				underline.setPosition(about.getX()-5, about.getY()-20);
-//				underline.setDrawable(underlineOrangeDrawable);
+				underline.setDrawable(underlineOrangeDrawable);
 				underline.setVisible(true);
 			}
 			else if (exit.isOver()){
 				underline.setSize(exit.getWidth()+10, exit.getHeight());
 				underline.setPosition(exit.getX()-5, exit.getY()-20);
-//				underline.setDrawable(underlineOrangeDrawable);
+				underline.setDrawable(underlineOrangeDrawable);
 				underline.setVisible(true);
 			}
 

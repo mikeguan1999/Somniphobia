@@ -128,6 +128,34 @@ public class MusicController {
         musicsrc.put(music,filename);
     }
 
+//
+//    /**
+//     * Shifts from one background music to another
+//     * @param currentMusicTag the current playing music
+//     * @param newMusicTag the new music to play
+//     */
+//    public void shiftMusic(String currentMusicTag, String newMusicTag) {
+//        if (!actives.isEmpty()) {
+//            MusicBuffer currentMusic = actives.get(currentMusicTag).music;
+//            MusicBuffer newMusic = actives.get(newMusicTag).music;
+//
+//            float crossFade = .05f;
+//
+////            currentMusic.sound.setVolume(currentMusic.id, 1);
+//            //TODO: CrossFade
+//            currentMusic.setVolume(Math.max(0,
+//                    currentMusic.getVolume() - crossFade) );
+//
+////            currentMusic.sound.setVolume(currentMusic.id, 0f * volume);
+//
+//            newMusic.setVolume(Math.min(volume,
+//                    newMusic.getVolume() + crossFade) );
+//
+////            newMusic.sound.setVolume(newMusic.id, 1f * volume);
+//        }
+//    }
+
+
     /**Deallocate all sounds*/
     public void deallocate(AssetManager manager, String filename) {
         MusicBuffer music = (MusicBuffer) manager.get(filename,Music.class);
@@ -261,6 +289,12 @@ public class MusicController {
         return actives.containsKey(key);
     }
 
+    public void setVolume(float value, String key){
+        volume = value;
+        MusicBuffer snd = actives.get(key).music;
+        snd.setVolume(volume);
+    }
+
 
     /**
      * Shifts from one background music to another
@@ -269,18 +303,19 @@ public class MusicController {
      */
     public void shiftMusic(String currentMusicTag, String newMusicTag) {
         if (!actives.isEmpty()) {
-            MusicController.ActiveMusic currentMusic = actives.get(currentMusicTag);
-            MusicController.ActiveMusic newMusic = actives.get(newMusicTag);
+            MusicBuffer currentMusic = actives.get(currentMusicTag).music;
+            MusicBuffer newMusic = actives.get(newMusicTag).music;
 
 //            System.out.println(currentMusic.sound.getVolume(currentMusic.id, 0));
-            float crossFade = .2f;
+            float crossFade = .05f;
 
-//            currentMusic.sound.setVolume(currentMusic.id, 1);
+            //TODO: CrossFade
+            currentMusic.setVolume(Math.max(0,
+                    currentMusic.getVolume() - crossFade));
 
-            currentMusic.music.setVolume(1);
+            newMusic.setVolume(Math.min(volume,
+                    newMusic.getVolume() + crossFade));
 
-            currentMusic.music.setVolume(0f);
-            newMusic.music.setVolume(1f);
         }
 
         for(String key : actives.keys()) {

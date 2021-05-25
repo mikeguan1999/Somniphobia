@@ -24,7 +24,9 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundBuffer;
+import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
@@ -69,6 +71,9 @@ public abstract class WorldController implements Screen {
 	public static final int EXIT_CONTROLS = 8;
 	/** Exit code for about screen */
 	public static final int EXIT_ABOUT = 9;
+	/** Exit code for second controls screen */
+	public static final int EXIT_CONTROLS_PAGE_TWO = 10;
+
     /** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 	public static final int EXIT_WORLD_SELECT = -1;
@@ -209,6 +214,12 @@ public abstract class WorldController implements Screen {
 //		if (value) {
 //			countdown = EXIT_COUNT;
 //		}
+		if (value) {
+			MusicController.getInstance().stopAll();
+			SoundController.getInstance().play("failTrack",
+					SoundController.getInstance().getFailTrack(),
+					MusicController.getInstance().getVolume(), false);
+		}
 		failed = value;
 	}
 
@@ -274,6 +285,7 @@ public abstract class WorldController implements Screen {
 	 */
 	public void setPlatController(PlatformController plat) {
 		this.platformController = plat;
+		platformController.setWorldController(this);
 	}
 	
 	/**
@@ -375,7 +387,7 @@ public abstract class WorldController implements Screen {
 	 *
 	 * param obj The object to add
 	 */
-	protected void addObject(Obstacle obj) {
+	public void addObject(Obstacle obj) {
 		assert inBounds(obj) : "Object is not in bounds";
 		objects.add(obj);
 		obj.activatePhysics(world);

@@ -296,11 +296,22 @@
     "platform:background_light_statues": "platform/BG_statues_light.png",
     "platform:background_dark_statues": "platform/BG_statues_dark.png",
 
-    "platform:dreams_door": "menu/door3light.png",
-    "platform:house_door": "menu/door4light.png",
-    "platform:forest_door": "menu/door1light.png",
-    "platform:gear_door": "menu/door4light.png",
-    "platform:statues_door": "menu/door2light.png",
+    "menu:background_dark_forest": "menu/LevelSelectBG_Trees.png",
+    "menu:background_dark_statues": "menu/LevelSelectBG_Status.png",
+    "menu:background_dark_house": "menu/LevelSelectBG_Houses.png",
+    "menu:background_dark_dreams": "menu/LevelSelectBG_Ghosts.png",
+    "menu:background_dark_gear": "menu/LevelSelectBG_Gears.png",
+
+    "platform:dreams_door": "menu/door_ghosts_unlocked.png",
+    "platform:dreams_door_locked": "menu/door_ghosts_locked.png",
+    "platform:house_door": "menu/door_houses_unlocked.png",
+    "platform:house_door_locked": "menu/door_houses_locked.png",
+    "platform:forest_door": "menu/door_trees_unlocked.png",
+    "platform:forest_door_locked": "menu/door_trees_locked.png",
+    "platform:gear_door": "menu/door_gears_unlocked.png",
+    "platform:gear_door_locked": "menu/door_gears_locked.png",
+    "platform:statues_door": "menu/door_status_unlocked.png",
+    "platform:statues_door_locked": "menu/door_status_locked.png",
     "tutorial:camera_pan": "tutorial/camera_pan.png",
     "tutorial:phobia_dash": "tutorial/phobia_dash.png",
     "tutorial:phobia_jump": "tutorial/phobia_jump.png",
@@ -336,7 +347,8 @@
     "pause_menu:nextblue": "pause_menu/nextblue.png",
     "pause_menu:nextorange": "pause_menu/nextorange.png",
     "pause_menu:pause_button_blue":  "pause_menu/pause_button.png",
-    "pause_menu:pause_button_red": "pause_menu/pause_red.png"
+    "pause_menu:pause_button_red": "pause_menu/pause_red.png",
+    "pause_menu:blur": "pause_menu/blur_overlay.png"
   },
     "jsons"  : {
         "constants": "constants.json",
@@ -348,7 +360,10 @@
       "platform:plop" : "platform/plop.mp3",
       "somniTrack": "audio/SomniTrack.mp3",
       "phobiaTrack": "audio/PhobiaTrack.mp3",
-      "combinedTrack": "audio/CombinedTrack.mp3"
+      "combinedTrack": "audio/CombinedTrack.mp3",
+      "winTrack": "audio/WinTrack.mp3",
+      "failTrack": "audio/FailTrack.mp3"
+
   },
   "fonts": {
       "shared:retro": {
