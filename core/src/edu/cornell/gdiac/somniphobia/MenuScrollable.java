@@ -228,7 +228,7 @@ public class MenuScrollable implements Screen {
 		for (currentLevel =0; currentLevel <buttons.length; currentLevel++) {
 			if (menuIndex!=0 || (currentLevel!=0 && levelsCompleted[currentLevel-1]==false)){
 				buttons[currentLevel].getStyle().up = doorLockedImage;
-				buttons[currentLevel].setTouchable(Touchable.disabled);
+//				buttons[currentLevel].setTouchable(Touchable.disabled);
 			}
 		}
 
@@ -460,7 +460,7 @@ public class MenuScrollable implements Screen {
 
 			if (menuIndex!=0 || (currentLevel!=0 && levelsCompleted[currentLevel-1]==false)){
 				buttons[currentLevel].getStyle().up = doorLockedImage;
-				buttons[currentLevel].setTouchable(Touchable.disabled);
+//				buttons[currentLevel].setTouchable(Touchable.disabled);
 			}
 			else {
 				buttons[currentLevel].setTouchable(Touchable.enabled);
