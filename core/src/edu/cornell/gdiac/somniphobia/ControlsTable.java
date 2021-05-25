@@ -30,6 +30,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -110,10 +111,9 @@ public class ControlsTable implements Screen {
 		column3_blue = new TextureRegionDrawable(new TextureRegion(blueTable, 1052,0, 526, 527));
 
 		col1 = new Image(column1);
-		col2 = new Button(column2);
-		col3 = new Button(column3);
+		col2 = new Button(column2, column2_blue, column2_blue);
+		col3 = new Button(column3, column3_blue, column3_blue);
 		title = new Image(titleDrawable);
-
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
 //		arrow = new Button(arrowDrawable);
@@ -143,6 +143,7 @@ public class ControlsTable implements Screen {
 		col2.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				defaultSelected = true;
+				alternativeSelected = false;
 				InputController.getInstance().setControlScheme(0);
 			}
 		});
@@ -150,6 +151,7 @@ public class ControlsTable implements Screen {
 		col3.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				alternativeSelected = true;
+				defaultSelected = false;
 				InputController.getInstance().setControlScheme(1);
 			}
 		});
@@ -231,6 +233,34 @@ public class ControlsTable implements Screen {
 			else {
 				col3.getStyle().up = column3;
 			}
+
+			if (col2.isChecked() && !col3.isOver()){
+				col3.getStyle().up = column3;
+				col3.setChecked(false);
+				defaultSelected = true;
+				alternativeSelected = false;
+			}
+
+			if (col3.isChecked() && !col2.isOver()){
+				col2.getStyle().up = column2;
+				col2.setChecked(false);
+				alternativeSelected = true;
+				defaultSelected = false;
+			}
+
+//			if (col3.isChecked()){
+//				defaultSelected = false;
+//				alternativeSelected = true;
+//				col2.setChecked(false);
+//			}
+//
+//			if (col2.isChecked()){
+//				alternativeSelected = false;
+//				defaultSelected = true;
+//				col3.setChecked(false);
+//			}
+
+
 		}
 	}
 
