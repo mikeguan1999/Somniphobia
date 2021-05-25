@@ -1,7 +1,8 @@
   {
   "world1": {
-    "worldMenuBackground": "platform:background_dark_dreams",
+    "worldMenuBackground": "menu:background_dark_dreams",
     "worldMenuDoor": "platform:dreams_door",
+    "worldMenuDoorLocked": "platform:dreams_door_locked",
     "levels": [
       "levels/dream_1.json",
       "levels/dream_2.json",
@@ -11,20 +12,23 @@
     ]
     },
     "world2": {
-      "worldMenuBackground": "platform:background_dark_house",
+      "worldMenuBackground": "menu:background_dark_house",
       "worldMenuDoor": "platform:house_door",
+      "worldMenuDoorLocked": "platform:house_door_locked",
       "levels": [
         "levels/houses_1.json",
         "levels/houses_2.json",
         "levels/houses_3.json",
         "levels/houses_4.json",
         "levels/houses_5.json",
-        "levels/houses_6.json"
+        "levels/houses_6.json",
+        "levels/houses_7.json"
       ]
     },
     "world3": {
-      "worldMenuBackground": "platform:background_dark_forest",
+      "worldMenuBackground": "menu:background_dark_forest",
       "worldMenuDoor": "platform:forest_door",
+      "worldMenuDoorLocked": "platform:forest_door_locked",
       "levels": [
         "levels/forest_1.json",
         "levels/forest_2.json",
@@ -38,8 +42,9 @@
       ]
     },
     "world4": {
-      "worldMenuBackground": "platform:background_dark_gear",
+      "worldMenuBackground": "menu:background_dark_gear",
       "worldMenuDoor": "platform:gear_door",
+      "worldMenuDoorLocked": "platform:gear_door_locked",
       "levels": [
         "levels/gears_1.json",
         "levels/gears_2.json",
@@ -50,8 +55,9 @@
       ]
     },
   "world5": {
-    "worldMenuBackground": "platform:background_dark_statues",
+    "worldMenuBackground": "menu:background_dark_statues",
     "worldMenuDoor": "platform:statues_door",
+    "worldMenuDoorLocked": "platform:statues_door_locked",
     "levels": [
       "levels/statues_1.json",
       "levels/statues_2.json",
@@ -59,7 +65,11 @@
       "levels/statues_4.json",
       "levels/statues_5.json",
       "levels/statues_6.json",
+      "levels/statues_7.json",
+      "levels/statues_8.json",
       "levels/robot.json"
     ]
   }
 }
+
+

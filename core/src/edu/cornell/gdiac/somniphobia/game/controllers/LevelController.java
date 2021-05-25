@@ -12,6 +12,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundController;
 
 import com.badlogic.gdx.Gdx;
@@ -35,10 +36,10 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
 import edu.cornell.gdiac.somniphobia.game.models.CharacterModel;
+import edu.cornell.gdiac.somniphobia.game.models.DoorModel;
 import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.*;
@@ -55,6 +56,9 @@ import edu.cornell.gdiac.somniphobia.obstacle.*;
  */
 public class LevelController extends WorldController {
 	private OrthographicCamera camera;
+
+
+	private AssetDirectory assets;
 
 	/** Texture asset for character avatar */
 	private TextureRegion avatarTexture;
@@ -234,14 +238,22 @@ public class LevelController extends WorldController {
 	/** The weapon pop sound.  We only want to play once. */
 	private SoundBuffer plopSound;
 
-	private SoundBuffer somniTrackPath;
-	private SoundBuffer phobiaTrackPath;
-	private SoundBuffer combinedTrackPath;
+	private SoundBuffer somniTrack;
+//	private SoundBuffer phobiaTrackPath;
+//	private SoundBuffer combinedTrackPath;
+	private String somniTrackPath;
+	private String phobiaTrackPath;
+	private String combinedTrackPath;
 
 
 	private long plopId = -1;
 	/** The default sound volume */
 	private float volume;
+
+	/** Audio tracks */
+	private SoundBuffer winTrack;
+	private SoundBuffer failTrack;
+
 
 	private MovementController movementController;
 
@@ -381,6 +393,7 @@ public class LevelController extends WorldController {
 	private TextureRegionDrawable orangeSound;
 	private TextureRegionDrawable bluePauseButton;
 	private TextureRegionDrawable orangePauseButton;
+	private TextureRegion blurBackground;
 
 	/** constants for positioning pause menu and pause button */
 	private final int PAUSE_BUTTON_OFFSETX = 400;
@@ -402,7 +415,8 @@ public class LevelController extends WorldController {
 
 	public Widget sliderMenu;
 
-	public int tes = 0; // <-- enoch please don't do this
+
+	private boolean createdSliders = false;
 
 	// WASD Camera Variables
 
@@ -545,16 +559,21 @@ public class LevelController extends WorldController {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				if (movementController.isHoldingHands()){
-					SoundController.getInstance().setVolume(volume, "combinedTrack");
+					MusicController.getInstance().setVolume(volume, "combinedTrack");
 				}
 				else if (movementController.getAvatar()==somni){
-					SoundController.getInstance().setVolume(volume, "somniTrack");
+					MusicController.getInstance().setVolume(volume, "somniTrack");
 				}
 				else if (movementController.getAvatar()==phobia){
-					SoundController.getInstance().setVolume(volume, "phobiaTrack");
+					MusicController.getInstance().setVolume(volume, "phobiaTrack");
 				}
+				MusicController.getInstance().setVolume(volume);
 				volume = sliderMusic.getValue();
+
 				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
+				System.out.println("current: " + GDXRoot.getPreferences().getFloat("volume"));
+				System.out.println("new: " + volume);
+
 			}
 		});
 
@@ -947,6 +966,10 @@ public class LevelController extends WorldController {
 		pauseButton.draw(b, 1);
 	}
 
+	public SoundBuffer getWinTrack() {
+		return winTrack;
+	}
+
 	/**
 	 * Gather the assets for this controller.
 	 *
@@ -957,6 +980,7 @@ public class LevelController extends WorldController {
 	 */
 	public void gatherAssets(AssetDirectory directory) {
 
+		assets = directory;
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:Somni_Idle",Texture.class));
 		combinedTexture = new TextureRegion(directory.getEntry("platform:somni_phobia_stand",Texture.class));
 
@@ -1104,9 +1128,21 @@ public class LevelController extends WorldController {
 		constants = directory.getEntry( "constants", JsonValue.class );
 
 
-		somniTrackPath = directory.getEntry("somniTrack", SoundBuffer.class);
-		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
-		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
+
+
+
+//Gather sound assets
+		winTrack = directory.getEntry("winTrack", SoundBuffer.class);
+		SoundController.getInstance().setWinTrack(winTrack);
+
+		failTrack = directory.getEntry("failTrack", SoundBuffer.class);
+		SoundController.getInstance().setFailTrack(failTrack);
+
+
+
+		somniTrack = directory.getEntry("somniTrack", SoundBuffer.class);
+//		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
+//		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
 
 
 //		menu drawables
@@ -1135,6 +1171,7 @@ public class LevelController extends WorldController {
 
 		bluePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_blue", Texture.class));
 		orangePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_red", Texture.class));
+		blurBackground = new TextureRegion(directory.getEntry("pause_menu:blur", Texture.class));
 
 		super.gatherAssets(directory);
 
@@ -1188,6 +1225,19 @@ public class LevelController extends WorldController {
 	 * This method disposes of the world and creates a new one.
 	 */
 	public void reset() {
+
+		assets.allocateMusic("audio/SomniTrack.mp3");
+		assets.allocateMusic("audio/PhobiaTrack.mp3");
+		assets.allocateMusic("audio/CombinedTrack.mp3");
+//		JsonValue sounds = assets.get("sounds");
+//		somniTrackPath = sounds.get("somniTrack").asString();
+//		phobiaTrackPath = sounds.get("phobiaTrack").asString();
+//		combinedTrackPath = sounds.get("combinedTrack").asString();
+
+		somniTrackPath = "audio/SomniTrack.mp3";
+		phobiaTrackPath = "audio/PhobiaTrack.mp3";
+		combinedTrackPath = "audio/CombinedTrack.mp3";
+
 		gameScreenActive = true;
 		Vector2 gravity = new Vector2(world.getGravity() );
 		for(Obstacle obj : objects) {
@@ -1202,14 +1252,13 @@ public class LevelController extends WorldController {
 		for(Obstacle obj : lightObjects) {
 			obj.deactivatePhysics(world);
 		}
-//		for (Obstacle obj: movingObjects) {
-//			obj.deactivatePhysics(world);
-//		}
 		objects.clear();
 		sharedObjects.clear();
 		lightObjects.clear();
 		darkObjects.clear();
 		movingObjects.clear();
+		platformController.currRainingPlatforms.clear();
+		platformController.respawningPlatforms.clear();
 		addQueue.clear();
 		world.dispose();
 		disposeStages();
@@ -1270,10 +1319,28 @@ public class LevelController extends WorldController {
 		maskHeight = MIN_MASK_DIMENSIONS.y;
 		alphaAmount = 0;
 
-		SoundController.getInstance().play("somniTrack", somniTrackPath, volume, true);
-		SoundController.getInstance().setVolume(volume, "somniTrack");
-		SoundController.getInstance().play("phobiaTrack", phobiaTrackPath, 0f, true);
-		SoundController.getInstance().play("combinedTrack", combinedTrackPath, 0f, true);
+
+		if(!MusicController.getInstance().isActive("somniTrack")) {
+			MusicController.getInstance().stopAll();
+			SoundController.getInstance().stop("failTrack");
+			SoundController.getInstance().stop("winTrack");
+			MusicController.getInstance().play("somniTrack", somniTrackPath, volume, true);
+			MusicController.getInstance().play("phobiaTrack", phobiaTrackPath, 0, true);
+			MusicController.getInstance().play("combinedTrack", combinedTrackPath, 0, true);
+
+		}
+
+		if (movementController.isHoldingHands()){
+			MusicController.getInstance().setVolume(volume, "combinedTrack");
+		}
+		else if (movementController.getAvatar()==somni){
+			MusicController.getInstance().setVolume(volume, "somniTrack");
+		}
+		else if (movementController.getAvatar()==phobia){
+			MusicController.getInstance().setVolume(volume, "phobiaTrack");
+		}
+
+
 	}
 
 //	public void playMusic() {
@@ -1310,7 +1377,7 @@ public class LevelController extends WorldController {
 		float gHeight = goalTile.getRegionHeight()/scale.y;
 		float gX = goalVal.get("pos").getFloat(0) + gWidth / 2;
 		float gY = goalVal.get("pos").getFloat(1) + gHeight / 2;
-		goalDoor = new BoxObstacle(gX, gY, gWidth, gHeight);
+		goalDoor = new DoorModel(gX, gY, gWidth, gHeight);
 		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
 		goalDoor.setDensity(constants.get("goal").getFloat("density", 0));
 		goalDoor.setFriction(constants.get("goal").getFloat("friction", 0));
@@ -1368,7 +1435,7 @@ public class LevelController extends WorldController {
 					// For crumble animation
 					if (platIdx > 5) {
 						crumbleTexture = new TextureRegion(xTexture[crumbleIdx]);
-						crumbleTexture.setRegion(0, 0, width, height);
+//						crumbleTexture.setRegion(0, 0, width, height);
 					}
 					// If the platform size is the same as the spritesheet size
 					if (originalTexture.getWidth() > 32 && width%(originalTexture.getWidth()/32) == 0) {
@@ -1376,12 +1443,12 @@ public class LevelController extends WorldController {
 						originalTexture = newXTexture.getTexture();
 						if (platIdx > 5) {
 							crumbleTexture = new TextureRegion(reducedXTexture[crumbleIdx]);
-							crumbleTexture.setRegion(0, 0, width, height);
+//							crumbleTexture.setRegion(0, 0, width, height);
 						}
 					}
-					newXTexture.setRegion(0, 0, width, height);
+//					newXTexture.setRegion(0, 0, width, height);
 				}
-				PlatformModel platformModel  = new PlatformModel(bounds, platformType, newXTexture, scale,
+				PlatformModel platformModel  = new PlatformModel(bounds, platformType, property, newXTexture, scale,
 						defaults.getFloat( "density", 0.0f ), defaults.getFloat( "friction", 0.0f ) ,
 						defaults.getFloat( "restitution", 0.0f ), originalTexture, crumbleTexture);
 				platformModel.setTag(platformType);
@@ -1540,6 +1607,9 @@ public class LevelController extends WorldController {
 			setFailure(true);
 			return false;
 		}
+
+
+
 
 		if (exitClicked){
 			pause();
@@ -1935,6 +2005,7 @@ public class LevelController extends WorldController {
 	 */
 	public void draw(float dt) {
 
+
 		CharacterModel lead = movementController.getLead();
 		canvas.clear();
 
@@ -2076,9 +2147,9 @@ public class LevelController extends WorldController {
 
 		// Draw sliders if active
 		canvas.begin();
-		if (tes == 0) {
+		if (!createdSliders) {
 			createSliders();
-			tes = 1;
+			createdSliders = true;
 		}
 
 		if (slidersActive()) {
@@ -2109,6 +2180,7 @@ public class LevelController extends WorldController {
 //		}
 
 		if (pauseMenuActive()) {
+			canvas.draw(blurBackground, Color.BLACK, cameraX, cameraY, canvas.getWidth(), canvas.getWidth());
 			setPositionPauseMenu();
 			firstPosition = true;
 			pauseMenuStage.draw();
@@ -2201,8 +2273,11 @@ public class LevelController extends WorldController {
 		// Draw final message when level ends
 		//JENNA
 		if (isComplete() && !isFailure()) {
+
+
 			canvas.begin();
 			if (isComplete()) {
+
 				setPositionMenu(winMenu);
 				winMenuStage.draw();
 				winMenuStage.act(dt);
@@ -2329,10 +2404,6 @@ public class LevelController extends WorldController {
 		winMenuStage.dispose();
 		failMenuStage.dispose();
 		stage.dispose();
-	}
-
-	public void beginRaining(PlatformModel platform) {
-
 	}
 
 

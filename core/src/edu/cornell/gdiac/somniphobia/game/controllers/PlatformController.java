@@ -2,9 +2,12 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
+import edu.cornell.gdiac.somniphobia.WorldController;
 import edu.cornell.gdiac.somniphobia.game.models.PlatformModel;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
 import edu.cornell.gdiac.util.*;
+
+import java.util.Iterator;
 
 public class PlatformController {
 
@@ -24,7 +27,8 @@ public class PlatformController {
     private final short MASK_COMBINED = CATEGORY_DPLAT | CATEGORY_LPLAT | CATEGORY_ALLPLAT;
     private final short MASK_ALLPLAT = CATEGORY_SOMNI | CATEGORY_PHOBIA | CATEGORY_COMBINED;
 
-    public static final float rainingCooldown = 100;
+    public static final float rainingCooldown = 50;
+    public static final float respawnCooldown = 300;
 
     /** Filters for objects*/
     public Filter lightplatf;
@@ -37,6 +41,8 @@ public class PlatformController {
 
 
 
+    WorldController worldController;
+
     /** shared objects */
     protected PooledList<Obstacle> sharedObjects  = new PooledList<Obstacle>();
     /** shared objects */
@@ -47,6 +53,8 @@ public class PlatformController {
     protected PooledList<Obstacle> movingObjects = new PooledList<Obstacle>();
     /** platforms that are raining out of the world **/
     protected PooledList<Obstacle> currRainingPlatforms = new PooledList<>();
+    /** platforms that are respawning **/
+    protected PooledList<Obstacle> respawningPlatforms = new PooledList<>();
 
     /** Vector2 cache */
     private Vector2 vector;
@@ -57,6 +65,7 @@ public class PlatformController {
      * Constructor for platform controller. Creates all the necessary filters.
      */
     public PlatformController() {
+        this.worldController = worldController;
         lightplatf = new Filter();
         lightplatf.categoryBits = CATEGORY_LPLAT;
         lightplatf.maskBits = MASK_LPLAT;
@@ -79,6 +88,15 @@ public class PlatformController {
         filters = fs;
         vector = new Vector2();
         vector2 = new Vector2();
+    }
+
+
+    /**
+     * Sets the worldController
+     * @param worldController the worldController
+     */
+    public void setWorldController(WorldController worldController) {
+        this.worldController = worldController;
     }
 
     /**
@@ -106,7 +124,7 @@ public class PlatformController {
      * @param darkObjects
      */
     public void setDarkObjects(PooledList<Obstacle> darkObjects) {
-        this.lightObjects = darkObjects;
+        this.darkObjects = darkObjects;
     }
 
     /**
@@ -169,17 +187,56 @@ public class PlatformController {
 
         }
 
-        for (Obstacle obstacle: currRainingPlatforms) {
-            PlatformModel platform = (PlatformModel) obstacle;
+        Iterator<Obstacle> currRainingPlatIt = currRainingPlatforms.iterator();
+        while (currRainingPlatIt.hasNext()) {
+            PlatformModel platform = (PlatformModel) currRainingPlatIt.next();
             if (platform.getRainingCooldown() <= 0) {
+
+                platform.setActive(false);
+//                platform.deactivatePhysics(worldController.getWorld());
+
+
                 lightObjects.remove(platform);
                 darkObjects.remove(platform);
                 sharedObjects.remove(platform);
-                platform.markRemoved(true);
+//                platform.markRemoved(true);
+
+                //Remove from curr raining and add to respawn list
+                currRainingPlatforms.remove(platform);
+                respawningPlatforms.add(platform);
+                platform.setRespawnCooldown(respawnCooldown);
             } else {
                 platform.setRainingCooldown(platform.getRainingCooldown() - 1);
             }
         }
+
+
+        Iterator<Obstacle> respawningPlatIt = respawningPlatforms.iterator();
+        while (respawningPlatIt.hasNext()) {
+            PlatformModel platform = (PlatformModel) respawningPlatIt.next();
+            if (platform.getRespawnCooldown() <= 0) {
+                respawningPlatforms.remove(platform);
+                switch (platform.getTag()) {
+                    case PlatformModel.light:
+                        lightObjects.add(platform);
+                        break;
+                    case PlatformModel.dark:
+                        darkObjects.add(platform);
+                        break;
+                    case PlatformModel.shared:
+                        sharedObjects.add(platform);
+                        break;
+                    default:
+                        break;
+                }
+                platform.setActive(true);
+                platform.setCurrentlyRaining(false);
+                platform.setRainingCooldown(rainingCooldown);
+            } else {
+                platform.setRespawnCooldown(platform.getRespawnCooldown() - 1);
+            }
+        }
+
     }
 
 

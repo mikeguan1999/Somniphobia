@@ -74,6 +74,11 @@ public class SoundController implements SoundBuffer.OnCompletionListener {
     /** Reverse map of instance ids to keys */
     private ObjectMap<String,String> keyMap;
 
+    private SoundBuffer winTrack;
+    private SoundBuffer failTrack;
+
+
+
     /** Volume values **/
     private float volume;
     private float somniVolume;
@@ -100,6 +105,39 @@ public class SoundController implements SoundBuffer.OnCompletionListener {
         somniVolume = 1;
         phobiaVolume = 0;
         combinedVolume = 0;
+    }
+
+    /**
+     * Sets the wintrack
+     * @param winTrack
+     */
+    public void setWinTrack(SoundBuffer winTrack) {
+        this.winTrack = winTrack;
+    }
+
+    /**
+     * Returns the win track
+     * @return the win track
+     */
+    public SoundBuffer getWinTrack() {
+        return winTrack;
+    }
+
+
+    /**
+     * Sets the fail track
+     * @param failTrack
+     */
+    public void setFailTrack(SoundBuffer failTrack) {
+        this.failTrack = failTrack;
+    }
+
+    /**
+     * Returns the win track
+     * @return the win track
+     */
+    public SoundBuffer getFailTrack() {
+        return failTrack;
     }
 
     /**

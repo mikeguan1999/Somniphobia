@@ -61,18 +61,19 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	private final Texture statusBar;
 	
 	// statusBar is a "texture atlas." Break it up into parts.
-	/** Left cap to the status background (grey region) */
-	private TextureRegion statusBkgLeft;
+//	/** Left cap to the status background (grey region) */
+//	private TextureRegion statusBkgLeft;
 	/** Middle portion of the status background (grey region) */
-	private TextureRegion statusBkgMiddle;
-	/** Right cap to the status background (grey region) */
-	private TextureRegion statusBkgRight;
-	/** Left cap to the status forground (colored region) */
-	private TextureRegion statusFrgLeft;
-	/** Middle portion of the status forground (colored region) */
-	private TextureRegion statusFrgMiddle;
-	/** Right cap to the status forground (colored region) */
-	private TextureRegion statusFrgRight;	
+	private TextureRegion emptyLoadingBar;
+	private TextureRegion loadedLoadingBar;
+//	/** Right cap to the status background (grey region) */
+//	private TextureRegion statusBkgRight;
+//	/** Left cap to the status forground (colored region) */
+//	private TextureRegion statusFrgLeft;
+//	/** Middle portion of the status forground (colored region) */
+//	private TextureRegion statusFrgMiddle;
+//	/** Right cap to the status forground (colored region) */
+//	private TextureRegion statusFrgRight;
 
 	/** Default budget for asset loader (do nothing but load 60 fps) */
 	private static int DEFAULT_BUDGET = 15;
@@ -112,6 +113,9 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 
 	/** Whether or not this player mode is still active */
 	private boolean active;
+
+	private TextureRegion [] tiles = new TextureRegion[7];
+	private boolean [] drawn = new boolean[7];
 
 	/**
 	 * Returns the budget for the asset loader.
@@ -204,13 +208,21 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		statusBar = internal.getEntry( "progress", Texture.class );
 
 		// Break up the status bar texture into regions
-		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
-		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
-		statusBkgMiddle = internal.getEntry( "progress.background", TextureRegion.class );
-
-		statusFrgLeft = internal.getEntry( "progress.foreleft", TextureRegion.class );
-		statusFrgRight = internal.getEntry( "progress.foreright", TextureRegion.class );
-		statusFrgMiddle = internal.getEntry( "progress.foreground", TextureRegion.class );
+//		statusBkgLeft = internal.getEntry( "progress.backleft", TextureRegion.class );
+//		statusBkgRight = internal.getEntry( "progress.backright", TextureRegion.class );
+		emptyLoadingBar = internal.getEntry( "progress.background", TextureRegion.class );
+		loadedLoadingBar = internal.getEntry( "progress.foreground", TextureRegion.class );
+		TextureRegion [][] tmp= loadedLoadingBar.split(loadedLoadingBar.getRegionWidth()/7, loadedLoadingBar.getRegionHeight());
+		int index = 0;
+		for (int i=0; i<tmp.length; i++){
+			for (int j=0; j<tmp[0].length; j++){
+				tiles[index] = tmp[i][j];
+				index += 1;
+			}
+		}
+//		statusFrgLeft = internal.getEntry( "progress.foreleft", TextureRegion.class );
+//		statusFrgRight = internal.getEntry( "progress.foreright", TextureRegion.class );
+//		statusFrgMiddle = internal.getEntry( "progress.foreground", TextureRegion.class );
 
 		// No progress so far.
 		progress = 0;
@@ -227,6 +239,11 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		assets = new AssetDirectory( file );
 		assets.loadAssets();
 		active = true;
+
+//		Pixmap pm = new Pixmap(Gdx.files.internal("menu/cursor.png"));
+//		Cursor cursor = Gdx.graphics.newCursor(pm, 0, 0);
+//		Gdx.graphics.setCursor(cursor);
+//		pm.dispose();
 	}
 	
 	/**
@@ -250,16 +267,16 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		if (playButton == null) {
 			assets.update(budget);
 			this.progress = assets.getProgress();
-			if (progress >= 1.0f) {
-				this.progress = 1.0f;
-				listener.exitScreen(this, 0);
+//			if (progress >= 1.0f) {
+//				this.progress = 1.0f;
+//				listener.exitScreen(this, 0);
 
 //				playButton = new Texture(Gdx.files.internal("menu\\NewDream.png"));
 //				this is the old playbutton
 //				playButton = internal.getEntry("play",Texture.class);
 			}
 		}
-	}
+//	}
 
 	/**
 	 * Draw the status of this player mode.
@@ -272,13 +289,20 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		canvas.begin();
 //		Texture image, Color tint, float x, float y, float width, float height
 		canvas.draw(background, Color.WHITE, 0, 0, canvas.getWidth(), canvas.getHeight());
-		if (playButton == null) {
-			drawProgress(canvas);
-		} else {
-			Color tint = (pressState == 1 ? Color.GRAY: Color.WHITE);
-			canvas.draw(playButton, tint, playButton.getWidth()/2, playButton.getHeight()/2, 
-						centerX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
-		}
+		canvas.draw(emptyLoadingBar, Color.WHITE, canvas.getWidth()/10, canvas.getHeight()/2 + canvas.getHeight()/4, emptyLoadingBar.getRegionWidth()/2, emptyLoadingBar.getRegionHeight()/2);
+		drawProgress(canvas);
+		//		for (int i=0; i<tiles.length; i++){
+//			canvas.draw(tiles[i], Color.WHITE, canvas.getWidth()/10+i*tiles[i].getRegionWidth()/2, canvas.getHeight() / 2 + canvas.getHeight() / 4, tiles[i].getRegionWidth() / 2, tiles[i].getRegionHeight() / 2);
+//		}
+		//		canvas.draw(loadedLoadingBar, Color.WHITE, canvas.getHeight()/5, canvas.getHeight()/2 + canvas.getHeight()/4+6, loadedLoadingBar.getRegionWidth()/2, loadedLoadingBar.getRegionHeight()/2);
+
+		//		if (playButton == null) {
+//			drawProgress(canvas);
+//		} else {
+//			Color tint = (pressState == 1 ? Color.GRAY: Color.WHITE);
+//			canvas.draw(playButton, tint, playButton.getWidth()/2, playButton.getHeight()/2,
+//						centerX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
+//		}
 		canvas.end();
 	}
 	
@@ -291,27 +315,46 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	 *
 	 * @param canvas The drawing context
 	 */	
-	private void drawProgress(GameCanvas canvas) {	
-		canvas.draw(statusBkgLeft,   Color.WHITE, centerX-width/2, centerY,
-				scale*statusBkgLeft.getRegionWidth(), scale*statusBkgLeft.getRegionHeight());
-		canvas.draw(statusBkgRight,  Color.WHITE,centerX+width/2-scale*statusBkgRight.getRegionWidth(), centerY,
-				scale*statusBkgRight.getRegionWidth(), scale*statusBkgRight.getRegionHeight());
-		canvas.draw(statusBkgMiddle, Color.WHITE,centerX-width/2+scale*statusBkgLeft.getRegionWidth(), centerY,
-				width-scale*(statusBkgRight.getRegionWidth()+statusBkgLeft.getRegionWidth()),
-				scale*statusBkgMiddle.getRegionHeight());
-
-		canvas.draw(statusFrgLeft,   Color.WHITE,centerX-width/2, centerY,
-				scale*statusFrgLeft.getRegionWidth(), scale*statusFrgLeft.getRegionHeight());
-		if (progress > 0) {
-			float span = progress*(width-scale*(statusFrgLeft.getRegionWidth()+statusFrgRight.getRegionWidth()))/2.0f;
-			canvas.draw(statusFrgRight,  Color.WHITE,centerX-width/2+scale*statusFrgLeft.getRegionWidth()+span, centerY,
-					scale*statusFrgRight.getRegionWidth(), scale*statusFrgRight.getRegionHeight());
-			canvas.draw(statusFrgMiddle, Color.WHITE,centerX-width/2+scale*statusFrgLeft.getRegionWidth(), centerY,
-					span, scale*statusFrgMiddle.getRegionHeight());
-		} else {
-			canvas.draw(statusFrgRight,  Color.WHITE,centerX-width/2+scale*statusFrgLeft.getRegionWidth(), centerY,
-					scale*statusFrgRight.getRegionWidth(), scale*statusFrgRight.getRegionHeight());
+	private void drawProgress(GameCanvas canvas) {
+//		int progressToIndex = Math.round(progress * 6);
+//		for (int i=0; i<tiles.length; i++){
+//			if (i<=progressToIndex){
+//				canvas.draw(tiles[i], Color.WHITE, canvas.getWidth()/10+i*tiles[i].getRegionWidth()/2, canvas.getHeight() / 2 + canvas.getHeight() / 4, tiles[i].getRegionWidth() / 2, tiles[i].getRegionHeight() / 2);
+//			}
+//		}
+		if (progress>0){
+			int span = (int) Math.floor(progress * emptyLoadingBar.getRegionWidth());
+			TextureRegion current = new TextureRegion(loadedLoadingBar, 0,0, span, loadedLoadingBar.getRegionHeight());
+			canvas.draw(current, Color.WHITE, canvas.getWidth()/10, canvas.getHeight()/2 + canvas.getHeight()/4, current.getRegionWidth()/2, emptyLoadingBar.getRegionHeight()/2);
+//			System.out.println("span: "+span+ "   progress: "+ progress);
 		}
+//		if (!drawn[progressToIndex]) {
+//			canvas.draw(tiles[progressToIndex], Color.WHITE, canvas.getWidth() / 10 + progressToIndex * tiles[progressToIndex].getRegionWidth() / 2, canvas.getHeight() / 2 + canvas.getHeight() / 4, tiles[progressToIndex].getRegionWidth() / 2, tiles[progressToIndex].getRegionHeight() / 2);
+//		}
+//		for (int i=0; i<tiles.length; i++){
+//			canvas.draw(tiles[i], Color.WHITE, canvas.getWidth()/10+i*tiles[i].getRegionWidth()/2, canvas.getHeight() / 2 + canvas.getHeight() / 4, tiles[i].getRegionWidth() / 2, tiles[i].getRegionHeight() / 2);
+//		}
+
+//		canvas.draw(statusBkgLeft,   Color.WHITE, centerX-width/2, centerY,
+//				scale*statusBkgLeft.getRegionWidth(), scale*statusBkgLeft.getRegionHeight());
+//		canvas.draw(statusBkgRight,  Color.WHITE,centerX+width/2-scale*statusBkgRight.getRegionWidth(), centerY,
+//				scale*statusBkgRight.getRegionWidth(), scale*statusBkgRight.getRegionHeight());
+//		canvas.draw(statusBkgMiddle, Color.WHITE,centerX-width/2+scale*statusBkgLeft.getRegionWidth(), centerY,
+//				width-scale*(statusBkgRight.getRegionWidth()+statusBkgLeft.getRegionWidth()),
+//				scale*statusBkgMiddle.getRegionHeight());
+//
+//		canvas.draw(statusFrgLeft,   Color.WHITE,centerX-width/2, centerY,
+//				scale*statusFrgLeft.getRegionWidth(), scale*statusFrgLeft.getRegionHeight());
+//		if (progress > 0) {
+//			float span = progress*(width-scale*(statusFrgLeft.getRegionWidth()+statusFrgRight.getRegionWidth()))/2.0f;
+//			canvas.draw(statusFrgRight,  Color.WHITE,centerX-width/2+scale*statusFrgLeft.getRegionWidth()+span, centerY,
+//					scale*statusFrgRight.getRegionWidth(), scale*statusFrgRight.getRegionHeight());
+//			canvas.draw(statusFrgMiddle, Color.WHITE,centerX-width/2+scale*statusFrgLeft.getRegionWidth(), centerY,
+//					span, scale*statusFrgMiddle.getRegionHeight());
+//		} else {
+//			canvas.draw(statusFrgRight,  Color.WHITE,centerX-width/2+scale*statusFrgLeft.getRegionWidth(), centerY,
+//					scale*statusFrgRight.getRegionWidth(), scale*statusFrgRight.getRegionHeight());
+//		}
 	}
 
 	// ADDITIONAL SCREEN METHODS
@@ -329,7 +372,8 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 			draw();
 
 			// We are are ready, notify our listener
-			if (isReady() && listener != null) {
+			if (this.progress>=1) {
+				this.progress = 1;
 				listener.exitScreen(this, 0);
 			}
 		}

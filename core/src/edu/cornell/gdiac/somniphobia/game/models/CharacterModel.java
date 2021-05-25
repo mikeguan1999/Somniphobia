@@ -88,6 +88,9 @@ public class CharacterModel extends CapsuleObstacle {
 	public static final boolean LIGHT = true;
 	public static final boolean DARK = false;
 
+	// True for somni, false for phobia
+	private boolean type = true;
+
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache;
 
@@ -153,6 +156,10 @@ public class CharacterModel extends CapsuleObstacle {
 	/** Offset in x direction */
 	private float yOffset3;
 
+	/// VARIABLES FOR PARTICLE EFFECTS
+	private ParticleModel somniDust;
+	private ParticleModel phobiaDust;
+
 	/** Getters and setters*/
 	public float getDashEndVelocity() { return dashEndVelocity; }
 	public void setDashEndVelocity(float f) { dashEndVelocity = f; }
@@ -209,6 +216,7 @@ public class CharacterModel extends CapsuleObstacle {
 		jumpForce = data.getFloat( "jump_force", 0 );
 		jumpLimit = data.getInt( "jump_cool", 0 );
 		sensorName = type == LIGHT ? "SomniSensor" : "PhobiaSensor";
+		this.type = type;
 		this.data = data;
 		filter = f;
 
@@ -232,6 +240,11 @@ public class CharacterModel extends CapsuleObstacle {
 		jumpCooldown = 0;
 //		dashCooldown = 0;
 		setName("dude");
+
+		somniDust = new ParticleModel();
+		somniDust.create();
+		phobiaDust = new ParticleModel();
+		phobiaDust.create("platform/phobiaDustEmitter", "platform/");
 	}
 
 	/**
@@ -883,6 +896,18 @@ public class CharacterModel extends CapsuleObstacle {
 			// draw the reaching out hand (can-hold-hand indicator)
 			canvas.draw(textureThree, Color.WHITE, origin.x+ xOffset3, origin.y+ yOffset3, getX()*drawScale.x,getY()*drawScale.y,getAngle(),
 					effect, 1.0f);
+		}
+
+		// Particle effects
+		if (type) {
+			somniDust.render(getX()*drawScale.x, (getY() - 0.5f*this.getHeight())*drawScale.y, canvas.getBatch());
+		}
+		else {
+			phobiaDust.render(getX()*drawScale.x, (getY() - 0.5f*this.getHeight())*drawScale.y, canvas.getBatch());
+		}
+		if (this.isGrounded() && getMovement() != 0) {
+			somniDust.startParticles();
+			phobiaDust.startParticles();
 		}
 	}
 
