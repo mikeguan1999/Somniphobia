@@ -206,16 +206,17 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
-		WorldController wc = controllers[current];
-		if (wc.isComplete() && wc instanceof LevelController) {
-			levelsCompleted[((LevelController) wc).getLevel()-1] = true;
+		LevelController wc = (LevelController) controllers[current];
+		if (wc.isComplete()) {
+			levelsCompleted[wc.getLevel()-1] = true;
+			System.out.println("HERE");
 		}
 
-		for (int k=0; k< controllers.length; k++){
-			if (controllers[k].isComplete()){
-				levelsCompleted[k] = true;
-			}
-		}
+//		for (int k=0; k< controllers.length; k++){
+//			if (controllers[k].isComplete()){
+//				levelsCompleted[k] = true;
+//			}
+//		}
 
 		if (screen == loading) {
 			directory = loading.getAssets();
@@ -247,7 +248,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			for(int i = 1; i <= menus.length; i++) {
 				JsonValue world = worlds.get("world" + i);
 				String[] levels = world.get("levels").asStringArray();
-				menus[i-1] = new MenuScrollable(canvas, levels.length);
+				menus[i-1] = new MenuScrollable(canvas, levels.length, levelsCompleted, i-1);
 				this.levels[i-1] = levels;
 				TextureRegion background = new TextureRegion(directory.getEntry(
 						world.get("worldMenuBackground").asString(), Texture.class ));
