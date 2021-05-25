@@ -219,7 +219,6 @@ public class MenuScrollable implements Screen {
 					buttonsClicked[saved_i] = true;
 				}
 			});
-			System.out.println(currentLevel+1);
 			overImages[currentLevel] = new TextureRegion(internal.getEntry("number_"+(currentLevel+1), Texture.class));;
 		}
 
