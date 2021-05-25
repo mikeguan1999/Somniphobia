@@ -41,24 +41,13 @@
 	},
 	{
 		"type": 1,
-		"assetName": 7,
+		"assetName": 13,
 		"positions": [
-			[ 26, 5, 1, 1 ]
+			[ 28, 7, 1, 1 ]
 		],
 		"property": 1,
 		"paths": [
-			[ 26, 5 ]
-		]
-	},
-	{
-		"type": 1,
-		"assetName": 5,
-		"positions": [
-			[ 26, 12, 1, 1 ]
-		],
-		"property": 1,
-		"paths": [
-			[ 26, 12 ]
+			[ 28, 7 ]
 		]
 	},
 	{
@@ -76,24 +65,13 @@
 	},
 	{
 		"type": 2,
-		"assetName": 1,
+		"assetName": 12,
 		"positions": [
-			[ 5, 5, 1, 1 ]
+			[ 5, 10, 1, 1 ]
 		],
 		"property": 1,
 		"paths": [
-			[ 5, 5 ]
-		]
-	},
-	{
-		"type": 2,
-		"assetName": 11,
-		"positions": [
-			[ 5, 12, 1, 1 ]
-		],
-		"property": 1,
-		"paths": [
-			[ 5, 12 ]
+			[ 5, 10 ]
 		]
 	}
 ]
