@@ -1617,7 +1617,10 @@ public class LevelController extends WorldController {
 			return false;
 		}
 
-		if (advanceClicked || InputController.getInstance().didPressEnter() && isComplete()){
+		if ( InputController.getInstance().didPressEnter() && isComplete()) {
+			advanceClicked = true;
+		}
+		if (advanceClicked){
 			//JENNA ADVANCE
 			pause();
 			ScreenListener listener = getListener();
@@ -2352,15 +2355,6 @@ public class LevelController extends WorldController {
 	 * Pausing happens when we switch game modes.
 	 */
 	public void pause() {
-		if (jumpSound.isPlaying( jumpId )) {
-			jumpSound.stop(jumpId);
-		}
-		if (plopSound.isPlaying( plopId )) {
-			plopSound.stop(plopId);
-		}
-		if (fireSound.isPlaying( fireId )) {
-			fireSound.stop(fireId);
-		}
 	}
 
 	/**
