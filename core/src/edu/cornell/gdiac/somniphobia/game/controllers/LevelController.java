@@ -12,6 +12,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundController;
 
@@ -346,6 +347,7 @@ public class LevelController extends WorldController {
 	private Button restartButtonFail;
 	private Button advanceButton;
 	private Button pauseButton;
+	private Button levelCloud;
 	private boolean exitClicked;
 	private boolean resumeClicked;
 	private boolean restartClicked;
@@ -394,6 +396,8 @@ public class LevelController extends WorldController {
 	private TextureRegionDrawable bluePauseButton;
 	private TextureRegionDrawable orangePauseButton;
 	private TextureRegion blurBackground;
+	private TextureRegionDrawable levelCloudDrawable;
+	private BitmapFont font;
 
 	/** constants for positioning pause menu and pause button */
 	private final int PAUSE_BUTTON_OFFSETX = 400;
@@ -408,6 +412,8 @@ public class LevelController extends WorldController {
 	private final int UNDERLINE_OFFSETY = -40;
 	private final int PAUSE_MENU_POSITION_SCALE = 4;
 	private boolean firstPosition=false;
+	private final int FONT_SIZE = 20;
+	private final Color BORDER_COLOR = new Color(255f/255f, 176f/255f, 111f/255f, 151f/255f);
 
 	Label.LabelStyle labelStyle;
 	private Slider [] sliders;
@@ -943,6 +949,18 @@ public class LevelController extends WorldController {
 		Table table = new Table();
 		gameScreenActive = true;
 //		pauseButtonStage = new Stage(new ScreenViewport(camera));
+		//		Creating bmp font from ttf
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("menu\\Comfortaa.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = FONT_SIZE;
+		parameter.color = Color.WHITE;
+		parameter.borderWidth = 5;
+		parameter.borderStraight = false;
+		parameter.borderColor = BORDER_COLOR;
+		font = generator.generateFont(parameter);
+		generator.dispose();
+
+		levelCloud = createImageTextButton(levelCloudDrawable, font, getLevel());
 		pauseButton = new Button(bluePauseButton);
 		pauseButton.setPosition(camera.position.x+PAUSE_BUTTON_OFFSETX, camera.position.y+PAUSE_BUTTON_OFFSETY);
 		pauseButton.addListener(new ClickListener() {
@@ -951,6 +969,7 @@ public class LevelController extends WorldController {
 			}
 		});
 		pauseButton.setSize(PAUSE_BUTTON_WIDTH,PAUSE_BUTTON_HEIGHT);
+		table.add(levelCloud);
 		table.add(pauseButton);
 		pauseButtonStage.addActor(table);
 	}
@@ -1164,6 +1183,7 @@ public class LevelController extends WorldController {
 		orangePauseButton = new TextureRegionDrawable(directory.getEntry("pause_menu:pause_button_red", Texture.class));
 		blurBackground = new TextureRegion(directory.getEntry("pause_menu:blur", Texture.class));
 
+
 		super.gatherAssets(directory);
 
 
@@ -1354,6 +1374,17 @@ public class LevelController extends WorldController {
 	 */
 	public static boolean hasValidPath(float posX, float posY, float[] path) {
 		return path.length > 2 || path[0] != posX || path[1] != posY;
+	}
+
+	/**
+	 * Helper function to create an image text button
+	 */
+	private ImageTextButton createImageTextButton(TextureRegionDrawable drawable, BitmapFont font, int number){ ;
+		ImageTextButton.ImageTextButtonStyle btnStyle1 = new ImageTextButton.ImageTextButtonStyle();
+		btnStyle1.up = drawable;
+		btnStyle1.font = font;
+		ImageTextButton btn = new ImageTextButton(""+number, btnStyle1);
+		return btn;
 	}
 
 	/**
