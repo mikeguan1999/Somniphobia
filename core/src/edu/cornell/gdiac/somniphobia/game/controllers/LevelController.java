@@ -571,8 +571,6 @@ public class LevelController extends WorldController {
 				volume = sliderMusic.getValue();
 
 				GDXRoot.setPreferences(GDXRoot.getPreferences().putFloat("volume", volume));
-				System.out.println("current: " + GDXRoot.getPreferences().getFloat("volume"));
-				System.out.println("new: " + volume);
 
 			}
 		});
@@ -1661,18 +1659,10 @@ public class LevelController extends WorldController {
 	 */
 	public void update(float dt) {
 		if (pauseMenuActive() || isComplete() || isFailure()) return;
-		//if (pauseMenuActive() || isComplete() || isFailure()) return;
-		// fix pause ^^^
 		action = movementController.update();
 		platformController.update(dt);
 
-		if (InputController.getInstance().didPressEscape()) {
-			setPause(true);
-		}
-
 		CharacterModel lead = movementController.getLead();
-//		somni = movementController.getSomni();
-//		phobia = movementController.getPhobia();
 		CharacterModel avatar = movementController.getAvatar();
 		holdingHands = movementController.isHoldingHands();
 

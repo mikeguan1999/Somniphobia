@@ -328,11 +328,7 @@ public class MainMenu implements Screen {
 		Gdx.input.setInputProcessor(stage);
 		directory.allocateMusic("audio/UITrack.mp3");
 
-		Preferences prefs = GDXRoot.getPreferences();
-		MusicController.getInstance().stopAll();
-		MusicController.getInstance().play("uitrack", "audio/UITrack.mp3",
-				prefs.getFloat("volume"), true);
-		MusicController.getInstance().setVolume(prefs.getFloat("volume"),"uitrack");
+
 
 		table = new Table();
 		table.setFillParent(true);
@@ -340,6 +336,12 @@ public class MainMenu implements Screen {
 
 //		table.setDebug(true);
 		active = true;
+
+		Preferences prefs = GDXRoot.getPreferences();
+		MusicController.getInstance().stopAll();
+		MusicController.getInstance().play("uitrack", "audio/UITrack.mp3",
+				prefs.getFloat("volume"), true);
+		MusicController.getInstance().setVolume(prefs.getFloat("volume"),"uitrack");
 	}
 
 	/**

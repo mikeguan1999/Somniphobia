@@ -209,7 +209,6 @@ public class GDXRoot extends Game implements ScreenListener {
 		LevelController wc = (LevelController) controllers[current];
 		if (wc.isComplete()) {
 			levelsCompleted[wc.getLevel()-1] = true;
-			System.out.println("HERE");
 		}
 
 //		for (int k=0; k< controllers.length; k++){

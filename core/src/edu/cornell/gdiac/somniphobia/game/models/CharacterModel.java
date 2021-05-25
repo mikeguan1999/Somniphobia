@@ -833,7 +833,6 @@ public class CharacterModel extends CapsuleObstacle {
 //		}
 
 		if(isDashing) {
-//			System.out.println(getVY());
 			forceCache.set(-dashDamping*getVX(),-dashDamping*getVY());
 			body.applyForce(forceCache,getPosition(),true);
 //			body.setLinearVelocity(.8f * getVX(), .8f * getVY());

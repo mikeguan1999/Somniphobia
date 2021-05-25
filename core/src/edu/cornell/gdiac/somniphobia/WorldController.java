@@ -438,12 +438,12 @@ public abstract class WorldController implements Screen {
 			debug = !debug;
 		}
 
-		// Toggle sliders
-		if (input.didToggleSliders()) {
-			sliders = !sliders;
-		}
+//		// Toggle sliders
+//		if (input.didToggleSliders()) {
+//			sliders = !sliders;
+//		}
 
-		if (input.didClickPause()){
+		if (input.didPressEscape()){
 			pause = !pause;
 		}
 
@@ -458,19 +458,20 @@ public abstract class WorldController implements Screen {
 //			listener.exitScreen(this, EXIT_QUIT);
 //			return false;
 //		} else
-		if (input.didAdvance()) {
-			pause();
-			listener.exitScreen(this, EXIT_NEXT);
-			return false;
-		} else if (input.didRetreat()) {
-			pause();
-			listener.exitScreen(this, EXIT_PREV);
-			return false;
-		} else if (input.didSwitchToCreatorMode()) {
-			pause();
-			listener.exitScreen(this, EXIT_SWITCH);
-			return false;
-		}
+//		if (input.didAdvance()) {
+//			pause();
+//			listener.exitScreen(this, EXIT_NEXT);
+//			return false;
+//		} else if (input.didRetreat()) {
+//			pause();
+//			listener.exitScreen(this, EXIT_PREV);
+//			return false;
+//		} else
+//			if (input.didSwitchToCreatorMode()) {
+//			pause();
+//			listener.exitScreen(this, EXIT_SWITCH);
+//			return false;
+//		}
 
 		return true;
 	}
