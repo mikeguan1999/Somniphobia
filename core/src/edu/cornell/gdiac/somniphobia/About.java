@@ -24,14 +24,18 @@ package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.util.ScreenListener;
 
@@ -60,10 +64,18 @@ public class About implements Screen {
 	private Stage stage;
 	/** Reference of the table of this screen */
 	private Table table;
-	private TextureRegionDrawable backgroundDrawable;
+	private TextureRegion backgroundDrawable;
 	private TextureRegionDrawable arrowDrawable;
 	private Button arrow;
 	private boolean prevClicked;
+	private OrthographicCamera camera;
+	private float initialCameraY;
+
+	private Button downArrow;
+	private Button upArrow;
+	private TextureRegionDrawable downArrowDrawable;
+	private TextureRegionDrawable upArrowDrawable;
+
 
 	public Stage getStage(){
 		return stage;
@@ -74,14 +86,18 @@ public class About implements Screen {
 		internal.loadAssets();
 		internal.finishLoading();
 
-		stage = new Stage();
 		table = new Table();
-		backgroundDrawable = new TextureRegionDrawable(internal.getEntry("about_background", Texture.class));
+		camera = new OrthographicCamera(canvas.getWidth(), canvas.getHeight());
+		stage = new Stage(new ScreenViewport(camera));
+		backgroundDrawable = new TextureRegion(internal.getEntry("about_background", Texture.class));
 		arrowDrawable = new TextureRegionDrawable(internal.getEntry("blue_arrow", Texture.class));
+		downArrowDrawable = new TextureRegionDrawable(internal.getEntry("down_arrow", Texture.class));
+		upArrowDrawable = new TextureRegionDrawable(internal.getEntry("up_arrow", Texture.class));
 
-		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
 		arrow = new Button(arrowDrawable);
+		upArrow = new Button(upArrowDrawable);
+		downArrow = new Button(downArrowDrawable);
 
 		table.add(arrow).size(arrow.getWidth()/2, arrow.getHeight()/2);
 //		underline.setVisible(false);
@@ -90,17 +106,29 @@ public class About implements Screen {
 				prevClicked = true;
 			}
 		});
-
-
-
+		table.row();
+		table.add(upArrow).size(upArrow.getWidth()/3, upArrow.getHeight()/3);
+		table.row();
+		table.add(downArrow).size(downArrow.getWidth()/3, downArrow.getHeight()/3);;
 		stage.addActor(table);
 		table.validate();
 		int ARROW_OFFSET = 10;
-		arrow.setPosition(arrow.getX()-canvas.getWidth()/2+arrow.getWidth()/2+ARROW_OFFSET, arrow.getY()+ canvas.getHeight()/2- arrow.getHeight()/2-ARROW_OFFSET);
+//		arrow.setPosition(arrow.getX()-canvas.getWidth()/2+arrow.getWidth()/2+ARROW_OFFSET, arrow.getY()+ canvas.getHeight()/2- arrow.getHeight()/2-ARROW_OFFSET);
 
 		this.canvas  = canvas;
 		// Compute the dimensions from the canvas
 		resize(canvas.getWidth(),canvas.getHeight());
+
+		initialCameraY = backgroundDrawable.getRegionHeight()/4- canvas.getHeight()/2;
+		camera.position.y = initialCameraY;
+		int CAMERA_OFFSET = 15;
+		camera.position.x = camera.position.x + CAMERA_OFFSET;
+		camera.update();
+		int UPARROW_OFFSET = 30;
+		arrow.setPosition(camera.position.x-canvas.getWidth()/2+ARROW_OFFSET, camera.position.y+canvas.getHeight()/2- arrow.getHeight()-ARROW_OFFSET);
+		upArrow.setPosition(camera.position.x-upArrow.getWidth()/2, camera.position.y+ canvas.getHeight()/4);
+		downArrow.setPosition(camera.position.x-downArrow.getWidth()/2, camera.position.y- canvas.getHeight()/2);
+		upArrow.setVisible(false);
 	}
 
 
@@ -132,8 +160,9 @@ public class About implements Screen {
 	 * prefer this in lecture.
 	 */
 	private void draw() {
-		canvas.begin();
-		canvas.end();
+		stage.getBatch().begin();
+		stage.getBatch().draw(backgroundDrawable, (canvas.getWidth()- backgroundDrawable.getRegionWidth()/4)/2, 0, backgroundDrawable.getRegionWidth()/4, backgroundDrawable.getRegionHeight()/4);
+		stage.getBatch().end();
 	}
 	// ADDITIONAL SCREEN METHODS
 	/**
@@ -149,7 +178,30 @@ public class About implements Screen {
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			update(delta);
 			stage.act(delta);
+			draw();
 			stage.draw();
+
+			if (upArrow.isOver()&&camera.position.y<=initialCameraY){
+				camera.position.y += 7;
+				downArrow.setVisible(true);
+				arrow.setPosition(arrow.getX(), arrow.getY()+7);
+				downArrow.setPosition(downArrow.getX(), downArrow.getY()+7);
+				upArrow.setPosition(upArrow.getX(), upArrow.getY()+7);
+				if (camera.position.y==initialCameraY){
+					upArrow.setVisible(false);
+				}
+			}
+
+			else if (downArrow.isOver() && camera.position.y>=canvas.getHeight()/2){
+				camera.position.y -= 7;
+				arrow.setPosition(arrow.getX(), arrow.getY()-7);
+				downArrow.setPosition(downArrow.getX(), downArrow.getY()-7);
+				upArrow.setVisible(true);
+				upArrow.setPosition(upArrow.getX(), upArrow.getY()-7);
+				if (camera.position.y==canvas.getHeight()/2){
+					downArrow.setVisible(false);
+				}
+			}
 
 			if (prevClicked){
 				prevClicked = false;

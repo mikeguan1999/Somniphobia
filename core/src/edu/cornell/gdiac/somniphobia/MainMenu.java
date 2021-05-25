@@ -105,8 +105,7 @@ public class MainMenu implements Screen {
 		startDreamDrawable = new TextureRegionDrawable(internal.getEntry("start_dream", Texture.class));
 		underlineDrawable = new TextureRegionDrawable(internal.getEntry("underline", Texture.class));
 		exitDrawable = new TextureRegionDrawable(internal.getEntry("exit", Texture.class));
-		underlineOrangeDrawable = new TextureRegionDrawable(
-				new TextureRegion(internal.getEntry("orange_underline", Texture.class), 0,0,380, 42));
+		underlineOrangeDrawable = new TextureRegionDrawable(internal.getEntry("orange_underline", Texture.class));
 
 		table.setBackground(backgroundDrawable);
 		table.setFillParent(true);
