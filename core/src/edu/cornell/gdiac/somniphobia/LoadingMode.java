@@ -239,6 +239,11 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		assets = new AssetDirectory( file );
 		assets.loadAssets();
 		active = true;
+
+//		Pixmap pm = new Pixmap(Gdx.files.internal("menu/cursor.png"));
+//		Cursor cursor = Gdx.graphics.newCursor(pm, 0, 0);
+//		Gdx.graphics.setCursor(cursor);
+//		pm.dispose();
 	}
 	
 	/**
