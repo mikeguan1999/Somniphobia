@@ -41,6 +41,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.util.ScreenListener;
+import org.lwjgl.Sys;
 
 /**
  * Class that provides a loading screen for the state of the game.
@@ -140,12 +141,17 @@ public class MenuScrollable implements Screen {
 	private Button cloudLine;
 	private int totalLevels = 9;
 	private int menuIndex;
+	private MenuScrollable[] menus;
+	private int numLevelsBefore;
 
 	public Stage getStage(){
 		return stage;
 	}
+	public int getNumLevels(){
+		return totalNumLevels;
+	}
 
-	public MenuScrollable(GameCanvas canvas, int totalNumLevels, boolean[] levelsCompleted, int menuIndex) {
+	public MenuScrollable(GameCanvas canvas, int totalNumLevels, boolean[] levelsCompleted, int menuIndex, int numLevelsBefore) {
 		internal = new AssetDirectory( "level_select.json" );
 		internal.loadAssets();
 		internal.finishLoading();
@@ -186,6 +192,7 @@ public class MenuScrollable implements Screen {
 		this.canvas = canvas;
 		this.levelsCompleted = levelsCompleted;
 		this.menuIndex = menuIndex;
+		this.numLevelsBefore = numLevelsBefore;
 
 		camera = new OrthographicCamera(canvas.getWidth(), canvas.getHeight());
 //		camera.translate(0, camera.viewportHeight / 2, 0);
@@ -225,8 +232,13 @@ public class MenuScrollable implements Screen {
 			overImages[currentLevel] = new TextureRegion(internal.getEntry("number_"+(currentLevel+1), Texture.class));;
 		}
 
-		for (currentLevel =0; currentLevel <buttons.length; currentLevel++) {
-			if (menuIndex!=0 || (currentLevel!=0 && levelsCompleted[currentLevel-1]==false)){
+		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
+//			System.out.println(currentLevel+"here"+numLevelsBefore);
+			int indexLevelsCompleted = currentLevel + numLevelsBefore;
+			if (indexLevelsCompleted!=0) {
+				System.out.println(indexLevelsCompleted + "" + levelsCompleted[indexLevelsCompleted - 1]+" "+currentLevel);
+			}
+			if (indexLevelsCompleted!=0 && levelsCompleted[indexLevelsCompleted-1]==false){
 				buttons[currentLevel].getStyle().up = doorLockedImage;
 				buttons[currentLevel].setTouchable(Touchable.disabled);
 			}
@@ -458,13 +470,13 @@ public class MenuScrollable implements Screen {
 //				actor.setY(initialButtonY);
 			}
 
-			if (menuIndex!=0 || (currentLevel!=0 && levelsCompleted[currentLevel-1]==false)){
-				buttons[currentLevel].getStyle().up = doorLockedImage;
-				buttons[currentLevel].setTouchable(Touchable.disabled);
-			}
-			else {
-				buttons[currentLevel].setTouchable(Touchable.enabled);
-			}
+//			if (menuIndex!=0 || (currentLevel!=0 && levelsCompleted[currentLevel-1]==false)){
+//				buttons[currentLevel].getStyle().up = doorLockedImage;
+//				buttons[currentLevel].setTouchable(Touchable.disabled);
+//			}
+//			else {
+//				buttons[currentLevel].setTouchable(Touchable.enabled);
+//			}
 
 		}
 	}
@@ -526,6 +538,19 @@ public class MenuScrollable implements Screen {
 		if (prevClicked){
 			listener.exitScreen(this, WorldController.EXIT_WORLD_SELECT_ENTER);
 			prevClicked = false;
+		}
+
+		for (currentLevel =0; currentLevel <totalNumLevels; currentLevel++) {
+//			System.out.println(currentLevel+"here"+numLevelsBefore);
+			int indexLevelsCompleted = currentLevel + numLevelsBefore;
+			if (indexLevelsCompleted!=0 && levelsCompleted[indexLevelsCompleted-1]==false){
+				buttons[currentLevel].getStyle().up = doorLockedImage;
+				buttons[currentLevel].setTouchable(Touchable.disabled);
+			}
+			else {
+				buttons[currentLevel].getStyle().up = upImage;
+				buttons[currentLevel].setTouchable(Touchable.enabled);
+			}
 		}
 	}
 

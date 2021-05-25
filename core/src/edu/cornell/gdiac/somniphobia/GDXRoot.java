@@ -27,6 +27,8 @@ import edu.cornell.gdiac.assets.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import org.lwjgl.Sys;
+
 /**
  * Root class for a LibGDX.  
  * 
@@ -60,7 +62,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	static public int totalNumWorlds = 5;
 
 	/** Level selection screen variables */
-	static public int totalNumLevels = 36;
+	static public int totalNumLevels = 38;
 
 	private OrthographicCamera cam;
 	private MainMenu mainMenu;
@@ -245,10 +247,18 @@ public class GDXRoot extends Game implements ScreenListener {
 
 			// Set up World Select menu
 			JsonValue worlds = directory.getEntry("worlds", JsonValue.class);
+			int numLevelsBefore = 0;
+//
+//			for (int k=0; k<6; k++){
+//				levelsCompleted[k] = true;
+//			}
+
 			for(int i = 1; i <= menus.length; i++) {
 				JsonValue world = worlds.get("world" + i);
 				String[] levels = world.get("levels").asStringArray();
-				menus[i-1] = new MenuScrollable(canvas, levels.length, levelsCompleted, i-1);
+				System.out.println(i-1 + "num"+numLevelsBefore);
+				menus[i-1] = new MenuScrollable(canvas, levels.length, levelsCompleted, i-1, numLevelsBefore);
+				numLevelsBefore += levels.length;
 				this.levels[i-1] = levels;
 				TextureRegion background = new TextureRegion(directory.getEntry(
 						world.get("worldMenuBackground").asString(), Texture.class ));
@@ -260,6 +270,7 @@ public class GDXRoot extends Game implements ScreenListener {
 						world.get("worldMenuDoorLocked").asString(), Texture.class));
 				menus[i-1].setDoorLockedImage(doorLocked);
 			}
+			System.out.println(numLevelsBefore);
 
 			loading.dispose();
 			loading = null;
