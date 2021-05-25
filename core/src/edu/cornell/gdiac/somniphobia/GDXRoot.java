@@ -194,6 +194,7 @@ public class GDXRoot extends Game implements ScreenListener {
 
 	static public void setPreferences(Preferences prefs) {
 		preferences = prefs;
+		preferences.flush();
 	}
 
 	/**
@@ -205,15 +206,17 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param exitCode The state of the screen upon exit
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
-//		LevelController pc = controllers[current];
-//		if (pc.isComplete()){
-//			levelsCompleted[pc.getLevel()-1] = true;
-//		}
-//		for (int k=0; k< controllers.length; k++){
-//			if (controllers[k].isComplete()){
-//				levelsCompleted[k] = true;
-//			}
-//		}
+		WorldController wc = controllers[current];
+		if (wc.isComplete() && wc instanceof LevelController) {
+			levelsCompleted[((LevelController) wc).getLevel()-1] = true;
+		}
+
+		for (int k=0; k< controllers.length; k++){
+			if (controllers[k].isComplete()){
+				levelsCompleted[k] = true;
+			}
+		}
+
 		if (screen == loading) {
 			directory = loading.getAssets();
 			directory.unload("audio/SomniTrack.mp3");
@@ -309,7 +312,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			setScreen(controlsPageTwo);
 		}
 		else if (exitCode == WorldController.EXIT_QUIT) {
-			preferences.flush(); // Persist user save data
 			Gdx.app.exit(); // We quit the main application
 		}
 
