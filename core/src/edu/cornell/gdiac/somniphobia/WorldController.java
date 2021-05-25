@@ -24,7 +24,9 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundBuffer;
+import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.game.controllers.PlatformController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.somniphobia.obstacle.*;
@@ -212,6 +214,12 @@ public abstract class WorldController implements Screen {
 //		if (value) {
 //			countdown = EXIT_COUNT;
 //		}
+		if (value) {
+			MusicController.getInstance().stopAll();
+			SoundController.getInstance().play("failTrack",
+					SoundController.getInstance().getFailTrack(),
+					MusicController.getInstance().getVolume(), false);
+		}
 		failed = value;
 	}
 
@@ -277,6 +285,7 @@ public abstract class WorldController implements Screen {
 	 */
 	public void setPlatController(PlatformController plat) {
 		this.platformController = plat;
+		platformController.setWorldController(this);
 	}
 	
 	/**
@@ -378,7 +387,7 @@ public abstract class WorldController implements Screen {
 	 *
 	 * param obj The object to add
 	 */
-	protected void addObject(Obstacle obj) {
+	public void addObject(Obstacle obj) {
 		assert inBounds(obj) : "Object is not in bounds";
 		objects.add(obj);
 		obj.activatePhysics(world);
@@ -429,12 +438,12 @@ public abstract class WorldController implements Screen {
 			debug = !debug;
 		}
 
-		// Toggle sliders
-		if (input.didToggleSliders()) {
-			sliders = !sliders;
-		}
+//		// Toggle sliders
+//		if (input.didToggleSliders()) {
+//			sliders = !sliders;
+//		}
 
-		if (input.didClickPause()){
+		if (input.didPressEscape()){
 			pause = !pause;
 		}
 
@@ -449,19 +458,20 @@ public abstract class WorldController implements Screen {
 //			listener.exitScreen(this, EXIT_QUIT);
 //			return false;
 //		} else
-		if (input.didAdvance()) {
-			pause();
-			listener.exitScreen(this, EXIT_NEXT);
-			return false;
-		} else if (input.didRetreat()) {
-			pause();
-			listener.exitScreen(this, EXIT_PREV);
-			return false;
-		} else if (input.didSwitchToCreatorMode()) {
-			pause();
-			listener.exitScreen(this, EXIT_SWITCH);
-			return false;
-		}
+//		if (input.didAdvance()) {
+//			pause();
+//			listener.exitScreen(this, EXIT_NEXT);
+//			return false;
+//		} else if (input.didRetreat()) {
+//			pause();
+//			listener.exitScreen(this, EXIT_PREV);
+//			return false;
+//		} else
+//			if (input.didSwitchToCreatorMode()) {
+//			pause();
+//			listener.exitScreen(this, EXIT_SWITCH);
+//			return false;
+//		}
 
 		return true;
 	}

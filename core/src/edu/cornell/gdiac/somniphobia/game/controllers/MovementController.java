@@ -3,6 +3,7 @@ package edu.cornell.gdiac.somniphobia.game.controllers;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ObjectSet;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.audio.SoundController;
 import edu.cornell.gdiac.somniphobia.InputController;
 import edu.cornell.gdiac.somniphobia.WorldController;
@@ -62,6 +63,9 @@ public class MovementController implements ContactListener {
 
     /** Whether or not characters are currently holding hands */
     private boolean holdingHands;
+
+    /** Whether to face right when holding hands */
+    private boolean faceRight;
 
     /** Whether or not characters are transitioning to holding hands */
     private boolean transitioningHoldingHands;
@@ -246,12 +250,7 @@ public class MovementController implements ContactListener {
                     //TODO: Add combined track
 
                     avatar = avatar == somni ? phobia : somni;
-                }else{
-//                if (lead == somni) {
-//                    SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
-//                } else {
-//                    SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
-//                }
+                } else{
                     lead = lead == somni ? phobia :somni;
                 }
                 setSwitchedCharacters(true);
@@ -268,12 +267,10 @@ public class MovementController implements ContactListener {
             //Check if hand holding
             if(inputController.didHoldHands()) {
                 handleHoldingHands();
+
             }
 
         }
-
-
-
 
 
         //handleworldview();
@@ -299,30 +296,21 @@ public class MovementController implements ContactListener {
         }
 
         if (holdingHands) {
-            SoundController.getInstance().shiftMusic("phobiaTrack", "combinedTrack");
-            SoundController.getInstance().shiftMusic("somniTrack", "combinedTrack");
+            MusicController.getInstance().shiftMusic("phobiaTrack", "combinedTrack");
+            MusicController.getInstance().shiftMusic("somniTrack", "combinedTrack");
         } else {
             if (avatar == somni) {
-                SoundController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
-                SoundController.getInstance().shiftMusic("combinedTrack", "somniTrack");
+                MusicController.getInstance().shiftMusic("phobiaTrack", "somniTrack");
+                MusicController.getInstance().shiftMusic("combinedTrack", "somniTrack");
             } else {
-                SoundController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
-                SoundController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
+                MusicController.getInstance().shiftMusic("somniTrack", "phobiaTrack");
+                MusicController.getInstance().shiftMusic("combinedTrack", "phobiaTrack");
             }
         }
 
 
 
         int action = 0;
-//        if(avatar.isGrounded() && !avatar.isJumping()){
-//            if (avatar.getMovement() == 0f){
-//                action = 0;
-//            }else{
-//                action = 1;
-//            }
-//        }else{
-//            action = 2;
-//        }
         if(avatar.isGrounded() && !avatar.isJumping()){
             if (avatar.getMovement() == 0f){
                 action = 0; // Idle
@@ -345,25 +333,8 @@ public class MovementController implements ContactListener {
             action = 5;
         }
 
-
-
         separationCoolDown = Math.max(0, separationCoolDown-1);
-
         return action;
-//        if(holdingHands){
-//            if(lead == somni){
-//                combined.setTexture(somniphobiasTexture[action]);
-//            }else{
-//                combined.setTexture(phobiasomnisTexture[action]);
-//            }
-//        }
-//        else{
-//            if(lead == somni){
-//                avatar.setTexture(somnisTexture[action]);
-//            }else{
-//                avatar.setTexture(phobiasTexture[action]);
-//            }
-//        }
     }
 
 
@@ -529,6 +500,7 @@ public class MovementController implements ContactListener {
 
     private void transitionHoldHands(CharacterModel leadCharacter, CharacterModel follower) {
         //Direction to move leadCharacter towards
+        faceRight = follower.getX() < leadCharacter.getX();
         Vector2 shiftDirection = vectorCache.set(follower.getPosition()).sub(leadCharacter.getPosition());
         leadCharacter.getBody().setLinearVelocity(shiftDirection.nor().scl(20));
         transitioningHoldingHands = true;
@@ -539,7 +511,7 @@ public class MovementController implements ContactListener {
      */
     private void beginHoldHands() {
         CharacterModel follower = somni == avatar ? phobia : somni;
-        int directionMultiplier = avatar.isFacingRight()? 1: -1;
+        int directionMultiplier = faceRight? 1: -1;
 
         if (follower.isGrounded()) {
             avatar.setCanDash(true);
@@ -567,7 +539,9 @@ public class MovementController implements ContactListener {
         float avatarX = follower.getX();
         float avatarY = follower.getY();
 
-        combined.setFacingRight(avatar.isFacingRight());
+//        combined.setFacingRight(avatar.isFacingRight());
+        combined.setFacingRight(faceRight);
+
         avatar = combined;
         avatar.setPosition(avatarX + combined.getWidth() * .55f * directionMultiplier, avatarY);
 
@@ -624,14 +598,16 @@ public class MovementController implements ContactListener {
                 lightSensorFixtures.add(somni == bd1 ? fix2 : fix1); // Could have more than one ground
 //				somni.canJump = true;
                 somni.setGround(somni == bd1 ? bd2: bd1);
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling)  {
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling
+                    && !((PlatformModel) bd1).isCurrentlyRaining())  {
                     if (((PlatformModel) bd1).getTouching() == phobia) {
                         beginRainAnimation((PlatformModel) bd1);
 
                     } else {
                         ((PlatformModel) bd1).setTouching(somni);
                     }
-                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
+                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling
+                    && !((PlatformModel) bd2).isCurrentlyRaining()) {
                     if (((PlatformModel) bd2).getTouching() == phobia) {
 
                         beginRainAnimation((PlatformModel) bd2);
@@ -647,13 +623,15 @@ public class MovementController implements ContactListener {
                 darkSensorFixtures.add(phobia == bd1 ? fix2 : fix1); // Could have more than one ground
 //				phobia.canJump = true;
                 phobia.setGround(phobia == bd1 ? bd2: bd1);
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling)  {
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling
+                    && !((PlatformModel) bd1).isCurrentlyRaining())  {
                     if (((PlatformModel) bd1).getTouching() == somni) {
                         beginRainAnimation((PlatformModel) bd1);
                     } else {
                         ((PlatformModel) bd1).setTouching(phobia);
                     }
-                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
+                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling
+                    && !((PlatformModel) bd2).isCurrentlyRaining()) {
                     if (((PlatformModel) bd2).getTouching() == somni) {
 
                         beginRainAnimation((PlatformModel) bd2);
@@ -671,9 +649,11 @@ public class MovementController implements ContactListener {
                 combinedSensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
 //				combined.canJump = true;
                 combined.setGround(combined == bd1 ? bd2: bd1);
-                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling) {
+                if (bd1 instanceof PlatformModel && ((PlatformModel) bd1).getProperty() == PlatformModel.crumbling
+                    && !((PlatformModel) bd1).isCurrentlyRaining()) {
                     beginRainAnimation((PlatformModel) bd1);
-                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling) {
+                } else if (bd2 instanceof PlatformModel && ((PlatformModel) bd2).getProperty() == PlatformModel.crumbling
+                    && !((PlatformModel) bd2).isCurrentlyRaining()) {
                     beginRainAnimation((PlatformModel) bd2);
                 }
             }
@@ -682,7 +662,13 @@ public class MovementController implements ContactListener {
             // Check for win condition
             if ((bd1 == combined  && bd2 == goalDoor) ||
                     (bd1 == goalDoor && bd2 == combined)) {
+                MusicController.getInstance().stopAll();
+                SoundController.getInstance().play("winTrack",
+                        SoundController.getInstance().getWinTrack(),
+                        MusicController.getInstance().getVolume(), false);
+
                 worldController.setComplete(true);
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -775,6 +761,7 @@ public class MovementController implements ContactListener {
     private void beginRainAnimation(PlatformModel platform) {
         currRainingPlatforms.add(platform);
         platform.setRainingCooldown(PlatformController.rainingCooldown);
+        platform.setInitialRainingCooldown(PlatformController.rainingCooldown);
         platform.setCurrentlyRaining(true);
     }
 

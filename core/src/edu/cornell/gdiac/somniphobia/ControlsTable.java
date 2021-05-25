@@ -143,12 +143,14 @@ public class ControlsTable implements Screen {
 		col2.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				defaultSelected = true;
+				InputController.getInstance().setControlScheme(0);
 			}
 		});
 
 		col3.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				alternativeSelected = true;
+				InputController.getInstance().setControlScheme(1);
 			}
 		});
 

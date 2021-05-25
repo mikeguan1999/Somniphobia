@@ -324,6 +324,8 @@
     "tutorial:spirit_switch": "tutorial/spirit_switch.png",
     "tutorial:spirit_separate": "tutorial/spirit_separate.png",
     "tutorial:spirit_unify": "tutorial/spirit_unify.png",
+    "tutorial:dash_catch": "tutorial/dash_catch.png",
+    "tutorial:propel_dash_vertical": "tutorial/propel_dash_vertical.png",
 
     "pause_menu:pausemenu_underline_red": "pause_menu/pausemenu_underline_red.png",
     "pause_menu:pausemenu_underline": "pause_menu/pausemenu_underline.png",
@@ -351,38 +353,7 @@
   },
     "jsons"  : {
         "constants": "constants.json",
-        "worlds": "worlds.json",
-        "level1": "levels/dream_1.json",
-        "level2": "levels/dream_2.json",
-        "level3": "levels/dream_3.json",
-        "level4": "levels/dream_4.json",
-        "level5": "levels/dream_5.json",
-        "level6": "levels/houses_1.json",
-        "level7": "levels/houses_2.json",
-        "level8": "levels/houses_3.json",
-        "level9": "levels/houses_4.json",
-        "level10": "levels/houses_5.json",
-        "level11": "levels/houses_6.json",
-        "level12": "levels/forest_1.json",
-        "level13": "levels/forest_2.json",
-        "level14": "levels/forest_3.json",
-        "level15": "levels/forest_4.json",
-        "level16": "levels/forest_5.json",
-        "level17": "levels/forest_6.json",
-        "level18": "levels/forest_7.json",
-        "level19": "levels/forest_8.json",
-        "level20": "levels/forest_9.json",
-        "level21": "levels/gears_1.json",
-        "level22": "levels/gears_2.json",
-        "level23": "levels/gears_3.json",
-        "level24": "levels/gears_4.json",
-        "level25": "levels/gears_5.json",
-        "level26": "levels/statues_1.json",
-        "level27": "levels/statues_2.json",
-        "level28": "levels/statues_3.json",
-        "level29": "levels/statues_4.json",
-        "level30": "levels/statues_5.json",
-        "level31": "levels/statues_6.json"
+        "worlds": "worlds.json"
     },
   "sounds" : {
       "platform:jump" : "platform/jump.mp3",
@@ -390,7 +361,11 @@
       "platform:plop" : "platform/plop.mp3",
       "somniTrack": "audio/SomniTrack.mp3",
       "phobiaTrack": "audio/PhobiaTrack.mp3",
-      "combinedTrack": "audio/CombinedTrack.mp3"
+      "combinedTrack": "audio/CombinedTrack.mp3",
+      "winTrack": "audio/WinTrack.mp3",
+      "failTrack": "audio/FailTrack.mp3",
+      "uitrack": "audio/UITrack.mp3"
+
   },
   "fonts": {
       "shared:retro": {

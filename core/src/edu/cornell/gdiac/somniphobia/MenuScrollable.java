@@ -139,12 +139,13 @@ public class MenuScrollable implements Screen {
 	private boolean [] levelsCompleted;
 	private Button cloudLine;
 	private int totalLevels = 9;
+	private int menuIndex;
 
 	public Stage getStage(){
 		return stage;
 	}
 
-	public MenuScrollable(GameCanvas canvas, int totalNumLevels) {
+	public MenuScrollable(GameCanvas canvas, int totalNumLevels, boolean[] levelsCompleted, int menuIndex) {
 		internal = new AssetDirectory( "level_select.json" );
 		internal.loadAssets();
 		internal.finishLoading();
@@ -183,6 +184,8 @@ public class MenuScrollable implements Screen {
 		}
 
 		this.canvas = canvas;
+		this.levelsCompleted = levelsCompleted;
+		this.menuIndex = menuIndex;
 
 		camera = new OrthographicCamera(canvas.getWidth(), canvas.getHeight());
 //		camera.translate(0, camera.viewportHeight / 2, 0);
@@ -219,8 +222,14 @@ public class MenuScrollable implements Screen {
 					buttonsClicked[saved_i] = true;
 				}
 			});
-			System.out.println(currentLevel+1);
 			overImages[currentLevel] = new TextureRegion(internal.getEntry("number_"+(currentLevel+1), Texture.class));;
+		}
+
+		for (currentLevel =0; currentLevel <buttons.length; currentLevel++) {
+			if (menuIndex!=0 || (currentLevel!=0 && levelsCompleted[currentLevel-1]==false)){
+				buttons[currentLevel].getStyle().up = doorLockedImage;
+				buttons[currentLevel].setTouchable(Touchable.disabled);
+			}
 		}
 
 
@@ -346,7 +355,6 @@ public class MenuScrollable implements Screen {
 		leftButton.setVisible(false);
 
 		initialCameraX = -362;
-		System.out.println(initialCameraX);
 		camera.position.x = initialCameraX;
 		camera.position.y = 288;
 		camera.update();
@@ -449,6 +457,15 @@ public class MenuScrollable implements Screen {
 //				actor.setX(positionsX[currentLevel]);
 //				actor.setY(initialButtonY);
 			}
+
+			if (menuIndex!=0 || (currentLevel!=0 && levelsCompleted[currentLevel-1]==false)){
+				buttons[currentLevel].getStyle().up = doorLockedImage;
+				buttons[currentLevel].setTouchable(Touchable.disabled);
+			}
+			else {
+				buttons[currentLevel].setTouchable(Touchable.enabled);
+			}
+
 		}
 	}
 

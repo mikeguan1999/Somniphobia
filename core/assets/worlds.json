@@ -8,7 +8,8 @@
       "levels/dream_2.json",
       "levels/dream_3.json",
       "levels/dream_4.json",
-      "levels/dream_5.json"
+      "levels/dream_5.json",
+      "levels/dream_6.json"
     ]
     },
     "world2": {
@@ -16,12 +17,15 @@
       "worldMenuDoor": "platform:house_door",
       "worldMenuDoorLocked": "platform:house_door_locked",
       "levels": [
-        "levels/houses_1.json",
-        "levels/houses_2.json",
-        "levels/houses_3.json",
-        "levels/houses_4.json",
-        "levels/houses_5.json",
-        "levels/houses_6.json"
+        "levels/blue_tutorial.json",
+        "levels/blue_surprise.json",
+        "levels/yellow_tutorial.json",
+        "levels/small_house.json",
+        "levels/big_house.json",
+        "levels/dash_catch_tutorial.json",
+        "levels/catch_tutorial.json",
+        "levels/rotating_houses.json"
+        "levels/houses_7.json"
       ]
     },
     "world3": {
@@ -45,11 +49,13 @@
       "worldMenuDoor": "platform:gear_door",
       "worldMenuDoorLocked": "platform:gear_door_locked",
       "levels": [
-        "levels/gears_1.json",
-        "levels/gears_2.json",
-        "levels/gears_3.json",
-        "levels/gears_4.json",
-        "levels/gears_5.json"
+        "levels/gears_intro.json",
+        "levels/moving_into_walls.json",
+        "levels/electric_tutorial.json",
+        "levels/electric_gears.json",
+        "levels/raining_thunder.json",
+        "levels/piano.json",
+        "levels/chase.json"
       ]
     },
   "world5": {
@@ -62,7 +68,12 @@
       "levels/statues_3.json",
       "levels/statues_4.json",
       "levels/statues_5.json",
-      "levels/statues_6.json"
+      "levels/maze.json",
+      "levels/og_puzzle.json",
+      "levels/juggle_under.json",
+      "levels/robot.json"
     ]
   }
 }
+
+

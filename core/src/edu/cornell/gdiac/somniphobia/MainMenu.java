@@ -23,6 +23,7 @@
 package edu.cornell.gdiac.somniphobia;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -40,6 +41,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
+import edu.cornell.gdiac.audio.MusicController;
 import edu.cornell.gdiac.util.ScreenListener;
 
 /**
@@ -62,6 +64,9 @@ public class MainMenu implements Screen {
 	private ScreenListener listener;
 	/** Internal assets for this menu screen */
 	private AssetDirectory internal;
+
+	/** Internal assets for this menu screen */
+	public AssetDirectory directory;
 	/** Whether or not this player mode is still active */
 	private boolean active;
 	private Stage stage;
@@ -320,6 +325,9 @@ public class MainMenu implements Screen {
 	public void show() {
 		// Useless if called in outside animation loop
 		Gdx.input.setInputProcessor(stage);
+		directory.allocateMusic("audio/UITrack.mp3");
+
+
 
 		table = new Table();
 		table.setFillParent(true);
@@ -327,6 +335,12 @@ public class MainMenu implements Screen {
 
 //		table.setDebug(true);
 		active = true;
+
+		Preferences prefs = GDXRoot.getPreferences();
+		MusicController.getInstance().stopAll();
+		MusicController.getInstance().play("uitrack", "audio/UITrack.mp3",
+				prefs.getFloat("volume"), true);
+		MusicController.getInstance().setVolume(prefs.getFloat("volume"),"uitrack");
 	}
 
 	/**
