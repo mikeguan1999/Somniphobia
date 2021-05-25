@@ -363,7 +363,8 @@
       "phobiaTrack": "audio/PhobiaTrack.mp3",
       "combinedTrack": "audio/CombinedTrack.mp3",
       "winTrack": "audio/WinTrack.mp3",
-      "failTrack": "audio/FailTrack.mp3"
+      "failTrack": "audio/FailTrack.mp3",
+      "uitrack": "audio/UITrack.mp3"
 
   },
   "fonts": {

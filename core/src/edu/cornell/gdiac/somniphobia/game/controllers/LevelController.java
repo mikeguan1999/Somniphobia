@@ -1076,16 +1076,6 @@ public class LevelController extends WorldController {
 				new TextureRegion(directory.getEntry("platform:background_light_statues", Texture.class)),
 				new TextureRegion(directory.getEntry("platform:background_dark_statues", Texture.class)),
 
-//				new TextureRegion(directory.getEntry("platform:animated_background_light_forest", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_dark_forest", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_light_gear", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_dark_gear", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_light_dreams", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_dark_dreams", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_light_house", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_dark_house", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_light_statues", Texture.class)),
-//				new TextureRegion(directory.getEntry("platform:animated_background_dark_statues", Texture.class)),
 		};
 
 
@@ -1143,7 +1133,7 @@ public class LevelController extends WorldController {
 
 
 
-		somniTrack = directory.getEntry("somniTrack", SoundBuffer.class);
+//		somniTrack = directory.getEntry("somniTrack", SoundBuffer.class);
 //		phobiaTrackPath = directory.getEntry("phobiaTrack", SoundBuffer.class);
 //		combinedTrackPath = directory.getEntry("combinedTrack", SoundBuffer.class);
 
@@ -1620,6 +1610,11 @@ public class LevelController extends WorldController {
 			firstTimeRendered = true;
 			listener.exitScreen(this, WorldController.EXIT_LEVEL_SELECT_ENTER);
 			setComplete(false);
+			Preferences prefs = GDXRoot.getPreferences();
+			MusicController.getInstance().stopAll();
+			MusicController.getInstance().play("uitrack", "audio/UITrack.mp3",
+					prefs.getFloat("volume"), true);
+			MusicController.getInstance().setVolume(prefs.getFloat("volume"),"uitrack");
 			exitClicked = false;
 			return false;
 		}

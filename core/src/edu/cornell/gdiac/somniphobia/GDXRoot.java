@@ -222,7 +222,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			directory.load("audio/PhobiaTrack.mp3", Music.class);
 			directory.unload("audio/CombinedTrack.mp3");
 			directory.load("audio/CombinedTrack.mp3", Music.class);
+			directory.unload("audio/UITrack.mp3");
+			directory.load("audio/UITrack.mp3", Music.class);
 			directory.finishLoading();
+
 			for (int ii = 0; ii < controllers.length; ii++) {
 				controllers[ii].gatherAssets(directory);
 				//if (ii == LEVEL_CONTROLLER_INDEX) {
@@ -237,6 +240,7 @@ public class GDXRoot extends Game implements ScreenListener {
 
 
 			mainMenu.setScreenListener(this);
+			mainMenu.directory = directory;
 			setScreen(mainMenu);
 
 			// Set up World Select menu
