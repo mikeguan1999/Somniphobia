@@ -48,11 +48,12 @@
       "worldMenuDoor": "platform:gear_door",
       "worldMenuDoorLocked": "platform:gear_door_locked",
       "levels": [
-        "levels/gears_1.json",
-        "levels/gears_2.json",
-        "levels/gears_3.json",
-        "levels/gears_4.json",
-        "levels/gears_5.json",
+        "levels/gears_intro.json",
+        "levels/moving_into_walls.json",
+        "levels/electric_tutorial.json",
+        "levels/electric_gears.json",
+        "levels/raining_thunder.json",
+        "levels/piano.json",
         "levels/chase.json"
       ]
     },
@@ -67,8 +68,7 @@
       "levels/statues_4.json",
       "levels/statues_5.json",
       "levels/og_puzzle.json",
-      "levels/statues_7.json",
-      "levels/statues_8.json",
+      "levels/juggle_under.json",
       "levels/robot.json"
     ]
   }
