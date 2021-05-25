@@ -1022,7 +1022,9 @@ public class LevelController extends WorldController {
 				new TextureRegion(directory.getEntry("tutorial:spirit_switch", Texture.class)),   //9
 				new TextureRegion(directory.getEntry("tutorial:spirit_separate", Texture.class)), //10
 				new TextureRegion(directory.getEntry("tutorial:spirit_unify", Texture.class)),    //11
-				new TextureRegion(directory.getEntry("tutorial:dash_catch", Texture.class))	   //12
+				new TextureRegion(directory.getEntry("tutorial:dash_catch", Texture.class)),	   //12
+				new TextureRegion(directory.getEntry("tutorial:propel_dash_vertical", Texture.class))	   //13
+
 		};
 
 		// Base models
@@ -1609,9 +1611,6 @@ public class LevelController extends WorldController {
 			return false;
 		}
 
-
-
-
 		if (exitClicked){
 			pause();
 			ScreenListener listener = getListener();
@@ -1625,7 +1624,7 @@ public class LevelController extends WorldController {
 			return false;
 		}
 
-		if (advanceClicked){
+		if (advanceClicked || InputController.getInstance().didPressEnter() && isComplete()){
 			//JENNA ADVANCE
 			pause();
 			ScreenListener listener = getListener();

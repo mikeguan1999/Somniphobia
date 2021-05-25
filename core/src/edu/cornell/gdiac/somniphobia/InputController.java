@@ -34,8 +34,8 @@ public class InputController {
 	private int handHoldingKey2 = Input.Keys.E;
 	private int switchKey = Input.Keys.X;
 	private int switchKey2 = Input.Keys.Q;
-	private int prevKey = Input.Keys.P;
-	private int nextKey = Input.Keys.N;
+//	private int prevKey = Input.Keys.P;
+//	private int nextKey = Input.Keys.N;
 	private int leftKey = Input.Keys.LEFT;
 	private int rightKey = Input.Keys.RIGHT;
 
@@ -55,6 +55,9 @@ public class InputController {
 	}
 	
 	// Fields to manage buttons
+	/** Whether the enter button was pressed */
+	private boolean enterPressed;
+	private boolean enterPrevious;
 	/** Whether the button to go to the next level was pressed. */
 	private boolean nextPressed;
 	private boolean nextPrevious;
@@ -176,6 +179,15 @@ public class InputController {
 	 */
 	public boolean didAdvance() {
 		return nextPressed && !nextPrevious;
+	}
+
+	/**
+	 * Returns true if the player wants to go to the next level.
+	 *
+	 * @return true if the player wants to go to the next level.
+	 */
+	public boolean didPressEnter() {
+		return enterPressed && !enterPrevious;
 	}
 
 	/**
@@ -319,6 +331,7 @@ public class InputController {
 		nextPrevious 			= nextPressed;
 		prevPrevious 			= prevPressed;
 		pauseClickedPrevious	= pauseClicked;
+		enterPrevious = enterPressed;
 
 		readKeyboard(bounds,scale);
 	}
@@ -339,6 +352,7 @@ public class InputController {
 		nextPressed 			= Gdx.input.isKeyPressed(Input.Keys.N);
 		walkPressed 			= Gdx.input.isKeyPressed(leftKey) || Gdx.input.isKeyPressed(rightKey);
 		pauseClicked			= Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET);
+		enterPressed 			= Gdx.input.isKeyPressed(Input.Keys.ENTER);
 
 		//Set inputs based on control scheme
 		if (controlScheme == 0) {
